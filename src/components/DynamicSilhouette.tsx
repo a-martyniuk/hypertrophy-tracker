@@ -19,13 +19,13 @@ export const DynamicSilhouette = ({ measurements }: Props) => {
           </filter>
         </defs>
 
-        {/* Clean Red Silhouette - Scaled to fit 200x550 logic */}
+        {/* Clean Red Silhouette - Scaled and Repositioned */}
         <image
           href={silhouetteImg}
-          x="-15"
-          y="10"
-          width="230"
-          height="530"
+          x="-35"
+          y="-15"
+          width="270"
+          height="590"
           className="silhouette-image"
           filter="url(#glow)"
           style={{ opacity: 0.95 }}
@@ -33,61 +33,61 @@ export const DynamicSilhouette = ({ measurements }: Props) => {
 
         {/* RE-CALIBRATED Emergency Coordinates (Visual 1:1 Fix) */}
         <g className="hud-overlays">
-          {/* Neck - Center higher */}
-          <rect id="band-neck" x="88" y="75" width="24" height="6" fill="#1a1a1a" />
-          <rect id="junction-neck" x="100" y="71" width="5" height="5" fill="#f59e0b" />
+          {/* Neck */}
+          <rect id="band-neck" x="85" y="65" width="30" height="6" fill="#1a1a1a" />
+          <rect id="junction-neck" x="100" y="61" width="5" height="5" fill="#f59e0b" />
 
-          {/* Shoulders (Espalda) - Wider, lower */}
-          <rect id="band-back" x="35" y="115" width="130" height="8" fill="#1a1a1a" />
-          <rect id="junction-back" x="35" y="116.5" width="5" height="5" fill="#f59e0b" />
+          {/* Shoulders (Espalda) */}
+          <rect id="band-back" x="25" y="105" width="150" height="8" fill="#1a1a1a" />
+          <rect id="junction-back" x="25" y="106.5" width="5" height="5" fill="#f59e0b" />
 
           {/* Pecho (Chest) */}
-          <rect id="band-pecho" x="50" y="155" width="100" height="8" fill="#1a1a1a" />
-          <rect id="junction-pecho" x="140" y="156.5" width="5" height="5" fill="#f59e0b" />
+          <rect id="band-pecho" x="45" y="145" width="110" height="8" fill="#1a1a1a" />
+          <rect id="junction-pecho" x="145" y="146.5" width="5" height="5" fill="#f59e0b" />
 
-          {/* Arms (Brazo/Bicep) - Fixed inward shift */}
-          <rect id="band-arm-right" x="162" y="195" width="18" height="7" fill="#1a1a1a" />
-          <rect id="junction-arm-right" x="175" y="196" width="5" height="5" fill="#f59e0b" />
-          <rect id="band-arm-left" x="20" y="195" width="18" height="7" fill="#1a1a1a" />
-          <rect id="junction-arm-left" x="20" y="196" width="5" height="5" fill="#f59e0b" />
+          {/* Arms (Brazo/Bicep) */}
+          <rect id="band-arm-right" x="165" y="185" width="22" height="7" fill="#1a1a1a" />
+          <rect id="junction-arm-right" x="180" y="186" width="5" height="5" fill="#f59e0b" />
+          <rect id="band-arm-left" x="13" y="185" width="22" height="7" fill="#1a1a1a" />
+          <rect id="junction-arm-left" x="13" y="186" width="5" height="5" fill="#f59e0b" />
 
-          {/* Waist (Cintura) - Narrow section */}
-          <rect id="band-waist" x="66" y="240" width="68" height="8" fill="#1a1a1a" />
-          <rect id="junction-waist" x="66" y="241.5" width="5" height="5" fill="#f59e0b" />
+          {/* Waist (Cintura) */}
+          <rect id="band-waist" x="62" y="235" width="76" height="8" fill="#1a1a1a" />
+          <rect id="junction-waist" x="62" y="236.5" width="5" height="5" fill="#f59e0b" />
 
           {/* Forearms (Antebrazo) */}
-          <rect id="band-forearm-right" x="162" y="265" width="16" height="6" fill="#1a1a1a" />
-          <rect id="junction-forearm-right" x="173" y="265.5" width="5" height="5" fill="#f59e0b" />
-          <rect id="band-forearm-left" x="22" y="265" width="16" height="6" fill="#1a1a1a" />
-          <rect id="junction-forearm-left" x="22" y="265.5" width="5" height="5" fill="#f59e0b" />
+          <rect id="band-forearm-right" x="168" y="260" width="18" height="6" fill="#1a1a1a" />
+          <rect id="junction-forearm-right" x="180" y="260.5" width="5" height="5" fill="#f59e0b" />
+          <rect id="band-forearm-left" x="14" y="260" width="18" height="6" fill="#1a1a1a" />
+          <rect id="junction-forearm-left" x="14" y="260.5" width="5" height="5" fill="#f59e0b" />
 
           {/* Hips (Caderas) */}
-          <rect id="band-hips" x="60" y="295" width="80" height="9" fill="#1a1a1a" />
-          <rect id="junction-hips" x="135" y="297" width="5" height="5" fill="#f59e0b" />
+          <rect id="band-hips" x="55" y="295" width="90" height="9" fill="#1a1a1a" />
+          <rect id="junction-hips" x="140" y="297" width="5" height="5" fill="#f59e0b" />
 
           {/* Wrists (Muñeca) */}
-          <rect id="band-wrist-right" x="165" y="325" width="12" height="5" fill="#1a1a1a" />
-          <rect id="junction-wrist-right" x="165" y="325" width="5" height="5" fill="#f59e0b" />
-          <rect id="band-wrist-left" x="23" y="325" width="12" height="5" fill="#1a1a1a" />
-          <rect id="junction-wrist-left" x="30" y="325" width="5" height="5" fill="#f59e0b" />
+          <rect id="band-wrist-right" x="170" y="325" width="14" height="5" fill="#1a1a1a" />
+          <rect id="junction-wrist-right" x="175" y="325" width="5" height="5" fill="#f59e0b" />
+          <rect id="band-wrist-left" x="16" y="325" width="14" height="5" fill="#1a1a1a" />
+          <rect id="junction-wrist-left" x="20" y="325" width="5" height="5" fill="#f59e0b" />
 
           {/* Thighs (Muslo) */}
-          <rect id="band-thigh-right" x="102" y="380" width="45" height="9" fill="#1a1a1a" />
-          <rect id="junction-thigh-right" x="142" y="382" width="5" height="5" fill="#f59e0b" />
-          <rect id="band-thigh-left" x="53" y="380" width="45" height="9" fill="#1a1a1a" />
-          <rect id="junction-thigh-left" x="53" y="382" width="5" height="5" fill="#f59e0b" />
+          <rect id="band-thigh-right" x="105" y="380" width="55" height="9" fill="#1a1a1a" />
+          <rect id="junction-thigh-right" x="150" y="382" width="5" height="5" fill="#f59e0b" />
+          <rect id="band-thigh-left" x="40" y="380" width="55" height="9" fill="#1a1a1a" />
+          <rect id="junction-thigh-left" x="40" y="382" width="5" height="5" fill="#f59e0b" />
 
           {/* Calf (Pantorrillas) */}
-          <rect id="band-calf-right" x="108" y="470" width="32" height="7" fill="#1a1a1a" />
-          <rect id="junction-calf-right" x="135" y="471" width="5" height="5" fill="#f59e0b" />
-          <rect id="band-calf-left" x="60" y="470" width="32" height="7" fill="#1a1a1a" />
-          <rect id="junction-calf-left" x="60" y="471" width="5" height="5" fill="#f59e0b" />
+          <rect id="band-calf-right" x="108" y="470" width="40" height="7" fill="#1a1a1a" />
+          <rect id="junction-calf-right" x="140" y="471" width="5" height="5" fill="#f59e0b" />
+          <rect id="band-calf-left" x="52" y="470" width="40" height="7" fill="#1a1a1a" />
+          <rect id="junction-calf-left" x="52" y="471" width="5" height="5" fill="#f59e0b" />
 
           {/* Ankle (Tobillos) */}
-          <rect id="band-ankle-right" x="106" y="525" width="22" height="5" fill="#1a1a1a" />
+          <rect id="band-ankle-right" x="106" y="525" width="25" height="5" fill="#1a1a1a" />
           <rect id="junction-ankle-right" x="123" y="525" width="5" height="5" fill="#f59e0b" />
-          <rect id="band-ankle-left" x="72" y="525" width="22" height="5" fill="#1a1a1a" />
-          <rect id="junction-ankle-left" x="72" y="525" width="5" height="5" fill="#f59e0b" />
+          <rect id="band-ankle-left" x="69" y="525" width="25" height="5" fill="#1a1a1a" />
+          <rect id="junction-ankle-left" x="69" y="525" width="5" height="5" fill="#f59e0b" />
         </g>
       </svg>
 
