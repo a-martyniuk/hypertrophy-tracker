@@ -8,7 +8,12 @@ interface Props {
 export const DynamicSilhouette = ({ measurements }: Props) => {
   return (
     <div className="silhouette-container">
-      <svg viewBox="0 0 200 600" className="body-svg animate-fade-in silhouette-svg" preserveAspectRatio="xMidYMid meet">
+      <svg
+        id="silhouette-svg-root"
+        viewBox="0 0 200 600"
+        className="body-svg animate-fade-in silhouette-svg"
+        preserveAspectRatio="xMidYMid meet"
+      >
         <defs>
           <filter id="glow">
             <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
@@ -30,46 +35,46 @@ export const DynamicSilhouette = ({ measurements }: Props) => {
           style={{ opacity: 0.95 }}
         />
 
-        {/* Invisible anchors for MeasurementForm connectors - Pass 5 Precise */}
-        <g className="hud-overlays" style={{ opacity: 0 }}>
-          {/* Neck */}
-          <rect id="junction-neck" x="80" y="73" width="5" height="5" />
+        {/* Invisible anchors for Precise Pass 6 Alignment */}
+        <g className="hud-anchors">
+          {/* Neck (Center) */}
+          <rect id="junction-neck" x="78" y="86" width="4" height="4" fill="transparent" />
 
-          {/* Shoulders (Espalda) */}
-          <rect id="junction-back" x="28" y="108" width="5" height="5" />
+          {/* Shoulders (Left) */}
+          <rect id="junction-back" x="27" y="122" width="4" height="4" fill="transparent" />
 
-          {/* Pecho */}
-          <rect id="junction-pecho" x="142" y="148" width="5" height="5" />
+          {/* Pecho (Right) */}
+          <rect id="junction-pecho" x="146" y="151" width="4" height="4" fill="transparent" />
 
           {/* Arms */}
-          <rect id="junction-arm-right" x="172" y="188" width="5" height="5" />
-          <rect id="junction-arm-left" x="22" y="188" width="5" height="5" />
-
-          {/* Waist */}
-          <rect id="junction-waist" x="60" y="247" width="5" height="5" />
+          <rect id="junction-arm-left" x="20" y="171" width="4" height="4" fill="transparent" />
+          <rect id="junction-arm-right" x="175" y="171" width="4" height="4" fill="transparent" />
 
           {/* Forearms */}
-          <rect id="junction-forearm-right" x="180" y="287" width="5" height="5" />
-          <rect id="junction-forearm-left" x="15" y="287" width="5" height="5" />
+          <rect id="junction-forearm-left" x="10" y="211" width="4" height="4" fill="transparent" />
+          <rect id="junction-forearm-right" x="184" y="211" width="4" height="4" fill="transparent" />
 
-          {/* Hips */}
-          <rect id="junction-hips" x="140" y="327" width="5" height="5" />
+          {/* Waist (Center) */}
+          <rect id="junction-waist" x="59" y="230" width="4" height="4" fill="transparent" />
+
+          {/* Hips (Right-ish) */}
+          <rect id="junction-hips" x="142" y="268" width="4" height="4" fill="transparent" />
 
           {/* Wrists */}
-          <rect id="junction-wrist-right" x="190" y="374" width="5" height="5" />
-          <rect id="junction-wrist-left" x="5" y="374" width="5" height="5" />
+          <rect id="junction-wrist-left" x="3" y="257" width="4" height="4" fill="transparent" />
+          <rect id="junction-wrist-right" x="193" y="257" width="4" height="4" fill="transparent" />
 
           {/* Thighs */}
-          <rect id="junction-thigh-right" x="158" y="441" width="5" height="5" />
-          <rect id="junction-thigh-left" x="42" y="441" width="5" height="5" />
+          <rect id="junction-thigh-left" x="46" y="333" width="4" height="4" fill="transparent" />
+          <rect id="junction-thigh-right" x="160" y="333" width="4" height="4" fill="transparent" />
 
           {/* Calf */}
-          <rect id="junction-calf-right" x="162" y="515" width="5" height="5" />
-          <rect id="junction-calf-left" x="52" y="515" width="5" height="5" />
+          <rect id="junction-calf-left" x="57" y="431" width="4" height="4" fill="transparent" />
+          <rect id="junction-calf-right" x="166" y="431" width="4" height="4" fill="transparent" />
 
           {/* Ankle */}
-          <rect id="junction-ankle-right" x="155" y="575" width="5" height="5" />
-          <rect id="junction-ankle-left" x="65" y="575" width="5" height="5" />
+          <rect id="junction-ankle-left" x="64" y="491" width="4" height="4" fill="transparent" />
+          <rect id="junction-ankle-right" x="165" y="491" width="4" height="4" fill="transparent" />
         </g>
       </svg>
 

@@ -114,10 +114,10 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord }: Props) => 
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
+    let rafId: number;
     const updateLines = () => {
       if (!containerRef.current) return;
       const containerRect = containerRef.current.getBoundingClientRect();
-
       const newLines: ConnectorLine[] = [];
 
       const connections = [
@@ -149,7 +149,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord }: Props) => 
           const pRect = partEl.getBoundingClientRect();
 
           // Anchor on input box (edge closest to silhouette)
-          const isLeft = iRect.left < containerRect.left + containerRect.width / 2;
+          const isLeft = iRect.left < (containerRect.left + containerRect.width / 2);
           const x1 = isLeft ? iRect.right - containerRect.left : iRect.left - containerRect.left;
           const y1 = iRect.top + iRect.height / 2 - containerRect.top;
 
@@ -157,7 +157,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord }: Props) => 
           const y2 = pRect.top + pRect.height / 2 - containerRect.top;
 
           newLines.push({
-            id: `${conn.input}-${conn.part}`,
+            id: `${conn.input}-${conn.part}-${conn.side || ''}`,
             x1, y1, x2, y2
           });
         }
@@ -166,10 +166,32 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord }: Props) => 
       setLines(newLines);
     };
 
-    updateLines();
-    window.addEventListener('resize', updateLines);
-    return () => window.removeEventListener('resize', updateLines);
-  }, [measurements]); // Update when measurements change (silhouette scales)
+    const debouncedUpdate = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(updateLines);
+    };
+
+    const observer = new ResizeObserver(debouncedUpdate);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+      // Also observe the SVG specifically if possible
+      const svg = document.getElementById('silhouette-svg-root');
+      if (svg) observer.observe(svg);
+    }
+
+    // Initial triggers
+    debouncedUpdate();
+    setTimeout(debouncedUpdate, 100);
+    setTimeout(debouncedUpdate, 500); // After animations settle
+
+    window.addEventListener('scroll', debouncedUpdate, true);
+
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', debouncedUpdate, true);
+    };
+  }, [measurements]);
 
 
   const updateField = (field: keyof BodyMeasurements, value: any) => {
