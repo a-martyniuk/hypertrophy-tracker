@@ -159,10 +159,38 @@ function App() {
                       </div>
                     </li>
                     <li>
+                      <span>Cuello:</span>
+                      <div className="summary-val-wrap">
+                        <strong>{latestRecord.measurements.neck} cm</strong>
+                        <TrendIndicator current={latestRecord.measurements.neck} previous={previousRecord?.measurements.neck} />
+                      </div>
+                    </li>
+                    <li>
+                      <span>Espalda:</span>
+                      <div className="summary-val-wrap">
+                        <strong>{latestRecord.measurements.back} cm</strong>
+                        <TrendIndicator current={latestRecord.measurements.back} previous={previousRecord?.measurements.back} />
+                      </div>
+                    </li>
+                    <li>
+                      <span>Pecho:</span>
+                      <div className="summary-val-wrap">
+                        <strong>{latestRecord.measurements.pecho} cm</strong>
+                        <TrendIndicator current={latestRecord.measurements.pecho} previous={previousRecord?.measurements.pecho} />
+                      </div>
+                    </li>
+                    <li>
                       <span>Cintura:</span>
                       <div className="summary-val-wrap">
                         <strong>{latestRecord.measurements.waist} cm</strong>
                         <TrendIndicator current={latestRecord.measurements.waist} previous={previousRecord?.measurements.waist} inverse={true} />
+                      </div>
+                    </li>
+                    <li>
+                      <span>Cadera:</span>
+                      <div className="summary-val-wrap">
+                        <strong>{latestRecord.measurements.hips} cm</strong>
+                        <TrendIndicator current={latestRecord.measurements.hips} previous={previousRecord?.measurements.hips} inverse={true} />
                       </div>
                     </li>
                     <li>
@@ -184,6 +212,27 @@ function App() {
                       <div className="summary-val-wrap">
                         <strong>{latestRecord.measurements.thigh.right} cm</strong>
                         <TrendIndicator current={latestRecord.measurements.thigh.right} previous={previousRecord?.measurements.thigh.right} />
+                      </div>
+                    </li>
+                    <li>
+                      <span>Muslo (I):</span>
+                      <div className="summary-val-wrap">
+                        <strong>{latestRecord.measurements.thigh.left} cm</strong>
+                        <TrendIndicator current={latestRecord.measurements.thigh.left} previous={previousRecord?.measurements.thigh.left} />
+                      </div>
+                    </li>
+                    <li>
+                      <span>Gemelo (D):</span>
+                      <div className="summary-val-wrap">
+                        <strong>{latestRecord.measurements.calf.right} cm</strong>
+                        <TrendIndicator current={latestRecord.measurements.calf.right} previous={previousRecord?.measurements.calf.right} />
+                      </div>
+                    </li>
+                    <li>
+                      <span>Gemelo (I):</span>
+                      <div className="summary-val-wrap">
+                        <strong>{latestRecord.measurements.calf.left} cm</strong>
+                        <TrendIndicator current={latestRecord.measurements.calf.left} previous={previousRecord?.measurements.calf.left} />
                       </div>
                     </li>
                   </ul>
