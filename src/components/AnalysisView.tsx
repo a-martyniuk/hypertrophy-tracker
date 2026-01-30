@@ -1,4 +1,3 @@
-import type { MeasurementRecord } from '../types/measurements';
 import {
     LineChart,
     Line,
@@ -7,14 +6,21 @@ import {
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
-    Legend
+    Legend,
+    ReferenceLine
 } from 'recharts';
+import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
 
 interface Props {
     records: MeasurementRecord[];
+    goals: GrowthGoal[];
 }
 
-export const AnalysisView = ({ records }: Props) => {
+export const AnalysisView = ({ records, goals }: Props) => {
+    const getGoalValue = (type: string) => {
+        const goal = goals.find(g => g.measurementType === type && g.status === 'active');
+        return goal ? goal.targetValue : null;
+    };
     const chartData = [...records].reverse().map(r => ({
         date: new Date(r.date).toLocaleDateString(),
         peso: r.measurements.weight || 0,
@@ -131,6 +137,8 @@ export const AnalysisView = ({ records }: Props) => {
                                 <YAxis stroke="#94a3b8" fontSize={12} />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend />
+                                {getGoalValue('peso') && <ReferenceLine y={getGoalValue('peso')!} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'right', value: 'Meta', fill: '#ef4444', fontSize: 10 }} />}
+                                {getGoalValue('cintura') && <ReferenceLine y={getGoalValue('cintura')!} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'right', value: 'Meta', fill: '#ef4444', fontSize: 10 }} />}
                                 <Line type="monotone" dataKey="peso" stroke="#f59e0b" name="Peso (kg)" strokeWidth={2} dot={{ r: 4 }} />
                                 <Line type="monotone" dataKey="cintura" stroke="#fbbf24" name="Cintura (cm)" strokeWidth={2} dot={{ r: 4 }} />
                             </LineChart>
@@ -148,6 +156,7 @@ export const AnalysisView = ({ records }: Props) => {
                                 <YAxis stroke="#94a3b8" fontSize={12} />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend />
+                                {getGoalValue('arm.right') && <ReferenceLine y={getGoalValue('arm.right')!} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'right', value: 'Meta', fill: '#ef4444', fontSize: 10 }} />}
                                 <Line type="monotone" dataKey="brazoDer" stroke="#f59e0b" name="Derecho" strokeWidth={2} />
                                 <Line type="monotone" dataKey="brazoIzq" stroke="#fbbf24" name="Izquierdo" strokeWidth={2} />
                             </LineChart>
@@ -165,6 +174,7 @@ export const AnalysisView = ({ records }: Props) => {
                                 <YAxis stroke="#94a3b8" fontSize={12} />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend />
+                                {getGoalValue('thigh.right') && <ReferenceLine y={getGoalValue('thigh.right')!} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'right', value: 'Meta', fill: '#ef4444', fontSize: 10 }} />}
                                 <Line type="monotone" dataKey="piernaDer" stroke="#f59e0b" name="Derecho" strokeWidth={2} />
                                 <Line type="monotone" dataKey="piernaIzq" stroke="#fbbf24" name="Izquierdo" strokeWidth={2} />
                             </LineChart>

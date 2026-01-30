@@ -3,17 +3,20 @@ import { useMeasurements } from './hooks/useMeasurements'
 import { MeasurementForm } from './components/MeasurementForm'
 import { HistoryView } from './components/HistoryView'
 import { AnalysisView } from './components/AnalysisView'
+import { GoalsView } from './components/GoalsView'
 import { DynamicSilhouette } from './components/DynamicSilhouette'
 import { useUser } from './hooks/useUser'
+import { useGoals } from './hooks/useGoals'
 import type { MeasurementRecord } from './types/measurements'
-import { LayoutGrid, Plus, History, Activity, LogOut, User } from 'lucide-react'
+import { LayoutGrid, Plus, History, Activity, LogOut, User, Target } from 'lucide-react'
 
-type View = 'dashboard' | 'history' | 'new-entry' | 'analysis'
+type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals'
 
 function App() {
   const [activeView, setActiveView] = useState<View>('dashboard')
   const { records, saveRecord, deleteRecord } = useMeasurements()
   const { user, updateUser } = useUser()
+  const { goals, addGoal, deleteGoal } = useGoals()
 
   const handleSave = (record: MeasurementRecord) => {
     saveRecord(record)
@@ -166,7 +169,16 @@ function App() {
         )}
 
         {activeView === 'analysis' && (
-          <AnalysisView records={records} />
+          <AnalysisView records={records} goals={goals} />
+        )}
+
+        {activeView === 'goals' && (
+          <GoalsView
+            goals={goals}
+            onAddGoal={addGoal}
+            onDeleteGoal={deleteGoal}
+            latestRecord={latestRecord}
+          />
         )}
       </main>
 
@@ -186,6 +198,10 @@ function App() {
         <button className={activeView === 'analysis' ? 'active' : ''} onClick={() => setActiveView('analysis')}>
           <Activity size={24} />
           <span>Análisis</span>
+        </button>
+        <button className={activeView === 'goals' ? 'active' : ''} onClick={() => setActiveView('goals')}>
+          <Target size={24} />
+          <span>Objetivos</span>
         </button>
       </nav>
 
