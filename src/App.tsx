@@ -8,7 +8,7 @@ import { DynamicSilhouette } from './components/DynamicSilhouette'
 import { useUser } from './hooks/useUser'
 import { useGoals } from './hooks/useGoals'
 import type { MeasurementRecord } from './types/measurements'
-import { LayoutGrid, Plus, History, Activity, LogOut, User, Target } from 'lucide-react'
+import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 
 type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals'
 
@@ -24,6 +24,20 @@ function App() {
   }
 
   const latestRecord = records[0]
+  const previousRecord = records[1]
+
+  const TrendIndicator = ({ current, previous, inverse = false }: { current: number, previous?: number, inverse?: boolean }) => {
+    if (previous === undefined || current === previous) return <Minus size={14} className="trend-icon stable" />
+
+    const isIncrease = current > previous
+    const isPositive = inverse ? !isIncrease : isIncrease
+
+    if (isIncrease) {
+      return <TrendingUp size={14} className={`trend-icon ${isPositive ? 'up' : 'warn'}`} />
+    } else {
+      return <TrendingDown size={14} className={`trend-icon ${isPositive ? 'down' : 'warn'}`} />
+    }
+  }
 
   return (
     <div className="app-container">
@@ -137,11 +151,41 @@ function App() {
                 <h3>Últimos Valores</h3>
                 {latestRecord ? (
                   <ul className="summary-list">
-                    <li><span>Peso:</span> <strong>{latestRecord.measurements.weight} kg</strong></li>
-                    <li><span>Cintura:</span> <strong>{latestRecord.measurements.waist} cm</strong></li>
-                    <li><span>Bíceps (D):</span> <strong>{latestRecord.measurements.arm.right} cm</strong></li>
-                    <li><span>Bíceps (I):</span> <strong>{latestRecord.measurements.arm.left} cm</strong></li>
-                    <li><span>Muslo (D):</span> <strong>{latestRecord.measurements.thigh.right} cm</strong></li>
+                    <li>
+                      <span>Peso:</span>
+                      <div className="summary-val-wrap">
+                        <strong>{latestRecord.measurements.weight} kg</strong>
+                        <TrendIndicator current={latestRecord.measurements.weight} previous={previousRecord?.measurements.weight} inverse={true} />
+                      </div>
+                    </li>
+                    <li>
+                      <span>Cintura:</span>
+                      <div className="summary-val-wrap">
+                        <strong>{latestRecord.measurements.waist} cm</strong>
+                        <TrendIndicator current={latestRecord.measurements.waist} previous={previousRecord?.measurements.waist} inverse={true} />
+                      </div>
+                    </li>
+                    <li>
+                      <span>Bíceps (D):</span>
+                      <div className="summary-val-wrap">
+                        <strong>{latestRecord.measurements.arm.right} cm</strong>
+                        <TrendIndicator current={latestRecord.measurements.arm.right} previous={previousRecord?.measurements.arm.right} />
+                      </div>
+                    </li>
+                    <li>
+                      <span>Bíceps (I):</span>
+                      <div className="summary-val-wrap">
+                        <strong>{latestRecord.measurements.arm.left} cm</strong>
+                        <TrendIndicator current={latestRecord.measurements.arm.left} previous={previousRecord?.measurements.arm.left} />
+                      </div>
+                    </li>
+                    <li>
+                      <span>Muslo (D):</span>
+                      <div className="summary-val-wrap">
+                        <strong>{latestRecord.measurements.thigh.right} cm</strong>
+                        <TrendIndicator current={latestRecord.measurements.thigh.right} previous={previousRecord?.measurements.thigh.right} />
+                      </div>
+                    </li>
                   </ul>
                 ) : (
                   <p>No hay datos recientes</p>
@@ -487,6 +531,23 @@ function App() {
         .summary-list span {
           color: var(--text-secondary);
         }
+
+        .summary-val-wrap {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .trend-icon {
+          opacity: 0.8;
+          padding: 2px;
+          border-radius: 4px;
+        }
+
+        .trend-icon.stable { color: #64748b; }
+        .trend-icon.up { color: #f59e0b; }
+        .trend-icon.down { color: #f59e0b; }
+        .trend-icon.warn { color: #ef4444; }
 
         .placeholder-silhouette {
           flex: 1;
