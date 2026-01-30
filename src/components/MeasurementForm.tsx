@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import type { BodyMeasurements, BilateralMeasurement, MeasurementRecord } from '../types/measurements';
-import { Save, X } from 'lucide-react';
+import type { BodyMeasurements, BilateralMeasurement, MeasurementRecord, RecordMetadata } from '../types/measurements';
+import { Save, X, Moon, Zap, Coffee } from 'lucide-react';
 import { DynamicSilhouette } from './DynamicSilhouette';
 
 interface Props {
@@ -113,6 +113,10 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
       ankle: { left: 0, right: 0 },
     });
   const [notes, setNotes] = useState('');
+  const [metadata, setMetadata] = useState<RecordMetadata>({
+    condition: 'fasted',
+    sleepHours: 8
+  });
 
   useEffect(() => {
     let rafId: number;
@@ -207,6 +211,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
       date,
       measurements,
       notes,
+      metadata,
     };
     onSave(record);
   };
@@ -368,9 +373,56 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
         </div>
       </div>
 
-      <div className="notes-section">
-        <label>System Notes</label>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Añade observaciones del registro..."></textarea>
+      <div className="form-secondary-inputs">
+        <section className="form-section context-section glass">
+          <h3>Estado Fisiológico</h3>
+          <div className="context-grid">
+            <div className="condition-selector">
+              <label>Condición Actual</label>
+              <div className="condition-buttons">
+                <button
+                  type="button"
+                  className={metadata.condition === 'fasted' ? 'active' : ''}
+                  onClick={() => setMetadata(prev => ({ ...prev, condition: 'fasted' }))}
+                >
+                  <Coffee size={14} /> Ayunas
+                </button>
+                <button
+                  type="button"
+                  className={metadata.condition === 'post_workout' ? 'active' : ''}
+                  onClick={() => setMetadata(prev => ({ ...prev, condition: 'post_workout' }))}
+                >
+                  <Zap size={14} /> Post-Entreno
+                </button>
+                <button
+                  type="button"
+                  className={metadata.condition === 'rest_day' ? 'active' : ''}
+                  onClick={() => setMetadata(prev => ({ ...prev, condition: 'rest_day' }))}
+                >
+                  <Moon size={14} /> Descanso
+                </button>
+              </div>
+            </div>
+
+            <div className="sleep-input">
+              <label>Horas de Sueño</label>
+              <div className="sleep-control">
+                <input
+                  type="number"
+                  step="0.5"
+                  value={metadata.sleepHours || ''}
+                  onChange={(e) => setMetadata(prev => ({ ...prev, sleepHours: parseFloat(e.target.value) || 0 }))}
+                />
+                <span>hrs</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="notes-section">
+          <label>System Notes</label>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Añade observaciones del registro..."></textarea>
+        </div>
       </div>
 
       <div className="form-actions glass">
@@ -550,6 +602,78 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
                     box-shadow: 0 0 15px rgba(245, 158, 11, 0.1);
                 }
 
+                .form-secondary-inputs {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 2rem;
+                  margin: 1rem 0;
+                  z-index: 2;
+                }
+                .context-section {
+                  padding: 1.5rem;
+                  border-radius: 16px;
+                }
+                .context-grid {
+                  display: grid;
+                  grid-template-columns: 1fr auto;
+                  gap: 2rem;
+                  align-items: flex-end;
+                }
+                .condition-selector label, .sleep-input label {
+                  display: block;
+                  font-size: 0.7rem;
+                  color: var(--text-secondary);
+                  margin-bottom: 0.75rem;
+                  text-transform: uppercase;
+                  letter-spacing: 1px;
+                }
+                .condition-buttons {
+                  display: flex;
+                  gap: 0.5rem;
+                }
+                .condition-buttons button {
+                  flex: 1;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 0.5rem;
+                  padding: 0.6rem 0.8rem;
+                  background: rgba(255, 255, 255, 0.05);
+                  border: 1px solid rgba(255, 255, 255, 0.1);
+                  border-radius: 8px;
+                  color: var(--text-secondary);
+                  font-size: 0.8rem;
+                  cursor: pointer;
+                  transition: all 0.2s ease;
+                }
+                .condition-buttons button.active {
+                  background: rgba(245, 158, 11, 0.1);
+                  border-color: #f59e0b;
+                  color: #f59e0b;
+                  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+                }
+                .sleep-control {
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                  background: rgba(255, 255, 255, 0.05);
+                  border: 1px solid rgba(255, 255, 255, 0.1);
+                  padding: 0.2rem 0.75rem;
+                  border-radius: 8px;
+                }
+                .sleep-control input {
+                  width: 50px;
+                  background: transparent;
+                  border: none;
+                  color: white;
+                  font-weight: bold;
+                  text-align: right;
+                }
+                .sleep-control span {
+                   color: var(--text-secondary);
+                   font-size: 0.8rem;
+                }
+
                 .form-actions {
                     display: flex;
                     justify-content: flex-end;
@@ -571,6 +695,6 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
                     }
                 }
             `}</style>
-    </form>
+    </form >
   );
 };

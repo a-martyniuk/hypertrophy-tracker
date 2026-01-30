@@ -26,6 +26,8 @@ export const AnalysisView = ({ records }: Props) => {
         brazoIzq: r.measurements.arm.left,
         piernaDer: r.measurements.thigh.right,
         piernaIzq: r.measurements.thigh.left,
+        condition: r.metadata?.condition || 'fasted',
+        sleepHours: r.metadata?.sleepHours || 8,
     }));
 
     const latest = records[0];
@@ -53,6 +55,35 @@ export const AnalysisView = ({ records }: Props) => {
 
     const whrValue = latest ? (latest.measurements.waist / latest.measurements.hips).toFixed(2) : '--';
     const armPotential = latest ? (latest.measurements.arm.right / latest.measurements.wrist.right).toFixed(2) : '--';
+
+    const CustomTooltip = ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+            const data = payload[0].payload;
+            const conditionMap: Record<string, string> = {
+                fasted: 'Ayunas 🧪',
+                post_workout: 'Post-Entreno (Pump) 🔥',
+                rest_day: 'Descanso 💤'
+            };
+
+            return (
+                <div className="custom-tooltip glass">
+                    <p className="label">{label}</p>
+                    <div className="data-points">
+                        {payload.map((entry: any, index: number) => (
+                            <p key={index} style={{ color: entry.color }}>
+                                {entry.name}: <strong>{entry.value}</strong>
+                            </p>
+                        ))}
+                    </div>
+                    <div className="meta-info">
+                        <p>Estado: <span>{conditionMap[data.condition] || data.condition}</span></p>
+                        <p>Sueño: <span>{data.sleepHours} hrs</span></p>
+                    </div>
+                </div>
+            );
+        }
+        return null;
+    };
 
     return (
         <div className="analysis-view animate-fade">
@@ -98,10 +129,7 @@ export const AnalysisView = ({ records }: Props) => {
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                                 <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
                                 <YAxis stroke="#94a3b8" fontSize={12} />
-                                <Tooltip
-                                    contentStyle={{ background: '#1a1a1d', border: '1px solid #334155' }}
-                                    itemStyle={{ color: '#f8fafc' }}
-                                />
+                                <Tooltip content={<CustomTooltip />} />
                                 <Legend />
                                 <Line type="monotone" dataKey="peso" stroke="#f59e0b" name="Peso (kg)" strokeWidth={2} dot={{ r: 4 }} />
                                 <Line type="monotone" dataKey="cintura" stroke="#fbbf24" name="Cintura (cm)" strokeWidth={2} dot={{ r: 4 }} />
@@ -118,9 +146,7 @@ export const AnalysisView = ({ records }: Props) => {
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                                 <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
                                 <YAxis stroke="#94a3b8" fontSize={12} />
-                                <Tooltip
-                                    contentStyle={{ background: '#1a1a1d', border: '1px solid #334155' }}
-                                />
+                                <Tooltip content={<CustomTooltip />} />
                                 <Legend />
                                 <Line type="monotone" dataKey="brazoDer" stroke="#f59e0b" name="Derecho" strokeWidth={2} />
                                 <Line type="monotone" dataKey="brazoIzq" stroke="#fbbf24" name="Izquierdo" strokeWidth={2} />
@@ -137,9 +163,7 @@ export const AnalysisView = ({ records }: Props) => {
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                                 <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
                                 <YAxis stroke="#94a3b8" fontSize={12} />
-                                <Tooltip
-                                    contentStyle={{ background: '#1a1a1d', border: '1px solid #334155' }}
-                                />
+                                <Tooltip content={<CustomTooltip />} />
                                 <Legend />
                                 <Line type="monotone" dataKey="piernaDer" stroke="#f59e0b" name="Derecho" strokeWidth={2} />
                                 <Line type="monotone" dataKey="piernaIzq" stroke="#fbbf24" name="Izquierdo" strokeWidth={2} />
@@ -156,7 +180,7 @@ export const AnalysisView = ({ records }: Props) => {
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                                 <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
                                 <YAxis stroke="#94a3b8" fontSize={12} />
-                                <Tooltip contentStyle={{ background: '#1a1a1d', border: '1px solid #334155' }} />
+                                <Tooltip content={<CustomTooltip />} />
                                 <Legend />
                                 <Line type="step" dataKey="tronco" stroke="#f59e0b" name="Media Tronco" strokeWidth={3} />
                             </LineChart>
@@ -172,7 +196,7 @@ export const AnalysisView = ({ records }: Props) => {
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                                 <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
                                 <YAxis domain={[0.5, 1.2]} stroke="#94a3b8" fontSize={12} />
-                                <Tooltip contentStyle={{ background: '#1a1a1d', border: '1px solid #334155' }} />
+                                <Tooltip content={<CustomTooltip />} />
                                 <Line type="monotone" dataKey="whr" stroke="#fbbf24" name="W/H Ratio" strokeWidth={2} />
                             </LineChart>
                         </ResponsiveContainer>
@@ -262,6 +286,33 @@ export const AnalysisView = ({ records }: Props) => {
         }
         .chart-container {
           width: 100%;
+        }
+
+        .custom-tooltip {
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .custom-tooltip .label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+        .custom-tooltip .data-points {
+            margin-bottom: 0.75rem;
+        }
+        .custom-tooltip .meta-info {
+            padding-top: 0.5rem;
+            border-top: 1px dashed rgba(255,255,255,0.1);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .custom-tooltip .meta-info span {
+            color: #f59e0b;
+            font-weight: 600;
         }
       `}</style>
         </div>
