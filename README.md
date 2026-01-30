@@ -1,6 +1,10 @@
 # Hypertrophy Tracker 🏋️‍♂️
 
+[![Live Demo](https://img.shields.io/badge/demo-live-amber.svg?style=for-the-badge&logo=vercel)](https://hypertrophyracker.alexismartyniuk.com.ar/)
+
 Plataforma interactiva de registro y análisis de medidas corporales enfocada en la hipertrofia y la simetría muscular.
+
+---
 
 ## 🚀 Características
 
