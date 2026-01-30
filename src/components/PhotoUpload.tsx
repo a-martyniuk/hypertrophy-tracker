@@ -4,93 +4,98 @@ import { useStorage } from '../hooks/useStorage';
 import type { BodyPhoto, PhotoAngle } from '../types/measurements';
 
 interface Props {
-    userId: string;
-    recordId: string;
-    existingPhotos?: BodyPhoto[];
-    onPhotosUpdated: (photos: BodyPhoto[]) => void;
+  userId: string;
+  recordId: string;
+  existingPhotos?: BodyPhoto[];
+  onPhotosUpdated: (photos: BodyPhoto[]) => void;
 }
 
 export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpdated }: Props) => {
-    const { uploadPhoto, deletePhoto } = useStorage();
-    const [uploading, setUploading] = useState<PhotoAngle | null>(null);
+  const { uploadPhoto, deletePhoto } = useStorage();
+  const [uploading, setUploading] = useState<PhotoAngle | null>(null);
 
-    const angles: PhotoAngle[] = ['front', 'side', 'back'];
+  const angles: PhotoAngle[] = ['front', 'side', 'back'];
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, angle: PhotoAngle) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, angle: PhotoAngle) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-        setUploading(angle);
-        const fileName = `${userId}/${recordId}/${angle}_${Date.now()}.jpg`;
-        const url = await uploadPhoto(file, fileName);
+    setUploading(angle);
+    const fileName = `${userId}/${recordId}/${angle}_${Date.now()}.jpg`;
+    const url = await uploadPhoto(file, fileName);
 
-        if (url) {
-            const newPhoto: BodyPhoto = {
-                id: crypto.randomUUID(),
-                url,
-                angle,
-                createdAt: new Date().toISOString()
-            };
+    if (url) {
+      const newPhoto: BodyPhoto = {
+        id: crypto.randomUUID(),
+        url,
+        angle,
+        createdAt: new Date().toISOString()
+      };
 
-            const updatedPhotos = [...existingPhotos.filter(p => p.angle !== angle), newPhoto];
-            onPhotosUpdated(updatedPhotos);
-        }
-        setUploading(null);
-    };
+      const updatedPhotos = [...existingPhotos.filter(p => p.angle !== angle), newPhoto];
+      onPhotosUpdated(updatedPhotos);
+    }
+    setUploading(null);
+  };
 
-    const removePhoto = async (photo: BodyPhoto) => {
-        // Extract path from URL (Supabase path is typically at the end)
-        const urlParts = photo.url.split('body_photos/');
-        const path = urlParts[1];
+  const removePhoto = async (photo: BodyPhoto) => {
+    // Extract path from URL (Supabase path is typically at the end)
+    const urlParts = photo.url.split('body_photos/');
+    const path = urlParts[1];
 
-        if (path) {
-            await deletePhoto(path);
-            const updatedPhotos = existingPhotos.filter(p => p.id !== photo.id);
-            onPhotosUpdated(updatedPhotos);
-        }
-    };
+    if (path) {
+      await deletePhoto(path);
+      const updatedPhotos = existingPhotos.filter(p => p.id !== photo.id);
+      onPhotosUpdated(updatedPhotos);
+    }
+  };
 
-    return (
-        <div className="photo-upload-section">
-            <div className="angles-grid">
-                {angles.map(angle => {
-                    const photo = existingPhotos.find(p => p.angle === angle);
+  return (
+    <div className="photo-upload-section">
+      <div className="angles-grid">
+        {angles.map(angle => {
+          const photo = existingPhotos.find(p => p.angle === angle);
+          const angleLabels: Record<string, string> = {
+            front: 'Frente',
+            side: 'Perfil',
+            back: 'Espalda'
+          };
 
-                    return (
-                        <div key={angle} className={`photo-slot glass ${photo ? 'has-photo' : ''}`}>
-                            <div className="slot-label capitalize">{angle}</div>
+          return (
+            <div key={angle} className={`photo-slot glass ${photo ? 'has-photo' : ''}`}>
+              <div className="slot-label capitalize">{angleLabels[angle]}</div>
 
-                            {photo ? (
-                                <div className="photo-preview">
-                                    <img src={photo.url} alt={angle} />
-                                    <button className="btn-remove" onClick={() => removePhoto(photo)}>
-                                        <X size={14} />
-                                    </button>
-                                </div>
-                            ) : (
-                                <label className="upload-trigger">
-                                    {uploading === angle ? (
-                                        <div className="spinner animate-spin"></div>
-                                    ) : (
-                                        <>
-                                            <Camera size={24} />
-                                            <span>Subir Foto</span>
-                                        </>
-                                    )}
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => handleFileChange(e, angle)}
-                                        disabled={!!uploading}
-                                    />
-                                </label>
-                            )}
-                        </div>
-                    );
-                })}
+              {photo ? (
+                <div className="photo-preview">
+                  <img src={photo.url} alt={angle} />
+                  <button className="btn-remove" onClick={() => removePhoto(photo)}>
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <label className="upload-trigger">
+                  {uploading === angle ? (
+                    <div className="spinner animate-spin"></div>
+                  ) : (
+                    <>
+                      <Camera size={24} />
+                      <span>Subir Foto</span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, angle)}
+                    disabled={!!uploading}
+                  />
+                </label>
+              )}
             </div>
+          );
+        })}
+      </div>
 
-            <style>{`
+      <style>{`
         .photo-upload-section {
           margin-top: 1rem;
         }
@@ -178,6 +183,6 @@ export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpd
           border-radius: 50%;
         }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 };

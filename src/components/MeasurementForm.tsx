@@ -426,7 +426,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
         </section>
 
         <div className="notes-section">
-          <label>System Notes</label>
+          <label>Observaciones</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Añade observaciones del registro..."></textarea>
         </div>
 
