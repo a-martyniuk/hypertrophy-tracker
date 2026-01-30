@@ -29,6 +29,23 @@ export interface BodyMeasurements {
     bodyFat?: number;
 }
 
+export type PhotoAngle = 'front' | 'side' | 'back';
+
+export interface BodyPhoto {
+    id: string;
+    url: string;
+    angle: PhotoAngle;
+    createdAt: string;
+}
+
+export type MeasurementCondition = 'fasted' | 'post_workout' | 'rest_day';
+
+export interface RecordMetadata {
+    condition: MeasurementCondition;
+    sleepHours?: number;
+    menstrualPhase?: string;
+}
+
 export interface MeasurementRecord {
     id: string;
     userId: string;
@@ -36,6 +53,27 @@ export interface MeasurementRecord {
     time?: string;
     notes?: string;
     measurements: BodyMeasurements;
+    metadata?: RecordMetadata;
+    photos?: BodyPhoto[];
+}
+
+export type GoalStatus = 'active' | 'achieved' | 'failed';
+
+export interface GrowthGoal {
+    id: string;
+    userId: string;
+    measurementType: keyof BodyMeasurements | string;
+    targetValue: number;
+    targetDate: string;
+    status: GoalStatus;
+    createdAt: string;
+}
+
+export interface SkeletalFrame {
+    wrist: number;
+    ankle: number;
+    knee: number;
+    elbow?: number;
 }
 
 export interface UserProfile {
@@ -43,4 +81,5 @@ export interface UserProfile {
     name: string;
     sex: 'male' | 'female';
     birthDate?: string;
+    baseline?: SkeletalFrame;
 }
