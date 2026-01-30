@@ -403,10 +403,12 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord }: Props) => 
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
+                    margin-bottom: 2rem;
                 }
                 .subtitle {
                     color: var(--text-secondary);
                     font-size: 0.85rem;
+                    opacity: 0.8;
                 }
                 .form-layout-editor {
                     display: grid;
@@ -429,6 +431,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord }: Props) => 
                     transition: var(--transition-smooth);
                     position: relative;
                     z-index: 10;
+                    backdrop-filter: blur(5px);
                 }
                 .hud-input-group:hover, .hud-input-group-double:hover {
                     background: rgba(245, 158, 11, 0.05);
@@ -474,38 +477,117 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord }: Props) => 
                 .trend-eq { color: var(--text-secondary); font-size: 0.75rem; }
 
                 .editor-center {
-                    padding: 3rem;
+                    padding: 2rem;
                     border-radius: 20px;
                     min-height: 550px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    background: radial-gradient(circle at center, rgba(245, 158, 11, 0.05) 0%, transparent 70%);
                 }
                 .form-section h3 {
                     font-size: 0.8rem;
                     color: #f59e0b;
                     text-transform: uppercase;
                     letter-spacing: 0.1em;
-                    border-bottom: 2px solid var(--border-color);
+                    border-bottom: 2px solid rgba(245, 158, 11, 0.2);
                     padding-bottom: 0.5rem;
-                    margin-bottom: 0.5rem;
+                    margin-bottom: 0.8rem;
                 }
-                .highlight-flash {
+
+                .date-input {
+                    background: rgba(255, 255, 255, 0.05) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    color: white !important;
+                    padding: 0.6rem 1rem;
+                    border-radius: 10px;
+                    font-family: inherit;
+                    cursor: pointer;
+                    transition: var(--transition-smooth);
+                    outline: none;
+                }
+                .date-input:focus {
                     border-color: #f59e0b !important;
-                    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
-                    animation: pulse-flash 1s infinite alternate;
+                    box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
                 }
-                @keyframes pulse-flash {
-                    from { transform: scale(1); }
-                    to { transform: scale(1.02); }
+                .date-input::-webkit-calendar-picker-indicator {
+                    filter: invert(1);
+                    cursor: pointer;
+                    opacity: 0.6;
                 }
-                
+
+                .notes-section {
+                    margin: 2rem 0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.8rem;
+                }
+                .notes-section label {
+                    font-size: 0.7rem;
+                    color: #f59e0b;
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                    font-weight: bold;
+                }
+                .notes-section textarea {
+                    background: rgba(13, 13, 15, 0.4);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    padding: 1rem;
+                    color: white;
+                    min-height: 100px;
+                    font-family: inherit;
+                    resize: vertical;
+                    transition: var(--transition-smooth);
+                    outline: none;
+                    backdrop-filter: blur(5px);
+                }
+                .notes-section textarea:focus {
+                    border-color: #f59e0b;
+                    background: rgba(245, 158, 11, 0.03);
+                    box-shadow: 0 0 15px rgba(245, 158, 11, 0.1);
+                }
+
                 .form-actions {
                     display: flex;
                     justify-content: flex-end;
                     gap: 1rem;
-                    padding: 1.5rem;
+                    padding: 2rem;
                     border-radius: 16px;
+                    margin-top: 1rem;
+                }
+                .btn-primary, .btn-secondary {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.6rem;
+                    padding: 0.8rem 1.8rem;
+                    border-radius: 12px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: var(--transition-smooth);
+                    border: 1px solid transparent;
+                    font-size: 0.9rem;
+                    letter-spacing: 0.5px;
+                    text-transform: uppercase;
+                }
+                .btn-primary {
+                    background: #f59e0b;
+                    color: #1a1a1d;
+                }
+                .btn-primary:hover {
+                    background: #fbbf24;
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+                }
+                .btn-secondary {
+                    background: rgba(255, 255, 255, 0.05);
+                    border-color: rgba(255, 255, 255, 0.1);
+                    color: white;
+                }
+                .btn-secondary:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: rgba(255, 255, 255, 0.2);
+                    transform: translateY(-2px);
                 }
                 
                 @media (max-width: 1000px) {
