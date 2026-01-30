@@ -17,6 +17,7 @@ type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals'
 
 function App() {
   const [activeView, setActiveView] = useState<View>('dashboard')
+  const [isGuest, setIsGuest] = useState(false)
   const { user: authUser, loading: authLoading, signOut } = useAuth()
   const { records, saveRecord, deleteRecord } = useMeasurements()
   const { user, updateUser } = useUser()
@@ -44,7 +45,7 @@ function App() {
   }
 
   if (authLoading) return <div className="loading-screen"><Activity className="animate-spin" /></div>;
-  if (!authUser) return <AuthView />;
+  if (!authUser && !isGuest) return <AuthView onGuest={() => setIsGuest(true)} />;
 
   return (
     <div className="app-container">

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Mail, Lock, LogIn, UserPlus, Loader2, Activity } from 'lucide-react';
 
-export const AuthView = () => {
+export const AuthView = ({ onGuest }: { onGuest: () => void }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState('');
@@ -70,6 +70,14 @@ export const AuthView = () => {
                     <button type="submit" className="btn-primary auth-submit" disabled={loading}>
                         {loading ? <Loader2 className="animate-spin" size={20} /> : (isLogin ? <LogIn size={20} /> : <UserPlus size={20} />)}
                         {isLogin ? 'Iniciar Sesión' : 'Registrarse'}
+                    </button>
+
+                    <div className="auth-divider">
+                        <span>O</span>
+                    </div>
+
+                    <button type="button" onClick={onGuest} className="btn-secondary guest-submit">
+                        <Activity size={18} /> Continuar como Invitado (Local)
                     </button>
                 </form>
 
@@ -181,6 +189,47 @@ export const AuthView = () => {
                     padding: 1rem;
                     font-size: 1rem;
                     margin-top: 1rem;
+                }
+
+                .auth-divider {
+                    display: flex;
+                    align-items: center;
+                    text-align: center;
+                    color: rgba(255, 255, 255, 0.2);
+                    font-size: 0.75rem;
+                    margin: 0.5rem 0;
+                }
+
+                .auth-divider::before,
+                .auth-divider::after {
+                    content: '';
+                    flex: 1;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
+                .auth-divider span {
+                    margin: 0 1rem;
+                }
+
+                .guest-submit {
+                    width: 100%;
+                    padding: 0.85rem;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    color: var(--text-secondary);
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.75rem;
+                    font-weight: 500;
+                    transition: var(--transition-smooth);
+                }
+
+                .guest-submit:hover {
+                    background: rgba(255, 255, 255, 0.1);
+                    color: white;
+                    border-color: rgba(255, 255, 255, 0.2);
                 }
 
                 .auth-footer {
