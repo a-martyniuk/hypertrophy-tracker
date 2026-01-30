@@ -190,27 +190,13 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord }: Props) => 
   return (
     <form ref={containerRef} className="measurement-form animate-fade" onSubmit={handleSubmit}>
       <svg className="connector-overlay" style={{ pointerEvents: 'none' }}>
-        <defs>
-          <marker
-            id="arrowhead"
-            markerWidth="10"
-            markerHeight="7"
-            refX="9"
-            refY="3.5"
-            orient="auto"
-          >
-            <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
-          </marker>
-        </defs>
         {lines.map(line => (
           <g key={line.id}>
-            <rect x={line.x1 - 2} y={line.y1 - 2} width="4" height="4" fill="#f59e0b" />
             <line
               x1={line.x1} y1={line.y1}
               x2={line.x2} y2={line.y2}
               stroke="#f59e0b"
               strokeWidth="2"
-              markerEnd="url(#arrowhead)"
             />
           </g>
         ))}
