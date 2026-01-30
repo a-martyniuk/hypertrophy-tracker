@@ -7,13 +7,17 @@ import { GoalsView } from './components/GoalsView'
 import { DynamicSilhouette } from './components/DynamicSilhouette'
 import { useUser } from './hooks/useUser'
 import { useGoals } from './hooks/useGoals'
+import { useAuth } from './hooks/useAuth'
 import type { MeasurementRecord } from './types/measurements'
 import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+
+import { AuthView } from './components/AuthView'
 
 type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals'
 
 function App() {
   const [activeView, setActiveView] = useState<View>('dashboard')
+  const { user: authUser, loading: authLoading, signOut } = useAuth()
   const { records, saveRecord, deleteRecord } = useMeasurements()
   const { user, updateUser } = useUser()
   const { goals, addGoal, deleteGoal } = useGoals()
@@ -38,6 +42,9 @@ function App() {
       return <TrendingDown size={14} className={`trend-icon ${isPositive ? 'down' : 'warn'}`} />
     }
   }
+
+  if (authLoading) return <div className="loading-screen"><Activity className="animate-spin" /></div>;
+  if (!authUser) return <AuthView />;
 
   return (
     <div className="app-container">
@@ -94,7 +101,7 @@ function App() {
               onClick={() => updateUser({ sex: 'female' })}
             >F</button>
           </div>
-          <button className="btn-logout">
+          <button className="btn-logout" onClick={() => signOut()}>
             <LogOut size={20} /> Salir
           </button>
         </div>
