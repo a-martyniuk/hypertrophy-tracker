@@ -44,7 +44,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
         <div className="card glass baseline-input">
           <h3>Mis Medidas Base (cm)</h3>
           <div className="form-group">
-            <label>Muñeca (Wrist)</label>
+            <label>Muñeca</label>
             <input
               type="number"
               step="0.1"
@@ -54,7 +54,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
             <p className="input-hint">Mide justo encima del hueso de la muñeca.</p>
           </div>
           <div className="form-group">
-            <label>Tobillo (Ankle)</label>
+            <label>Tobillo</label>
             <input
               type="number"
               step="0.1"
@@ -64,7 +64,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
             <p className="input-hint">Mide en la parte más estrecha sobre el hueso.</p>
           </div>
           <button className="btn-primary w-full mt-4" onClick={() => onSave(frame)}>
-            Actualizar Baseline
+            Actualizar Medidas Base
           </button>
         </div>
 
@@ -72,7 +72,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
           <div className="analysis-header">
             <h3>Límite Genético Estimado</h3>
             <div className="info-tag">
-              <Info size={14} /> 10% Body Fat
+              <Info size={14} /> 10% Grasa Corporal
             </div>
           </div>
 
@@ -85,6 +85,15 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
                       muscle === 'chest' ? 'pecho' :
                         muscle;
 
+              const displayNames: Record<string, string> = {
+                chest: 'Pecho',
+                biceps: 'Bíceps',
+                forearms: 'Antebrazos',
+                neck: 'Cuello',
+                thighs: 'Muslos',
+                calves: 'Gemelos'
+              };
+
               const current = currentMeasurements ? (currentMeasurements as any)[muscleKey] : null;
               const currentVal = (typeof current === 'object' && current !== null) ? (current.left + current.right) / 2 : current;
               const progress = currentVal ? (currentVal / parseFloat(value)) * 100 : 0;
@@ -92,8 +101,8 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
               return (
                 <div key={muscle} className="potential-item">
                   <div className="item-info">
-                    <span className="muscle-name capitalize">{muscle}:</span>
-                    <span className="potential-val">Max {value} cm</span>
+                    <span className="muscle-name capitalize">{displayNames[muscle] || muscle}:</span>
+                    <span className="potential-val">Máx {value} cm</span>
                   </div>
                   <div className="progress-bar-container">
                     <div className="progress-bar" style={{ width: `${Math.min(progress, 100)}%` }}></div>
