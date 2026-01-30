@@ -5,9 +5,10 @@ import femaleSilhouette from '../assets/silhouette_female.png';
 interface Props {
   measurements: BodyMeasurements;
   sex?: 'male' | 'female';
+  onMarkerClick?: (markerId: string) => void;
 }
 
-export const DynamicSilhouette = ({ measurements, sex = 'male' }: Props) => {
+export const DynamicSilhouette = ({ measurements, sex = 'male', onMarkerClick }: Props) => {
   const silhouetteImg = sex === 'female' ? femaleSilhouette : maleSilhouette;
 
   // Gender-aware anchor coordinates
@@ -78,24 +79,20 @@ export const DynamicSilhouette = ({ measurements, sex = 'male' }: Props) => {
           style={{ opacity: 0.95 }}
         />
 
-        <g className="hud-anchors">
-          <rect id="junction-neck" x={anchors.neck.x} y={anchors.neck.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-back" x={anchors.back.x} y={anchors.back.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-pecho" x={anchors.pecho.x} y={anchors.pecho.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-arm-left" x={anchors.armL.x} y={anchors.armL.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-arm-right" x={anchors.armR.x} y={anchors.armR.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-forearm-left" x={anchors.forearmL.x} y={anchors.forearmL.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-forearm-right" x={anchors.forearmR.x} y={anchors.forearmR.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-waist" x={anchors.waist.x} y={anchors.waist.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-hips" x={anchors.hips.x} y={anchors.hips.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-wrist-left" x={anchors.wristL.x} y={anchors.wristL.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-wrist-right" x={anchors.wristR.x} y={anchors.wristR.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-thigh-left" x={anchors.thighL.x} y={anchors.thighL.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-thigh-right" x={anchors.thighR.x} y={anchors.thighR.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-calf-left" x={anchors.calfL.x} y={anchors.calfL.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-calf-right" x={anchors.calfR.x} y={anchors.calfR.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-ankle-left" x={anchors.ankleL.x} y={anchors.ankleL.y} width="1" height="1" fill="transparent" />
-          <rect id="junction-ankle-right" x={anchors.ankleR.x} y={anchors.ankleR.y} width="1" height="1" fill="transparent" />
+        <g className="hud-interactive-markers">
+          {Object.entries(anchors).map(([id, pos]) => (
+            <circle
+              key={id}
+              cx={pos.x}
+              cy={pos.y}
+              r="4"
+              className="hotspot"
+              onClick={() => onMarkerClick?.(id)}
+              filter="url(#glow)"
+            >
+              <title>{id.toUpperCase()}</title>
+            </circle>
+          ))}
         </g>
       </svg>
 
@@ -126,7 +123,17 @@ export const DynamicSilhouette = ({ measurements, sex = 'male' }: Props) => {
           max-height: 550px;
         }
         .hotspot {
-          transition: var(--transition-smooth);
+          fill: #f59e0b;
+          fill-opacity: 0.3;
+          stroke: #f59e0b;
+          stroke-width: 0.5;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .hotspot:hover {
+          fill-opacity: 0.8;
+          r: 6;
+          filter: drop-shadow(0 0 5px #f59e0b);
         }
         .asymmetry-alerts {
           position: absolute;

@@ -5,23 +5,28 @@ import { HistoryView } from './components/HistoryView'
 import { AnalysisView } from './components/AnalysisView'
 import { GoalsView } from './components/GoalsView'
 import { DynamicSilhouette } from './components/DynamicSilhouette'
-import { useUser } from './hooks/useUser'
+import { SkeletalFrameView } from './components/SkeletalFrameView'
+import { PhotoComparisonView } from './components/PhotoComparisonView'
 import { useGoals } from './hooks/useGoals'
 import { useAuth } from './hooks/useAuth'
+import { useProfile } from './hooks/useProfile'
 import type { MeasurementRecord } from './types/measurements'
-import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus, Camera } from 'lucide-react'
 
 import { AuthView } from './components/AuthView'
 
-type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals'
+type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals' | 'potential' | 'comparison'
 
 function App() {
   const [activeView, setActiveView] = useState<View>('dashboard')
   const [isGuest, setIsGuest] = useState(false)
   const { user: authUser, loading: authLoading, signOut } = useAuth()
   const { records, saveRecord, deleteRecord } = useMeasurements()
-  const { user, updateUser } = useUser()
+  const { profile, updateProfile } = useProfile()
   const { goals, addGoal, deleteGoal } = useGoals()
+
+  const userSex = profile?.sex || 'male'
+  const userName = profile?.name || authUser?.email?.split('@')[0] || 'Atleta'
 
   const handleSave = (record: MeasurementRecord) => {
     saveRecord(record)
@@ -42,6 +47,34 @@ function App() {
     } else {
       return <TrendingDown size={14} className={`trend-icon ${isPositive ? 'down' : 'warn'}`} />
     }
+  }
+
+  const Sparkline = ({ data }: { data: number[] }) => {
+    if (data.length < 2) return null
+    const min = Math.min(...data)
+    const max = Math.max(...data)
+    const range = (max - min) || 1
+    const width = 34
+    const height = 14
+
+    const points = data.map((v, i) => {
+      const x = (i / (data.length - 1)) * width
+      const y = height - ((v - min) / range) * height
+      return `${x},${y}`
+    }).join(' ')
+
+    return (
+      <svg width={width} height={height} className="sparkline" style={{ marginRight: '8px', opacity: 0.6 }}>
+        <polyline
+          fill="none"
+          stroke="var(--primary-color)"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          points={points}
+        />
+      </svg>
+    )
   }
 
   if (authLoading) return <div className="loading-screen"><Activity className="animate-spin" /></div>;
@@ -80,26 +113,38 @@ function App() {
           >
             <Activity size={20} /> Análisis
           </button>
+          <button
+            className={activeView === 'potential' ? 'active' : ''}
+            onClick={() => setActiveView('potential')}
+          >
+            <Target size={20} /> Potencial
+          </button>
+          <button
+            className={activeView === 'comparison' ? 'active' : ''}
+            onClick={() => setActiveView('comparison')}
+          >
+            <Camera size={20} /> Comparativa
+          </button>
         </div>
 
         <div className="nav-footer">
           <div className="user-profile">
-            <div className={`user-avatar ${user.sex}`}>
+            <div className={`user-avatar ${userSex}`}>
               <User size={20} />
             </div>
             <div className="user-info">
-              <span className="name">Atleta Pro</span>
-              <span className="status">Online</span>
+              <span className="name">{userName}</span>
+              <span className="status">{authUser ? 'Online' : 'Invitado'}</span>
             </div>
           </div>
           <div className="gender-toggle">
             <button
-              className={user.sex === 'male' ? 'active' : ''}
-              onClick={() => updateUser({ sex: 'male' })}
+              className={userSex === 'male' ? 'active' : ''}
+              onClick={() => updateProfile({ sex: 'male' })}
             >M</button>
             <button
-              className={user.sex === 'female' ? 'active' : ''}
-              onClick={() => updateUser({ sex: 'female' })}
+              className={userSex === 'female' ? 'active' : ''}
+              onClick={() => updateProfile({ sex: 'female' })}
             >F</button>
           </div>
           <button className="btn-logout" onClick={() => signOut()}>
@@ -113,7 +158,7 @@ function App() {
           <div className="dashboard-grid animate-fade">
             <header className="dash-header">
               <div className="welcome-text">
-                <h1>Hola, Atleta 👋</h1>
+                <h1>Hola, {userName} 👋</h1>
                 <p>Tu evolución física en números reales.</p>
               </div>
               <button className="btn-primary" onClick={() => setActiveView('new-entry')}>
@@ -146,7 +191,8 @@ function App() {
                 {latestRecord ? (
                   <DynamicSilhouette
                     measurements={latestRecord.measurements}
-                    sex={user.sex}
+                    sex={userSex}
+                    onMarkerClick={() => setActiveView('analysis')}
                   />
                 ) : (
                   <div className="placeholder-silhouette">
@@ -159,90 +205,55 @@ function App() {
                 <h3>Últimos Valores</h3>
                 {latestRecord ? (
                   <ul className="summary-list">
-                    <li>
-                      <span>Peso:</span>
-                      <div className="summary-val-wrap">
-                        <strong>{latestRecord.measurements.weight} kg</strong>
-                        <TrendIndicator current={latestRecord.measurements.weight} previous={previousRecord?.measurements.weight} inverse={true} />
-                      </div>
-                    </li>
-                    <li>
-                      <span>Cuello:</span>
-                      <div className="summary-val-wrap">
-                        <strong>{latestRecord.measurements.neck} cm</strong>
-                        <TrendIndicator current={latestRecord.measurements.neck} previous={previousRecord?.measurements.neck} />
-                      </div>
-                    </li>
-                    <li>
-                      <span>Espalda:</span>
-                      <div className="summary-val-wrap">
-                        <strong>{latestRecord.measurements.back} cm</strong>
-                        <TrendIndicator current={latestRecord.measurements.back} previous={previousRecord?.measurements.back} />
-                      </div>
-                    </li>
-                    <li>
-                      <span>Pecho:</span>
-                      <div className="summary-val-wrap">
-                        <strong>{latestRecord.measurements.pecho} cm</strong>
-                        <TrendIndicator current={latestRecord.measurements.pecho} previous={previousRecord?.measurements.pecho} />
-                      </div>
-                    </li>
-                    <li>
-                      <span>Cintura:</span>
-                      <div className="summary-val-wrap">
-                        <strong>{latestRecord.measurements.waist} cm</strong>
-                        <TrendIndicator current={latestRecord.measurements.waist} previous={previousRecord?.measurements.waist} inverse={true} />
-                      </div>
-                    </li>
-                    <li>
-                      <span>Cadera:</span>
-                      <div className="summary-val-wrap">
-                        <strong>{latestRecord.measurements.hips} cm</strong>
-                        <TrendIndicator current={latestRecord.measurements.hips} previous={previousRecord?.measurements.hips} inverse={true} />
-                      </div>
-                    </li>
-                    <li>
-                      <span>Bíceps (D):</span>
-                      <div className="summary-val-wrap">
-                        <strong>{latestRecord.measurements.arm.right} cm</strong>
-                        <TrendIndicator current={latestRecord.measurements.arm.right} previous={previousRecord?.measurements.arm.right} />
-                      </div>
-                    </li>
-                    <li>
-                      <span>Bíceps (I):</span>
-                      <div className="summary-val-wrap">
-                        <strong>{latestRecord.measurements.arm.left} cm</strong>
-                        <TrendIndicator current={latestRecord.measurements.arm.left} previous={previousRecord?.measurements.arm.left} />
-                      </div>
-                    </li>
-                    <li>
-                      <span>Muslo (D):</span>
-                      <div className="summary-val-wrap">
-                        <strong>{latestRecord.measurements.thigh.right} cm</strong>
-                        <TrendIndicator current={latestRecord.measurements.thigh.right} previous={previousRecord?.measurements.thigh.right} />
-                      </div>
-                    </li>
-                    <li>
-                      <span>Muslo (I):</span>
-                      <div className="summary-val-wrap">
-                        <strong>{latestRecord.measurements.thigh.left} cm</strong>
-                        <TrendIndicator current={latestRecord.measurements.thigh.left} previous={previousRecord?.measurements.thigh.left} />
-                      </div>
-                    </li>
-                    <li>
-                      <span>Gemelo (D):</span>
-                      <div className="summary-val-wrap">
-                        <strong>{latestRecord.measurements.calf.right} cm</strong>
-                        <TrendIndicator current={latestRecord.measurements.calf.right} previous={previousRecord?.measurements.calf.right} />
-                      </div>
-                    </li>
-                    <li>
-                      <span>Gemelo (I):</span>
-                      <div className="summary-val-wrap">
-                        <strong>{latestRecord.measurements.calf.left} cm</strong>
-                        <TrendIndicator current={latestRecord.measurements.calf.left} previous={previousRecord?.measurements.calf.left} />
-                      </div>
-                    </li>
+                    <ul className="summary-list">
+                      {[
+                        { key: 'weight', label: 'Peso', unit: 'kg', inverse: true },
+                        { key: 'neck', label: 'Cuello', unit: 'cm' },
+                        { key: 'back', label: 'Espalda', unit: 'cm' },
+                        { key: 'pecho', label: 'Pecho', unit: 'cm' },
+                        { key: 'waist', label: 'Cintura', unit: 'cm', inverse: true },
+                        { key: 'hips', label: 'Cadera', unit: 'cm', inverse: true },
+                        { key: 'arm.right', label: 'Bíceps (D)', unit: 'cm' },
+                        { key: 'arm.left', label: 'Bíceps (I)', unit: 'cm' },
+                        { key: 'thigh.right', label: 'Muslo (D)', unit: 'cm' },
+                        { key: 'thigh.left', label: 'Muslo (I)', unit: 'cm' },
+                        { key: 'calf.right', label: 'Gemelo (D)', unit: 'cm' },
+                        { key: 'calf.left', label: 'Gemelo (I)', unit: 'cm' },
+                      ].map(({ key, label, unit, inverse }) => {
+                        // Helper to get nested value
+                        const getValue = (record: any) => {
+                          if (!record) return undefined
+                          if (key.includes('.')) {
+                            const [k1, k2] = key.split('.')
+                            return record.measurements[k1][k2]
+                          }
+                          return record.measurements[key]
+                        }
+
+                        const val = getValue(latestRecord)
+                        const prevVal = getValue(previousRecord)
+                        const history = records
+                          .map(r => getValue(r))
+                          .filter(v => typeof v === 'number')
+                          .reverse()
+                          .slice(-5)
+
+                        return (
+                          <li key={key}>
+                            <span>{label}:</span>
+                            <div className="summary-val-wrap">
+                              {history.length > 1 && <Sparkline data={history} />}
+                              <strong>{val} {unit}</strong>
+                              <TrendIndicator
+                                current={val}
+                                previous={prevVal}
+                                inverse={inverse}
+                              />
+                            </div>
+                          </li>
+                        )
+                      })}
+                    </ul>
                   </ul>
                 ) : (
                   <p>No hay datos recientes</p>
@@ -257,7 +268,7 @@ function App() {
             onSave={handleSave}
             onCancel={() => setActiveView('dashboard')}
             previousRecord={latestRecord}
-            sex={user.sex}
+            sex={userSex}
           />
         )}
 
@@ -281,6 +292,17 @@ function App() {
             latestRecord={latestRecord}
           />
         )}
+        {activeView === 'potential' && (
+          <SkeletalFrameView
+            baseline={profile?.baseline}
+            currentMeasurements={latestRecord?.measurements}
+            onSave={(baseline) => updateProfile({ baseline })}
+          />
+        )}
+
+        {activeView === 'comparison' && (
+          <PhotoComparisonView records={records} />
+        )}
       </main>
 
       <nav className="mobile-nav glass">
@@ -299,6 +321,14 @@ function App() {
         <button className={activeView === 'analysis' ? 'active' : ''} onClick={() => setActiveView('analysis')}>
           <Activity size={24} />
           <span>Análisis</span>
+        </button>
+        <button className={activeView === 'potential' ? 'active' : ''} onClick={() => setActiveView('potential')}>
+          <Target size={24} />
+          <span>Potencial</span>
+        </button>
+        <button className={activeView === 'comparison' ? 'active' : ''} onClick={() => setActiveView('comparison')}>
+          <Camera size={24} />
+          <span>Comparar</span>
         </button>
         <button className={activeView === 'goals' ? 'active' : ''} onClick={() => setActiveView('goals')}>
           <Target size={24} />

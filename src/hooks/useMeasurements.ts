@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import type { MeasurementRecord, BodyMeasurements } from '../types/measurements';
+import type { MeasurementRecord, BodyMeasurements, BodyPhoto } from '../types/measurements';
 
 const STORAGE_KEY = 'hypertrophy_measurements';
 
@@ -12,7 +12,6 @@ export const useMeasurements = () => {
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
-            // Fallback to local storage if not logged in
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 setRecords(JSON.parse(saved));
@@ -21,12 +20,12 @@ export const useMeasurements = () => {
             return;
         }
 
-        // Fetch from Supabase
         const { data, error } = await supabase
             .from('body_records')
             .select(`
                 *,
-                body_measurements (*)
+                body_measurements (*),
+                body_photos (*)
             `)
             .order('date', { ascending: false });
 
@@ -35,7 +34,6 @@ export const useMeasurements = () => {
         } else if (data) {
             const mappedRecords: MeasurementRecord[] = data.map((record: any) => {
                 const ms: any = {};
-                // Reconstruct the nested measurements object
                 record.body_measurements.forEach((m: any) => {
                     if (m.type.includes('.')) {
                         const [base, side] = m.type.split('.');
@@ -46,13 +44,21 @@ export const useMeasurements = () => {
                     }
                 });
 
+                const photos: BodyPhoto[] = record.body_photos.map((p: any) => ({
+                    id: p.id,
+                    url: p.url,
+                    angle: p.angle,
+                    createdAt: p.created_at
+                }));
+
                 return {
                     id: record.id,
                     userId: record.user_id,
                     date: record.date,
                     notes: record.notes,
                     metadata: record.metadata,
-                    measurements: ms as BodyMeasurements
+                    measurements: ms as BodyMeasurements,
+                    photos
                 };
             });
             setRecords(mappedRecords);
@@ -60,22 +66,34 @@ export const useMeasurements = () => {
         setLoading(false);
     };
 
-    useEffect(() => {
-        fetchRecords();
+    const deleteRecord = async (id: string) => {
+        const { data: { user } } = await supabase.auth.getUser();
 
-        // Listen for auth changes to re-fetch
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+        if (!user) {
+            const newRecords = records.filter(r => r.id !== id);
+            setRecords(newRecords);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
+            return;
+        }
+
+        const { error } = await supabase
+            .from('body_records')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting record:', error);
+        } else {
             fetchRecords();
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
+        }
+    };
 
     const saveRecord = async (record: MeasurementRecord) => {
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user) {
-            // Save locally
+        const targetUserId = user?.id || record.userId;
+
+        if (!targetUserId) {
             const newRecords = [record, ...records].sort((a, b) =>
                 new Date(b.date).getTime() - new Date(a.date).getTime()
             );
@@ -84,15 +102,16 @@ export const useMeasurements = () => {
             return;
         }
 
-        // Save to Supabase
+        // 1. Save or Update Record
         const { data: newRecord, error: recordError } = await supabase
             .from('body_records')
-            .insert({
+            .upsert({
+                id: record.id.length > 30 ? record.id : undefined, // only use ID if it's a real UUID (from local)
                 date: record.date,
                 weight: record.measurements.weight,
                 notes: record.notes,
                 metadata: record.metadata,
-                user_id: user.id
+                user_id: targetUserId
             })
             .select()
             .single();
@@ -102,11 +121,12 @@ export const useMeasurements = () => {
             return;
         }
 
-        // Flat the measurements for the relational table
+        // 2. Save Measurements (relational)
+        // Clean old ones if updating
+        await supabase.from('body_measurements').delete().eq('body_record_id', newRecord.id);
+
         const measurementItems = [];
         const m = record.measurements as any;
-
-        // Helper to collect all fields
         const keys = ['neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'arm.left', 'arm.right', 'thigh.left', 'thigh.right', 'calf.left', 'calf.right'];
 
         for (const key of keys) {
@@ -132,40 +152,72 @@ export const useMeasurements = () => {
             .from('body_measurements')
             .insert(measurementItems);
 
+        // 3. Save Photos metadata
+        if (record.photos && record.photos.length > 0) {
+            await supabase.from('body_photos').delete().eq('body_record_id', newRecord.id);
+            const photoItems = record.photos.map(p => ({
+                id: p.id,
+                body_record_id: newRecord.id,
+                url: p.url,
+                angle: p.angle
+            }));
+            await supabase.from('body_photos').insert(photoItems);
+        }
+
         if (mError) {
             console.error('Error saving measurements:', mError);
-        } else {
-            fetchRecords(); // Refresh
-        }
-    };
-
-    const deleteRecord = async (id: string) => {
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-            const newRecords = records.filter(r => r.id !== id);
-            setRecords(newRecords);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
-            return;
-        }
-
-        const { error } = await supabase
-            .from('body_records')
-            .delete()
-            .eq('id', id);
-
-        if (error) {
-            console.error('Error deleting record:', error);
         } else {
             fetchRecords();
         }
     };
+
+    const syncLocalDataToCloud = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+
+        const localRecords: MeasurementRecord[] = JSON.parse(saved);
+        if (localRecords.length === 0) return;
+
+        for (const record of localRecords) {
+            const { data: existing } = await supabase
+                .from('body_records')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('date', record.date)
+                .maybeSingle();
+
+            if (!existing) {
+                await saveRecord(record);
+            }
+        }
+
+        localStorage.removeItem(STORAGE_KEY);
+        fetchRecords();
+    };
+
+    useEffect(() => {
+        fetchRecords();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
+            if (event === 'SIGNED_IN') {
+                await syncLocalDataToCloud();
+            } else {
+                fetchRecords();
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     return {
         records,
         loading,
         saveRecord,
         deleteRecord,
+        syncLocalDataToCloud,
         refresh: fetchRecords
     };
 };

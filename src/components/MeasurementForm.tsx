@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import type { BodyMeasurements, BilateralMeasurement, MeasurementRecord, RecordMetadata } from '../types/measurements';
 import { Save, X, Moon, Zap, Coffee } from 'lucide-react';
 import { DynamicSilhouette } from './DynamicSilhouette';
+import { PhotoUpload } from './PhotoUpload';
+import { useAuth } from '../hooks/useAuth';
+import type { BodyPhoto } from '../types/measurements';
 
 interface Props {
   onSave: (record: MeasurementRecord) => void;
@@ -113,6 +116,8 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
       ankle: { left: 0, right: 0 },
     });
   const [notes, setNotes] = useState('');
+  const { user } = useAuth();
+  const [photos, setPhotos] = useState<BodyPhoto[]>(previousRecord?.photos || []);
   const [metadata, setMetadata] = useState<RecordMetadata>({
     condition: 'fasted',
     sleepHours: 8
@@ -206,12 +211,13 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const record: MeasurementRecord = {
-      id: crypto.randomUUID(),
-      userId: 'default-user',
+      id: previousRecord?.id || crypto.randomUUID(),
+      userId: user?.id || 'default-user',
       date,
       measurements,
       notes,
       metadata,
+      photos,
     };
     onSave(record);
   };
@@ -423,6 +429,16 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
           <label>System Notes</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Añade observaciones del registro..."></textarea>
         </div>
+
+        <section className="form-section photos-section glass">
+          <h3>Fotos de Progreso</h3>
+          <PhotoUpload
+            userId={user?.id || 'guest'}
+            recordId={previousRecord?.id || 'new-record'}
+            existingPhotos={photos}
+            onPhotosUpdated={setPhotos}
+          />
+        </section>
       </div>
 
       <div className="form-actions glass">

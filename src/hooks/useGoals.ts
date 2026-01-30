@@ -39,16 +39,6 @@ export const useGoals = () => {
         }
     };
 
-    useEffect(() => {
-        fetchGoals();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-            fetchGoals();
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
-
     const addGoal = async (goal: Omit<GrowthGoal, 'id' | 'createdAt'>) => {
         const { data: { user } } = await supabase.auth.getUser();
 
@@ -103,10 +93,56 @@ export const useGoals = () => {
         }
     };
 
+    const syncLocalGoalsToCloud = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+
+        const localGoals: GrowthGoal[] = JSON.parse(saved);
+        if (localGoals.length === 0) return;
+
+        console.log(`Syncing ${localGoals.length} goals to cloud...`);
+
+        for (const goal of localGoals) {
+            // Simple deduplication by type and value
+            const { data: existing } = await supabase
+                .from('growth_goals')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('measurement_type', goal.measurementType)
+                .eq('target_value', goal.targetValue)
+                .maybeSingle();
+
+            if (!existing) {
+                await addGoal(goal);
+            }
+        }
+
+        localStorage.removeItem(STORAGE_KEY);
+        fetchGoals();
+    };
+
+    useEffect(() => {
+        fetchGoals();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
+            if (event === 'SIGNED_IN') {
+                await syncLocalGoalsToCloud();
+            } else {
+                fetchGoals();
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
     return {
         goals,
         addGoal,
         deleteGoal,
+        syncLocalGoalsToCloud,
         refresh: fetchGoals
     };
 };
