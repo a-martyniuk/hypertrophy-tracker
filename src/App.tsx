@@ -4,6 +4,7 @@ import { MeasurementForm } from './components/MeasurementForm'
 import { HistoryView } from './components/HistoryView'
 import { AnalysisView } from './components/AnalysisView'
 import { DynamicSilhouette } from './components/DynamicSilhouette'
+import { useUser } from './hooks/useUser'
 import type { MeasurementRecord } from './types/measurements'
 import { LayoutGrid, Plus, History, Activity, LogOut, User } from 'lucide-react'
 
@@ -12,6 +13,7 @@ type View = 'dashboard' | 'history' | 'new-entry' | 'analysis'
 function App() {
   const [activeView, setActiveView] = useState<View>('dashboard')
   const { records, saveRecord, deleteRecord } = useMeasurements()
+  const { user, updateUser } = useUser()
 
   const handleSave = (record: MeasurementRecord) => {
     saveRecord(record)
@@ -57,13 +59,23 @@ function App() {
 
         <div className="nav-footer">
           <div className="user-profile">
-            <div className="user-avatar">
+            <div className={`user-avatar ${user.sex}`}>
               <User size={20} />
             </div>
             <div className="user-info">
               <span className="name">Atleta Pro</span>
               <span className="status">Online</span>
             </div>
+          </div>
+          <div className="gender-toggle">
+            <button
+              className={user.sex === 'male' ? 'active' : ''}
+              onClick={() => updateUser({ sex: 'male' })}
+            >M</button>
+            <button
+              className={user.sex === 'female' ? 'active' : ''}
+              onClick={() => updateUser({ sex: 'female' })}
+            >F</button>
           </div>
           <button className="btn-logout">
             <LogOut size={20} /> Salir
@@ -107,7 +119,10 @@ function App() {
               <div className="card silhouette-preview">
                 <h3>Tu Silueta Actual</h3>
                 {latestRecord ? (
-                  <DynamicSilhouette measurements={latestRecord.measurements} />
+                  <DynamicSilhouette
+                    measurements={latestRecord.measurements}
+                    sex={user.sex}
+                  />
                 ) : (
                   <div className="placeholder-silhouette">
                     <p>Registra medidas para ver tu silueta</p>
@@ -138,6 +153,7 @@ function App() {
             onSave={handleSave}
             onCancel={() => setActiveView('dashboard')}
             previousRecord={latestRecord}
+            sex={user.sex}
           />
         )}
 
@@ -300,6 +316,36 @@ function App() {
           justify-content: center;
           color: var(--primary-color);
           border: 1px solid var(--border-color);
+          transition: var(--transition-smooth);
+        }
+
+        .user-avatar.female {
+          color: #ec4899;
+          border-color: rgba(236, 72, 153, 0.4);
+        }
+
+        .gender-toggle {
+          display: flex;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
+          padding: 0 0.5rem;
+        }
+
+        .gender-toggle button {
+          flex: 1;
+          padding: 0.4rem;
+          font-size: 0.75rem;
+          font-weight: bold;
+          background: rgba(255, 255, 255, 0.05);
+          color: var(--text-secondary);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border_radius: 8px;
+        }
+
+        .gender-toggle button.active {
+          background: var(--primary-color);
+          color: #1a1a1d;
+          border-color: var(--primary-color);
         }
 
         .user-info {

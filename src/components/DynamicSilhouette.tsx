@@ -1,11 +1,54 @@
 import type { BodyMeasurements } from '../types/measurements';
-import silhouetteImg from '../assets/clean_red_silhouette.png';
+import maleSilhouette from '../assets/clean_red_silhouette.png';
+import femaleSilhouette from '../assets/silhouette_female.png';
 
 interface Props {
   measurements: BodyMeasurements;
+  sex?: 'male' | 'female';
 }
 
-export const DynamicSilhouette = ({ measurements }: Props) => {
+export const DynamicSilhouette = ({ measurements, sex = 'male' }: Props) => {
+  const silhouetteImg = sex === 'female' ? femaleSilhouette : maleSilhouette;
+
+  // Gender-aware anchor coordinates
+  const anchors = sex === 'female' ? {
+    neck: { x: 77.9, y: 85.8 },
+    back: { x: 27.3, y: 120.8 },
+    pecho: { x: 145.9, y: 149.5 },
+    armL: { x: 20.0, y: 167.0 },
+    armR: { x: 174.5, y: 167.0 },
+    waist: { x: 63.2, y: 197.1 },
+    forearmL: { x: 11.0, y: 207.1 },
+    forearmR: { x: 183.6, y: 207.3 },
+    hips: { x: 55.7, y: 225.8 },
+    wristR: { x: 192.3, y: 252.0 },
+    wristL: { x: 3.2, y: 252.0 },
+    thighR: { x: 160.1, y: 327.0 },
+    thighL: { x: 46.9, y: 327.1 },
+    calfL: { x: 56.0, y: 426.3 },
+    calfR: { x: 166.3, y: 426.4 },
+    ankleL: { x: 64.2, y: 485.4 },
+    ankleR: { x: 165.0, y: 485.4 },
+  } : {
+    neck: { x: 78, y: 86 },
+    back: { x: 27, y: 122 },
+    pecho: { x: 146, y: 151 },
+    armL: { x: 20, y: 171 },
+    armR: { x: 175, y: 171 },
+    forearmL: { x: 10, y: 211 },
+    forearmR: { x: 184, y: 211 },
+    waist: { x: 59, y: 230 },
+    hips: { x: 142, y: 268 },
+    wristL: { x: 3, y: 257 },
+    wristR: { x: 193, y: 257 },
+    thighL: { x: 46, y: 333 },
+    thighR: { x: 160, y: 333 },
+    calfL: { x: 57, y: 431 },
+    calfR: { x: 166, y: 431 },
+    ankleL: { x: 64, y: 491 },
+    ankleR: { x: 165, y: 491 },
+  };
+
   return (
     <div className="silhouette-container">
       <svg
@@ -35,46 +78,24 @@ export const DynamicSilhouette = ({ measurements }: Props) => {
           style={{ opacity: 0.95 }}
         />
 
-        {/* Invisible anchors for Precise Pass 6 Alignment */}
         <g className="hud-anchors">
-          {/* Neck (Center) */}
-          <rect id="junction-neck" x="78" y="86" width="4" height="4" fill="transparent" />
-
-          {/* Shoulders (Left) */}
-          <rect id="junction-back" x="27" y="122" width="4" height="4" fill="transparent" />
-
-          {/* Pecho (Right) */}
-          <rect id="junction-pecho" x="146" y="151" width="4" height="4" fill="transparent" />
-
-          {/* Arms */}
-          <rect id="junction-arm-left" x="20" y="171" width="4" height="4" fill="transparent" />
-          <rect id="junction-arm-right" x="175" y="171" width="4" height="4" fill="transparent" />
-
-          {/* Forearms */}
-          <rect id="junction-forearm-left" x="10" y="211" width="4" height="4" fill="transparent" />
-          <rect id="junction-forearm-right" x="184" y="211" width="4" height="4" fill="transparent" />
-
-          {/* Waist (Center) */}
-          <rect id="junction-waist" x="59" y="230" width="4" height="4" fill="transparent" />
-
-          {/* Hips (Right-ish) */}
-          <rect id="junction-hips" x="142" y="268" width="4" height="4" fill="transparent" />
-
-          {/* Wrists */}
-          <rect id="junction-wrist-left" x="3" y="257" width="4" height="4" fill="transparent" />
-          <rect id="junction-wrist-right" x="193" y="257" width="4" height="4" fill="transparent" />
-
-          {/* Thighs */}
-          <rect id="junction-thigh-left" x="46" y="333" width="4" height="4" fill="transparent" />
-          <rect id="junction-thigh-right" x="160" y="333" width="4" height="4" fill="transparent" />
-
-          {/* Calf */}
-          <rect id="junction-calf-left" x="57" y="431" width="4" height="4" fill="transparent" />
-          <rect id="junction-calf-right" x="166" y="431" width="4" height="4" fill="transparent" />
-
-          {/* Ankle */}
-          <rect id="junction-ankle-left" x="64" y="491" width="4" height="4" fill="transparent" />
-          <rect id="junction-ankle-right" x="165" y="491" width="4" height="4" fill="transparent" />
+          <rect id="junction-neck" x={anchors.neck.x} y={anchors.neck.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-back" x={anchors.back.x} y={anchors.back.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-pecho" x={anchors.pecho.x} y={anchors.pecho.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-arm-left" x={anchors.armL.x} y={anchors.armL.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-arm-right" x={anchors.armR.x} y={anchors.armR.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-forearm-left" x={anchors.forearmL.x} y={anchors.forearmL.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-forearm-right" x={anchors.forearmR.x} y={anchors.forearmR.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-waist" x={anchors.waist.x} y={anchors.waist.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-hips" x={anchors.hips.x} y={anchors.hips.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-wrist-left" x={anchors.wristL.x} y={anchors.wristL.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-wrist-right" x={anchors.wristR.x} y={anchors.wristR.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-thigh-left" x={anchors.thighL.x} y={anchors.thighL.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-thigh-right" x={anchors.thighR.x} y={anchors.thighR.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-calf-left" x={anchors.calfL.x} y={anchors.calfL.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-calf-right" x={anchors.calfR.x} y={anchors.calfR.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-ankle-left" x={anchors.ankleL.x} y={anchors.ankleL.y} width="1" height="1" fill="transparent" />
+          <rect id="junction-ankle-right" x={anchors.ankleR.x} y={anchors.ankleR.y} width="1" height="1" fill="transparent" />
         </g>
       </svg>
 

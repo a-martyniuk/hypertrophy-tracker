@@ -7,6 +7,7 @@ interface Props {
   onSave: (record: MeasurementRecord) => void;
   onCancel: () => void;
   previousRecord?: MeasurementRecord;
+  sex?: 'male' | 'female';
 }
 
 const TrendIndicator = ({ current, previous }: { current: number; previous?: number }) => {
@@ -90,7 +91,7 @@ interface ConnectorLine {
   y2: number;
 }
 
-export const MeasurementForm = ({ onSave, onCancel, previousRecord }: Props) => {
+export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male' }: Props) => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const containerRef = useRef<HTMLFormElement>(null);
   const [lines, setLines] = useState<ConnectorLine[]>([]);
@@ -191,7 +192,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord }: Props) => 
       cancelAnimationFrame(rafId);
       window.removeEventListener('scroll', debouncedUpdate, true);
     };
-  }, [measurements]);
+  }, [measurements, sex]);
 
 
   const updateField = (field: keyof BodyMeasurements, value: any) => {
@@ -306,6 +307,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord }: Props) => 
         <div className="editor-center glass">
           <DynamicSilhouette
             measurements={measurements}
+            sex={sex}
           />
         </div>
 
