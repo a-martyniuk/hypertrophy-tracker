@@ -78,8 +78,15 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
 
           <div className="potential-list">
             {Object.entries(potential).map(([muscle, value]) => {
-              const current = currentMeasurements ? (currentMeasurements as any)[muscle === 'biceps' ? 'arm' : muscle === 'thighs' ? 'thigh' : muscle === 'calves' ? 'calf' : muscle] : null;
-              const currentVal = typeof current === 'object' ? (current.left + current.right) / 2 : current;
+              const muscleKey =
+                muscle === 'biceps' ? 'arm' :
+                  muscle === 'thighs' ? 'thigh' :
+                    muscle === 'calves' ? 'calf' :
+                      muscle === 'chest' ? 'pecho' :
+                        muscle;
+
+              const current = currentMeasurements ? (currentMeasurements as any)[muscleKey] : null;
+              const currentVal = (typeof current === 'object' && current !== null) ? (current.left + current.right) / 2 : current;
               const progress = currentVal ? (currentVal / parseFloat(value)) * 100 : 0;
 
               return (
