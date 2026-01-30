@@ -43,8 +43,8 @@ export const AnalysisView = ({ records }: Props) => {
                                     itemStyle={{ color: '#f8fafc' }}
                                 />
                                 <Legend />
-                                <Line type="monotone" dataKey="peso" stroke="#6366f1" name="Peso (kg)" strokeWidth={2} dot={{ r: 4 }} />
-                                <Line type="monotone" dataKey="cintura" stroke="#10b981" name="Cintura (cm)" strokeWidth={2} dot={{ r: 4 }} />
+                                <Line type="monotone" dataKey="peso" stroke="#f59e0b" name="Peso (kg)" strokeWidth={2} dot={{ r: 4 }} />
+                                <Line type="monotone" dataKey="cintura" stroke="#fbbf24" name="Cintura (cm)" strokeWidth={2} dot={{ r: 4 }} />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
@@ -62,8 +62,8 @@ export const AnalysisView = ({ records }: Props) => {
                                     contentStyle={{ background: '#1a1a1d', border: '1px solid #334155' }}
                                 />
                                 <Legend />
-                                <Line type="monotone" dataKey="brazoDer" stroke="#6366f1" name="Derecho" strokeWidth={2} />
-                                <Line type="monotone" dataKey="brazoIzq" stroke="#f43f5e" name="Izquierdo" strokeWidth={2} />
+                                <Line type="monotone" dataKey="brazoDer" stroke="#f59e0b" name="Derecho" strokeWidth={2} />
+                                <Line type="monotone" dataKey="brazoIzq" stroke="#fbbf24" name="Izquierdo" strokeWidth={2} />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
@@ -81,8 +81,8 @@ export const AnalysisView = ({ records }: Props) => {
                                     contentStyle={{ background: '#1a1a1d', border: '1px solid #334155' }}
                                 />
                                 <Legend />
-                                <Line type="monotone" dataKey="piernaDer" stroke="#6366f1" name="Derecho" strokeWidth={2} />
-                                <Line type="monotone" dataKey="piernaIzq" stroke="#f43f5e" name="Izquierdo" strokeWidth={2} />
+                                <Line type="monotone" dataKey="piernaDer" stroke="#f59e0b" name="Derecho" strokeWidth={2} />
+                                <Line type="monotone" dataKey="piernaIzq" stroke="#fbbf24" name="Izquierdo" strokeWidth={2} />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>

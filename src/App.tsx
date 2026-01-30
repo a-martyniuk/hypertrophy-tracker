@@ -239,6 +239,7 @@ function App() {
 
         .logo b {
           color: var(--primary-color);
+          text-shadow: 0 0 20px var(--primary-glow);
         }
 
         .nav-items {
@@ -269,7 +270,8 @@ function App() {
 
         .nav-items button.active {
           background: var(--primary-color);
-          color: white;
+          color: #1a1a1d;
+          font-weight: 700;
           box-shadow: 0 4px 15px var(--primary-glow);
         }
 
@@ -370,8 +372,9 @@ function App() {
         }
 
         .gold-border {
-          border-color: rgba(234, 179, 8, 0.3);
-          background: linear-gradient(135deg, var(--surface-color), #252210);
+          border-color: rgba(245, 158, 11, 0.4);
+          background: linear-gradient(135deg, rgba(13, 13, 15, 0.5), rgba(245, 158, 11, 0.05));
+          box-shadow: inset 0 0 20px rgba(245, 158, 11, 0.05);
         }
 
         .stat-card label {

@@ -4,16 +4,17 @@
   --bg-color: #030305;
   --surface-color: rgba(26, 26, 35, 0.4);
   --surface-hover: rgba(40, 40, 55, 0.6);
-  --primary-color: #6366f1;
-  --primary-glow: rgba(99, 102, 241, 0.4);
-  --accent-color: #10b981;
-  --accent-glow: rgba(16, 185, 129, 0.3);
+  --primary-color: #f59e0b;
+  /* Amber HUD Primary */
+  --primary-glow: rgba(245, 158, 11, 0.4);
+  --accent-color: #fbbf24;
+  --accent-glow: rgba(251, 191, 36, 0.3);
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
-  --border-color: rgba(51, 65, 85, 0.4);
-  --border-active: rgba(99, 102, 241, 0.6);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-active: rgba(245, 158, 11, 0.6);
   --danger-color: #ef4444;
-  --success-color: #22c55e;
+  --success-color: #10b981;
 
   --font-main: 'Inter', system-ui, -apple-system, sans-serif;
   --font-head: 'Outfit', sans-serif;
@@ -99,6 +100,46 @@ button {
   background: var(--surface-hover);
   transform: translateY(-2px);
   box-shadow: 0 10px 30px -10px var(--primary-glow);
+}
+
+/* Global Button Styles - Harmonized with HUD */
+.btn-primary,
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.8rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #1a1a1d;
+}
+
+.btn-primary:hover {
+  background: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--primary-glow);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 /* Animations */

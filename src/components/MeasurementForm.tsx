@@ -556,39 +556,6 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord }: Props) => 
                     border-radius: 16px;
                     margin-top: 1rem;
                 }
-                .btn-primary, .btn-secondary {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.6rem;
-                    padding: 0.8rem 1.8rem;
-                    border-radius: 12px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: var(--transition-smooth);
-                    border: 1px solid transparent;
-                    font-size: 0.9rem;
-                    letter-spacing: 0.5px;
-                    text-transform: uppercase;
-                }
-                .btn-primary {
-                    background: #f59e0b;
-                    color: #1a1a1d;
-                }
-                .btn-primary:hover {
-                    background: #fbbf24;
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
-                }
-                .btn-secondary {
-                    background: rgba(255, 255, 255, 0.05);
-                    border-color: rgba(255, 255, 255, 0.1);
-                    color: white;
-                }
-                .btn-secondary:hover {
-                    background: rgba(255, 255, 255, 0.08);
-                    border-color: rgba(255, 255, 255, 0.2);
-                    transform: translateY(-2px);
-                }
                 
                 @media (max-width: 1000px) {
                     .form-layout-editor {

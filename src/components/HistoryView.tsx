@@ -2,58 +2,58 @@ import type { MeasurementRecord } from '../types/measurements';
 import { Calendar, ChevronRight, Trash2 } from 'lucide-react';
 
 interface Props {
-    records: MeasurementRecord[];
-    onDelete: (id: string) => void;
-    onSelect: (record: MeasurementRecord) => void;
+  records: MeasurementRecord[];
+  onDelete: (id: string) => void;
+  onSelect: (record: MeasurementRecord) => void;
 }
 
 export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
-    if (records.length === 0) {
-        return (
-            <div className="empty-history animate-fade">
-                <p>No hay registros aún. ¡Comienza cargando tus primeras medidas!</p>
-            </div>
-        );
-    }
-
+  if (records.length === 0) {
     return (
-        <div className="history-view animate-fade">
-            <header className="view-header">
-                <h2>Historial de Medidas</h2>
-                <span className="record-count">{records.length} registros</span>
-            </header>
+      <div className="empty-history animate-fade">
+        <p>No hay registros aún. ¡Comienza cargando tus primeras medidas!</p>
+      </div>
+    );
+  }
 
-            <div className="records-list">
-                {records.map((record) => (
-                    <div key={record.id} className="record-card glass" onClick={() => onSelect(record)}>
-                        <div className="record-info">
-                            <div className="record-date">
-                                <Calendar size={16} />
-                                <span>{new Date(record.date).toLocaleDateString()}</span>
-                            </div>
-                            <p className="record-summary">
-                                Peso: <span className="highlighted">{record.measurements.weight || '--'} kg</span> |
-                                Cintura: <span className="highlighted">{record.measurements.waist} cm</span>
-                            </p>
-                        </div>
+  return (
+    <div className="history-view animate-fade">
+      <header className="view-header">
+        <h2>Historial de Medidas</h2>
+        <span className="record-count">{records.length} registros</span>
+      </header>
 
-                        <div className="record-actions">
-                            <button
-                                className="btn-icon delete"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onDelete(record.id);
-                                }}
-                            >
-                                <Trash2 size={18} />
-                            </button>
-                            <ChevronRight size={20} className="arrow" />
-                        </div>
-                    </div>
-                ))}
+      <div className="records-list">
+        {records.map((record) => (
+          <div key={record.id} className="record-card glass" onClick={() => onSelect(record)}>
+            <div className="record-info">
+              <div className="record-date">
+                <Calendar size={16} />
+                <span>{new Date(record.date).toLocaleDateString()}</span>
+              </div>
+              <p className="record-summary">
+                Peso: <span className="highlighted">{record.measurements.weight || '--'} kg</span> |
+                Cintura: <span className="highlighted">{record.measurements.waist} cm</span>
+              </p>
             </div>
 
-            <style>{`
+            <div className="record-actions">
+              <button
+                className="btn-icon delete"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(record.id);
+                }}
+              >
+                <Trash2 size={18} />
+              </button>
+              <ChevronRight size={20} className="arrow" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <style>{`
         .history-view {
           display: flex;
           flex-direction: column;
@@ -94,7 +94,7 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
           transition: var(--transition-smooth);
         }
         .record-card:hover {
-          background: rgba(99, 102, 241, 0.1);
+          background: var(--primary-glow);
           border-color: var(--primary-color);
         }
         .record-info {
@@ -143,6 +143,6 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
           color: var(--primary-color);
         }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 };
