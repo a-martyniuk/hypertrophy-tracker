@@ -42,29 +42,39 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
 
       <div className="frame-grid">
         <div className="card glass baseline-input">
-          <h3>Mis Medidas Base (cm)</h3>
-          <div className="form-group">
-            <label>Muñeca</label>
-            <input
-              type="number"
-              step="0.1"
-              value={frame.wrist}
-              onChange={e => setFrame({ ...frame, wrist: parseFloat(e.target.value) })}
-            />
-            <p className="input-hint">Mide justo encima del hueso de la muñeca.</p>
+          <div className="card-header">
+            <h3>Mis Medidas Base (cm)</h3>
           </div>
-          <div className="form-group">
-            <label>Tobillo</label>
-            <input
-              type="number"
-              step="0.1"
-              value={frame.ankle}
-              onChange={e => setFrame({ ...frame, ankle: parseFloat(e.target.value) })}
-            />
-            <p className="input-hint">Mide en la parte más estrecha sobre el hueso.</p>
+          <div className="hud-column">
+            <div className="hud-input-group">
+              <div className="hud-label-row">
+                <label>Muñeca</label>
+              </div>
+              <input
+                type="number"
+                step="0.1"
+                value={frame.wrist}
+                onChange={e => setFrame({ ...frame, wrist: parseFloat(e.target.value) })}
+              />
+              <p className="input-hint">Mide sobre el hueso de la muñeca.</p>
+            </div>
+
+            <div className="hud-input-group">
+              <div className="hud-label-row">
+                <label>Tobillo</label>
+              </div>
+              <input
+                type="number"
+                step="0.1"
+                value={frame.ankle}
+                onChange={e => setFrame({ ...frame, ankle: parseFloat(e.target.value) })}
+              />
+              <p className="input-hint">Mide sobre el hueso del tobillo.</p>
+            </div>
           </div>
-          <button className="btn-primary w-full mt-4" onClick={() => onSave(frame)}>
-            Actualizar Medidas Base
+
+          <button className="btn-primary w-full mt-6" onClick={() => onSave(frame)}>
+            <Activity size={18} className="mr-2" /> ACTUALIZAR MEDIDAS
           </button>
         </div>
 
@@ -132,36 +142,86 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
       <style>{`
         .skeletal-frame-view {
           padding: 1.5rem;
-          max-width: 1000px;
+          max-width: 1100px;
           margin: 0 auto;
         }
         .frame-grid {
           display: grid;
-          grid-template-columns: 1fr 1.5fr;
-          gap: 1.5rem;
-          margin-top: 1.5rem;
+          grid-template-columns: 320px 1fr;
+          gap: 2rem;
+          margin-top: 2rem;
+          align-items: start;
+        }
+        .card {
+          border-radius: 16px;
+          padding: 1.5rem;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .card-header h3 {
+          font-size: 0.8rem;
+          color: var(--primary-color);
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          border-bottom: 2px solid rgba(245, 158, 11, 0.2);
+          padding-bottom: 0.5rem;
+          margin-bottom: 1.5rem;
+        }
+        .hud-column {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .hud-input-group {
+          background: rgba(13, 13, 15, 0.4);
+          border: 1px solid rgba(245, 158, 11, 0.1);
+          border-left: 4px solid #f59e0b;
+          padding: 0.75rem 1rem;
+          border-radius: 4px 12px 12px 4px;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(5px);
+        }
+        .hud-input-group:hover {
+          background: rgba(245, 158, 11, 0.05);
+          border-color: #f59e0b;
+          box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+        }
+        .hud-label-row label {
+          font-size: 0.65rem;
+          font-weight: bold;
+          color: var(--text-secondary);
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        .hud-input-group input {
+          background: transparent;
+          border: none;
+          border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+          color: white;
+          width: 100%;
+          font-size: 1.2rem;
+          font-weight: 700;
+          padding: 4px 0;
+          outline: none;
+        }
+        .hud-input-group input:focus {
+          border-bottom-color: var(--primary-color);
+        }
+        .input-hint {
+          font-size: 0.65rem;
+          color: var(--text-secondary);
+          opacity: 0.6;
+          margin-top: 4px;
         }
         .analysis-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 1.5rem;
-        }
-        .info-tag {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          background: rgba(245, 158, 11, 0.1);
-          color: var(--primary-color);
-          padding: 4px 8px;
-          border-radius: 6px;
-          font-size: 0.75rem;
-          border: 1px solid rgba(245, 158, 11, 0.2);
+          margin-bottom: 2rem;
         }
         .potential-list {
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 1.25rem;
         }
         .potential-item {
           display: flex;
@@ -171,42 +231,50 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
         .item-info {
           display: flex;
           justify-content: space-between;
-          font-size: 0.9rem;
+          align-items: baseline;
         }
         .muscle-name {
+          font-size: 0.85rem;
+          font-weight: 600;
           color: var(--text-secondary);
         }
         .potential-val {
+          font-family: 'Inter', sans-serif;
+          font-size: 1rem;
           color: var(--primary-color);
-          font-weight: bold;
+          font-weight: 800;
         }
         .progress-bar-container {
-          height: 8px;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 4px;
+          height: 10px;
+          background: rgba(255, 255, 255, 0.03);
+          border-radius: 5px;
+          border: 1px solid rgba(255, 255, 255, 0.05);
           position: relative;
           overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .progress-bar {
           height: 100%;
-          background: linear-gradient(90deg, var(--primary-color), #fbbf24);
-          box-shadow: 0 0 10px var(--primary-glow);
-          transition: width 1s ease-out;
+          background: linear-gradient(90deg, #f59e0b, #fbbf24);
+          box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+          transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .progress-pct {
           position: absolute;
-          right: 5px;
-          top: -12px;
-          font-size: 0.6rem;
-          color: var(--text-secondary);
+          right: 8px;
+          top: -14px;
+          font-size: 0.65rem;
+          font-weight: bold;
+          color: var(--primary-color);
+          opacity: 0.8;
         }
-        .input-hint {
-          font-size: 0.7rem;
-          color: var(--text-secondary);
-          margin-top: 4px;
+        .info-card {
+          margin-top: 2rem;
+          padding: 1.5rem;
+          border-radius: 16px;
+          border: 1px dashed rgba(245, 158, 11, 0.2);
+          background: rgba(245, 158, 11, 0.02);
         }
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
           .frame-grid {
             grid-template-columns: 1fr;
           }
