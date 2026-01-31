@@ -42,14 +42,14 @@ def image_to_svg_paths(image_path, sex='male'):
             # Left on screen = Right side of body
             'arm-right':     [0.05, 0.20, 0.25, 0.32], # Upper Arm
             'forearm-right': [0.02, 0.32, 0.22, 0.42], 
-            'thigh-right':   [0.20, 0.45, 0.48, 0.65],
-            'calf-right':    [0.20, 0.65, 0.48, 0.85],
+            'thigh-right':   [0.15, 0.45, 0.48, 0.65],
+            'calf-right':    [0.12, 0.65, 0.48, 0.85],
             
             # Right on screen = Left side of body
             'arm-left':      [0.75, 0.20, 0.95, 0.32],
             'forearm-left':  [0.78, 0.32, 0.98, 0.42],
-            'thigh-left':    [0.52, 0.45, 0.80, 0.65],
-            'calf-left':     [0.52, 0.65, 0.80, 0.85],
+            'thigh-left':    [0.52, 0.45, 0.85, 0.65],
+            'calf-left':     [0.52, 0.65, 0.88, 0.85],
         }
     else:
         # Female Zones (Adjusted roughly)
