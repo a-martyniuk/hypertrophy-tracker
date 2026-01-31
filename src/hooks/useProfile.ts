@@ -61,32 +61,58 @@ export const useProfile = () => {
     };
 
     const updateProfile = async (updates: Partial<UserProfile>) => {
+        // 1. Snapshot previous state for rollback
+        const previousProfile = profile;
+
+        // 2. Create optimistic new state
+        // We merge existing profile with updates. 
+        // If profile is null (unlikely if interacting), we try to construct a partial one.
+        const newProfile: UserProfile = profile
+            ? { ...profile, ...updates }
+            : {
+                id: 'temp',
+                name: 'User',
+                sex: 'male',
+                ...updates
+            } as UserProfile;
+
+        // 3. Apply optimistic update immediately
+        setProfile(newProfile);
+
         try {
             const { data: { user } } = await supabase.auth.getUser();
 
             if (!user) {
-                const newProfile = profile ? { ...profile, ...updates } : updates as UserProfile;
-                setProfile(newProfile);
+                // Guest mode: persist to local storage
                 localStorage.setItem('hypertrophy_profile', JSON.stringify(newProfile));
                 return;
             }
 
+            // 4. Perform DB update
+            // We use the optimistic values or fallback to current state for non-updated fields
             const { error } = await supabase
                 .from('profiles')
                 .upsert({
                     id: user.id,
-                    name: updates.name || profile?.name,
-                    sex: updates.sex || profile?.sex,
-                    birth_date: updates.birthDate || profile?.birthDate,
-                    baseline: updates.baseline || profile?.baseline,
+                    name: newProfile.name,
+                    sex: newProfile.sex,
+                    birth_date: newProfile.birthDate,
+                    baseline: newProfile.baseline,
                     updated_at: new Date().toISOString()
                 });
 
             if (error) throw error;
-            fetchProfile();
+
+            // 5. Optionally re-fetch to ensure sync (e.g. triggers, server-side defaults)
+            // We skip this for simple fields like sex to avoid flickering if DB is slightly behind,
+            // but strictly we should. Let's rely on the optimistic update for now for smoothness.
+            // fetchProfile(); 
         } catch (err) {
             console.error('[useProfile] Error updating profile:', err);
-            throw err; // Allow UI to handle specific error states
+            // 6. Rollback on error
+            setProfile(previousProfile);
+            // Optionally notify user here if we had a toast system
+            alert('Error updating profile. Please check your connection.');
         }
     };
 

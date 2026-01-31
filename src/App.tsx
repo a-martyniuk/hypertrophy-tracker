@@ -313,7 +313,7 @@ function App() {
         )}
 
         {activeView === 'analysis' && (
-          <AnalysisView records={records} goals={goals} />
+          <AnalysisView records={records} goals={goals} sex={userSex} />
         )}
 
         {activeView === 'goals' && (
@@ -329,6 +329,7 @@ function App() {
             baseline={profile?.baseline}
             currentMeasurements={latestRecord?.measurements}
             onSave={(baseline) => updateProfile({ baseline })}
+            sex={userSex}
           />
         )}
 

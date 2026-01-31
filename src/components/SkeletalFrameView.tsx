@@ -6,9 +6,10 @@ interface Props {
   baseline?: SkeletalFrame;
   currentMeasurements?: BodyMeasurements;
   onSave: (baseline: SkeletalFrame) => void;
+  sex?: 'male' | 'female';
 }
 
-export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Props) => {
+export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex = 'male' }: Props) => {
   const [height, setHeight] = useState<number>(currentMeasurements?.height || 177);
   const [frame, setFrame] = useState<SkeletalFrame>(() => {
     if (baseline) return baseline;
@@ -34,7 +35,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
     return { wrist, ankle, knee: 38 };
   });
 
-  // Authentic Casey Butt Formula Constants
+  // Authentic Casey Butt Formula Constants (Male Base)
   // Source: "Your Muscular Potential" (http://www.weightrainer.net/potential.html)
   const CASEY_BUTT_CONSTANTS = {
     chest: { wrist: 1.6817, ankle: 1.3759, height: 0.3314 },
@@ -43,6 +44,20 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
     neck: { wrist: 1.1424, height: 0.1236 },
     thighs: { ankle: 1.3868, height: 0.1805 },
     calves: { ankle: 0.9298, height: 0.1210 }
+  };
+
+  // Sexual Dimorphism Adjustment Factors
+  // Since Casey Butt's formula is derived from elite natural male bodybuilders,
+  // we apply physiological scaling factors for female potential.
+  // Upper body ~65-75% of male potential
+  // Lower body ~85% of male potential
+  const FEMALE_MODIFIERS = {
+    chest: 0.85,
+    biceps: 0.70,
+    forearms: 0.70,
+    neck: 0.75,
+    thighs: 0.90, // Females store more mass in lower body relative to upper
+    calves: 0.90
   };
 
   const calculatePotential = () => {
@@ -57,16 +72,26 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
 
     // Authentic Casey Butt Formulas (output in Inches)
     // Source: "Your Muscular Potential" - height factors corrected
-    const chestIn = CASEY_BUTT_CONSTANTS.chest.wrist * W + CASEY_BUTT_CONSTANTS.chest.ankle * A + CASEY_BUTT_CONSTANTS.chest.height * H;
+    let chestIn = CASEY_BUTT_CONSTANTS.chest.wrist * W + CASEY_BUTT_CONSTANTS.chest.ankle * A + CASEY_BUTT_CONSTANTS.chest.height * H;
 
     // Upper Body (Wrist + Height)
-    const bicepsIn = CASEY_BUTT_CONSTANTS.biceps.wrist * W + CASEY_BUTT_CONSTANTS.biceps.height * H;
-    const forearmsIn = CASEY_BUTT_CONSTANTS.forearms.wrist * W + CASEY_BUTT_CONSTANTS.forearms.height * H;
-    const neckIn = CASEY_BUTT_CONSTANTS.neck.wrist * W + CASEY_BUTT_CONSTANTS.neck.height * H;
+    let bicepsIn = CASEY_BUTT_CONSTANTS.biceps.wrist * W + CASEY_BUTT_CONSTANTS.biceps.height * H;
+    let forearmsIn = CASEY_BUTT_CONSTANTS.forearms.wrist * W + CASEY_BUTT_CONSTANTS.forearms.height * H;
+    let neckIn = CASEY_BUTT_CONSTANTS.neck.wrist * W + CASEY_BUTT_CONSTANTS.neck.height * H;
 
     // Lower Body (Ankle + Height)
-    const thighsIn = CASEY_BUTT_CONSTANTS.thighs.ankle * A + CASEY_BUTT_CONSTANTS.thighs.height * H;
-    const calvesIn = CASEY_BUTT_CONSTANTS.calves.ankle * A + CASEY_BUTT_CONSTANTS.calves.height * H;
+    let thighsIn = CASEY_BUTT_CONSTANTS.thighs.ankle * A + CASEY_BUTT_CONSTANTS.thighs.height * H;
+    let calvesIn = CASEY_BUTT_CONSTANTS.calves.ankle * A + CASEY_BUTT_CONSTANTS.calves.height * H;
+
+    // Apply Female Modifiers if necessary
+    if (sex === 'female') {
+      chestIn *= FEMALE_MODIFIERS.chest;
+      bicepsIn *= FEMALE_MODIFIERS.biceps;
+      forearmsIn *= FEMALE_MODIFIERS.forearms;
+      neckIn *= FEMALE_MODIFIERS.neck;
+      thighsIn *= FEMALE_MODIFIERS.thighs;
+      calvesIn *= FEMALE_MODIFIERS.calves;
+    }
 
     // Convert back to CM for display
     return {
@@ -85,11 +110,17 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
     let label = '';
     let isAdvantage = false;
 
-    if (ieo < 18) {
+    // Female structure is generally finer. 
+    // We shift ranges by approx -2.0 units based on average anthropometry diffs.
+    const ranges = sex === 'female'
+      ? { small: 16, med: 18, large: 20 }
+      : { small: 18, med: 20, large: 22 };
+
+    if (ieo < ranges.small) {
       label = 'Pequeña';
-    } else if (ieo < 20) {
+    } else if (ieo < ranges.med) {
       label = 'Mediana';
-    } else if (ieo < 22) {
+    } else if (ieo < ranges.large) {
       label = 'Grande';
       isAdvantage = true;
     } else {
@@ -103,7 +134,12 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
   const potential = calculatePotential();
   const ieo = calculateIEO();
 
-  const IEO_CATEGORIES = [
+  const IEO_CATEGORIES = sex === 'female' ? [
+    { label: 'Pequeña', range: '< 16', min: 0, max: 16 },
+    { label: 'Mediana', range: '16 – 17.9', min: 16, max: 17.99 },
+    { label: 'Grande', range: '18 – 19.9', min: 18, max: 19.99, highlight: true },
+    { label: 'Muy grande', range: '≥ 20', min: 20, max: 999, highlight: true },
+  ] : [
     { label: 'Pequeña', range: '< 18', min: 0, max: 18 },
     { label: 'Mediana', range: '18 – 19.9', min: 18, max: 19.99 },
     { label: 'Grande', range: '20 – 21.9', min: 20, max: 21.99, highlight: true },

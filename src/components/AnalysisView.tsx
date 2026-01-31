@@ -14,9 +14,10 @@ import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
 interface Props {
     records: MeasurementRecord[];
     goals: GrowthGoal[];
+    sex?: 'male' | 'female';
 }
 
-export const AnalysisView = ({ records, goals }: Props) => {
+export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
     const getGoalValue = (type: string) => {
         const goal = goals.find(g => g.measurementType === type && g.status === 'active');
         return goal ? goal.targetValue : null;
@@ -60,6 +61,10 @@ export const AnalysisView = ({ records, goals }: Props) => {
     }
 
     const whrValue = latest ? (latest.measurements.waist / latest.measurements.hips).toFixed(2) : '--';
+    const whrThreshold = sex === 'female' ? 0.85 : 0.90;
+
+    // Simple heuristic for arm potential (Male model) - Just a label change for females maybe?
+    // For now we keep the calculation but acknowledge it's a rough ratio
     const armPotential = latest ? (latest.measurements.arm.right / latest.measurements.wrist.right).toFixed(2) : '--';
 
     const CustomTooltip = ({ active, payload, label }: any) => {
@@ -97,7 +102,13 @@ export const AnalysisView = ({ records, goals }: Props) => {
                 <div className="stat-card-mini glass">
                     <label>Indice W/H (Cintura/Cadera)</label>
                     <div className="value">{whrValue}</div>
-                    <span className="subtitle">{Number(whrValue) < 0.9 ? 'Rango Saludable' : 'Riesgo Elevado'}</span>
+                    <span className="subtitle">
+                        {Number(whrValue) < whrThreshold
+                            ? 'Rango Saludable'
+                            : 'Riesgo Elevado'
+                        }
+                        <span style={{ fontSize: '0.6em', opacity: 0.7 }}> (Ref: {whrThreshold})</span>
+                    </span>
                 </div>
                 <div className="stat-card-mini glass">
                     <label>Ratio Brazo/Muñeca</label>
