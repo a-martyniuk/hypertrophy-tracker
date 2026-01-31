@@ -33,7 +33,10 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                             acc[b][s] = m.value;
                         } else acc[m.type] = m.value;
                         return acc;
-                    }, {}),
+                    }, {
+                        // Default safety structure to prevent crashes on 'undefined' access
+                        arm: {}, thigh: {}, calf: {}, forearm: {}, wrist: {}, ankle: {}
+                    }),
                     photos: (r.body_photos || []).map((p: any) => ({
                         id: p.id, url: p.url, angle: p.angle, createdAt: p.created_at
                     }))

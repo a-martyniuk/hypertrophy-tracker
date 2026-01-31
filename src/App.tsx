@@ -241,7 +241,7 @@ function App() {
                           if (!record) return undefined
                           if (key.includes('.')) {
                             const [k1, k2] = key.split('.')
-                            return record.measurements[k1][k2]
+                            return record.measurements[k1]?.[k2] // Unsafe access fixed
                           }
                           return record.measurements[key]
                         }
