@@ -37,6 +37,11 @@ function App() {
     return result
   }
 
+  const handleLogOut = async () => {
+    await signOut()
+    setIsGuest(false)
+  }
+
   const latestRecord = records[0]
   const previousRecord = records[1]
 
@@ -151,7 +156,7 @@ function App() {
               onClick={() => updateProfile({ sex: 'female' })}
             >F</button>
           </div>
-          <button className="btn-logout" onClick={() => signOut()}>
+          <button className="btn-logout" onClick={handleLogOut}>
             <LogOut size={20} /> Salir
           </button>
         </div>
@@ -490,7 +495,7 @@ function App() {
           background: rgba(255, 255, 255, 0.05);
           color: var(--text-secondary);
           border: 1px solid rgba(255, 255, 255, 0.1);
-          border_radius: 8px;
+          border-radius: 8px;
         }
 
         .gender-toggle button.active {
