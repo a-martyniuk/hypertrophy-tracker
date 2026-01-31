@@ -57,7 +57,10 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                         return acc;
                     }, {
                         // Default safety structure to prevent crashes on 'undefined' access
-                        arm: {}, thigh: {}, calf: {}, forearm: {}, wrist: {}, ankle: {}
+                        arm: {}, thigh: {}, calf: {}, forearm: {}, wrist: {}, ankle: {},
+                        // Fallback: Populate core metrics from parent if child rows missing
+                        weight: r.weight,
+                        bodyFat: r.body_fat_pct
                     }),
                     photos: (r.body_photos || []).map((p: any) => ({
                         id: p.id, url: p.url, angle: p.angle, createdAt: p.created_at
@@ -114,6 +117,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
                 if (parentData && parentData.length > 0) {
                     setRecords(mapData(parentData));
+                    return;
                 }
             }
 
@@ -275,10 +279,6 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
             // Only clear storage if we successfully synced EVERYTHING
             if (remaining.length === 0 && successCount > 0) {
-                // Verify cloud fetch BEFORE deleting? 
-                // It's safer to keep them until next load, but user wants clean slate?
-                // Let's Keep them as "synced cache" inside localStorage?
-                // No, standard is to clear. But to solve "Flash", maybe we wait?
                 localStorage.removeItem(STORAGE_KEY);
             } else if (remaining.length > 0) {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
@@ -300,17 +300,40 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
     return {
         records, loading, saveRecord,
         deleteRecord: async (id: string) => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
+            const { data: { session } } = await supabase.auth.getSession();
+            let token = session?.access_token || authSession?.access_token;
+
+            if (!token) {
                 const filtered = records.filter(r => r.id !== id);
                 setRecords(filtered);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
                 return;
             }
+
             try {
-                await supabase.from('body_records').delete().eq('id', id);
-                fetchRecords();
-            } catch (err) { console.error('[delete] Cloud op failed:', err); }
+                const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+                const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+                console.log('[deleteRecord] Native DELETE:', id);
+                const res = await fetch(`${baseUrl}/rest/v1/body_records?id=eq.${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': anonKey,
+                        'Authorization': `Bearer ${token}`,
+                        'Prefer': 'return=minimal'
+                    }
+                });
+
+                if (!res.ok) throw new Error(await res.text());
+
+                // Remove locally to update UI immediately
+                setRecords(prev => prev.filter(r => r.id !== id));
+
+                // Trigger background refresh 
+                // fetchRecords(); // Optional, let's skip to prevent flashes
+            } catch (err) {
+                console.error('[delete] Cloud op failed:', err);
+            }
         },
         refresh: fetchRecords
     };
