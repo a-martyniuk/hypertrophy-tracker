@@ -98,7 +98,7 @@ export const useMeasurements = (userId?: string | null) => {
             const saveOperation = (async () => {
                 console.log('[saveRecord] Starting save operation. userId provided:', userId);
 
-                // 1. Use provided userId directly to avoid the hanging getSession call
+                // 1. Use provided userId directly
                 console.time('Step 1: Auth (Local)');
                 const targetUserId = userId || record.userId;
                 console.timeEnd('Step 1: Auth (Local)');
@@ -131,6 +131,31 @@ export const useMeasurements = (userId?: string | null) => {
 
                 if (isNew) {
                     console.log('[saveRecord] Calling supabase.insert...');
+
+                    // Diagnostic Native Fetch
+                    try {
+                        const { data: { session } } = await supabase.auth.getSession();
+                        const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+                        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+                        console.log('[saveRecord] Diagnostic: Attempting native POST...');
+                        const testFetch = await Promise.race([
+                            fetch(`${baseUrl}/rest/v1/body_records`, {
+                                method: 'POST',
+                                headers: {
+                                    'apikey': anonKey,
+                                    'Authorization': `Bearer ${session?.access_token}`,
+                                    'Content-Type': 'application/json',
+                                    'Prefer': 'return=minimal'
+                                },
+                                body: JSON.stringify(dbPayload)
+                            }),
+                            new Promise((_, r) => setTimeout(() => r(new Error('fetch_timeout')), 5000))
+                        ]).catch(e => ({ status: 'failed', error: e.message }));
+                        console.log('[saveRecord] Diagnostic POST result:', testFetch);
+                    } catch (e) {
+                        console.log('[saveRecord] Diagnostic POST error:', e);
+                    }
+
                     const { data: insertResult, error: insertError } = await supabase
                         .from('body_records')
                         .insert(dbPayload)
@@ -144,6 +169,30 @@ export const useMeasurements = (userId?: string | null) => {
                     finalRecordId = insertResult.id;
                 } else {
                     console.log('[saveRecord] Calling supabase.update for ID:', record.id);
+
+                    // Diagnostic Native Fetch
+                    try {
+                        const { data: { session } } = await supabase.auth.getSession();
+                        const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+                        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+                        console.log('[saveRecord] Diagnostic: Attempting native PATCH...');
+                        const testFetch = await Promise.race([
+                            fetch(`${baseUrl}/rest/v1/body_records?id=eq.${record.id}`, {
+                                method: 'PATCH',
+                                headers: {
+                                    'apikey': anonKey,
+                                    'Authorization': `Bearer ${session?.access_token}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(dbPayload)
+                            }),
+                            new Promise((_, r) => setTimeout(() => r(new Error('fetch_timeout')), 5000))
+                        ]).catch(e => ({ status: 'failed', error: e.message }));
+                        console.log('[saveRecord] Diagnostic PATCH result:', testFetch);
+                    } catch (e) {
+                        console.log('[saveRecord] Diagnostic PATCH error:', e);
+                    }
+
                     const { error: updateError } = await supabase
                         .from('body_records')
                         .update(dbPayload)
@@ -241,7 +290,7 @@ export const useMeasurements = (userId?: string | null) => {
             console.error('[saveRecord] Fatal error:', error);
             let message = 'Error inesperado al guardar.';
             if (error.message === 'TIMEOUT') {
-                message = 'Se agotaron los 45s. Por favor, abre la consola (F12) y dinos en qué paso se quedó el proceso.';
+                message = 'Se agotaron los 45s. Si el paso 2b (Execution) se quedó esperando, intenta probar en una ventana de INCÓGNITO. Si ahí funciona, es un bloqueador de anuncios (AdBlock) o una extensión interfiriendo.';
             } else if (error.code) {
                 message = `Error de base de datos (${error.code}): ${error.message}`;
             } else if (error.message) {
