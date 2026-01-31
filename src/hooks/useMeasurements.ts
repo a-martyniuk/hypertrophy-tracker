@@ -327,35 +327,48 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 };
 
                 const nativeDelete = async (path: string) => {
-                    const res = await fetch(`${baseUrl}/rest/v1/${path}`, {
-                        method: 'DELETE',
-                        headers
-                    });
-                    if (!res.ok) {
-                        const txt = await res.text();
-                        // Ignore 404s on children, effectively means they are already gone
-                        if (res.status !== 404) throw new Error(txt);
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+                    try {
+                        console.log(`[deleteRecord] Requesting DELETE: ${path}`);
+                        const res = await fetch(`${baseUrl}/rest/v1/${path}`, {
+                            method: 'DELETE',
+                            headers,
+                            signal: controller.signal
+                        });
+                        if (!res.ok) {
+                            const txt = await res.text();
+                            // Ignore 404s on children, effectively means they are already gone
+                            if (res.status !== 404) throw new Error(txt);
+                        }
+                    } finally {
+                        clearTimeout(timeoutId);
                     }
                 };
 
                 console.log('[deleteRecord] Starting Cascade Delete for:', id);
 
                 // 1. Delete Children (Measurements)
+                console.log('[deleteRecord] Step 1: Deleting Measurements...');
                 await nativeDelete(`body_measurements?body_record_id=eq.${id}`);
 
                 // 2. Delete Children (Photos)
+                console.log('[deleteRecord] Step 2: Deleting Photos...');
                 await nativeDelete(`body_photos?body_record_id=eq.${id}`);
 
                 // 3. Delete Parent
+                console.log('[deleteRecord] Step 3: Deleting Parent Record...');
                 await nativeDelete(`body_records?id=eq.${id}`);
 
+                console.log('[deleteRecord] Success. Updating local state.');
                 // Remove locally to update UI immediately
                 setRecords(prev => prev.filter(r => r.id !== id));
                 return { success: true };
 
             } catch (err: any) {
-                console.error('[delete] Cloud op failed:', err);
-                return { success: false, error: err.message };
+                console.error('[deleteRecord] Cloud op failed:', err);
+                const isTimeout = err.name === 'AbortError' || err.message?.includes('aborted');
+                return { success: false, error: isTimeout ? 'La operación excedió el tiempo de espera.' : err.message };
             }
         },
         refresh: fetchRecords
