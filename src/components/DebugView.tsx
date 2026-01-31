@@ -37,7 +37,7 @@ export function DebugView() {
         // 3. Raw Query (SDK)
         try {
             log('Attempting SDK Query on body_records...');
-            const { data, error, count } = await supabase
+            const { data, error } = await supabase
                 .from('body_records')
                 .select('*', { count: 'exact' });
 
