@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import type { MeasurementRecord, BodyMeasurements, BodyPhoto } from '../types/measurements';
+import type { MeasurementRecord } from '../types/measurements';
 
 const STORAGE_KEY = 'hypertrophy_measurements';
 
