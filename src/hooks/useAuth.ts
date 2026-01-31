@@ -29,7 +29,19 @@ export const useAuth = () => {
     }, []);
 
     const signOut = async () => {
-        await supabase.auth.signOut();
+        try {
+            // Attempt graceful sign out
+            await Promise.race([
+                supabase.auth.signOut(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('SignOut Timeout')), 2000))
+            ]);
+        } catch (err) {
+            console.warn('[useAuth] Graceful sign out failed or timed out, forcing local reset:', err);
+        } finally {
+            // Always force local state cleanup regardless of library success
+            setSession(null);
+            setUser(null);
+        }
     };
 
     return {

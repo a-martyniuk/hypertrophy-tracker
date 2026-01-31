@@ -343,6 +343,10 @@ function App() {
           <Target size={24} />
           <span>Objetivos</span>
         </button>
+        <button className="btn-logout-mobile" onClick={handleLogOut}>
+          <LogOut size={24} />
+          <span>Salir</span>
+        </button>
       </nav>
 
       <style>{`
@@ -365,12 +369,12 @@ function App() {
           -webkit-backdrop-filter: blur(25px);
           border-top: 1px solid var(--border-color);
           z-index: 1000;
-          padding: 0 1.5rem;
+          padding: 0 0.5rem;
           justify-content: space-around;
           align-items: center;
         }
 
-        .mobile-nav button {
+        .mobile-nav button, .mobile-nav .btn-logout-mobile {
           background: transparent;
           border: none;
           color: var(--text-secondary);
@@ -378,8 +382,14 @@ function App() {
           flex-direction: column;
           align-items: center;
           gap: 4px;
-          font-size: 0.7rem;
+          font-size: 0.65rem;
           transition: var(--transition-smooth);
+          flex: 1;
+          min-width: 0;
+        }
+
+        .mobile-nav .btn-logout-mobile:active {
+          color: var(--danger-color);
         }
 
         .mobile-nav button.active {
