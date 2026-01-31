@@ -19,37 +19,56 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
         try {
             console.log('[useMeasurements] Fetching for user:', effectiveUserId);
             if (effectiveUserId) {
+                // UTILITY: Helper to map raw DB response to app Type
+                const mapData = (rawRecords: any[]) => rawRecords.map((r: any) => ({
+                    id: r.id,
+                    userId: r.user_id,
+                    date: r.date,
+                    notes: r.notes,
+                    metadata: r.metadata,
+                    measurements: (r.body_measurements || []).reduce((acc: any, m: any) => {
+                        if (m.type.includes('.')) {
+                            const [b, s] = m.type.split('.');
+                            if (!acc[b]) acc[b] = {};
+                            acc[b][s] = m.value;
+                        } else acc[m.type] = m.value;
+                        return acc;
+                    }, {}),
+                    photos: (r.body_photos || []).map((p: any) => ({
+                        id: p.id, url: p.url, angle: p.angle, createdAt: p.created_at
+                    }))
+                }));
+
+                // ATTEMPT 1: Full Data (Join)
                 const { data, error } = await supabase
                     .from('body_records')
                     .select('*, body_measurements (*), body_photos (*)')
                     .order('date', { ascending: false });
 
-                if (error) {
-                    console.error('[useMeasurements] Supabase Error:', error);
+                if (!error && data && data.length > 0) {
+                    console.log(`[useMeasurements] Full fetch success: ${data.length} records.`);
+                    setRecords(mapData(data));
+                    return;
                 }
 
-                if (data) {
-                    console.log('[useMeasurements] Found records:', data.length);
-                    const mapped: MeasurementRecord[] = data.map((r: any) => ({
-                        id: r.id,
-                        userId: r.user_id,
-                        date: r.date,
-                        notes: r.notes,
-                        metadata: r.metadata,
-                        measurements: r.body_measurements.reduce((acc: any, m: any) => {
-                            if (m.type.includes('.')) {
-                                const [b, s] = m.type.split('.');
-                                if (!acc[b]) acc[b] = {};
-                                acc[b][s] = m.value;
-                            } else acc[m.type] = m.value;
-                            return acc;
-                        }, {}),
-                        photos: r.body_photos.map((p: any) => ({
-                            id: p.id, url: p.url, angle: p.angle, createdAt: p.created_at
-                        }))
-                    }));
-                    setRecords(mapped);
+                if (error) console.warn('[useMeasurements] Full fetch error:', error);
+
+                // ATTEMPT 2: Parent Only (Fallback for RLS/Join issues)
+                console.log('[useMeasurements] Attempting parent-only fetch...');
+                const { data: parentData, error: parentError } = await supabase
+                    .from('body_records')
+                    .select('*')
+                    .order('date', { ascending: false });
+
+                if (parentError) {
+                    console.error('[useMeasurements] CRITICAL: Parent table inaccessible:', parentError);
+                } else if (parentData && parentData.length > 0) {
+                    console.log(`[useMeasurements] Parent-only success: ${parentData.length} records found (details missing).`);
+                    // We found parents! The issue is definitely the child join policies.
+                    setRecords(mapData(parentData)); // Will produce entries with empty measurements/photos
                     return;
+                } else {
+                    console.log('[useMeasurements] Parent table query returned 0 records.');
                 }
             }
             const saved = localStorage.getItem(STORAGE_KEY);
