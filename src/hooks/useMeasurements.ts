@@ -14,11 +14,10 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
     const fetchRecords = async (forceAuthId?: string) => {
         const effectiveUserId = forceAuthId || userId;
-        console.log('[useMeasurements] Fetching records for:', effectiveUserId || 'Guest');
+        if (effectiveUserId === 'default-user') return; // Ignore placeholder
 
         try {
-            // Priority 1: Auth Cloud Fetch
-            if (effectiveUserId && effectiveUserId !== 'default-user') {
+            if (effectiveUserId) {
                 const { data, error } = await supabase
                     .from('body_records')
                     .select(`
@@ -28,14 +27,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     `)
                     .order('date', { ascending: false });
 
-                if (error) {
-                    console.warn('[useMeasurements] Cloud fetch failed, falling back to local:', error);
-                    // Fallback to local if fetch errors but we have a userId? 
-                    // No, typically if cloud errors, we should show error but keep state.
-                    throw error;
-                }
-
-                if (data) {
+                if (!error && data) {
                     const mappedRecords: MeasurementRecord[] = data.map((record: any) => {
                         const ms: any = {};
                         (record.body_measurements || []).forEach((m: any) => {
@@ -65,40 +57,31 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                             photos
                         };
                     });
-
-                    console.log('[useMeasurements] Cloud fetched:', mappedRecords.length, 'records');
                     setRecords(mappedRecords);
                     return;
                 }
             }
 
-            // Priority 2: Guest Local Fetch
+            // Local fallback
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
-                const parsed = JSON.parse(saved);
-                console.log('[useMeasurements] Local fetched:', parsed.length, 'records');
-                setRecords(parsed);
+                setRecords(JSON.parse(saved));
             } else {
                 setRecords([]);
             }
         } catch (err) {
-            console.error('[useMeasurements] Error in fetchRecords:', err);
+            console.error('[useMeasurements] Fetch failed:', err);
         } finally {
             setLoading(false);
         }
     };
 
     const saveRecord = async (record: MeasurementRecord) => {
-        console.log('[useMeasurements] Beginning save process for:', record.id);
-
+        // Translation helper for RLS and network issues
         const translateError = (error: any): string => {
-            const message = error?.message || error?.msg || '';
-            const code = error?.code || '';
-            console.error('[useMeasurements] Technical Error:', { message, code, raw: error });
-
-            if (message.includes('TIMEOUT') || message.includes('signal is aborted')) return 'Conexión lenta. Reintentalo.';
-            if (code === '42501' || message.includes('403')) return 'Error de permisos (RLS). Por favor reinicia sesión.';
-            if (code === 'PGRST116') return 'Error de formato de datos.';
+            const message = error?.message || error?.msg || (typeof error === 'string' ? error : '');
+            if (message.includes('403') || error?.status === 403) return 'Error de permisos (RLS). Por favor ejecuta el script de SQL de denormalización.';
+            if (message.includes('TIMEOUT')) return 'Conexión lenta. Intentando de nuevo...';
             return 'No se pudo guardar. Revisa tu conexión.';
         };
 
@@ -107,37 +90,30 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 const baseUrl = import.meta.env.VITE_SUPABASE_URL;
                 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-                // 1. Resolve Identity
+                // 1. Resolve Identity with Freshness
                 let token = authSession?.access_token;
                 let targetUserId = userId || authSession?.user?.id;
-                if (targetUserId === 'default-user') targetUserId = undefined;
 
-                if (!targetUserId) {
+                if (!targetUserId || targetUserId === 'default-user') {
                     const { data: { session: currentSession } } = await supabase.auth.getSession();
                     token = currentSession?.access_token;
-                    targetUserId = currentSession?.user?.id;
+                    targetUserId = currentSession?.user.id;
                 }
 
-                // 2. GUEST PASS
+                // GUEST MODE
                 if (!targetUserId) {
-                    console.log('[useMeasurements] Identity not confirmed. Saving to LocalStorage.');
-                    const existingRecords = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-                    const filtered = existingRecords.filter((r: any) => r.id !== record.id);
-                    const newRecords = [record, ...filtered].sort((a: any, b: any) =>
-                        new Date(b.date).getTime() - new Date(a.date).getTime()
-                    );
+                    const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                    const newRecords = [record, ...existing.filter((r: any) => r.id !== record.id)].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
                     setRecords(newRecords);
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
                     return { success: true, target: 'local' };
                 }
 
-                console.log('[useMeasurements] Identity confirmed:', targetUserId, '. Saving to Cloud.');
-
-                // 3. CLOUD PASS
+                // CLOUD MODE (Native Fallback Engine)
                 let useNativeFallback = false;
                 const nativeFetch = async (method: string, path: string, body?: any, prefer?: string) => {
                     const controller = new AbortController();
-                    const fetchTimeout = setTimeout(() => controller.abort(), 20000);
+                    const fetchTimeout = setTimeout(() => controller.abort(), 15000);
                     try {
                         const response = await fetch(`${baseUrl}/rest/v1/${path}`, {
                             method,
@@ -152,13 +128,13 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                         });
                         clearTimeout(fetchTimeout);
                         if (!response.ok) {
-                            const errBody = await response.json().catch(() => ({}));
-                            throw { ...errBody, status: response.status };
+                            const errData = await response.json().catch(() => ({ message: 'Unknown Error' }));
+                            console.error(`[saveRecord] Native Fetch Error (${response.status}):`, errData);
+                            throw { ...errData, status: response.status };
                         }
                         return response.status === 204 ? null : response.json().catch(() => null);
-                    } catch (err: any) {
+                    } finally {
                         clearTimeout(fetchTimeout);
-                        throw err;
                     }
                 };
 
@@ -166,18 +142,22 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     if (useNativeFallback) return nativeFetch(native.method, native.path, native.body, native.prefer);
                     const result = await Promise.race([
                         libQuery,
-                        new Promise((resolve) => setTimeout(() => resolve({ _hang: true }), 7000))
+                        new Promise((resolve) => setTimeout(() => resolve({ _hang: true }), 5000))
                     ]) as any;
-                    if (result._hang) {
-                        console.warn('[useMeasurements] SDK HANG detected. Using native fetch.');
+
+                    if (result?._hang) {
+                        console.warn('[useMeasurements] SDK HANG. Using Native Fallback.');
                         useNativeFallback = true;
                         return nativeFetch(native.method, native.path, native.body, native.prefer);
                     }
-                    if (result.error) throw result.error;
-                    return result.data;
+                    if (result?.error) {
+                        console.error('[useMeasurements] SDK Error:', result.error);
+                        throw result.error;
+                    }
+                    return result?.data;
                 };
 
-                // STEP A: Main Record
+                // STEP 1: Main Record (Include user_id explicitly)
                 const dbPayload = {
                     id: record.id,
                     date: record.date,
@@ -193,109 +173,97 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     { method: 'POST', path: 'body_records', body: dbPayload, prefer: 'resolution=merge-duplicates' }
                 );
 
-                // STEP B: Cleanup Children
-                await Promise.all([
-                    dbAction(supabase.from('body_measurements').delete().eq('body_record_id', record.id), { method: 'DELETE', path: `body_measurements?body_record_id=eq.${record.id}` }),
-                    dbAction(supabase.from('body_photos').delete().eq('body_record_id', record.id), { method: 'DELETE', path: `body_photos?body_record_id=eq.${record.id}` })
-                ]);
+                // STEP 2: Delete children (Atomic cleanup)
+                // We use serial execution to be safe with RLS propagation
+                await dbAction(supabase.from('body_measurements').delete().eq('body_record_id', record.id), { method: 'DELETE', path: `body_measurements?body_record_id=eq.${record.id}` });
+                await dbAction(supabase.from('body_photos').delete().eq('body_record_id', record.id), { method: 'DELETE', path: `body_photos?body_record_id=eq.${record.id}` });
 
-                // STEP C: Insert Measurements (Safe)
+                // STEP 3: Insert Measurements (Now with Denormalized user_id)
                 const m = record.measurements as any;
                 const keys = ['neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'arm.left', 'arm.right', 'thigh.left', 'thigh.right', 'calf.left', 'calf.right'];
-                const measurementItems = [];
+                const items = [];
                 for (const key of keys) {
-                    let value = key.includes('.') ? m[key.split('.')[0]]?.[key.split('.')[1]] : m[key];
-                    if (value !== undefined && value !== null) {
-                        const item: any = {
+                    let val = key.includes('.') ? m[key.split('.')[0]]?.[key.split('.')[1]] : m[key];
+                    if (val !== undefined && val !== null) {
+                        items.push({
                             body_record_id: record.id,
+                            user_id: targetUserId, // DENORMALIZED
                             type: key,
-                            value: value,
+                            value: val,
                             side: key.includes('.left') ? 'left' : key.includes('.right') ? 'right' : 'center'
-                        };
-                        // Only add user_id if we suspect the column exists (Standard schema doesn't have it, we use RLS policies based on parent)
-                        // However, to be ultra safe, we only add it if we are sure. Current schema doesn't have it.
-                        measurementItems.push(item);
+                        });
                     }
                 }
-                if (measurementItems.length > 0) {
-                    await dbAction(supabase.from('body_measurements').insert(measurementItems), { method: 'POST', path: 'body_measurements', body: measurementItems });
+
+                if (items.length > 0) {
+                    await dbAction(supabase.from('body_measurements').insert(items), { method: 'POST', path: 'body_measurements', body: items });
                 }
 
+                // STEP 4: Photos (Now with Denormalized user_id)
                 if (record.photos?.length) {
-                    const photoItems = record.photos.map(p => ({
+                    const photos = record.photos.map(p => ({
                         id: p.id,
                         body_record_id: record.id,
+                        user_id: targetUserId, // DENORMALIZED
                         url: p.url,
                         angle: p.angle
                     }));
-                    await dbAction(supabase.from('body_photos').insert(photoItems), { method: 'POST', path: 'body_photos', body: photoItems });
+                    await dbAction(supabase.from('body_photos').insert(photos), { method: 'POST', path: 'body_photos', body: photos });
                 }
 
-                const updatedRecord = { ...record, userId: targetUserId };
-                setRecords(prev => [updatedRecord, ...prev.filter(r => r.id !== record.id)].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-
+                // Success
+                setRecords(prev => [{ ...record, userId: targetUserId }, ...prev.filter(r => r.id !== record.id)].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
                 return { success: true, target: 'cloud' };
             })();
 
-            return await Promise.race([saveOperation, new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 45000))]) as { success: boolean, target?: string, error?: any };
+            return await Promise.race([saveOperation, new Promise((_, r) => setTimeout(() => r(new Error('TIMEOUT')), 45000))]) as any;
         } catch (error: any) {
-            console.error('[saveRecord] CRITICAL FAILURE:', error);
+            console.error('[saveRecord] FAILED:', error);
             return { success: false, error: { message: translateError(error) } };
         }
     };
 
-    const syncLocalDataToCloud = async () => {
+    // Sequential Sync Flow
+    const sync = async () => {
         if (isSyncing.current) return;
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) return;
 
-        const localRecords: MeasurementRecord[] = JSON.parse(saved);
-        if (!localRecords.length) return;
+        const locals: MeasurementRecord[] = JSON.parse(saved);
+        if (!locals.length) return;
 
-        console.log('[useMeasurements] Syncing', localRecords.length, 'records to cloud...');
         isSyncing.current = true;
-
         try {
+            console.log(`[useMeasurements] Syncing ${locals.length} records...`);
             const remaining: MeasurementRecord[] = [];
-            for (const record of localRecords) {
-                const result = await saveRecord(record);
-                if (!result.success || result.target !== 'cloud') {
-                    remaining.push(record);
-                }
+            for (const r of locals) {
+                const result = await saveRecord(r);
+                if (!result.success || result.target !== 'cloud') remaining.push(r);
             }
 
-            if (remaining.length === 0) {
-                localStorage.removeItem(STORAGE_KEY);
-                console.log('[useMeasurements] Sync total success. LocalStorage cleared.');
-            } else {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
-                console.warn('[useMeasurements] Sync partial failure.', remaining.length, 'records remain locally.');
-            }
-            fetchRecords();
+            if (!remaining.length) localStorage.removeItem(STORAGE_KEY);
+            else localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+
+            await fetchRecords();
         } finally {
             isSyncing.current = false;
         }
     };
 
-    // Effect: Fetching and Syncing
     useEffect(() => {
-        const init = async () => {
+        const run = async () => {
             if (userId && userId !== 'default-user') {
-                console.log('[useMeasurements] Active User detected. Syncing...');
-                await syncLocalDataToCloud();
-                await fetchRecords();
+                await sync();
+                await fetchRecords(userId);
             } else {
                 await fetchRecords();
             }
         };
-        init();
+        run();
     }, [userId]);
 
-    return {
-        records,
-        loading,
-        saveRecord,
-        deleteRecord: async (id: string) => {
+    const deleteRecord = async (id: string) => {
+        try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 const newRecords = records.filter(r => r.id !== id);
@@ -303,9 +271,13 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
                 return;
             }
-            await supabase.from('body_records').delete().eq('id', id);
+            const { error } = await supabase.from('body_records').delete().eq('id', id);
+            if (error) throw error;
             fetchRecords();
-        },
-        refresh: fetchRecords
+        } catch (err) {
+            console.error('[useMeasurements] Delete failed:', err);
+        }
     };
+
+    return { records, loading, saveRecord, deleteRecord, refresh: fetchRecords, isSyncing: isSyncing.current };
 };
