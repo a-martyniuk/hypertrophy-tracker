@@ -9,7 +9,8 @@ import type { BodyPhoto } from '../types/measurements';
 interface Props {
   onSave: (record: MeasurementRecord) => Promise<{ success: boolean; error?: any }>;
   onCancel: () => void;
-  previousRecord?: MeasurementRecord;
+  previousRecord?: MeasurementRecord; // For trends/comparison only
+  recordToEdit?: MeasurementRecord;   // For editing mode
   sex?: 'male' | 'female';
 }
 
@@ -97,12 +98,16 @@ interface ConnectorLine {
   y2: number;
 }
 
-export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male' }: Props) => {
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit, sex = 'male' }: Props) => {
+  // DATE: Use edit record date if available, else today
+  const [date, setDate] = useState(recordToEdit?.date ? new Date(recordToEdit.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
   const containerRef = useRef<HTMLFormElement>(null);
   const [lines, setLines] = useState<ConnectorLine[]>([]);
+
+  // MEASUREMENTS: Initialize from recordToEdit (Edit Mode) OR previousRecord (Prefill Mode) OR Zeros (Fresh)
+  const sourceRecord = recordToEdit || previousRecord;
   const [measurements, setMeasurements] = useState<BodyMeasurements>(
-    previousRecord?.measurements || {
+    sourceRecord?.measurements || {
       weight: 0,
       height: 0,
       bodyFat: 0,
@@ -118,10 +123,11 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
       calf: { left: 0, right: 0 },
       ankle: { left: 0, right: 0 },
     });
-  const [notes, setNotes] = useState('');
+
+  const [notes, setNotes] = useState(recordToEdit?.notes || '');
   const { user } = useAuth();
-  const [photos, setPhotos] = useState<BodyPhoto[]>(previousRecord?.photos || []);
-  const [metadata, setMetadata] = useState<RecordMetadata>({
+  const [photos, setPhotos] = useState<BodyPhoto[]>(recordToEdit?.photos || []);
+  const [metadata, setMetadata] = useState<RecordMetadata>(recordToEdit?.metadata || {
     condition: 'fasted',
     sleepHours: 8
   });
@@ -228,8 +234,9 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
     }
 
     setIsSaving(true);
+    // CRITICAL FIX: Only use ID if explicitly editing. Otherwise generate NEW ID.
     const record: MeasurementRecord = {
-      id: previousRecord?.id || crypto.randomUUID(),
+      id: recordToEdit?.id || crypto.randomUUID(),
       userId: user?.id || 'default-user',
       date,
       measurements,
@@ -282,21 +289,21 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
                 id="input-weight"
                 label="PESO"
                 value={measurements.weight}
-                previousValue={previousRecord?.measurements.weight}
+                previousValue={sourceRecord?.measurements.weight}
                 onChange={(v) => updateField('weight', v)}
               />
               <MeasurementInput
                 id="input-height"
                 label="ALTURA"
                 value={measurements.height || 0}
-                previousValue={previousRecord?.measurements.height}
+                previousValue={sourceRecord?.measurements.height}
                 onChange={(v) => updateField('height', v)}
               />
               <MeasurementInput
                 id="input-bodyFat"
                 label="GRASA%"
                 value={measurements.bodyFat || 0}
-                previousValue={previousRecord?.measurements.bodyFat}
+                previousValue={sourceRecord?.measurements.bodyFat}
                 onChange={(v) => updateField('bodyFat', v)}
               />
             </div>
@@ -309,35 +316,35 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
                 id="input-neck"
                 label="CUELLO"
                 value={measurements.neck}
-                previousValue={previousRecord?.measurements.neck}
+                previousValue={sourceRecord?.measurements.neck}
                 onChange={(v) => updateField('neck', v)}
               />
               <MeasurementInput
                 id="input-back"
                 label="ESPALDA"
                 value={measurements.back}
-                previousValue={previousRecord?.measurements.back}
+                previousValue={sourceRecord?.measurements.back}
                 onChange={(v) => updateField('back', v)}
               />
               <MeasurementInput
                 id="input-pecho"
                 label="PECHO"
                 value={measurements.pecho}
-                previousValue={previousRecord?.measurements.pecho}
+                previousValue={sourceRecord?.measurements.pecho}
                 onChange={(v) => updateField('pecho', v)}
               />
               <MeasurementInput
                 id="input-waist"
                 label="CINTURA"
                 value={measurements.waist}
-                previousValue={previousRecord?.measurements.waist}
+                previousValue={sourceRecord?.measurements.waist}
                 onChange={(v) => updateField('waist', v)}
               />
               <MeasurementInput
                 id="input-hips"
                 label="CADERAS"
                 value={measurements.hips}
-                previousValue={previousRecord?.measurements.hips}
+                previousValue={sourceRecord?.measurements.hips}
                 onChange={(v) => updateField('hips', v)}
               />
             </div>
@@ -359,21 +366,21 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
                 id="input-arm"
                 label="BRAZO"
                 value={measurements.arm}
-                previousValue={previousRecord?.measurements.arm}
+                previousValue={sourceRecord?.measurements.arm}
                 onChange={(v) => updateField('arm', v)}
               />
               <MeasurementInput
                 id="input-forearm"
                 label="ANTEBRAZO"
                 value={measurements.forearm}
-                previousValue={previousRecord?.measurements.forearm}
+                previousValue={sourceRecord?.measurements.forearm}
                 onChange={(v) => updateField('forearm', v)}
               />
               <MeasurementInput
                 id="input-wrist"
                 label="MUÑECA"
                 value={measurements.wrist}
-                previousValue={previousRecord?.measurements.wrist}
+                previousValue={sourceRecord?.measurements.wrist}
                 onChange={(v) => updateField('wrist', v)}
               />
             </div>
@@ -386,21 +393,21 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
                 id="input-thigh"
                 label="MUSLO"
                 value={measurements.thigh}
-                previousValue={previousRecord?.measurements.thigh}
+                previousValue={sourceRecord?.measurements.thigh}
                 onChange={(v) => updateField('thigh', v)}
               />
               <MeasurementInput
                 id="input-calf"
                 label="PANTORRILLA"
                 value={measurements.calf}
-                previousValue={previousRecord?.measurements.calf}
+                previousValue={sourceRecord?.measurements.calf}
                 onChange={(v) => updateField('calf', v)}
               />
               <MeasurementInput
                 id="input-ankle"
                 label="TOBILLO"
                 value={measurements.ankle}
-                previousValue={previousRecord?.measurements.ankle}
+                previousValue={sourceRecord?.measurements.ankle}
                 onChange={(v) => updateField('ankle', v)}
               />
             </div>
@@ -463,7 +470,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
           <h3>Fotos de Progreso</h3>
           <PhotoUpload
             userId={user?.id || 'guest'}
-            recordId={previousRecord?.id || 'new-record'}
+            recordId={recordToEdit?.id && recordToEdit.id !== 'new-record' ? recordToEdit.id : (previousRecord?.id || 'new-record')}
             existingPhotos={photos}
             onPhotosUpdated={setPhotos}
           />

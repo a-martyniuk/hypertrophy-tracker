@@ -21,6 +21,7 @@ type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals' | 'pote
 function App() {
   const [activeView, setActiveView] = useState<View>('dashboard')
   const [isGuest, setIsGuest] = useState(false)
+  const [editingRecord, setEditingRecord] = useState<MeasurementRecord | null>(null)
 
   const { user: authUser, session: authSession, loading: authLoading, signOut } = useAuth()
   const { records, saveRecord, deleteRecord, refresh } = useMeasurements(authUser?.id, authSession)
@@ -47,6 +48,7 @@ function App() {
     const result = await saveRecord(record)
     if (result.success) {
       setActiveView('history')
+      setEditingRecord(null)
     }
     return result
   }
@@ -289,8 +291,12 @@ function App() {
         {activeView === 'new-entry' && (
           <MeasurementForm
             onSave={handleSave}
-            onCancel={() => setActiveView('dashboard')}
+            onCancel={() => {
+              setActiveView('dashboard')
+              setEditingRecord(null)
+            }}
             previousRecord={latestRecord}
+            recordToEdit={editingRecord || undefined}
             sex={userSex}
           />
         )}
@@ -299,7 +305,10 @@ function App() {
           <HistoryView
             records={records}
             onDelete={deleteRecord}
-            onSelect={() => { }}
+            onSelect={(record) => {
+              setEditingRecord(record)
+              setActiveView('new-entry')
+            }}
           />
         )}
 
