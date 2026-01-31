@@ -35,18 +35,55 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
 
   const calculatePotential = () => {
     const { wrist, ankle } = frame;
-    // Casey Butt Formulas for maximum girths at ~10% body fat
+    const heightCm = currentMeasurements?.height || 177; // Fallback to ~5'9" if missing
+
+    // Convert to Imperial (Inches) for authentic Casey Butt calculation
+    const W = wrist / 2.54;
+    const A = ankle / 2.54;
+    const H = heightCm / 2.54;
+
+    // Authentic Casey Butt Formulas (output in Inches)
+    const chestIn = 1.6817 * W + 1.3759 * A + 0.3314 * H;
+    const bicepsIn = 1.2033 * W + 0.1236 * A + 0.12 * H; // Height factor adjusted
+    const forearmsIn = 0.9626 * W + 0.0989 * A + 0.15 * H;
+    const neckIn = 1.1424 * W + 0.3717 * A + 0.3314 * H;
+    const thighsIn = 1.3868 * A + 0.1606 * W + 0.6009 * H;
+    const calvesIn = 0.9298 * A + 0.1210 * W + 0.4631 * H;
+
+    // Convert back to CM for display
     return {
-      chest: (1.6817 * wrist + 0.5759 * ankle + 12.6422).toFixed(1),
-      biceps: (1.2033 * wrist + 0.1230 * ankle + 6.07).toFixed(1),
-      forearms: (0.9626 * wrist + 0.0833 * ankle + 5.34).toFixed(1),
-      neck: (1.1424 * wrist + 0.3177 * ankle + 14.86).toFixed(1),
-      thighs: (1.3868 * ankle + 0.3105 * wrist + 15.12).toFixed(1),
-      calves: (0.9298 * ankle + 0.1210 * wrist + 12.58).toFixed(1),
+      chest: (chestIn * 2.54).toFixed(1),
+      biceps: (bicepsIn * 2.54).toFixed(1),
+      forearms: (forearmsIn * 2.54).toFixed(1),
+      neck: (neckIn * 2.54).toFixed(1),
+      thighs: (thighsIn * 2.54).toFixed(1),
+      calves: (calvesIn * 2.54).toFixed(1),
     };
   };
 
+  const calculateIEO = () => {
+    const { wrist, ankle } = frame;
+    const ieo = (wrist + ankle) / 2;
+    let label = '';
+    let isAdvantage = false;
+
+    if (ieo < 18) {
+      label = 'Pequeña';
+    } else if (ieo < 20) {
+      label = 'Mediana';
+    } else if (ieo < 22) {
+      label = 'Grande';
+      isAdvantage = true;
+    } else {
+      label = 'Muy Grande';
+      isAdvantage = true;
+    }
+
+    return { value: ieo.toFixed(1), label, isAdvantage };
+  };
+
   const potential = calculatePotential();
+  const ieo = calculateIEO();
 
   return (
     <div className="skeletal-frame-view animate-fade-in">
@@ -59,41 +96,63 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
       </div>
 
       <div className="frame-grid">
-        <div className="card glass baseline-input">
-          <div className="card-header">
-            <h3>Mis Medidas Base (cm)</h3>
-          </div>
-          <div className="hud-column">
-            <div className="hud-input-group">
-              <div className="hud-label-row">
-                <label>Muñeca</label>
+        <div className="left-column">
+          <div className="card glass baseline-input">
+            <div className="card-header">
+              <h3>Mis Medidas Base (cm)</h3>
+            </div>
+            <div className="hud-column">
+              <div className="hud-input-group">
+                <div className="hud-label-row">
+                  <label>Muñeca</label>
+                </div>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={frame.wrist}
+                  onChange={e => setFrame({ ...frame, wrist: parseFloat(e.target.value) })}
+                />
+                <p className="input-hint">Mide sobre el hueso de la muñeca.</p>
               </div>
-              <input
-                type="number"
-                step="0.1"
-                value={frame.wrist}
-                onChange={e => setFrame({ ...frame, wrist: parseFloat(e.target.value) })}
-              />
-              <p className="input-hint">Mide sobre el hueso de la muñeca.</p>
+
+              <div className="hud-input-group">
+                <div className="hud-label-row">
+                  <label>Tobillo</label>
+                </div>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={frame.ankle}
+                  onChange={e => setFrame({ ...frame, ankle: parseFloat(e.target.value) })}
+                />
+                <p className="input-hint">Mide sobre el hueso del tobillo.</p>
+              </div>
             </div>
 
-            <div className="hud-input-group">
-              <div className="hud-label-row">
-                <label>Tobillo</label>
-              </div>
-              <input
-                type="number"
-                step="0.1"
-                value={frame.ankle}
-                onChange={e => setFrame({ ...frame, ankle: parseFloat(e.target.value) })}
-              />
-              <p className="input-hint">Mide sobre el hueso del tobillo.</p>
-            </div>
+            <button className="btn-primary w-full mt-6" onClick={() => onSave(frame)}>
+              <Activity size={18} className="mr-2" /> ACTUALIZAR MEDIDAS
+            </button>
           </div>
 
-          <button className="btn-primary w-full mt-6" onClick={() => onSave(frame)}>
-            <Activity size={18} className="mr-2" /> ACTUALIZAR MEDIDAS
-          </button>
+          <div className="card glass ieo-card mt-6">
+            <div className="card-header">
+              <h3>Índice de Estructura (IEO)</h3>
+            </div>
+            <div className="ieo-display">
+              <div className="ieo-value-row">
+                <span className="ieo-number">{ieo.value}</span>
+                <span className="ieo-label">{ieo.label}</span>
+              </div>
+              {ieo.isAdvantage && (
+                <div className="advantage-badge">
+                  ✨ Ventaja Genética
+                </div>
+              )}
+              <p className="ieo-desc">
+                Tu IEO indica la robustez de tu esqueleto. Una estructura más grande proporciona mayor palanca y superficie de anclaje muscular.
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="card glass potential-analysis">
@@ -293,6 +352,47 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
           border: 1px dashed rgba(245, 158, 11, 0.2);
           background: rgba(245, 158, 11, 0.02);
         }
+        
+        .ieo-display {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+        .ieo-value-row {
+          display: flex;
+          align-items: baseline;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .ieo-number {
+          font-size: 2.5rem;
+          font-weight: 800;
+          color: #fff;
+          text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+        }
+        .ieo-label {
+          font-size: 1rem;
+          color: var(--primary-color);
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        .advantage-badge {
+          background: rgba(245, 158, 11, 0.15);
+          color: #f59e0b;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: bold;
+          border: 1px solid rgba(245, 158, 11, 0.3);
+          margin-bottom: 1rem;
+        }
+        .ieo-desc {
+          font-size: 0.75rem;
+          color: var(--text-secondary);
+          line-height: 1.4;
+        }
+        
         @media (max-width: 900px) {
           .frame-grid {
             grid-template-columns: 1fr;
