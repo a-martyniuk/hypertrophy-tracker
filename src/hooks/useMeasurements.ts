@@ -44,12 +44,12 @@ export const useMeasurements = (userId?: string | null) => {
                     }
                 });
 
-                const photos: BodyPhoto[] = record.body_photos.map((p: any) => ({
+                const photos: BodyPhoto[] = record.body_photos?.map((p: any) => ({
                     id: p.id,
                     url: p.url,
                     angle: p.angle,
                     createdAt: p.created_at
-                }));
+                })) || [];
 
                 return {
                     id: record.id,
@@ -93,18 +93,12 @@ export const useMeasurements = (userId?: string | null) => {
             setTimeout(() => reject(new Error('TIMEOUT')), 45000)
         );
 
-        console.time('saveRecord Total');
+        console.time('[saveRecord] Total Time');
         try {
             const saveOperation = (async () => {
-                console.log('[saveRecord] Starting save operation. userId provided:', userId);
-
-                // 1. Use provided userId directly
-                console.time('Step 1: Auth (Local)');
                 const targetUserId = userId || record.userId;
-                console.timeEnd('Step 1: Auth (Local)');
 
                 if (!targetUserId || targetUserId === 'default-user') {
-                    console.log('[saveRecord] No valid user ID, saving to local storage...');
                     const newRecords = [record, ...records].sort((a, b) =>
                         new Date(b.date).getTime() - new Date(a.date).getTime()
                     );
@@ -113,113 +107,40 @@ export const useMeasurements = (userId?: string | null) => {
                     return { success: true };
                 }
 
-                // 2. Save or Update Main Record
-                console.time('Step 2a: Execution of DB Write');
-                const isNew = !record.id || record.id.length < 30;
+                // 2. Upsert Main Record
+                // We use upsert as it's the most reliable way to handle both new and existing records
+                // but we omit the slow .select().single() to avoid RLS-returning bottlenecks
+                console.time('Step 2: Main Record Save');
+                const { error: recordError } = await supabase
+                    .from('body_records')
+                    .upsert({
+                        id: record.id,
+                        date: record.date,
+                        weight: record.measurements.weight,
+                        body_fat_pct: record.measurements.bodyFat,
+                        notes: record.notes,
+                        metadata: record.metadata,
+                        user_id: targetUserId
+                    });
+                console.timeEnd('Step 2: Main Record Save');
 
-                const dbPayload = {
-                    date: record.date,
-                    weight: record.measurements.weight,
-                    notes: record.notes,
-                    metadata: record.metadata,
-                    user_id: targetUserId
-                };
-
-                console.log('[saveRecord] Attempting DB write. IsNew:', isNew, 'Payload:', dbPayload);
-
-                let finalRecordId = record.id;
-
-                if (isNew) {
-                    console.log('[saveRecord] Calling supabase.insert...');
-
-                    // Diagnostic Native Fetch
-                    try {
-                        const { data: { session } } = await supabase.auth.getSession();
-                        const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-                        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-                        console.log('[saveRecord] Diagnostic: Attempting native POST...');
-                        const testFetch = await Promise.race([
-                            fetch(`${baseUrl}/rest/v1/body_records`, {
-                                method: 'POST',
-                                headers: {
-                                    'apikey': anonKey,
-                                    'Authorization': `Bearer ${session?.access_token}`,
-                                    'Content-Type': 'application/json',
-                                    'Prefer': 'return=minimal'
-                                },
-                                body: JSON.stringify(dbPayload)
-                            }),
-                            new Promise((_, r) => setTimeout(() => r(new Error('fetch_timeout')), 5000))
-                        ]).catch(e => ({ status: 'failed', error: e.message }));
-                        console.log('[saveRecord] Diagnostic POST result:', testFetch);
-                    } catch (e) {
-                        console.log('[saveRecord] Diagnostic POST error:', e);
-                    }
-
-                    const { data: insertResult, error: insertError } = await supabase
-                        .from('body_records')
-                        .insert(dbPayload)
-                        .select('id')
-                        .single();
-
-                    if (insertError) {
-                        console.error('[saveRecord] Insert error:', insertError);
-                        throw insertError;
-                    }
-                    finalRecordId = insertResult.id;
-                } else {
-                    console.log('[saveRecord] Calling supabase.update for ID:', record.id);
-
-                    // Diagnostic Native Fetch
-                    try {
-                        const { data: { session } } = await supabase.auth.getSession();
-                        const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-                        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-                        console.log('[saveRecord] Diagnostic: Attempting native PATCH...');
-                        const testFetch = await Promise.race([
-                            fetch(`${baseUrl}/rest/v1/body_records?id=eq.${record.id}`, {
-                                method: 'PATCH',
-                                headers: {
-                                    'apikey': anonKey,
-                                    'Authorization': `Bearer ${session?.access_token}`,
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(dbPayload)
-                            }),
-                            new Promise((_, r) => setTimeout(() => r(new Error('fetch_timeout')), 5000))
-                        ]).catch(e => ({ status: 'failed', error: e.message }));
-                        console.log('[saveRecord] Diagnostic PATCH result:', testFetch);
-                    } catch (e) {
-                        console.log('[saveRecord] Diagnostic PATCH error:', e);
-                    }
-
-                    const { error: updateError } = await supabase
-                        .from('body_records')
-                        .update(dbPayload)
-                        .eq('id', record.id);
-
-                    if (updateError) {
-                        console.error('[saveRecord] Update error:', updateError);
-                        throw updateError;
-                    }
-                    finalRecordId = record.id;
+                if (recordError) {
+                    console.error('[saveRecord] Error saving main record:', recordError);
+                    throw recordError;
                 }
 
-                console.timeEnd('Step 2a: Execution of DB Write');
-                console.log('[saveRecord] Record write successful. finalRecordId:', finalRecordId);
+                // since we have the ID from the client, we use it directly
+                const finalRecordId = record.id;
 
-                // 3. Parallelize Deletions
-                console.time('Step 3: Parallel Deletions');
+                // 3. Parallelize Deletions (Old measurements and photos)
+                console.time('Step 3: Cleanup');
                 const [delM, delP] = await Promise.all([
                     supabase.from('body_measurements').delete().eq('body_record_id', finalRecordId),
-                    supabase.from('body_photos').delete().eq('body_record_id', finalRecordId)
+                    supabase.from('body_photos').delete().eq('body_record_id', finalRecordId).maybeSingle() // maybeSingle to handle missing table gracefully if user hasn't run SQL yet
                 ]);
-                console.timeEnd('Step 3: Parallel Deletions');
+                console.timeEnd('Step 3: Cleanup');
 
-                if (delM.error) console.error('[saveRecord] Warning: Measurements deletion error:', delM.error);
-                if (delP.error) console.error('[saveRecord] Warning: Photos deletion error:', delP.error);
-
-                // 4. Prepare inserts
+                // 4. Prepare and Parallelize Inserts
                 const measurementItems = [];
                 const m = record.measurements as any;
                 const keys = ['neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'arm.left', 'arm.right', 'thigh.left', 'thigh.right', 'calf.left', 'calf.right'];
@@ -233,7 +154,7 @@ export const useMeasurements = (userId?: string | null) => {
                         value = m[key];
                     }
 
-                    if (value !== undefined) {
+                    if (value !== undefined && value !== null) {
                         measurementItems.push({
                             body_record_id: finalRecordId,
                             type: key,
@@ -250,27 +171,26 @@ export const useMeasurements = (userId?: string | null) => {
                     angle: p.angle
                 }));
 
-                // 5. Parallelize Inserts
-                console.time('Step 4: Parallel Inserts');
+                console.time('Step 4: Inserts');
                 const insertPromises = [
                     supabase.from('body_measurements').insert(measurementItems)
                 ];
+
                 if (photoItems.length > 0) {
                     insertPromises.push(supabase.from('body_photos').insert(photoItems));
                 }
 
                 const insertResults = await Promise.all(insertPromises);
-                console.timeEnd('Step 4: Parallel Inserts');
+                console.timeEnd('Step 4: Inserts');
 
                 for (const res of insertResults) {
                     if (res.error) {
-                        console.error('[saveRecord] Error in inserts:', res.error);
+                        console.error('[saveRecord] Insert error:', res.error);
                         throw res.error;
                     }
                 }
 
                 // 6. Finalize Local State
-                console.log('[saveRecord] Finalizing local state...');
                 const updatedRecord = { ...record, id: finalRecordId, userId: targetUserId };
                 setRecords(prev => {
                     const filtered = prev.filter(r => r.id !== updatedRecord.id);
@@ -279,18 +199,20 @@ export const useMeasurements = (userId?: string | null) => {
                     );
                 });
 
-                fetchRecords().catch(err => console.error('[saveRecord] Background refresh failed:', err));
-                console.timeEnd('saveRecord Total');
+                fetchRecords().catch(err => console.error('[saveRecord] Background sync failed:', err));
+                console.timeEnd('[saveRecord] Total Time');
                 return { success: true };
             })();
 
             return await Promise.race([saveOperation, timeoutPromise]) as { success: boolean, error?: any };
         } catch (error: any) {
-            console.timeEnd('saveRecord Total');
+            console.timeEnd('[saveRecord] Total Time');
             console.error('[saveRecord] Fatal error:', error);
             let message = 'Error inesperado al guardar.';
             if (error.message === 'TIMEOUT') {
-                message = 'Se agotaron los 45s. Si el paso 2b (Execution) se quedó esperando, intenta probar en una ventana de INCÓGNITO. Si ahí funciona, es un bloqueador de anuncios (AdBlock) o una extensión interfiriendo.';
+                message = 'Se agotaron los 45s. Si el problema persiste, intenta en ventana de INCÓGNITO.';
+            } else if (error.code === '42501') {
+                message = 'Error de permisos (RLS). Por favor, ejecuta el script SQL proporcionado para actualizar la seguridad de la base de datos.';
             } else if (error.code) {
                 message = `Error de base de datos (${error.code}): ${error.message}`;
             } else if (error.message) {
@@ -311,16 +233,7 @@ export const useMeasurements = (userId?: string | null) => {
         if (localRecords.length === 0) return;
 
         for (const record of localRecords) {
-            const { data: existing } = await supabase
-                .from('body_records')
-                .select('id')
-                .eq('user_id', user.id)
-                .eq('date', record.date)
-                .maybeSingle();
-
-            if (!existing) {
-                await saveRecord(record);
-            }
+            await saveRecord(record);
         }
 
         localStorage.removeItem(STORAGE_KEY);
