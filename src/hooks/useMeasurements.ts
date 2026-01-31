@@ -17,13 +17,19 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
         if (effectiveUserId === 'default-user') return;
 
         try {
+            console.log('[useMeasurements] Fetching for user:', effectiveUserId);
             if (effectiveUserId) {
                 const { data, error } = await supabase
                     .from('body_records')
                     .select('*, body_measurements (*), body_photos (*)')
                     .order('date', { ascending: false });
 
-                if (!error && data) {
+                if (error) {
+                    console.error('[useMeasurements] Supabase Error:', error);
+                }
+
+                if (data) {
+                    console.log('[useMeasurements] Found records:', data.length);
                     const mapped: MeasurementRecord[] = data.map((r: any) => ({
                         id: r.id,
                         userId: r.user_id,
