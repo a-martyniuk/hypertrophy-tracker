@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useMeasurements } from './hooks/useMeasurements'
 import { MeasurementForm } from './components/MeasurementForm'
 import { HistoryView } from './components/HistoryView'
@@ -22,6 +22,11 @@ function App() {
   const [isGuest, setIsGuest] = useState(false)
   const { user: authUser, session: authSession, loading: authLoading, signOut } = useAuth()
   const { records, saveRecord, deleteRecord } = useMeasurements(authUser?.id, authSession)
+
+  // Ensure Guest Mode is disabled if we have a real user
+  useEffect(() => {
+    if (authUser) setIsGuest(false)
+  }, [authUser])
 
   const { profile, updateProfile } = useProfile()
   const { goals, addGoal, deleteGoal } = useGoals()

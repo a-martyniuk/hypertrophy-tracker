@@ -122,18 +122,27 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
                 let token = authSession?.access_token;
-                let targetUserId = userId || authSession?.user?.id || record.userId;
+                let targetUserId = userId || authSession?.user?.id || (record.userId !== 'default-user' ? record.userId : undefined);
 
-                // Recovery of token if missing from props
-                if (!token) {
+                // RELIABILITY: If props are missing, check the Supabase client directly
+                if (!token || !targetUserId) {
+                    const { data: { session: currentSession } } = await supabase.auth.getSession();
+                    if (currentSession) {
+                        token = currentSession.access_token;
+                        targetUserId = currentSession.user.id;
+                    }
+                }
+
+                // EMERGENCY RECOVERY: Search localStorage if still missing (e.g. library issues)
+                if (!token || !targetUserId) {
                     for (let i = 0; i < localStorage.length; i++) {
                         const key = localStorage.key(i);
                         if (key?.startsWith('sb-') && key.endsWith('-auth-token')) {
                             const raw = localStorage.getItem(key);
                             if (raw) {
                                 const parsed = JSON.parse(raw);
-                                token = parsed.access_token;
-                                targetUserId = targetUserId || parsed.user?.id;
+                                if (!token) token = parsed.access_token;
+                                if (!targetUserId) targetUserId = parsed.user?.id;
                                 break;
                             }
                         }
