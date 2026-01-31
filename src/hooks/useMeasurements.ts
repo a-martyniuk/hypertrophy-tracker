@@ -134,7 +134,7 @@ export const useMeasurements = (userId?: string | null) => {
 
                 // 3. Parallelize Deletions (Old measurements and photos)
                 console.time('Step 3: Cleanup');
-                const [delM, delP] = await Promise.all([
+                await Promise.all([
                     supabase.from('body_measurements').delete().eq('body_record_id', finalRecordId),
                     supabase.from('body_photos').delete().eq('body_record_id', finalRecordId).maybeSingle() // maybeSingle to handle missing table gracefully if user hasn't run SQL yet
                 ]);
