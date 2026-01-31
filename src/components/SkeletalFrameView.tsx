@@ -108,10 +108,11 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
             {Object.entries(potential).map(([muscle, value]) => {
               const muscleKey =
                 muscle === 'biceps' ? 'arm' :
-                  muscle === 'thighs' ? 'thigh' :
-                    muscle === 'calves' ? 'calf' :
-                      muscle === 'chest' ? 'pecho' :
-                        muscle;
+                  muscle === 'forearms' ? 'forearm' :
+                    muscle === 'thighs' ? 'thigh' :
+                      muscle === 'calves' ? 'calf' :
+                        muscle === 'chest' ? 'pecho' :
+                          muscle;
 
               const displayNames: Record<string, string> = {
                 chest: 'Pecho',
