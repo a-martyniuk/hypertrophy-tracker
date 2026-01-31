@@ -41,11 +41,11 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
                 // UTILITY: Native Fallback Engine
                 const executeQuery = async (queryPromise: Promise<any>, fallbackPath: string) => {
-                    // 1. Try SDK with Timeout Race
+                    // 1. Try SDK with Timeout Race (Reduced to 5s for faster feedback)
                     try {
                         const race = await Promise.race([
                             queryPromise,
-                            new Promise(resolve => setTimeout(() => resolve('TIMEOUT'), 7000))
+                            new Promise(resolve => setTimeout(() => resolve('TIMEOUT'), 5000))
                         ]);
 
                         if (race !== 'TIMEOUT') return race as { data: any, error: any };
@@ -54,7 +54,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                         console.error('[useMeasurements] SDK Exception:', e);
                     }
 
-                    // 2. Native Fallback
+                    // 2. Native Fallback with Timeout
                     try {
                         const { data: { session } } = await supabase.auth.getSession();
                         if (!session) return { data: null, error: 'No Session' };
@@ -62,32 +62,57 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                         const url = import.meta.env.VITE_SUPABASE_URL;
                         const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-                        const res = await fetch(`${url}/rest/v1/${fallbackPath}`, {
-                            headers: {
-                                'apikey': key,
-                                'Authorization': `Bearer ${session.access_token}`,
-                                'Prefer': 'count=none'
-                            }
-                        });
+                        const ctrl = new AbortController();
+                        const timer = setTimeout(() => ctrl.abort(), 10000); // 10s hard timeout
 
-                        if (!res.ok) throw await res.text();
-                        return { data: await res.json(), error: null };
+                        try {
+                            const res = await fetch(`${url}/rest/v1/${fallbackPath}`, {
+                                signal: ctrl.signal,
+                                headers: {
+                                    'apikey': key,
+                                    'Authorization': `Bearer ${session.access_token}`,
+                                    'Prefer': 'count=exact'
+                                }
+                            });
+
+                            clearTimeout(timer);
+
+                            if (!res.ok) {
+                                const text = await res.text();
+                                console.error(`[useMeasurements] REST Error ${res.status}:`, text);
+                                throw text;
+                            }
+
+                            const json = await res.json();
+                            console.log(`[useMeasurements] REST Success: ${json.length} items`);
+                            return { data: json, error: null };
+                        } catch (fetchErr) {
+                            clearTimeout(timer);
+                            throw fetchErr;
+                        }
                     } catch (err) {
+                        console.error('[useMeasurements] Native Fetch Failed:', err);
                         return { data: null, error: err };
                     }
                 };
 
-                // ATTEMPT 1: Full Data (Join)
+                // ATTEMPT 1: Full Data (Limit 20 to prevent heavy loads)
                 const { data, error } = await executeQuery(
                     supabase.from('body_records')
                         .select('*, body_measurements (*), body_photos (*)')
-                        .order('date', { ascending: false }) as any,
-                    'body_records?select=*,body_measurements(*),body_photos(*)&order=date.desc'
+                        .order('date', { ascending: false })
+                        .limit(20) as any,
+                    'body_records?select=*,body_measurements(*),body_photos(*)&order=date.desc&limit=20'
                 );
 
-                if (!error && data && data.length > 0) {
-                    console.log(`[useMeasurements] Full fetch success: ${data.length} records.`);
+                if (!error && data) {
+                    // Even if empty, it's a valid result (user might be new)
+                    console.log(`[useMeasurements] Full fetch result: ${data.length} records.`);
                     setRecords(mapData(data));
+
+                    // Only return if we actually got data (if 0, we might want to check local as fallback?)
+                    // But if Cloud says 0, it means 0. 
+                    // EXCEPT if RLS hides it. But we can't distinguish empty DB from RLS hidden.
                     return;
                 }
 
@@ -251,13 +276,34 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
         isSyncing.current = true;
         try {
+            console.log(`[useMeasurements] Syncing ${locals.length} local records...`);
             const remaining: MeasurementRecord[] = [];
+            let successCount = 0;
+
             for (const r of locals) {
+                // IMPORTANT: Ensure we assign the real cloud User ID
                 const res = await saveRecord(r);
-                if (!res.success || res.target !== 'cloud') remaining.push(r);
+                if (res.success && res.target === 'cloud') {
+                    successCount++;
+                } else {
+                    remaining.push(r);
+                }
             }
-            if (!remaining.length) localStorage.removeItem(STORAGE_KEY);
-            else localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+
+            console.log(`[useMeasurements] Sync complete. Success: ${successCount}, Remaining: ${remaining.length}`);
+
+            // Only clear storage if we successfully synced EVERYTHING
+            if (remaining.length === 0 && successCount > 0) {
+                // Verify cloud fetch BEFORE deleting? 
+                // It's safer to keep them until next load, but user wants clean slate?
+                // Let's Keep them as "synced cache" inside localStorage?
+                // No, standard is to clear. But to solve "Flash", maybe we wait?
+                localStorage.removeItem(STORAGE_KEY);
+            } else if (remaining.length > 0) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+            }
+
+            // Force refresh explicitly
             await fetchRecords();
         } finally { isSyncing.current = false; }
     };
