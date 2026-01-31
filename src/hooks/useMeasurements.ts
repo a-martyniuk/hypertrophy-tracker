@@ -124,10 +124,10 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
                 let useNativeFallback = false;
 
-                const dbAction = async (libQuery: any, native: { method: string, path: string, body?: any }) => {
+                const dbAction = async (libQuery: any, native: { method: string, path: string, body?: any, prefer?: string }) => {
                     const label = `[saveRecord] ${native.method} ${native.path}`;
                     if (useNativeFallback) {
-                        return nativeFetch(native.method, native.path, native.body);
+                        return nativeFetch(native.method, native.path, native.body, native.prefer);
                     }
 
                     console.log(`${label} - Starting Library attempt...`);
@@ -139,14 +139,14 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     if (result._hang) {
                         console.warn(`${label} - Library HANG. Switching to Native Fallback.`);
                         useNativeFallback = true;
-                        return nativeFetch(native.method, native.path, native.body);
+                        return nativeFetch(native.method, native.path, native.body, native.prefer);
                     }
                     if (result.error) throw result.error;
                     console.log(`${label} - Library SUCCESS.`);
                     return result.data;
                 };
 
-                const nativeFetch = async (method: string, path: string, body?: any) => {
+                const nativeFetch = async (method: string, path: string, body?: any, prefer?: string) => {
                     const label = `[saveRecord] NativeFetch ${method} ${path}`;
                     console.log(`${label} - Executing native fetch...`);
 
@@ -163,7 +163,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                                 'apikey': anonKey,
                                 'Authorization': `Bearer ${token}`,
                                 'Content-Type': 'application/json',
-                                'Prefer': method === 'POST' ? 'return=minimal' : ''
+                                'Prefer': prefer || (method === 'POST' ? 'return=minimal' : '')
                             },
                             body: body ? JSON.stringify(body) : undefined
                         });
@@ -185,7 +185,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     }
                 };
 
-                // STEP 2: Main Record
+                // STEP 2: Main Record (ALWAYS use UPSERT to avoid "ghost updates" on sync)
                 const dbPayload = {
                     id: record.id,
                     date: record.date,
@@ -196,10 +196,15 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     user_id: targetUserId
                 };
 
-                const isNew = !record.id || record.id.length < 30;
+                console.log('[saveRecord] Step 2: Main Record UPSERT (Ensuring it exists for children)');
                 await dbAction(
-                    isNew ? supabase.from('body_records').insert(dbPayload) : supabase.from('body_records').update(dbPayload).eq('id', record.id),
-                    { method: isNew ? 'POST' : 'PATCH', path: isNew ? 'body_records' : `body_records?id=eq.${record.id}`, body: dbPayload }
+                    supabase.from('body_records').upsert(dbPayload),
+                    {
+                        method: 'POST',
+                        path: 'body_records',
+                        body: dbPayload,
+                        prefer: 'return=minimal, resolution=merge-duplicates'
+                    }
                 );
 
                 // STEP 3: Cleanup
