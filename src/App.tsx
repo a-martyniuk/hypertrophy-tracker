@@ -20,8 +20,8 @@ type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals' | 'pote
 function App() {
   const [activeView, setActiveView] = useState<View>('dashboard')
   const [isGuest, setIsGuest] = useState(false)
-  const { user: authUser, loading: authLoading, signOut } = useAuth()
-  const { records, saveRecord, deleteRecord } = useMeasurements(authUser?.id)
+  const { user: authUser, session: authSession, loading: authLoading, signOut } = useAuth()
+  const { records, saveRecord, deleteRecord } = useMeasurements(authUser?.id, authSession)
 
   console.log('[App] AuthUser:', authUser?.id, 'IsAuthenticated:', !!authUser);
   const { profile, updateProfile } = useProfile()

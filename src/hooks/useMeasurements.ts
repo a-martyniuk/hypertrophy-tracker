@@ -4,7 +4,7 @@ import type { MeasurementRecord, BodyMeasurements, BodyPhoto } from '../types/me
 
 const STORAGE_KEY = 'hypertrophy_measurements';
 
-export const useMeasurements = (userId?: string | null) => {
+export const useMeasurements = (userId?: string | null, authSession?: any | null) => {
     const [records, setRecords] = useState<MeasurementRecord[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -80,7 +80,7 @@ export const useMeasurements = (userId?: string | null) => {
     };
 
     const saveRecord = async (record: MeasurementRecord) => {
-        console.log('[saveRecord] Hybrid Entry. ID:', record.id);
+        console.log('[saveRecord] Entry. ID:', record.id);
 
         const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('TIMEOUT')), 45000)
@@ -89,15 +89,39 @@ export const useMeasurements = (userId?: string | null) => {
         console.time('[saveRecord] Total');
         try {
             const saveOperation = (async () => {
-                // 1. Warm up session and get token
-                console.time('Step 1: Session Warmup');
-                const sessionResult = await Promise.race([
-                    supabase.auth.getSession(),
-                    new Promise((resolve) => setTimeout(() => resolve({ data: { session: null }, error: new Error('session_timeout') }), 3000))
-                ]) as any;
-                const session = sessionResult.data?.session;
-                const targetUserId = userId || session?.user?.id || record.userId;
-                console.timeEnd('Step 1: Session Warmup');
+                // 1. Get Token Robustly
+                let token = authSession?.access_token;
+                let targetUserId = userId || authSession?.user?.id || record.userId;
+
+                if (!token) {
+                    console.log('[saveRecord] Token missing from hook, trying library or storage...');
+                    try {
+                        // Try a fast library call
+                        const { data } = await Promise.race([
+                            supabase.auth.getSession(),
+                            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 2000))
+                        ]) as any;
+                        token = data?.session?.access_token;
+                        targetUserId = targetUserId || data?.session?.user?.id;
+                    } catch (e) {
+                        console.warn('[saveRecord] Library session call failed/timed out. Checking localStorage...');
+                        // Last resort: Parse Supabase localStorage directly
+                        // Key format: sb-<project-ref>-auth-token
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key?.startsWith('sb-') && key.endsWith('-auth-token')) {
+                                const raw = localStorage.getItem(key);
+                                if (raw) {
+                                    const parsed = JSON.parse(raw);
+                                    token = parsed.access_token;
+                                    targetUserId = targetUserId || parsed.user?.id;
+                                    console.log('[saveRecord] Token recovered from localStorage key:', key);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
 
                 if (!targetUserId || targetUserId === 'default-user') {
                     console.log('[saveRecord] Local mode');
@@ -121,11 +145,10 @@ export const useMeasurements = (userId?: string | null) => {
                 };
 
                 const isNew = !record.id || record.id.length < 30;
-                console.log('[saveRecord] Mode:', isNew ? 'INSERT' : 'UPDATE', 'Payload:', dbPayload);
+                console.log('[saveRecord] Write Mode:', isNew ? 'INSERT' : 'UPDATE', 'Token length:', token?.length || 0);
 
                 const performWrite = async () => {
-                    // Try library first with a 5s race
-                    console.time('Step 2: Library Call');
+                    console.time('Step 2: DB Write Call');
                     const libCall = isNew
                         ? supabase.from('body_records').insert(dbPayload)
                         : supabase.from('body_records').update(dbPayload).eq('id', record.id);
@@ -134,10 +157,14 @@ export const useMeasurements = (userId?: string | null) => {
                         libCall,
                         new Promise((resolve) => setTimeout(() => resolve({ error: { message: 'LIB_HANG' } }), 5000))
                     ]) as any;
-                    console.timeEnd('Step 2: Library Call');
+                    console.timeEnd('Step 2: DB Write Call');
 
                     if (result.error?.message === 'LIB_HANG') {
                         console.warn('[saveRecord] Library HANG detected. Falling back to native fetch...');
+                        if (!token || token.split('.').length !== 3) {
+                            throw new Error('Fallback failed: No valid JWT token available to bypass library hang.');
+                        }
+
                         const baseUrl = import.meta.env.VITE_SUPABASE_URL;
                         const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -149,7 +176,7 @@ export const useMeasurements = (userId?: string | null) => {
                             method: isNew ? 'POST' : 'PATCH',
                             headers: {
                                 'apikey': anonKey,
-                                'Authorization': `Bearer ${session?.access_token}`,
+                                'Authorization': `Bearer ${token}`,
                                 'Content-Type': 'application/json',
                                 'Prefer': isNew ? 'return=minimal' : ''
                             },
@@ -158,9 +185,8 @@ export const useMeasurements = (userId?: string | null) => {
 
                         if (!fetchResponse.ok) {
                             const errBody = await fetchResponse.json().catch(() => ({}));
-                            throw new Error(`Native fetch failed: ${fetchResponse.status} ${JSON.stringify(errBody)}`);
+                            throw new Error(`Native fetch failed (${fetchResponse.status}): ${JSON.stringify(errBody)}`);
                         }
-                        console.log('[saveRecord] Native fetch SUCCESS.');
                     } else if (result.error) {
                         throw result.error;
                     }
@@ -168,13 +194,13 @@ export const useMeasurements = (userId?: string | null) => {
 
                 await performWrite();
 
-                // 3. Cleanup and Sub-records (Standard Library Calls)
-                console.time('Step 3: Cleanup old data');
+                // 3. Cleanup and Sub-records
+                console.time('Step 3: Cleanup');
                 await Promise.all([
                     supabase.from('body_measurements').delete().eq('body_record_id', record.id),
                     supabase.from('body_photos').delete().eq('body_record_id', record.id)
                 ]);
-                console.timeEnd('Step 3: Cleanup old data');
+                console.timeEnd('Step 3: Cleanup');
 
                 // 4. Detailed Inserts
                 const measurementItems = [];
@@ -207,7 +233,7 @@ export const useMeasurements = (userId?: string | null) => {
                     angle: p.angle
                 }));
 
-                console.time('Step 4: Sub-record inserts');
+                console.time('Step 4: Sub-records');
                 const insertPromises = [
                     supabase.from('body_measurements').insert(measurementItems)
                 ];
@@ -215,17 +241,12 @@ export const useMeasurements = (userId?: string | null) => {
                     insertPromises.push(supabase.from('body_photos').insert(photoItems));
                 }
                 const subResults = await Promise.all(insertPromises);
-                console.timeEnd('Step 4: Sub-record inserts');
+                console.timeEnd('Step 4: Sub-records');
 
                 for (const res of subResults) {
-                    if (res.error) {
-                        console.error('[saveRecord] Sub-record error:', res.error);
-                        // If it's just RLS, we don't crash the whole thing but we warn
-                        if (res.error.code !== '42501') throw res.error;
-                    }
+                    if (res.error && res.error.code !== '42501') throw res.error;
                 }
 
-                // Finalize
                 const updatedRecord = { ...record, userId: targetUserId };
                 setRecords(prev => {
                     const filtered = prev.filter(r => r.id !== updatedRecord.id);
@@ -243,13 +264,9 @@ export const useMeasurements = (userId?: string | null) => {
         } catch (error: any) {
             console.timeEnd('[saveRecord] Total');
             console.error('[saveRecord] FATAL ERROR:', error);
-            let message = 'Error inesperado al guardar.';
+            let message = error.message || 'Error inesperado al guardar.';
             if (error.message === 'TIMEOUT') {
-                message = 'Se agotaron los 45s. Es posible que tu red esté bloqueando la conexión a Supabase.';
-            } else if (error.code === '42501') {
-                message = 'Error de seguridad (RLS). Por favor, revisa tus políticas en Supabase.';
-            } else if (error.message) {
-                message = error.message;
+                message = 'Se agotaron los 45s. Revisa tu conexión.';
             }
             return { success: false, error: { ...error, message } };
         }
