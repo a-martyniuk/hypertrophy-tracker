@@ -9,9 +9,11 @@ export const useMeasurements = (userId?: string | null) => {
     const [loading, setLoading] = useState(true);
 
     const fetchRecords = async () => {
+        console.log('[useMeasurements] fetchRecords starting...');
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
+            console.log('[useMeasurements] No user, loading from localStorage');
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 setRecords(JSON.parse(saved));
@@ -30,7 +32,7 @@ export const useMeasurements = (userId?: string | null) => {
             .order('date', { ascending: false });
 
         if (error) {
-            console.error('Error fetching measurements:', error);
+            console.error('[useMeasurements] Error fetching records:', error);
         } else if (data) {
             const mappedRecords: MeasurementRecord[] = data.map((record: any) => {
                 const ms: any = {};
@@ -89,6 +91,8 @@ export const useMeasurements = (userId?: string | null) => {
     };
 
     const saveRecord = async (record: MeasurementRecord) => {
+        console.log('[saveRecord] ENTRY. Record ID:', record.id, 'userId provided:', userId);
+
         const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('TIMEOUT')), 45000)
         );
@@ -96,9 +100,12 @@ export const useMeasurements = (userId?: string | null) => {
         console.time('[saveRecord] Total Time');
         try {
             const saveOperation = (async () => {
+                console.log('[saveRecord] saveOperation starting now...');
                 const targetUserId = userId || record.userId;
+                console.log('[saveRecord] Using targetUserId:', targetUserId);
 
                 if (!targetUserId || targetUserId === 'default-user') {
+                    console.log('[saveRecord] Guest Mode: Saving only to local storage');
                     const newRecords = [record, ...records].sort((a, b) =>
                         new Date(b.date).getTime() - new Date(a.date).getTime()
                     );
@@ -107,40 +114,69 @@ export const useMeasurements = (userId?: string | null) => {
                     return { success: true };
                 }
 
-                // 2. Upsert Main Record
-                // We use upsert as it's the most reliable way to handle both new and existing records
-                // but we omit the slow .select().single() to avoid RLS-returning bottlenecks
-                console.time('Step 2: Main Record Save');
-                const { error: recordError } = await supabase
-                    .from('body_records')
-                    .upsert({
-                        id: record.id,
-                        date: record.date,
-                        weight: record.measurements.weight,
-                        body_fat_pct: record.measurements.bodyFat,
-                        notes: record.notes,
-                        metadata: record.metadata,
-                        user_id: targetUserId
-                    });
-                console.timeEnd('Step 2: Main Record Save');
+                // 2. Save or Update Main Record
+                // Split approach for better tracing and RLS compatibility
+                const isNew = !record.id || record.id.length < 30; // Random UUIDs are usually 36 chars
+                const payload = {
+                    id: record.id,
+                    date: record.date,
+                    weight: record.measurements.weight,
+                    body_fat_pct: record.measurements.bodyFat,
+                    notes: record.notes,
+                    metadata: record.metadata,
+                    user_id: targetUserId
+                };
 
-                if (recordError) {
-                    console.error('[saveRecord] Error saving main record:', recordError);
-                    throw recordError;
+                console.log('[saveRecord] Attempting DB write. IsNew Guess:', isNew);
+                console.log('[saveRecord] Payload details:', { date: record.date, weight: record.measurements.weight });
+
+                console.time('Step 2: Main Record DB Write');
+                // We use single calls instead of consolidated upsert for max visibility
+                if (isNew) {
+                    console.log('[saveRecord] Calling .insert()...');
+                    const { error: insErr } = await supabase.from('body_records').insert(payload);
+                    if (insErr) {
+                        console.error('[saveRecord] Insert failed:', insErr);
+                        // Fallback: If it already exists, try update
+                        if (insErr.code === '23505') {
+                            console.log('[saveRecord] Conflict detected, trying update fallback...');
+                            const { error: fallbackErr } = await supabase
+                                .from('body_records')
+                                .update(payload)
+                                .eq('id', record.id);
+                            if (fallbackErr) throw fallbackErr;
+                        } else {
+                            throw insErr;
+                        }
+                    }
+                } else {
+                    console.log('[saveRecord] Calling .update()...');
+                    const { error: updErr } = await supabase
+                        .from('body_records')
+                        .update(payload)
+                        .eq('id', record.id);
+                    if (updErr) {
+                        console.error('[saveRecord] Update failed:', updErr);
+                        throw updErr;
+                    }
                 }
+                console.timeEnd('Step 2: Main Record DB Write');
+                console.log('[saveRecord] Step 2 complete: Body Record confirmed.');
 
-                // since we have the ID from the client, we use it directly
-                const finalRecordId = record.id;
-
-                // 3. Parallelize Deletions (Old measurements and photos)
+                // 3. Cleanup Old Sub-records
+                console.log('[saveRecord] Starting Step 3: Cleanup old data');
                 console.time('Step 3: Cleanup');
-                await Promise.all([
-                    supabase.from('body_measurements').delete().eq('body_record_id', finalRecordId),
-                    supabase.from('body_photos').delete().eq('body_record_id', finalRecordId).maybeSingle() // maybeSingle to handle missing table gracefully if user hasn't run SQL yet
+                const [delM, delP] = await Promise.all([
+                    supabase.from('body_measurements').delete().eq('body_record_id', record.id),
+                    supabase.from('body_photos').delete().eq('body_record_id', record.id)
                 ]);
                 console.timeEnd('Step 3: Cleanup');
 
-                // 4. Prepare and Parallelize Inserts
+                if (delM.error) console.warn('[saveRecord] Measurements delete warning:', delM.error);
+                if (delP.error) console.warn('[saveRecord] Photos delete warning:', delP.error);
+
+                // 4. Prepare and Insert New Sub-records
+                console.log('[saveRecord] Starting Step 4: Inserting detailed data');
                 const measurementItems = [];
                 const m = record.measurements as any;
                 const keys = ['neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'arm.left', 'arm.right', 'thigh.left', 'thigh.right', 'calf.left', 'calf.right'];
@@ -156,7 +192,7 @@ export const useMeasurements = (userId?: string | null) => {
 
                     if (value !== undefined && value !== null) {
                         measurementItems.push({
-                            body_record_id: finalRecordId,
+                            body_record_id: record.id,
                             type: key,
                             value: value,
                             side: key.includes('.left') ? 'left' : key.includes('.right') ? 'right' : 'center'
@@ -166,7 +202,7 @@ export const useMeasurements = (userId?: string | null) => {
 
                 const photoItems = (record.photos || []).map(p => ({
                     id: p.id,
-                    body_record_id: finalRecordId,
+                    body_record_id: record.id,
                     url: p.url,
                     angle: p.angle
                 }));
@@ -180,18 +216,19 @@ export const useMeasurements = (userId?: string | null) => {
                     insertPromises.push(supabase.from('body_photos').insert(photoItems));
                 }
 
-                const insertResults = await Promise.all(insertPromises);
+                const results = await Promise.all(insertPromises);
                 console.timeEnd('Step 4: Inserts');
 
-                for (const res of insertResults) {
+                for (const res of results) {
                     if (res.error) {
-                        console.error('[saveRecord] Insert error:', res.error);
+                        console.error('[saveRecord] Sub-record insert error:', res.error);
                         throw res.error;
                     }
                 }
 
-                // 6. Finalize Local State
-                const updatedRecord = { ...record, id: finalRecordId, userId: targetUserId };
+                // 6. Local State Synchronization
+                console.log('[saveRecord] Syncing local state');
+                const updatedRecord = { ...record, userId: targetUserId };
                 setRecords(prev => {
                     const filtered = prev.filter(r => r.id !== updatedRecord.id);
                     return [updatedRecord, ...filtered].sort((a, b) =>
@@ -199,7 +236,8 @@ export const useMeasurements = (userId?: string | null) => {
                     );
                 });
 
-                fetchRecords().catch(err => console.error('[saveRecord] Background sync failed:', err));
+                fetchRecords().catch(err => console.error('[saveRecord] Background refresh failed:', err));
+                console.log('[saveRecord] ALL STEPS COMPLETE');
                 console.timeEnd('[saveRecord] Total Time');
                 return { success: true };
             })();
@@ -207,17 +245,19 @@ export const useMeasurements = (userId?: string | null) => {
             return await Promise.race([saveOperation, timeoutPromise]) as { success: boolean, error?: any };
         } catch (error: any) {
             console.timeEnd('[saveRecord] Total Time');
-            console.error('[saveRecord] Fatal error:', error);
+            console.error('[saveRecord] FATAL ERROR:', error);
+
             let message = 'Error inesperado al guardar.';
             if (error.message === 'TIMEOUT') {
-                message = 'Se agotaron los 45s. Si el problema persiste, intenta en ventana de INCÓGNITO.';
+                message = 'Se agotaron los 45s. Por favor, asegúrate de estar en una ventana de INCÓGNITO.';
             } else if (error.code === '42501') {
-                message = 'Error de permisos (RLS). Por favor, ejecuta el script SQL proporcionado para actualizar la seguridad de la base de datos.';
+                message = 'Error de seguridad (RLS). ¿Ejecutaste el script SQL en Supabase?';
             } else if (error.code) {
-                message = `Error de base de datos (${error.code}): ${error.message}`;
-            } else if (error.message) {
+                message = `Error de DB (${error.code}): ${error.message}`;
+            } else {
                 message = error.message;
             }
+
             return { success: false, error: { ...error, message } };
         }
     };
@@ -232,6 +272,7 @@ export const useMeasurements = (userId?: string | null) => {
         const localRecords: MeasurementRecord[] = JSON.parse(saved);
         if (localRecords.length === 0) return;
 
+        console.log('[useMeasurements] Syncing local data to cloud...');
         for (const record of localRecords) {
             await saveRecord(record);
         }
