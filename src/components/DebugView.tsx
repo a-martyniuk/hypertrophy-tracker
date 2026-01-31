@@ -146,15 +146,27 @@ export function DebugView() {
         }
     };
 
+    const hardReset = () => {
+        if (confirm('¿Estás seguro? Esto borrará TODOS los datos locales y la sesión.')) {
+            log('Clearing localStorage...');
+            localStorage.clear();
+            log('Reloading...');
+            setTimeout(() => window.location.reload(), 500);
+        }
+    };
+
     return (
         <div style={{ padding: '20px', background: '#111', color: '#0f0', fontFamily: 'monospace', minHeight: '100vh', position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 9999, overflow: 'auto' }}>
             <h2>🛠️ PANEL DE DIAGNÓSTICO NUCLEAR</h2>
-            <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+            <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <button onClick={runDiagnostics} style={{ padding: '10px', background: '#333', color: '#fff', border: '1px solid #555', cursor: 'pointer' }}>
                     RE-EJECUTAR PRUEBAS
                 </button>
                 <button onClick={attemptManualRestore} style={{ padding: '10px', background: '#f59e0b', color: '#000', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
-                    ⚠️ FORZAR RESTAURACIÓN DE SESIÓN (LOCALSTORAGE)
+                    ⚠️ FORZAR RESTAURACIÓN
+                </button>
+                <button onClick={hardReset} style={{ padding: '10px', background: '#ef4444', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
+                    ☢️ HARD RESET (Borrar Todo)
                 </button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
