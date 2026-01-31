@@ -114,42 +114,56 @@ export const useMeasurements = (userId?: string | null) => {
                 }
 
                 // 2. Save or Update Main Record
-                console.time('Step 2a: Upsert Payload Preparation');
-                const upsertData = {
-                    id: record.id.length > 30 ? record.id : undefined,
+                console.time('Step 2a: Execution of DB Write');
+                const isNew = !record.id || record.id.length < 30;
+
+                const dbPayload = {
                     date: record.date,
                     weight: record.measurements.weight,
                     notes: record.notes,
                     metadata: record.metadata,
                     user_id: targetUserId
                 };
-                console.log('[saveRecord] Upsert Payload:', upsertData);
-                console.timeEnd('Step 2a: Upsert Payload Preparation');
 
-                console.time('Step 2b: Execution of Upsert');
-                const { data: upsertResult, error: recordError } = await supabase
-                    .from('body_records')
-                    .upsert(upsertData)
-                    .select('id');
-                console.timeEnd('Step 2b: Execution of Upsert');
+                console.log('[saveRecord] Attempting DB write. IsNew:', isNew, 'Payload:', dbPayload);
 
-                if (recordError) {
-                    console.error('[saveRecord] Error in main record upsert:', recordError);
-                    throw recordError;
+                let finalRecordId = record.id;
+
+                if (isNew) {
+                    console.log('[saveRecord] Calling supabase.insert...');
+                    const { data: insertResult, error: insertError } = await supabase
+                        .from('body_records')
+                        .insert(dbPayload)
+                        .select('id')
+                        .single();
+
+                    if (insertError) {
+                        console.error('[saveRecord] Insert error:', insertError);
+                        throw insertError;
+                    }
+                    finalRecordId = insertResult.id;
+                } else {
+                    console.log('[saveRecord] Calling supabase.update for ID:', record.id);
+                    const { error: updateError } = await supabase
+                        .from('body_records')
+                        .update(dbPayload)
+                        .eq('id', record.id);
+
+                    if (updateError) {
+                        console.error('[saveRecord] Update error:', updateError);
+                        throw updateError;
+                    }
+                    finalRecordId = record.id;
                 }
 
-                if (!upsertResult || upsertResult.length === 0) {
-                    throw new Error('No se recibió confirmación del registro creado.');
-                }
-
-                const newRecordId = upsertResult[0].id;
-                console.log('[saveRecord] Record saved successfully with ID:', newRecordId);
+                console.timeEnd('Step 2a: Execution of DB Write');
+                console.log('[saveRecord] Record write successful. finalRecordId:', finalRecordId);
 
                 // 3. Parallelize Deletions
                 console.time('Step 3: Parallel Deletions');
                 const [delM, delP] = await Promise.all([
-                    supabase.from('body_measurements').delete().eq('body_record_id', newRecordId),
-                    supabase.from('body_photos').delete().eq('body_record_id', newRecordId)
+                    supabase.from('body_measurements').delete().eq('body_record_id', finalRecordId),
+                    supabase.from('body_photos').delete().eq('body_record_id', finalRecordId)
                 ]);
                 console.timeEnd('Step 3: Parallel Deletions');
 
@@ -172,7 +186,7 @@ export const useMeasurements = (userId?: string | null) => {
 
                     if (value !== undefined) {
                         measurementItems.push({
-                            body_record_id: newRecordId,
+                            body_record_id: finalRecordId,
                             type: key,
                             value: value,
                             side: key.includes('.left') ? 'left' : key.includes('.right') ? 'right' : 'center'
@@ -182,7 +196,7 @@ export const useMeasurements = (userId?: string | null) => {
 
                 const photoItems = (record.photos || []).map(p => ({
                     id: p.id,
-                    body_record_id: newRecordId,
+                    body_record_id: finalRecordId,
                     url: p.url,
                     angle: p.angle
                 }));
@@ -208,7 +222,7 @@ export const useMeasurements = (userId?: string | null) => {
 
                 // 6. Finalize Local State
                 console.log('[saveRecord] Finalizing local state...');
-                const updatedRecord = { ...record, id: newRecordId, userId: targetUserId };
+                const updatedRecord = { ...record, id: finalRecordId, userId: targetUserId };
                 setRecords(prev => {
                     const filtered = prev.filter(r => r.id !== updatedRecord.id);
                     return [updatedRecord, ...filtered].sort((a, b) =>
