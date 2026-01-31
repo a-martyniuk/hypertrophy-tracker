@@ -9,7 +9,6 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
     const [loading, setLoading] = useState(true);
 
     const fetchRecords = async () => {
-        console.log('[useMeasurements] fetchRecords starting...');
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
@@ -80,13 +79,10 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
     };
 
     const saveRecord = async (record: MeasurementRecord) => {
-        console.log('[saveRecord] Entry. ID:', record.id);
-
         const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('TIMEOUT')), 45000)
         );
 
-        console.time('[saveRecord] Total');
         try {
             const saveOperation = (async () => {
                 // 1. Get Token and Setup Environment
@@ -97,7 +93,6 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 let targetUserId = userId || authSession?.user?.id || record.userId;
 
                 if (!token) {
-                    console.log('[saveRecord] Token missing, searching localStorage...');
                     for (let i = 0; i < localStorage.length; i++) {
                         const key = localStorage.key(i);
                         if (key?.startsWith('sb-') && key.endsWith('-auth-token')) {
@@ -113,7 +108,6 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 }
 
                 if (!targetUserId || targetUserId === 'default-user') {
-                    console.log('[saveRecord] Guest Mode');
                     const newRecords = [record, ...records].sort((a, b) =>
                         new Date(b.date).getTime() - new Date(a.date).getTime()
                     );
@@ -125,31 +119,25 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 let useNativeFallback = false;
 
                 const dbAction = async (libQuery: any, native: { method: string, path: string, body?: any, prefer?: string }) => {
-                    const label = `[saveRecord] ${native.method} ${native.path}`;
                     if (useNativeFallback) {
                         return nativeFetch(native.method, native.path, native.body, native.prefer);
                     }
 
-                    console.log(`${label} - Starting Library attempt...`);
                     const result = await Promise.race([
                         libQuery,
                         new Promise((resolve) => setTimeout(() => resolve({ _hang: true }), 5000))
                     ]) as any;
 
                     if (result._hang) {
-                        console.warn(`${label} - Library HANG. Switching to Native Fallback.`);
+                        console.warn(`[saveRecord] Library timeout for ${native.path}. Switching to Native Fallback.`);
                         useNativeFallback = true;
                         return nativeFetch(native.method, native.path, native.body, native.prefer);
                     }
                     if (result.error) throw result.error;
-                    console.log(`${label} - Library SUCCESS.`);
                     return result.data;
                 };
 
                 const nativeFetch = async (method: string, path: string, body?: any, prefer?: string) => {
-                    const label = `[saveRecord] NativeFetch ${method} ${path}`;
-                    console.log(`${label} - Executing native fetch...`);
-
                     if (!token) throw new Error('Cannot use native fallback: No access token found.');
 
                     const controller = new AbortController();
@@ -172,15 +160,12 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
                         if (!response.ok) {
                             const errBody = await response.json().catch(() => ({}));
-                            console.error(`${label} - HTTP ERROR:`, response.status, errBody);
                             throw new Error(`Native fetch failed (${response.status}): ${JSON.stringify(errBody)}`);
                         }
 
-                        console.log(`${label} - SUCCESS.`);
                         return response.status === 204 ? null : response.json().catch(() => null);
                     } catch (err: any) {
                         clearTimeout(fetchTimeout);
-                        console.error(`${label} - FATAL:`, err);
                         throw err;
                     }
                 };
@@ -196,7 +181,6 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     user_id: targetUserId
                 };
 
-                console.log('[saveRecord] Step 2: Main Record UPSERT (Ensuring it exists for children)');
                 await dbAction(
                     supabase.from('body_records').upsert(dbPayload),
                     {
@@ -208,7 +192,6 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 );
 
                 // STEP 3: Cleanup
-                console.log('[saveRecord] Proceeding to Step 3: Cleanup');
                 await dbAction(
                     supabase.from('body_measurements').delete().eq('body_record_id', record.id),
                     { method: 'DELETE', path: `body_measurements?body_record_id=eq.${record.id}` }
@@ -235,7 +218,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     if (value !== undefined && value !== null) {
                         measurementItems.push({
                             body_record_id: record.id,
-                            user_id: targetUserId, // Denormalized for bulletproof RLS
+                            user_id: targetUserId,
                             type: key,
                             value: value,
                             side: key.includes('.left') ? 'left' : key.includes('.right') ? 'right' : 'center'
@@ -253,7 +236,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 const photoItems = (record.photos || []).map(p => ({
                     id: p.id,
                     body_record_id: record.id,
-                    user_id: targetUserId, // Denormalized for bulletproof RLS
+                    user_id: targetUserId,
                     url: p.url,
                     angle: p.angle
                 }));
@@ -275,13 +258,11 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 });
 
                 fetchRecords().catch(() => { });
-                console.timeEnd('[saveRecord] Total');
                 return { success: true };
             })();
 
             return await Promise.race([saveOperation, timeoutPromise]) as { success: boolean, error?: any };
         } catch (error: any) {
-            console.timeEnd('[saveRecord] Total');
             console.error('[saveRecord] FATAL ERROR:', error);
             return { success: false, error: { message: error.message || 'Error inesperado al guardar.' } };
         }
