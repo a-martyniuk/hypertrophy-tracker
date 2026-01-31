@@ -78,6 +78,31 @@ export function DebugView() {
             }
         }
 
+        // 5. LocalStorage Inspection
+        log('--- LOCAL STORAGE ---');
+        if (typeof window !== 'undefined' && window.localStorage) {
+            const keys = Object.keys(localStorage);
+            log(`Total keys in localStorage: ${keys.length}`);
+            keys.forEach(k => {
+                if (k.startsWith('sb-') || k.toLowerCase().includes('supabase')) {
+                    const val = localStorage.getItem(k);
+                    log(`Found Key: ${k}`);
+                    log(`Value Length: ${val?.length ?? 0}`);
+                    if (val) {
+                        try {
+                            const parsed = JSON.parse(val);
+                            log(`Token User ID: ${parsed.user?.id}`);
+                            log(`Expires At: ${parsed.expires_at}`);
+                        } catch (e) {
+                            log('Value validates as non-JSON');
+                        }
+                    }
+                }
+            });
+        } else {
+            log('LocalStorage not available');
+        }
+
         log('--- DIAGNOSTICS END ---');
     };
 
