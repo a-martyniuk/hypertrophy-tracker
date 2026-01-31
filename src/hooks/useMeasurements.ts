@@ -4,7 +4,7 @@ import type { MeasurementRecord, BodyMeasurements, BodyPhoto } from '../types/me
 
 const STORAGE_KEY = 'hypertrophy_measurements';
 
-export const useMeasurements = () => {
+export const useMeasurements = (userId?: string | null) => {
     const [records, setRecords] = useState<MeasurementRecord[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -96,16 +96,15 @@ export const useMeasurements = () => {
         console.time('saveRecord Total');
         try {
             const saveOperation = (async () => {
-                console.log('[saveRecord] Starting save operation...');
+                console.log('[saveRecord] Starting save operation. userId provided:', userId);
 
-                // 1. Get Session instead of User (faster, no server round-trip if cached)
-                console.time('Step 1: Auth');
-                const { data: { session } } = await supabase.auth.getSession();
-                const targetUserId = session?.user?.id || record.userId;
-                console.timeEnd('Step 1: Auth');
+                // 1. Use provided userId directly to avoid the hanging getSession call
+                console.time('Step 1: Auth (Local)');
+                const targetUserId = userId || record.userId;
+                console.timeEnd('Step 1: Auth (Local)');
 
-                if (!targetUserId) {
-                    console.log('[saveRecord] No user session, saving locally...');
+                if (!targetUserId || targetUserId === 'default-user') {
+                    console.log('[saveRecord] No valid user ID, saving to local storage...');
                     const newRecords = [record, ...records].sort((a, b) =>
                         new Date(b.date).getTime() - new Date(a.date).getTime()
                     );

@@ -21,7 +21,7 @@ function App() {
   const [activeView, setActiveView] = useState<View>('dashboard')
   const [isGuest, setIsGuest] = useState(false)
   const { user: authUser, loading: authLoading, signOut } = useAuth()
-  const { records, saveRecord, deleteRecord } = useMeasurements()
+  const { records, loading: measurementsLoading, saveRecord, deleteRecord } = useMeasurements(authUser?.id)
   const { profile, updateProfile } = useProfile()
   const { goals, addGoal, deleteGoal } = useGoals()
 
