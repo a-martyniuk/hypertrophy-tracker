@@ -110,12 +110,53 @@ export function DebugView() {
         runDiagnostics();
     }, []);
 
+    const attemptManualRestore = async () => {
+        log('--- ATTEMPTING MANUAL RESTORE ---');
+        if (typeof window === 'undefined' || !window.localStorage) return;
+
+        const keys = Object.keys(localStorage);
+        const sbKey = keys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+
+        if (!sbKey) {
+            log('No Supabase token found in localStorage');
+            return;
+        }
+
+        const raw = localStorage.getItem(sbKey);
+        if (!raw) return;
+
+        try {
+            const { access_token, refresh_token } = JSON.parse(raw);
+            log('Found tokens, attempting setSession...');
+
+            const { data, error } = await supabase.auth.setSession({
+                access_token,
+                refresh_token
+            });
+
+            if (error) {
+                log('setSession Error:', error);
+            } else {
+                log('setSession Success:', data);
+                log('Reloading in 2 seconds...');
+                setTimeout(() => window.location.reload(), 2000);
+            }
+        } catch (e) {
+            log('Manual Restore Exception:', e);
+        }
+    };
+
     return (
         <div style={{ padding: '20px', background: '#111', color: '#0f0', fontFamily: 'monospace', minHeight: '100vh', position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 9999, overflow: 'auto' }}>
             <h2>🛠️ PANEL DE DIAGNÓSTICO NUCLEAR</h2>
-            <button onClick={runDiagnostics} style={{ padding: '10px', background: '#333', color: '#fff', border: '1px solid #555', cursor: 'pointer', marginBottom: '20px' }}>
-                RE-EJECUTAR PRUEBAS
-            </button>
+            <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+                <button onClick={runDiagnostics} style={{ padding: '10px', background: '#333', color: '#fff', border: '1px solid #555', cursor: 'pointer' }}>
+                    RE-EJECUTAR PRUEBAS
+                </button>
+                <button onClick={attemptManualRestore} style={{ padding: '10px', background: '#f59e0b', color: '#000', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
+                    ⚠️ FORZAR RESTAURACIÓN DE SESIÓN (LOCALSTORAGE)
+                </button>
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 <div>
                     <h3>Consola de Logs</h3>
