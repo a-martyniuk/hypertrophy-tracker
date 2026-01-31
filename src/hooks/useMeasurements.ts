@@ -320,25 +320,39 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
             try {
                 const baseUrl = import.meta.env.VITE_SUPABASE_URL;
                 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+                const headers = {
+                    'apikey': anonKey,
+                    'Authorization': `Bearer ${token}`,
+                    'Prefer': 'return=minimal'
+                };
 
-                console.log('[deleteRecord] Native DELETE:', id);
-                const res = await fetch(`${baseUrl}/rest/v1/body_records?id=eq.${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'apikey': anonKey,
-                        'Authorization': `Bearer ${token}`,
-                        'Prefer': 'return=minimal'
+                const nativeDelete = async (path: string) => {
+                    const res = await fetch(`${baseUrl}/rest/v1/${path}`, {
+                        method: 'DELETE',
+                        headers
+                    });
+                    if (!res.ok) {
+                        const txt = await res.text();
+                        // Ignore 404s on children, effectively means they are already gone
+                        if (res.status !== 404) throw new Error(txt);
                     }
-                });
+                };
 
-                if (!res.ok) throw new Error(await res.text());
+                console.log('[deleteRecord] Starting Cascade Delete for:', id);
+
+                // 1. Delete Children (Measurements)
+                await nativeDelete(`body_measurements?body_record_id=eq.${id}`);
+
+                // 2. Delete Children (Photos)
+                await nativeDelete(`body_photos?body_record_id=eq.${id}`);
+
+                // 3. Delete Parent
+                await nativeDelete(`body_records?id=eq.${id}`);
 
                 // Remove locally to update UI immediately
                 setRecords(prev => prev.filter(r => r.id !== id));
                 return { success: true };
 
-                // Trigger background refresh 
-                // fetchRecords(); // Optional, let's skip to prevent flashes
             } catch (err: any) {
                 console.error('[delete] Cloud op failed:', err);
                 return { success: false, error: err.message };

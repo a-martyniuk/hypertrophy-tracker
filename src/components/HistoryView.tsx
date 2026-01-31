@@ -1,4 +1,5 @@
 import type { MeasurementRecord } from '../types/measurements';
+import React from 'react';
 import { Calendar, ChevronRight, Trash2 } from 'lucide-react';
 
 interface Props {
@@ -8,6 +9,8 @@ interface Props {
 }
 
 export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
+  const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
+
   if (records.length === 0) {
     return (
       <div className="empty-history animate-fade">
@@ -39,24 +42,28 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
 
             <div className="record-actions">
               <button
-                className="btn-icon delete"
+                className={`btn-icon delete ${isDeleting === record.id ? 'loading' : ''}`}
+                disabled={!!isDeleting}
                 onClick={async (e) => {
                   e.stopPropagation();
                   if (!window.confirm('¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.')) return;
 
+                  setIsDeleting(record.id);
                   try {
                     const result = await onDelete(record.id);
-                    // @ts-ignore - Validating result even if typed as void temporarily
+                    // @ts-ignore
                     if (result && !result.success) {
                       alert(`Error al eliminar: ${result.error || 'Inténtalo de nuevo'}`);
                     }
                   } catch (err) {
                     console.error('Delete error', err);
                     alert('Error inesperado al eliminar el registro.');
+                  } finally {
+                    setIsDeleting(null);
                   }
                 }}
               >
-                <Trash2 size={18} />
+                {isDeleting === record.id ? <div className="spinner-mini" /> : <Trash2 size={18} />}
               </button>
               <ChevronRight size={20} className="arrow" />
             </div>
@@ -152,6 +159,17 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
         .record-card:hover .arrow {
           transform: translateX(5px);
           color: var(--primary-color);
+        }
+        .spinner-mini {
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-radius: 50%;
+          border-top-color: var(--danger-color);
+          animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>
