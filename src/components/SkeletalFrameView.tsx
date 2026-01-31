@@ -9,6 +9,7 @@ interface Props {
 }
 
 export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Props) => {
+  const [height, setHeight] = useState<number>(currentMeasurements?.height || 177);
   const [frame, setFrame] = useState<SkeletalFrame>(() => {
     if (baseline) return baseline;
 
@@ -35,7 +36,8 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
 
   const calculatePotential = () => {
     const { wrist, ankle } = frame;
-    const heightCm = currentMeasurements?.height || 177; // Fallback to ~5'9" if missing
+    // Use local height state for calculation
+    const heightCm = height;
 
     // Convert to Imperial (Inches) for authentic Casey Butt calculation
     const W = wrist / 2.54;
@@ -102,6 +104,19 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
               <h3>Mis Medidas Base (cm)</h3>
             </div>
             <div className="hud-column">
+              <div className="hud-input-group">
+                <div className="hud-label-row">
+                  <label>Altura (cm)</label>
+                </div>
+                <input
+                  type="number"
+                  step="1"
+                  value={height}
+                  onChange={e => setHeight(parseFloat(e.target.value) || 0)}
+                />
+                <p className="input-hint">Altura total descalzo.</p>
+              </div>
+
               <div className="hud-input-group">
                 <div className="hud-label-row">
                   <label>Muñeca</label>
