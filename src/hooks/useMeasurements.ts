@@ -204,7 +204,12 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
                 // STEP C: Insert Measurements (Smart Fallback)
                 const m = record.measurements as any;
-                const keys = ['neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'arm.left', 'arm.right', 'thigh.left', 'thigh.right', 'calf.left', 'calf.right'];
+                const keys = [
+                    'neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'height',
+                    'arm.left', 'arm.right', 'forearm.left', 'forearm.right',
+                    'thigh.left', 'thigh.right', 'calf.left', 'calf.right',
+                    'wrist.left', 'wrist.right', 'ankle.left', 'ankle.right'
+                ];
                 const items = keys.map(k => {
                     const val = k.includes('.') ? m[k.split('.')[0]]?.[k.split('.')[1]] : m[k];
                     if (val === undefined || val === null) return null;
