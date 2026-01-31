@@ -90,13 +90,13 @@ export const useMeasurements = () => {
 
     const saveRecord = async (record: MeasurementRecord) => {
         const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('TIMEOUT')), 15000)
+            setTimeout(() => reject(new Error('TIMEOUT')), 45000)
         );
 
         try {
             const saveOperation = (async () => {
-                const { data: { user } } = await supabase.auth.getUser();
-                const targetUserId = user?.id || record.userId;
+                const { data: { user: authUser } } = await supabase.auth.getUser();
+                const targetUserId = authUser?.id || record.userId;
 
                 if (!targetUserId) {
                     const newRecords = [record, ...records].sort((a, b) =>
@@ -107,7 +107,7 @@ export const useMeasurements = () => {
                     return { success: true };
                 }
 
-                // 1. Save or Update Record
+                // 1. Save or Update Main Record
                 const { data: newRecord, error: recordError } = await supabase
                     .from('body_records')
                     .upsert({
@@ -123,10 +123,13 @@ export const useMeasurements = () => {
 
                 if (recordError) throw recordError;
 
-                // 2. Save Measurements (relational)
-                const { error: delError } = await supabase.from('body_measurements').delete().eq('body_record_id', newRecord.id);
-                if (delError) throw delError;
+                // 2. Parallelize Deletions of child records (ONLY for this specific record)
+                await Promise.all([
+                    supabase.from('body_measurements').delete().eq('body_record_id', newRecord.id),
+                    supabase.from('body_photos').delete().eq('body_record_id', newRecord.id)
+                ]);
 
+                // 3. Prepare inserts
                 const measurementItems = [];
                 const m = record.measurements as any;
                 const keys = ['neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'arm.left', 'arm.right', 'thigh.left', 'thigh.right', 'calf.left', 'calf.right'];
@@ -150,28 +153,38 @@ export const useMeasurements = () => {
                     }
                 }
 
-                const { error: mError } = await supabase
-                    .from('body_measurements')
-                    .insert(measurementItems);
+                const photoItems = (record.photos || []).map(p => ({
+                    id: p.id,
+                    body_record_id: newRecord.id,
+                    url: p.url,
+                    angle: p.angle
+                }));
 
-                if (mError) throw mError;
-
-                // 3. Save Photos metadata
-                if (record.photos && record.photos.length > 0) {
-                    const { error: delPhotoError } = await supabase.from('body_photos').delete().eq('body_record_id', newRecord.id);
-                    if (delPhotoError) throw delPhotoError;
-
-                    const photoItems = record.photos.map(p => ({
-                        id: p.id,
-                        body_record_id: newRecord.id,
-                        url: p.url,
-                        angle: p.angle
-                    }));
-                    const { error: pError } = await supabase.from('body_photos').insert(photoItems);
-                    if (pError) throw pError;
+                // 4. Parallelize Inserts
+                const insertPromises = [
+                    supabase.from('body_measurements').insert(measurementItems)
+                ];
+                if (photoItems.length > 0) {
+                    insertPromises.push(supabase.from('body_photos').insert(photoItems));
                 }
 
-                await fetchRecords();
+                const insertResults = await Promise.all(insertPromises);
+                for (const res of insertResults) {
+                    if (res.error) throw res.error;
+                }
+
+                // 5. Optimistic Update: Update local state immediately with the new record
+                const updatedRecord = { ...record, id: newRecord.id, userId: targetUserId };
+                setRecords(prev => {
+                    const filtered = prev.filter(r => r.id !== updatedRecord.id);
+                    return [updatedRecord, ...filtered].sort((a, b) =>
+                        new Date(b.date).getTime() - new Date(a.date).getTime()
+                    );
+                });
+
+                // Trigger background refresh but don't wait for it to return success
+                fetchRecords().catch(err => console.error('Background refresh failed:', err));
+
                 return { success: true };
             })();
 
@@ -180,7 +193,7 @@ export const useMeasurements = () => {
             console.error('Error saving record:', error);
             let message = 'Error inesperado al guardar.';
             if (error.message === 'TIMEOUT') {
-                message = 'Tiempo de espera agotado. Revisa tu conexión de red.';
+                message = 'Tiempo de espera agotado después de 45s. Es posible que los datos se hayan guardado pero la confirmación falló. Revisa tu historial.';
             } else if (error.code) {
                 message = `Error de base de datos (${error.code}): ${error.message}`;
             } else if (error.message) {
