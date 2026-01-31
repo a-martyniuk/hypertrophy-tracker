@@ -89,85 +89,85 @@ export const useMeasurements = () => {
     };
 
     const saveRecord = async (record: MeasurementRecord) => {
-        const { data: { user } } = await supabase.auth.getUser();
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            const targetUserId = user?.id || record.userId;
 
-        const targetUserId = user?.id || record.userId;
-
-        if (!targetUserId) {
-            const newRecords = [record, ...records].sort((a, b) =>
-                new Date(b.date).getTime() - new Date(a.date).getTime()
-            );
-            setRecords(newRecords);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
-            return;
-        }
-
-        // 1. Save or Update Record
-        const { data: newRecord, error: recordError } = await supabase
-            .from('body_records')
-            .upsert({
-                id: record.id.length > 30 ? record.id : undefined, // only use ID if it's a real UUID (from local)
-                date: record.date,
-                weight: record.measurements.weight,
-                notes: record.notes,
-                metadata: record.metadata,
-                user_id: targetUserId
-            })
-            .select()
-            .single();
-
-        if (recordError) {
-            console.error('Error saving record:', recordError);
-            return;
-        }
-
-        // 2. Save Measurements (relational)
-        // Clean old ones if updating
-        await supabase.from('body_measurements').delete().eq('body_record_id', newRecord.id);
-
-        const measurementItems = [];
-        const m = record.measurements as any;
-        const keys = ['neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'arm.left', 'arm.right', 'thigh.left', 'thigh.right', 'calf.left', 'calf.right'];
-
-        for (const key of keys) {
-            let value;
-            if (key.includes('.')) {
-                const [base, side] = key.split('.');
-                value = m[base]?.[side];
-            } else {
-                value = m[key];
+            if (!targetUserId) {
+                const newRecords = [record, ...records].sort((a, b) =>
+                    new Date(b.date).getTime() - new Date(a.date).getTime()
+                );
+                setRecords(newRecords);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
+                return { success: true };
             }
 
-            if (value !== undefined) {
-                measurementItems.push({
+            // 1. Save or Update Record
+            const { data: newRecord, error: recordError } = await supabase
+                .from('body_records')
+                .upsert({
+                    id: record.id.length > 30 ? record.id : undefined,
+                    date: record.date,
+                    weight: record.measurements.weight,
+                    notes: record.notes,
+                    metadata: record.metadata,
+                    user_id: targetUserId
+                })
+                .select()
+                .single();
+
+            if (recordError) throw recordError;
+
+            // 2. Save Measurements (relational)
+            await supabase.from('body_measurements').delete().eq('body_record_id', newRecord.id);
+
+            const measurementItems = [];
+            const m = record.measurements as any;
+            const keys = ['neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'arm.left', 'arm.right', 'thigh.left', 'thigh.right', 'calf.left', 'calf.right'];
+
+            for (const key of keys) {
+                let value;
+                if (key.includes('.')) {
+                    const [base, side] = key.split('.');
+                    value = m[base]?.[side];
+                } else {
+                    value = m[key];
+                }
+
+                if (value !== undefined) {
+                    measurementItems.push({
+                        body_record_id: newRecord.id,
+                        type: key,
+                        value: value,
+                        side: key.includes('.left') ? 'left' : key.includes('.right') ? 'right' : 'center'
+                    });
+                }
+            }
+
+            const { error: mError } = await supabase
+                .from('body_measurements')
+                .insert(measurementItems);
+
+            if (mError) throw mError;
+
+            // 3. Save Photos metadata
+            if (record.photos && record.photos.length > 0) {
+                await supabase.from('body_photos').delete().eq('body_record_id', newRecord.id);
+                const photoItems = record.photos.map(p => ({
+                    id: p.id,
                     body_record_id: newRecord.id,
-                    type: key,
-                    value: value,
-                    side: key.includes('.left') ? 'left' : key.includes('.right') ? 'right' : 'center'
-                });
+                    url: p.url,
+                    angle: p.angle
+                }));
+                const { error: pError } = await supabase.from('body_photos').insert(photoItems);
+                if (pError) throw pError;
             }
-        }
 
-        const { error: mError } = await supabase
-            .from('body_measurements')
-            .insert(measurementItems);
-
-        // 3. Save Photos metadata
-        if (record.photos && record.photos.length > 0) {
-            await supabase.from('body_photos').delete().eq('body_record_id', newRecord.id);
-            const photoItems = record.photos.map(p => ({
-                id: p.id,
-                body_record_id: newRecord.id,
-                url: p.url,
-                angle: p.angle
-            }));
-            await supabase.from('body_photos').insert(photoItems);
-        }
-
-        if (mError) {
-            console.error('Error saving measurements:', mError);
-        } else {
-            fetchRecords();
+            await fetchRecords();
+            return { success: true };
+        } catch (error) {
+            console.error('Error saving record:', error);
+            return { success: false, error };
         }
     };
 

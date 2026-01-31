@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import type { BodyMeasurements, BilateralMeasurement, MeasurementRecord, RecordMetadata } from '../types/measurements';
-import { Save, X, Moon, Zap, Coffee } from 'lucide-react';
+import { Save, X, Moon, Zap, Coffee, Activity } from 'lucide-react';
 import { DynamicSilhouette } from './DynamicSilhouette';
 import { PhotoUpload } from './PhotoUpload';
 import { useAuth } from '../hooks/useAuth';
 import type { BodyPhoto } from '../types/measurements';
 
 interface Props {
-  onSave: (record: MeasurementRecord) => void;
+  onSave: (record: MeasurementRecord) => Promise<{ success: boolean; error?: any }>;
   onCancel: () => void;
   previousRecord?: MeasurementRecord;
   sex?: 'male' | 'female';
@@ -56,6 +56,7 @@ const MeasurementInput = ({
             type="number"
             placeholder="Izq"
             className="hud-input-l"
+            min="0"
             value={val.left || ''}
             onChange={(e) => onChange({ ...val, left: parseFloat(e.target.value) || 0 })}
           />
@@ -63,6 +64,7 @@ const MeasurementInput = ({
             type="number"
             placeholder="Der"
             className="hud-input-r"
+            min="0"
             value={val.right || ''}
             onChange={(e) => onChange({ ...val, right: parseFloat(e.target.value) || 0 })}
           />
@@ -79,6 +81,7 @@ const MeasurementInput = ({
       </div>
       <input
         type="number"
+        min="0"
         value={(value as number) || ''}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
       />
@@ -122,6 +125,8 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
     condition: 'fasted',
     sleepHours: 8
   });
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let rafId: number;
@@ -208,8 +213,34 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
     setMeasurements(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    // Validation
+    const allMeasurements = [
+      measurements.weight,
+      measurements.height,
+      measurements.bodyFat,
+      measurements.neck,
+      measurements.back,
+      measurements.pecho,
+      measurements.waist,
+      measurements.hips,
+      measurements.arm.left, measurements.arm.right,
+      measurements.forearm.left, measurements.forearm.right,
+      measurements.wrist.left, measurements.wrist.right,
+      measurements.thigh.left, measurements.thigh.right,
+      measurements.calf.left, measurements.calf.right,
+      measurements.ankle.left, measurements.ankle.right,
+    ];
+
+    if (allMeasurements.some(v => v !== undefined && v !== null && v < 0)) {
+      setError("No se admiten valores negativos en las medidas.");
+      return;
+    }
+
+    setIsSaving(true);
     const record: MeasurementRecord = {
       id: previousRecord?.id || crypto.randomUUID(),
       userId: user?.id || 'default-user',
@@ -219,7 +250,17 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
       metadata,
       photos,
     };
-    onSave(record);
+
+    try {
+      const result = await onSave(record);
+      if (!result.success) {
+        setError(result.error?.message || "Error al guardar el registro. Inténtalo de nuevo.");
+      }
+    } catch (err: any) {
+      setError(err.message || "Ocurrió un error inesperado al guardar.");
+    } finally {
+      setIsSaving(false);
+    }
   };
   return (
     <form ref={containerRef} className="measurement-form animate-fade" onSubmit={handleSubmit}>
@@ -441,12 +482,27 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
         </section>
       </div>
 
+      {error && (
+        <div className="form-error-banner glass animate-fade">
+          <Activity size={18} className="text-danger" />
+          <span>{error}</span>
+        </div>
+      )}
+
       <div className="form-actions glass">
-        <button type="button" className="btn-secondary" onClick={onCancel}>
+        <button type="button" className="btn-secondary" onClick={onCancel} disabled={isSaving}>
           <X size={18} /> Salir
         </button>
-        <button type="submit" className="btn-primary">
-          <Save size={18} /> Confirmar Registro
+        <button type="submit" className="btn-primary" disabled={isSaving}>
+          {isSaving ? (
+            <>
+              <Activity size={18} className="animate-spin" /> Guardando...
+            </>
+          ) : (
+            <>
+              <Save size={18} /> Confirmar Registro
+            </>
+          )}
         </button>
       </div>
 
@@ -699,6 +755,20 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
                     margin-top: 1rem;
                 }
                 
+                .form-error-banner {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    padding: 1rem 1.5rem;
+                    background: rgba(239, 68, 68, 0.1);
+                    border: 1px solid rgba(239, 68, 68, 0.3);
+                    border-left: 4px solid #ef4444;
+                    border-radius: 12px;
+                    color: white;
+                    margin-bottom: 1rem;
+                }
+                .text-danger { color: #ef4444; }
+
                 @media (max-width: 1000px) {
                     .form-layout-editor {
                         grid-template-columns: 1fr;

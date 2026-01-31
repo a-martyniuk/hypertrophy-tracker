@@ -29,8 +29,11 @@ function App() {
   const userName = profile?.name || authUser?.email?.split('@')[0] || 'Atleta'
 
   const handleSave = async (record: MeasurementRecord) => {
-    await saveRecord(record)
-    setActiveView('history')
+    const result = await saveRecord(record)
+    if (result.success) {
+      setActiveView('history')
+    }
+    return result
   }
 
   const latestRecord = records[0]
