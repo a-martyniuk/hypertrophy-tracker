@@ -4,7 +4,7 @@ import { MeasurementForm } from './components/MeasurementForm'
 import { HistoryView } from './components/HistoryView'
 import { AnalysisView } from './components/AnalysisView'
 import { GoalsView } from './components/GoalsView'
-import { DynamicSilhouette } from './components/DynamicSilhouette'
+import { VolumeHeatmap } from './components/VolumeHeatmap'
 import { SkeletalFrameView } from './components/SkeletalFrameView'
 import { PhotoComparisonView } from './components/PhotoComparisonView'
 import { useGoals } from './hooks/useGoals'
@@ -214,8 +214,9 @@ function App() {
               <div className="card silhouette-preview">
                 <h3>Tu Silueta Actual</h3>
                 {latestRecord ? (
-                  <DynamicSilhouette
-                    measurements={latestRecord.measurements}
+                  <VolumeHeatmap
+                    currentMeasurements={latestRecord.measurements}
+                    referenceMeasurements={records[records.length - 1]?.measurements}
                     sex={userSex}
                     onMarkerClick={() => setActiveView('analysis')}
                   />
