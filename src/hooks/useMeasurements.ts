@@ -153,7 +153,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     if (!token) throw new Error('Cannot use native fallback: No access token found.');
 
                     const controller = new AbortController();
-                    const fetchTimeout = setTimeout(() => controller.abort(), 10000);
+                    const fetchTimeout = setTimeout(() => controller.abort(), 15000);
 
                     try {
                         const response = await fetch(`${baseUrl}/rest/v1/${path}`, {
@@ -213,7 +213,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     { method: 'DELETE', path: `body_photos?body_record_id=eq.${record.id}` }
                 );
 
-                // STEP 4: Detailed Inserts
+                // STEP 4: Detailed Inserts (WITH Denormalized user_id)
                 const m = record.measurements as any;
                 const keys = ['neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'arm.left', 'arm.right', 'thigh.left', 'thigh.right', 'calf.left', 'calf.right'];
                 const measurementItems = [];
@@ -230,6 +230,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     if (value !== undefined && value !== null) {
                         measurementItems.push({
                             body_record_id: record.id,
+                            user_id: targetUserId, // Denormalized for bulletproof RLS
                             type: key,
                             value: value,
                             side: key.includes('.left') ? 'left' : key.includes('.right') ? 'right' : 'center'
@@ -247,6 +248,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 const photoItems = (record.photos || []).map(p => ({
                     id: p.id,
                     body_record_id: record.id,
+                    user_id: targetUserId, // Denormalized for bulletproof RLS
                     url: p.url,
                     angle: p.angle
                 }));
