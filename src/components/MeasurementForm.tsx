@@ -257,7 +257,8 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
         setError(result.error?.message || "Error al guardar el registro. Inténtalo de nuevo.");
       }
     } catch (err: any) {
-      setError(err.message || "Ocurrió un error inesperado al guardar.");
+      console.error('Submission error:', err);
+      setError(err.message || "Ocurrió un error inesperado al procesar el guardado.");
     } finally {
       setIsSaving(false);
     }
