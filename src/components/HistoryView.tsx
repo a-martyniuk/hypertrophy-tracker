@@ -3,7 +3,7 @@ import { Calendar, ChevronRight, Trash2 } from 'lucide-react';
 
 interface Props {
   records: MeasurementRecord[];
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => Promise<{ success: boolean; error?: string }>;
   onSelect: (record: MeasurementRecord) => void;
 }
 
@@ -40,9 +40,20 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
             <div className="record-actions">
               <button
                 className="btn-icon delete"
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
-                  onDelete(record.id);
+                  if (!window.confirm('¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.')) return;
+
+                  try {
+                    const result = await onDelete(record.id);
+                    // @ts-ignore - Validating result even if typed as void temporarily
+                    if (result && !result.success) {
+                      alert(`Error al eliminar: ${result.error || 'Inténtalo de nuevo'}`);
+                    }
+                  } catch (err) {
+                    console.error('Delete error', err);
+                    alert('Error inesperado al eliminar el registro.');
+                  }
                 }}
               >
                 <Trash2 size={18} />

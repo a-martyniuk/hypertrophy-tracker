@@ -314,7 +314,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 const filtered = records.filter(r => r.id !== id);
                 setRecords(filtered);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-                return;
+                return { success: true };
             }
 
             try {
@@ -335,11 +335,13 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
                 // Remove locally to update UI immediately
                 setRecords(prev => prev.filter(r => r.id !== id));
+                return { success: true };
 
                 // Trigger background refresh 
                 // fetchRecords(); // Optional, let's skip to prevent flashes
-            } catch (err) {
+            } catch (err: any) {
                 console.error('[delete] Cloud op failed:', err);
+                return { success: false, error: err.message };
             }
         },
         refresh: fetchRecords
