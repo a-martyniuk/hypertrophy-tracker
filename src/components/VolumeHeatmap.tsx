@@ -236,19 +236,19 @@ export const VolumeHeatmap = ({ currentMeasurements, referenceMeasurements, sex 
             <div className="heatmap-legend">
                 <div className="legend-item">
                     <span className="dot" style={{ background: '#3b82f6' }}></span>
-                    <span>Pérdida (&#60;97%)</span>
+                    <span>Pérdida (&#60;99%)</span>
                 </div>
                 <div className="legend-item">
                     <span className="dot" style={{ background: '#6b7280' }}></span>
-                    <span>Estable (±3%)</span>
+                    <span>Estable (±1%)</span>
                 </div>
                 <div className="legend-item">
                     <span className="dot" style={{ background: '#eab308' }}></span>
-                    <span>Crecimiento (3-8%)</span>
+                    <span>Crecimiento (1-5%)</span>
                 </div>
                 <div className="legend-item">
                     <span className="dot" style={{ background: '#ef4444' }}></span>
-                    <span>Hipertrofia (&#62;8%)</span>
+                    <span>Hipertrofia (&#62;5%)</span>
                 </div>
             </div>
 
