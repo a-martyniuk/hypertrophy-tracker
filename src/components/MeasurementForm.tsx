@@ -517,7 +517,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    z-index: 1;
+                    z-index: 5;
                 }
                 .form-header {
                     padding: 1.5rem;
