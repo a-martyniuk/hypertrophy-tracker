@@ -14,14 +14,14 @@ import type { MeasurementRecord } from './types/measurements'
 import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus, Camera } from 'lucide-react'
 
 import { AuthView } from './components/AuthView'
-import { DebugView } from './components/DebugView'
+
 
 type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals' | 'potential' | 'comparison'
 
 function App() {
   const [activeView, setActiveView] = useState<View>('dashboard')
   const [isGuest, setIsGuest] = useState(false)
-  const [showDebug, setShowDebug] = useState(false)
+
   const { user: authUser, session: authSession, loading: authLoading, signOut } = useAuth()
   const { records, saveRecord, deleteRecord } = useMeasurements(authUser?.id, authSession)
 
@@ -702,16 +702,6 @@ function App() {
           }
         }
       `}</style>
-      {/* DIAGNOSTIC OVERLAY */}
-      <div style={{ position: 'fixed', bottom: 10, right: 10, zIndex: 9999 }}>
-        <button
-          onClick={() => setShowDebug(!showDebug)}
-          style={{ padding: '8px', background: 'red', color: 'white', border: 'none', borderRadius: '4px' }}
-        >
-          {showDebug ? 'OCULTAR DEBUG' : 'MOSTRAR DEBUG'}
-        </button>
-      </div>
-      {showDebug && <DebugView />}
     </div>
   )
 }
