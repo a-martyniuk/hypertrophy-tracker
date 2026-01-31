@@ -38,7 +38,8 @@ const MeasurementInput = ({
   previousValue?: number | BilateralMeasurement;
   className?: string;
 }) => {
-  const isDouble = typeof value === 'object' && value !== null && 'left' in value;
+  // Robust check: any non-null object is treated as bilateral to prevent [object Object] rendering
+  const isDouble = typeof value === 'object' && value !== null;
 
   if (isDouble) {
     const val = value as BilateralMeasurement;
@@ -48,8 +49,8 @@ const MeasurementInput = ({
         <div className="hud-label-row">
           <label>{label}</label>
           <div className="trends">
-            <TrendIndicator current={val.left} previous={prev?.left} />
-            <TrendIndicator current={val.right} previous={prev?.right} />
+            <TrendIndicator current={val.left || 0} previous={prev?.left} />
+            <TrendIndicator current={val.right || 0} previous={prev?.right} />
           </div>
         </div>
         <div className="hud-double-inputs">

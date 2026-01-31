@@ -57,7 +57,9 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                         return acc;
                     }, {
                         // Default safety structure to prevent crashes on 'undefined' access
-                        arm: {}, thigh: {}, calf: {}, forearm: {}, wrist: {}, ankle: {},
+                        arm: { left: 0, right: 0 }, thigh: { left: 0, right: 0 },
+                        calf: { left: 0, right: 0 }, forearm: { left: 0, right: 0 },
+                        wrist: { left: 0, right: 0 }, ankle: { left: 0, right: 0 },
                         // Fallback: Populate core metrics from parent if child rows missing
                         weight: r.weight,
                         bodyFat: r.body_fat_pct
