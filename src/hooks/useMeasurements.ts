@@ -93,12 +93,19 @@ export const useMeasurements = () => {
             setTimeout(() => reject(new Error('TIMEOUT')), 45000)
         );
 
+        console.time('saveRecord Total');
         try {
             const saveOperation = (async () => {
-                const { data: { user: authUser } } = await supabase.auth.getUser();
-                const targetUserId = authUser?.id || record.userId;
+                console.log('[saveRecord] Starting save operation...');
+
+                // 1. Get Session instead of User (faster, no server round-trip if cached)
+                console.time('Step 1: Auth');
+                const { data: { session } } = await supabase.auth.getSession();
+                const targetUserId = session?.user?.id || record.userId;
+                console.timeEnd('Step 1: Auth');
 
                 if (!targetUserId) {
+                    console.log('[saveRecord] No user session, saving locally...');
                     const newRecords = [record, ...records].sort((a, b) =>
                         new Date(b.date).getTime() - new Date(a.date).getTime()
                     );
@@ -107,7 +114,8 @@ export const useMeasurements = () => {
                     return { success: true };
                 }
 
-                // 1. Save or Update Main Record
+                // 2. Save or Update Main Record
+                console.time('Step 2: Main Record Upsert');
                 const { data: newRecord, error: recordError } = await supabase
                     .from('body_records')
                     .upsert({
@@ -118,18 +126,27 @@ export const useMeasurements = () => {
                         metadata: record.metadata,
                         user_id: targetUserId
                     })
-                    .select()
+                    .select('id')
                     .single();
+                console.timeEnd('Step 2: Main Record Upsert');
 
-                if (recordError) throw recordError;
+                if (recordError) {
+                    console.error('[saveRecord] Error in main record upsert:', recordError);
+                    throw recordError;
+                }
 
-                // 2. Parallelize Deletions of child records (ONLY for this specific record)
-                await Promise.all([
+                // 3. Parallelize Deletions
+                console.time('Step 3: Parallel Deletions');
+                const [delM, delP] = await Promise.all([
                     supabase.from('body_measurements').delete().eq('body_record_id', newRecord.id),
                     supabase.from('body_photos').delete().eq('body_record_id', newRecord.id)
                 ]);
+                console.timeEnd('Step 3: Parallel Deletions');
 
-                // 3. Prepare inserts
+                if (delM.error) console.error('[saveRecord] Warning: Measurements deletion error:', delM.error);
+                if (delP.error) console.error('[saveRecord] Warning: Photos deletion error:', delP.error);
+
+                // 4. Prepare inserts
                 const measurementItems = [];
                 const m = record.measurements as any;
                 const keys = ['neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'arm.left', 'arm.right', 'thigh.left', 'thigh.right', 'calf.left', 'calf.right'];
@@ -160,7 +177,8 @@ export const useMeasurements = () => {
                     angle: p.angle
                 }));
 
-                // 4. Parallelize Inserts
+                // 5. Parallelize Inserts
+                console.time('Step 4: Parallel Inserts');
                 const insertPromises = [
                     supabase.from('body_measurements').insert(measurementItems)
                 ];
@@ -169,11 +187,17 @@ export const useMeasurements = () => {
                 }
 
                 const insertResults = await Promise.all(insertPromises);
+                console.timeEnd('Step 4: Parallel Inserts');
+
                 for (const res of insertResults) {
-                    if (res.error) throw res.error;
+                    if (res.error) {
+                        console.error('[saveRecord] Error in inserts:', res.error);
+                        throw res.error;
+                    }
                 }
 
-                // 5. Optimistic Update: Update local state immediately with the new record
+                // 6. Finalize Local State
+                console.log('[saveRecord] Finalizing local state...');
                 const updatedRecord = { ...record, id: newRecord.id, userId: targetUserId };
                 setRecords(prev => {
                     const filtered = prev.filter(r => r.id !== updatedRecord.id);
@@ -182,18 +206,18 @@ export const useMeasurements = () => {
                     );
                 });
 
-                // Trigger background refresh but don't wait for it to return success
-                fetchRecords().catch(err => console.error('Background refresh failed:', err));
-
+                fetchRecords().catch(err => console.error('[saveRecord] Background refresh failed:', err));
+                console.timeEnd('saveRecord Total');
                 return { success: true };
             })();
 
             return await Promise.race([saveOperation, timeoutPromise]) as { success: boolean, error?: any };
         } catch (error: any) {
-            console.error('Error saving record:', error);
+            console.timeEnd('saveRecord Total');
+            console.error('[saveRecord] Fatal error:', error);
             let message = 'Error inesperado al guardar.';
             if (error.message === 'TIMEOUT') {
-                message = 'Tiempo de espera agotado después de 45s. Es posible que los datos se hayan guardado pero la confirmación falló. Revisa tu historial.';
+                message = 'Se agotaron los 45s. Por favor, abre la consola (F12) y dinos en qué paso se quedó el proceso.';
             } else if (error.code) {
                 message = `Error de base de datos (${error.code}): ${error.message}`;
             } else if (error.message) {
