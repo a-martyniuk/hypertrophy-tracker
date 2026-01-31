@@ -97,11 +97,18 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
       isAdvantage = true;
     }
 
-    return { value: ieo.toFixed(1), label, isAdvantage };
+    return { value: ieo.toFixed(1), label, isAdvantage, rawValue: ieo };
   };
 
   const potential = calculatePotential();
   const ieo = calculateIEO();
+
+  const IEO_CATEGORIES = [
+    { label: 'Pequeña', range: '< 18', min: 0, max: 18 },
+    { label: 'Mediana', range: '18 – 19.9', min: 18, max: 19.99 },
+    { label: 'Grande', range: '20 – 21.9', min: 20, max: 21.99, highlight: true },
+    { label: 'Muy grande', range: '≥ 22', min: 22, max: 999, highlight: true },
+  ];
 
   return (
     <div className="skeletal-frame-view animate-fade-in">
@@ -179,7 +186,21 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
                   ✨ Ventaja Genética
                 </div>
               )}
-              <p className="ieo-desc">
+
+              <div className="ieo-reference-table">
+                {IEO_CATEGORIES.map((cat, idx) => {
+                  const isActive = ieo.rawValue >= cat.min && ieo.rawValue < cat.max;
+                  return (
+                    <div key={idx} className={`ieo-ref-row ${isActive ? 'active' : ''}`}>
+                      <span className="ref-range">{cat.range}</span>
+                      <span className="ref-label">{cat.label}</span>
+                      {cat.highlight && isActive && <span className="ref-check">✅</span>}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <p className="ieo-desc mt-4">
                 Tu IEO indica la robustez de tu esqueleto. Una estructura más grande proporciona mayor palanca y superficie de anclaje muscular.
               </p>
             </div>
@@ -416,12 +437,43 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
           font-size: 0.75rem;
           font-weight: bold;
           border: 1px solid rgba(245, 158, 11, 0.3);
-          margin-bottom: 1rem;
+          margin-bottom: 1.5rem;
         }
         .ieo-desc {
           font-size: 0.75rem;
           color: var(--text-secondary);
           line-height: 1.4;
+        }
+        
+        /* IEO Reference Table Styles */
+        .ieo-reference-table {
+          width: 100%;
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 8px;
+          padding: 0.5rem;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .ieo-ref-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 0.5rem 0.75rem;
+          border-radius: 4px;
+          font-size: 0.8rem;
+          color: var(--text-secondary);
+          margin-bottom: 2px;
+        }
+        .ieo-ref-row.active {
+          background: rgba(245, 158, 11, 0.15);
+          color: #fff;
+          font-weight: bold;
+          border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .ref-range {
+          font-family: monospace;
+          opacity: 0.8;
+        }
+        .ref-check {
+          margin-left: 0.5rem;
         }
         
         @media (max-width: 900px) {
