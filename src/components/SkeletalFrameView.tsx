@@ -34,6 +34,17 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
     return { wrist, ankle, knee: 38 };
   });
 
+  // Authentic Casey Butt Formula Constants
+  // Source: "Your Muscular Potential" (http://www.weightrainer.net/potential.html)
+  const CASEY_BUTT_CONSTANTS = {
+    chest: { wrist: 1.6817, ankle: 1.3759, height: 0.3314 },
+    biceps: { wrist: 1.2033, height: 0.1236 },
+    forearms: { wrist: 0.9626, height: 0.0989 },
+    neck: { wrist: 1.1424, height: 0.1236 },
+    thighs: { ankle: 1.3868, height: 0.1805 },
+    calves: { ankle: 0.9298, height: 0.1210 }
+  };
+
   const calculatePotential = () => {
     const { wrist, ankle } = frame;
     // Use local height state for calculation
@@ -45,12 +56,17 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Pro
     const H = heightCm / 2.54;
 
     // Authentic Casey Butt Formulas (output in Inches)
-    const chestIn = 1.6817 * W + 1.3759 * A + 0.3314 * H;
-    const bicepsIn = 1.2033 * W + 0.1236 * A + 0.12 * H; // Height factor adjusted
-    const forearmsIn = 0.9626 * W + 0.0989 * A + 0.15 * H;
-    const neckIn = 1.1424 * W + 0.3717 * A + 0.3314 * H;
-    const thighsIn = 1.3868 * A + 0.1606 * W + 0.6009 * H;
-    const calvesIn = 0.9298 * A + 0.1210 * W + 0.4631 * H;
+    // Source: "Your Muscular Potential" - height factors corrected
+    const chestIn = CASEY_BUTT_CONSTANTS.chest.wrist * W + CASEY_BUTT_CONSTANTS.chest.ankle * A + CASEY_BUTT_CONSTANTS.chest.height * H;
+
+    // Upper Body (Wrist + Height)
+    const bicepsIn = CASEY_BUTT_CONSTANTS.biceps.wrist * W + CASEY_BUTT_CONSTANTS.biceps.height * H;
+    const forearmsIn = CASEY_BUTT_CONSTANTS.forearms.wrist * W + CASEY_BUTT_CONSTANTS.forearms.height * H;
+    const neckIn = CASEY_BUTT_CONSTANTS.neck.wrist * W + CASEY_BUTT_CONSTANTS.neck.height * H;
+
+    // Lower Body (Ankle + Height)
+    const thighsIn = CASEY_BUTT_CONSTANTS.thighs.ankle * A + CASEY_BUTT_CONSTANTS.thighs.height * H;
+    const calvesIn = CASEY_BUTT_CONSTANTS.calves.ankle * A + CASEY_BUTT_CONSTANTS.calves.height * H;
 
     // Convert back to CM for display
     return {
