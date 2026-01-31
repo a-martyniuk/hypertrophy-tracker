@@ -80,19 +80,43 @@ export const DynamicSilhouette = ({ measurements, sex = 'male', onMarkerClick }:
         />
 
         <g className="hud-interactive-markers">
-          {Object.entries(anchors).map(([id, pos]) => (
-            <circle
-              key={id}
-              cx={pos.x}
-              cy={pos.y}
-              r="4"
-              className="hotspot"
-              onClick={() => onMarkerClick?.(id)}
-              filter="url(#glow)"
-            >
-              <title>{id.toUpperCase()}</title>
-            </circle>
-          ))}
+          {Object.entries(anchors).map(([key, pos]) => {
+            // Map keys to match junction IDs expected by MeasurementForm.tsx
+            const junctionId = key
+              .replace('armL', 'arm-left')
+              .replace('armR', 'arm-right')
+              .replace('forearmL', 'forearm-left')
+              .replace('forearmR', 'forearm-right')
+              .replace('wristL', 'wrist-left')
+              .replace('wristR', 'wrist-right')
+              .replace('thighL', 'thigh-left')
+              .replace('thighR', 'thigh-right')
+              .replace('calfL', 'calf-left')
+              .replace('calfR', 'calf-right')
+              .replace('ankleL', 'ankle-left')
+              .replace('ankleR', 'ankle-right')
+              .replace('pecho', 'pecho') // already matches
+              .replace('neck', 'neck')   // already matches
+              .replace('back', 'back')   // already matches
+              .replace('waist', 'waist') // already matches
+              .replace('hips', 'hips');   // already matches
+
+            return (
+              <rect
+                key={key}
+                id={`junction-${junctionId}`}
+                x={pos.x - 2}
+                y={pos.y - 2}
+                width="4"
+                height="4"
+                className="hotspot"
+                onClick={() => onMarkerClick?.(key)}
+                filter="url(#glow)"
+              >
+                <title>{key.toUpperCase()}</title>
+              </rect>
+            );
+          })}
         </g>
       </svg>
 

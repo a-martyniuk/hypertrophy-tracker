@@ -28,8 +28,8 @@ function App() {
   const userSex = profile?.sex || 'male'
   const userName = profile?.name || authUser?.email?.split('@')[0] || 'Atleta'
 
-  const handleSave = (record: MeasurementRecord) => {
-    saveRecord(record)
+  const handleSave = async (record: MeasurementRecord) => {
+    await saveRecord(record)
     setActiveView('history')
   }
 

@@ -258,7 +258,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
               />
               <MeasurementInput
                 id="input-height"
-                label="TALLA"
+                label="ALTURA"
                 value={measurements.height || 0}
                 previousValue={previousRecord?.measurements.height}
                 onChange={(v) => updateField('height', v)}
