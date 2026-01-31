@@ -9,10 +9,28 @@ interface Props {
 }
 
 export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave }: Props) => {
-  const [frame, setFrame] = useState<SkeletalFrame>(baseline || {
-    wrist: 17,
-    ankle: 22,
-    knee: 38
+  const [frame, setFrame] = useState<SkeletalFrame>(() => {
+    if (baseline) return baseline;
+
+    let wrist = 17;
+    let ankle = 22;
+
+    if (currentMeasurements) {
+      const getAvg = (m: { left: number; right: number }) => {
+        if (m.left > 0 && m.right > 0) return (m.left + m.right) / 2;
+        if (m.left > 0) return m.left;
+        if (m.right > 0) return m.right;
+        return 0;
+      };
+
+      const w = getAvg(currentMeasurements.wrist);
+      const a = getAvg(currentMeasurements.ankle);
+
+      if (w > 0) wrist = parseFloat(w.toFixed(1));
+      if (a > 0) ankle = parseFloat(a.toFixed(1));
+    }
+
+    return { wrist, ankle, knee: 38 };
   });
 
   const calculatePotential = () => {
