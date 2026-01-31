@@ -474,10 +474,12 @@ function App() {
         }
 
         .nav-items button.active {
-          background: var(--primary-color);
-          color: #1a1a1d;
+          background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, transparent 100%);
+          color: var(--primary-color);
           font-weight: 700;
-          box-shadow: 0 4px 15px var(--primary-glow);
+          border-left: 3px solid var(--primary-color);
+          box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);
+          border-radius: 4px 14px 14px 4px;
         }
 
         .nav-footer {

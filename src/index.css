@@ -41,6 +41,13 @@ body {
   line-height: 1.5;
   overflow-x: hidden;
   position: relative;
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: var(--primary-color);
+  color: #000;
+  text-shadow: none;
 }
 
 body::after {
