@@ -22,6 +22,8 @@ function App() {
   const [isGuest, setIsGuest] = useState(false)
   const { user: authUser, loading: authLoading, signOut } = useAuth()
   const { records, loading: measurementsLoading, saveRecord, deleteRecord } = useMeasurements(authUser?.id)
+
+  console.log('[App] AuthUser:', authUser?.id, 'IsAuthenticated:', !!authUser);
   const { profile, updateProfile } = useProfile()
   const { goals, addGoal, deleteGoal } = useGoals()
 
