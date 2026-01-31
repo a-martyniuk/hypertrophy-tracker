@@ -39,11 +39,51 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     }))
                 }));
 
+                // UTILITY: Native Fallback Engine
+                const executeQuery = async (queryPromise: Promise<any>, fallbackPath: string) => {
+                    // 1. Try SDK with Timeout Race
+                    try {
+                        const race = await Promise.race([
+                            queryPromise,
+                            new Promise(resolve => setTimeout(() => resolve('TIMEOUT'), 7000))
+                        ]);
+
+                        if (race !== 'TIMEOUT') return race as { data: any, error: any };
+                        console.warn(`[useMeasurements] SDK Timeout on ${fallbackPath}. Switching to Native Fetch.`);
+                    } catch (e) {
+                        console.error('[useMeasurements] SDK Exception:', e);
+                    }
+
+                    // 2. Native Fallback
+                    try {
+                        const { data: { session } } = await supabase.auth.getSession();
+                        if (!session) return { data: null, error: 'No Session' };
+
+                        const url = import.meta.env.VITE_SUPABASE_URL;
+                        const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+                        const res = await fetch(`${url}/rest/v1/${fallbackPath}`, {
+                            headers: {
+                                'apikey': key,
+                                'Authorization': `Bearer ${session.access_token}`,
+                                'Prefer': 'count=none'
+                            }
+                        });
+
+                        if (!res.ok) throw await res.text();
+                        return { data: await res.json(), error: null };
+                    } catch (err) {
+                        return { data: null, error: err };
+                    }
+                };
+
                 // ATTEMPT 1: Full Data (Join)
-                const { data, error } = await supabase
-                    .from('body_records')
-                    .select('*, body_measurements (*), body_photos (*)')
-                    .order('date', { ascending: false });
+                const { data, error } = await executeQuery(
+                    supabase.from('body_records')
+                        .select('*, body_measurements (*), body_photos (*)')
+                        .order('date', { ascending: false }) as any,
+                    'body_records?select=*,body_measurements(*),body_photos(*)&order=date.desc'
+                );
 
                 if (!error && data && data.length > 0) {
                     console.log(`[useMeasurements] Full fetch success: ${data.length} records.`);
@@ -55,10 +95,10 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
                 // ATTEMPT 2: Parent Only (Fallback for RLS/Join issues)
                 console.log('[useMeasurements] Attempting parent-only fetch...');
-                const { data: parentData, error: parentError } = await supabase
-                    .from('body_records')
-                    .select('*')
-                    .order('date', { ascending: false });
+                const { data: parentData, error: parentError } = await executeQuery(
+                    supabase.from('body_records').select('*').order('date', { ascending: false }) as any,
+                    'body_records?select=*&order=date.desc'
+                );
 
                 if (parentError) {
                     console.error('[useMeasurements] CRITICAL: Parent table inaccessible:', parentError);
