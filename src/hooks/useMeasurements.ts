@@ -4,94 +4,127 @@ import type { MeasurementRecord, BodyMeasurements, BodyPhoto } from '../types/me
 
 const STORAGE_KEY = 'hypertrophy_measurements';
 
+/**
+ * Hook to manage athlete measurements.
+ * Features: Local storage fallback, hybrid Supabase/Native save engine, and robust error handling.
+ */
 export const useMeasurements = (userId?: string | null, authSession?: any | null) => {
     const [records, setRecords] = useState<MeasurementRecord[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchRecords = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user) {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                setRecords(JSON.parse(saved));
+            if (!user) {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    setRecords(JSON.parse(saved));
+                }
+                setLoading(false);
+                return;
             }
-            setLoading(false);
-            return;
-        }
 
-        const { data, error } = await supabase
-            .from('body_records')
-            .select(`
-                *,
-                body_measurements (*),
-                body_photos (*)
-            `)
-            .order('date', { ascending: false });
+            const { data, error } = await supabase
+                .from('body_records')
+                .select(`
+                    *,
+                    body_measurements (*),
+                    body_photos (*)
+                `)
+                .order('date', { ascending: false });
 
-        if (error) {
-            console.error('[useMeasurements] Error fetching records:', error);
-        } else if (data) {
-            const mappedRecords: MeasurementRecord[] = data.map((record: any) => {
-                const ms: any = {};
-                record.body_measurements.forEach((m: any) => {
-                    if (m.type.includes('.')) {
-                        const [base, side] = m.type.split('.');
-                        if (!ms[base]) ms[base] = {};
-                        ms[base][side] = m.value;
-                    } else {
-                        ms[m.type] = m.value;
-                    }
+            if (error) throw error;
+
+            if (data) {
+                const mappedRecords: MeasurementRecord[] = data.map((record: any) => {
+                    const ms: any = {};
+                    record.body_measurements.forEach((m: any) => {
+                        if (m.type.includes('.')) {
+                            const [base, side] = m.type.split('.');
+                            if (!ms[base]) ms[base] = {};
+                            ms[base][side] = m.value;
+                        } else {
+                            ms[m.type] = m.value;
+                        }
+                    });
+
+                    const photos: BodyPhoto[] = record.body_photos?.map((p: any) => ({
+                        id: p.id,
+                        url: p.url,
+                        angle: p.angle,
+                        createdAt: p.created_at
+                    })) || [];
+
+                    return {
+                        id: record.id,
+                        userId: record.user_id,
+                        date: record.date,
+                        notes: record.notes,
+                        metadata: record.metadata,
+                        measurements: ms as BodyMeasurements,
+                        photos
+                    };
                 });
-
-                const photos: BodyPhoto[] = record.body_photos?.map((p: any) => ({
-                    id: p.id,
-                    url: p.url,
-                    angle: p.angle,
-                    createdAt: p.created_at
-                })) || [];
-
-                return {
-                    id: record.id,
-                    userId: record.user_id,
-                    date: record.date,
-                    notes: record.notes,
-                    metadata: record.metadata,
-                    measurements: ms as BodyMeasurements,
-                    photos
-                };
-            });
-            setRecords(mappedRecords);
+                setRecords(mappedRecords);
+            }
+        } catch (err) {
+            console.error('[useMeasurements] Error fetching records:', err);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const deleteRecord = async (id: string) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            const newRecords = records.filter(r => r.id !== id);
-            setRecords(newRecords);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
-            return;
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                const newRecords = records.filter(r => r.id !== id);
+                setRecords(newRecords);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
+                return;
+            }
+            const { error } = await supabase.from('body_records').delete().eq('id', id);
+            if (error) throw error;
+            fetchRecords();
+        } catch (err) {
+            console.error('[useMeasurements] Error deleting record:', err);
         }
-        await supabase.from('body_records').delete().eq('id', id);
-        fetchRecords();
     };
 
     const saveRecord = async (record: MeasurementRecord) => {
+        /**
+         * Translates technical database errors into user-friendly messages.
+         */
+        const translateError = (error: any): string => {
+            const message = error?.message || '';
+            const code = error?.code || '';
+
+            if (message.includes('TIMEOUT') || message.includes('signal is aborted')) {
+                return 'La conexión es lenta. Estamos intentando guardar en segundo plano.';
+            }
+            if (code === '42501' || message.includes('403')) {
+                return 'No tienes permiso para modificar este registro.';
+            }
+            if (code === '23503' || message.includes('409')) {
+                return 'Error de sincronización. Por favor, intenta de nuevo.';
+            }
+            return 'Hubo un error al guardar tus medidas. Revisa tu conexión.';
+        };
+
         const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('TIMEOUT')), 45000)
         );
 
         try {
             const saveOperation = (async () => {
-                // 1. Get Token and Setup Environment
                 const baseUrl = import.meta.env.VITE_SUPABASE_URL;
                 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
                 let token = authSession?.access_token;
                 let targetUserId = userId || authSession?.user?.id || record.userId;
 
+                // Recovery of token if missing from props
                 if (!token) {
                     for (let i = 0; i < localStorage.length; i++) {
                         const key = localStorage.key(i);
@@ -107,6 +140,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     }
                 }
 
+                // GUEST MODE: Local Storage only
                 if (!targetUserId || targetUserId === 'default-user') {
                     const newRecords = [record, ...records].sort((a, b) =>
                         new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -129,7 +163,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     ]) as any;
 
                     if (result._hang) {
-                        console.warn(`[saveRecord] Library timeout for ${native.path}. Switching to Native Fallback.`);
+                        console.warn(`[saveRecord] Supabase Library HANG for ${native.path}. Activating Native Fallback.`);
                         useNativeFallback = true;
                         return nativeFetch(native.method, native.path, native.body, native.prefer);
                     }
@@ -160,7 +194,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
                         if (!response.ok) {
                             const errBody = await response.json().catch(() => ({}));
-                            throw new Error(`Native fetch failed (${response.status}): ${JSON.stringify(errBody)}`);
+                            throw { ...errBody, status: response.status };
                         }
 
                         return response.status === 204 ? null : response.json().catch(() => null);
@@ -170,7 +204,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     }
                 };
 
-                // STEP 2: Main Record (ALWAYS use UPSERT to avoid "ghost updates" on sync)
+                // STEP 1: Main Record (UPSERT)
                 const dbPayload = {
                     id: record.id,
                     date: record.date,
@@ -191,17 +225,19 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     }
                 );
 
-                // STEP 3: Cleanup
-                await dbAction(
-                    supabase.from('body_measurements').delete().eq('body_record_id', record.id),
-                    { method: 'DELETE', path: `body_measurements?body_record_id=eq.${record.id}` }
-                );
-                await dbAction(
-                    supabase.from('body_photos').delete().eq('body_record_id', record.id),
-                    { method: 'DELETE', path: `body_photos?body_record_id=eq.${record.id}` }
-                );
+                // STEP 2: Cleanup children to allow fresh insert
+                await Promise.all([
+                    dbAction(
+                        supabase.from('body_measurements').delete().eq('body_record_id', record.id),
+                        { method: 'DELETE', path: `body_measurements?body_record_id=eq.${record.id}` }
+                    ),
+                    dbAction(
+                        supabase.from('body_photos').delete().eq('body_record_id', record.id),
+                        { method: 'DELETE', path: `body_photos?body_record_id=eq.${record.id}` }
+                    )
+                ]);
 
-                // STEP 4: Detailed Inserts (WITH Denormalized user_id)
+                // STEP 3: Sub-records
                 const m = record.measurements as any;
                 const keys = ['neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'arm.left', 'arm.right', 'thigh.left', 'thigh.right', 'calf.left', 'calf.right'];
                 const measurementItems = [];
@@ -248,7 +284,6 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     );
                 }
 
-                // Finalize
                 const updatedRecord = { ...record, userId: targetUserId };
                 setRecords(prev => {
                     const filtered = prev.filter(r => r.id !== updatedRecord.id);
@@ -263,8 +298,11 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
             return await Promise.race([saveOperation, timeoutPromise]) as { success: boolean, error?: any };
         } catch (error: any) {
-            console.error('[saveRecord] FATAL ERROR:', error);
-            return { success: false, error: { message: error.message || 'Error inesperado al guardar.' } };
+            console.error('[saveRecord] Saving failed:', error);
+            return {
+                success: false,
+                error: { message: translateError(error) }
+            };
         }
     };
 
@@ -273,13 +311,17 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
         if (!user) return;
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) return;
-        const localRecords: MeasurementRecord[] = JSON.parse(saved);
-        if (localRecords.length === 0) return;
-        for (const record of localRecords) {
-            await saveRecord(record);
+        try {
+            const localRecords: MeasurementRecord[] = JSON.parse(saved);
+            if (localRecords.length === 0) return;
+            for (const record of localRecords) {
+                await saveRecord(record);
+            }
+            localStorage.removeItem(STORAGE_KEY);
+            fetchRecords();
+        } catch (err) {
+            console.error('[useMeasurements] Sync failed:', err);
         }
-        localStorage.removeItem(STORAGE_KEY);
-        fetchRecords();
     };
 
     useEffect(() => {

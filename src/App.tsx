@@ -23,7 +23,6 @@ function App() {
   const { user: authUser, session: authSession, loading: authLoading, signOut } = useAuth()
   const { records, saveRecord, deleteRecord } = useMeasurements(authUser?.id, authSession)
 
-  console.log('[App] AuthUser:', authUser?.id, 'IsAuthenticated:', !!authUser);
   const { profile, updateProfile } = useProfile()
   const { goals, addGoal, deleteGoal } = useGoals()
 

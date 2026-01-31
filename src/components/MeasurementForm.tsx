@@ -217,25 +217,12 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, sex = 'male'
     e.preventDefault();
     setError(null);
 
-    // Validation
-    const allMeasurements = [
-      measurements.weight,
-      measurements.height,
-      measurements.bodyFat,
-      measurements.neck,
-      measurements.back,
-      measurements.pecho,
-      measurements.waist,
-      measurements.hips,
-      measurements.arm.left, measurements.arm.right,
-      measurements.forearm.left, measurements.forearm.right,
-      measurements.wrist.left, measurements.wrist.right,
-      measurements.thigh.left, measurements.thigh.right,
-      measurements.calf.left, measurements.calf.right,
-      measurements.ankle.left, measurements.ankle.right,
-    ];
+    // Validation: Ensure no negative values
+    const flattenedMeasurements = Object.values(measurements).flatMap(v =>
+      typeof v === 'object' ? Object.values(v) : [v]
+    );
 
-    if (allMeasurements.some(v => v !== undefined && v !== null && v < 0)) {
+    if (flattenedMeasurements.some(v => typeof v === 'number' && v < 0)) {
       setError("No se admiten valores negativos en las medidas.");
       return;
     }
