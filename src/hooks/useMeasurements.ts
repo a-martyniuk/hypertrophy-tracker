@@ -89,42 +89,31 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
         console.time('[saveRecord] Total');
         try {
             const saveOperation = (async () => {
-                // 1. Get Token Robustly
+                // 1. Get Token and Setup Environment
+                const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+                const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
                 let token = authSession?.access_token;
                 let targetUserId = userId || authSession?.user?.id || record.userId;
 
                 if (!token) {
-                    console.log('[saveRecord] Token missing from hook, trying library or storage...');
-                    try {
-                        // Try a fast library call
-                        const { data } = await Promise.race([
-                            supabase.auth.getSession(),
-                            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 2000))
-                        ]) as any;
-                        token = data?.session?.access_token;
-                        targetUserId = targetUserId || data?.session?.user?.id;
-                    } catch (e) {
-                        console.warn('[saveRecord] Library session call failed/timed out. Checking localStorage...');
-                        // Last resort: Parse Supabase localStorage directly
-                        // Key format: sb-<project-ref>-auth-token
-                        for (let i = 0; i < localStorage.length; i++) {
-                            const key = localStorage.key(i);
-                            if (key?.startsWith('sb-') && key.endsWith('-auth-token')) {
-                                const raw = localStorage.getItem(key);
-                                if (raw) {
-                                    const parsed = JSON.parse(raw);
-                                    token = parsed.access_token;
-                                    targetUserId = targetUserId || parsed.user?.id;
-                                    console.log('[saveRecord] Token recovered from localStorage key:', key);
-                                    break;
-                                }
+                    console.log('[saveRecord] Token missing, searching localStorage...');
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key?.startsWith('sb-') && key.endsWith('-auth-token')) {
+                            const raw = localStorage.getItem(key);
+                            if (raw) {
+                                const parsed = JSON.parse(raw);
+                                token = parsed.access_token;
+                                targetUserId = targetUserId || parsed.user?.id;
+                                break;
                             }
                         }
                     }
                 }
 
                 if (!targetUserId || targetUserId === 'default-user') {
-                    console.log('[saveRecord] Local mode');
+                    console.log('[saveRecord] Guest Mode');
                     const newRecords = [record, ...records].sort((a, b) =>
                         new Date(b.date).getTime() - new Date(a.date).getTime()
                     );
@@ -133,7 +122,70 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     return { success: true };
                 }
 
-                // 2. Hybrid DB Write
+                let useNativeFallback = false;
+
+                const dbAction = async (libQuery: any, native: { method: string, path: string, body?: any }) => {
+                    const label = `[saveRecord] ${native.method} ${native.path}`;
+                    if (useNativeFallback) {
+                        return nativeFetch(native.method, native.path, native.body);
+                    }
+
+                    console.log(`${label} - Starting Library attempt...`);
+                    const result = await Promise.race([
+                        libQuery,
+                        new Promise((resolve) => setTimeout(() => resolve({ _hang: true }), 5000))
+                    ]) as any;
+
+                    if (result._hang) {
+                        console.warn(`${label} - Library HANG. Switching to Native Fallback.`);
+                        useNativeFallback = true;
+                        return nativeFetch(native.method, native.path, native.body);
+                    }
+                    if (result.error) throw result.error;
+                    console.log(`${label} - Library SUCCESS.`);
+                    return result.data;
+                };
+
+                const nativeFetch = async (method: string, path: string, body?: any) => {
+                    const label = `[saveRecord] NativeFetch ${method} ${path}`;
+                    console.log(`${label} - Executing native fetch...`);
+
+                    if (!token) throw new Error('Cannot use native fallback: No access token found.');
+
+                    const controller = new AbortController();
+                    const fetchTimeout = setTimeout(() => controller.abort(), 10000);
+
+                    try {
+                        const response = await fetch(`${baseUrl}/rest/v1/${path}`, {
+                            method,
+                            signal: controller.signal,
+                            headers: {
+                                'apikey': anonKey,
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': method === 'POST' ? 'return=minimal' : ''
+                            },
+                            body: body ? JSON.stringify(body) : undefined
+                        });
+
+                        clearTimeout(fetchTimeout);
+
+                        if (!response.ok) {
+                            const errBody = await response.json().catch(() => ({}));
+                            console.error(`${label} - HTTP ERROR:`, response.status, errBody);
+                            throw new Error(`Native fetch failed (${response.status}): ${JSON.stringify(errBody)}`);
+                        }
+
+                        console.log(`${label} - SUCCESS.`);
+                        return response.status === 204 ? null : response.json().catch(() => null);
+                    } catch (err: any) {
+                        clearTimeout(fetchTimeout);
+                        console.error(`${label} - FATAL:`, err);
+                        throw err;
+                    }
+                };
+
+                // STEP 2: Main Record
                 const dbPayload = {
                     id: record.id,
                     date: record.date,
@@ -145,67 +197,26 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                 };
 
                 const isNew = !record.id || record.id.length < 30;
-                console.log('[saveRecord] Write Mode:', isNew ? 'INSERT' : 'UPDATE', 'Token length:', token?.length || 0);
+                await dbAction(
+                    isNew ? supabase.from('body_records').insert(dbPayload) : supabase.from('body_records').update(dbPayload).eq('id', record.id),
+                    { method: isNew ? 'POST' : 'PATCH', path: isNew ? 'body_records' : `body_records?id=eq.${record.id}`, body: dbPayload }
+                );
 
-                const performWrite = async () => {
-                    console.time('Step 2: DB Write Call');
-                    const libCall = isNew
-                        ? supabase.from('body_records').insert(dbPayload)
-                        : supabase.from('body_records').update(dbPayload).eq('id', record.id);
-
-                    const result = await Promise.race([
-                        libCall,
-                        new Promise((resolve) => setTimeout(() => resolve({ error: { message: 'LIB_HANG' } }), 5000))
-                    ]) as any;
-                    console.timeEnd('Step 2: DB Write Call');
-
-                    if (result.error?.message === 'LIB_HANG') {
-                        console.warn('[saveRecord] Library HANG detected. Falling back to native fetch...');
-                        if (!token || token.split('.').length !== 3) {
-                            throw new Error('Fallback failed: No valid JWT token available to bypass library hang.');
-                        }
-
-                        const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-                        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-                        const fetchUrl = isNew
-                            ? `${baseUrl}/rest/v1/body_records`
-                            : `${baseUrl}/rest/v1/body_records?id=eq.${record.id}`;
-
-                        const fetchResponse = await fetch(fetchUrl, {
-                            method: isNew ? 'POST' : 'PATCH',
-                            headers: {
-                                'apikey': anonKey,
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json',
-                                'Prefer': isNew ? 'return=minimal' : ''
-                            },
-                            body: JSON.stringify(dbPayload)
-                        });
-
-                        if (!fetchResponse.ok) {
-                            const errBody = await fetchResponse.json().catch(() => ({}));
-                            throw new Error(`Native fetch failed (${fetchResponse.status}): ${JSON.stringify(errBody)}`);
-                        }
-                    } else if (result.error) {
-                        throw result.error;
-                    }
-                };
-
-                await performWrite();
-
-                // 3. Cleanup and Sub-records
-                console.time('Step 3: Cleanup');
-                await Promise.all([
+                // STEP 3: Cleanup
+                console.log('[saveRecord] Proceeding to Step 3: Cleanup');
+                await dbAction(
                     supabase.from('body_measurements').delete().eq('body_record_id', record.id),
-                    supabase.from('body_photos').delete().eq('body_record_id', record.id)
-                ]);
-                console.timeEnd('Step 3: Cleanup');
+                    { method: 'DELETE', path: `body_measurements?body_record_id=eq.${record.id}` }
+                );
+                await dbAction(
+                    supabase.from('body_photos').delete().eq('body_record_id', record.id),
+                    { method: 'DELETE', path: `body_photos?body_record_id=eq.${record.id}` }
+                );
 
-                // 4. Detailed Inserts
-                const measurementItems = [];
+                // STEP 4: Detailed Inserts
                 const m = record.measurements as any;
                 const keys = ['neck', 'back', 'pecho', 'waist', 'hips', 'weight', 'bodyFat', 'arm.left', 'arm.right', 'thigh.left', 'thigh.right', 'calf.left', 'calf.right'];
+                const measurementItems = [];
 
                 for (const key of keys) {
                     let value;
@@ -226,6 +237,13 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     }
                 }
 
+                if (measurementItems.length > 0) {
+                    await dbAction(
+                        supabase.from('body_measurements').insert(measurementItems),
+                        { method: 'POST', path: 'body_measurements', body: measurementItems }
+                    );
+                }
+
                 const photoItems = (record.photos || []).map(p => ({
                     id: p.id,
                     body_record_id: record.id,
@@ -233,20 +251,14 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     angle: p.angle
                 }));
 
-                console.time('Step 4: Sub-records');
-                const insertPromises = [
-                    supabase.from('body_measurements').insert(measurementItems)
-                ];
                 if (photoItems.length > 0) {
-                    insertPromises.push(supabase.from('body_photos').insert(photoItems));
-                }
-                const subResults = await Promise.all(insertPromises);
-                console.timeEnd('Step 4: Sub-records');
-
-                for (const res of subResults) {
-                    if (res.error && res.error.code !== '42501') throw res.error;
+                    await dbAction(
+                        supabase.from('body_photos').insert(photoItems),
+                        { method: 'POST', path: 'body_photos', body: photoItems }
+                    );
                 }
 
+                // Finalize
                 const updatedRecord = { ...record, userId: targetUserId };
                 setRecords(prev => {
                     const filtered = prev.filter(r => r.id !== updatedRecord.id);
@@ -264,11 +276,7 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
         } catch (error: any) {
             console.timeEnd('[saveRecord] Total');
             console.error('[saveRecord] FATAL ERROR:', error);
-            let message = error.message || 'Error inesperado al guardar.';
-            if (error.message === 'TIMEOUT') {
-                message = 'Se agotaron los 45s. Revisa tu conexión.';
-            }
-            return { success: false, error: { ...error, message } };
+            return { success: false, error: { message: error.message || 'Error inesperado al guardar.' } };
         }
     };
 
