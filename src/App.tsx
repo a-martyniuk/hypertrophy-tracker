@@ -27,10 +27,10 @@ function App() {
 
   // Force data refresh when session updates (e.g. login from stale state)
   useEffect(() => {
-    if (authSession?.access_token) {
-      refresh()
+    if (authSession?.access_token && authUser?.id) {
+      refresh(authUser.id)
     }
-  }, [authSession?.access_token])
+  }, [authSession?.access_token, authUser?.id])
 
   // Ensure Guest Mode is disabled if we have a real user
   useEffect(() => {

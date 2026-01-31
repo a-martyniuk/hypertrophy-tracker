@@ -18,6 +18,28 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
 
         try {
             console.log('[useMeasurements] Fetching for user:', effectiveUserId);
+
+            // 0. Environment Check
+            const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+            const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+            if (!baseUrl || !anonKey) {
+                console.error('[useMeasurements] CRITICAL: Missing Env Vars', { url: !!baseUrl, key: !!anonKey });
+                return;
+            }
+
+            // 1. Get Fresh Token
+            let token = authSession?.access_token;
+            if (!token) {
+                const { data: { session } } = await supabase.auth.getSession();
+                token = session?.access_token;
+            }
+            if (!token) {
+                console.warn('[useMeasurements] No auth token available. Aborting.');
+                return;
+            }
+
+            console.log('[useMeasurements] Starting Native Fetch with token:', token.substring(0, 10) + '...');
+
             if (effectiveUserId) {
                 // UTILITY: Helper to map raw DB response to app Type
                 const mapData = (rawRecords: any[]) => rawRecords.map((r: any) => ({
@@ -42,107 +64,63 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
                     }))
                 }));
 
-                // UTILITY: Native Fallback Engine
-                const executeQuery = async (queryPromise: Promise<any>, fallbackPath: string) => {
-                    // 1. Try SDK with Timeout Race (Reduced to 5s for faster feedback)
+                const executeNativeFetch = async (path: string) => {
+                    const ctrl = new AbortController();
+                    const timer = setTimeout(() => ctrl.abort(), 15000); // 15s timeout
                     try {
-                        const race = await Promise.race([
-                            queryPromise,
-                            new Promise(resolve => setTimeout(() => resolve('TIMEOUT'), 5000))
-                        ]);
+                        console.log(`[useMeasurements] Fetching: ${baseUrl}/rest/v1/${path.split('?')[0]}...`);
+                        const res = await fetch(`${baseUrl}/rest/v1/${path}`, {
+                            method: 'GET',
+                            headers: {
+                                'apikey': anonKey,
+                                'Authorization': `Bearer ${token}`,
+                                'Prefer': 'count=exact'
+                            },
+                            signal: ctrl.signal
+                        });
+                        clearTimeout(timer);
 
-                        if (race !== 'TIMEOUT') return race as { data: any, error: any };
-                        console.warn(`[useMeasurements] SDK Timeout on ${fallbackPath}. Switching to Native Fetch.`);
-                    } catch (e) {
-                        console.error('[useMeasurements] SDK Exception:', e);
-                    }
-
-                    // 2. Native Fallback with Timeout
-                    try {
-                        const { data: { session } } = await supabase.auth.getSession();
-                        if (!session) return { data: null, error: 'No Session' };
-
-                        const url = import.meta.env.VITE_SUPABASE_URL;
-                        const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-                        const ctrl = new AbortController();
-                        const timer = setTimeout(() => ctrl.abort(), 10000); // 10s hard timeout
-
-                        try {
-                            const res = await fetch(`${url}/rest/v1/${fallbackPath}`, {
-                                signal: ctrl.signal,
-                                headers: {
-                                    'apikey': key,
-                                    'Authorization': `Bearer ${session.access_token}`,
-                                    'Prefer': 'count=exact'
-                                }
-                            });
-
-                            clearTimeout(timer);
-
-                            if (!res.ok) {
-                                const text = await res.text();
-                                console.error(`[useMeasurements] REST Error ${res.status}:`, text);
-                                throw text;
-                            }
-
-                            const json = await res.json();
-                            console.log(`[useMeasurements] REST Success: ${json.length} items`);
-                            return { data: json, error: null };
-                        } catch (fetchErr) {
-                            clearTimeout(timer);
-                            throw fetchErr;
+                        if (!res.ok) {
+                            const text = await res.text();
+                            console.error(`[useMeasurements] HTTP ${res.status} Error:`, text);
+                            throw new Error(`HTTP ${res.status}: ${text}`);
                         }
-                    } catch (err) {
-                        console.error('[useMeasurements] Native Fetch Failed:', err);
+
+                        const json = await res.json();
+                        console.log(`[useMeasurements] Success. Count: ${json.length}`);
+                        return { data: json, error: null };
+                    } catch (err: any) {
+                        clearTimeout(timer);
+                        console.error('[useMeasurements] Native Fetch Exception:', err);
                         return { data: null, error: err };
                     }
                 };
 
-                // ATTEMPT 1: Full Data (Limit 20 to prevent heavy loads)
-                const { data, error } = await executeQuery(
-                    supabase.from('body_records')
-                        .select('*, body_measurements (*), body_photos (*)')
-                        .order('date', { ascending: false })
-                        .limit(20) as any,
+                // ATTEMPT 1: Full Data (Native Only)
+                const { data, error } = await executeNativeFetch(
                     'body_records?select=*,body_measurements(*),body_photos(*)&order=date.desc&limit=20'
                 );
 
                 if (!error && data) {
-                    // Even if empty, it's a valid result (user might be new)
-                    console.log(`[useMeasurements] Full fetch result: ${data.length} records.`);
                     setRecords(mapData(data));
-
-                    // Only return if we actually got data (if 0, we might want to check local as fallback?)
-                    // But if Cloud says 0, it means 0. 
-                    // EXCEPT if RLS hides it. But we can't distinguish empty DB from RLS hidden.
                     return;
                 }
 
-                if (error) console.warn('[useMeasurements] Full fetch error:', error);
-
-                // ATTEMPT 2: Parent Only (Fallback for RLS/Join issues)
-                console.log('[useMeasurements] Attempting parent-only fetch...');
-                const { data: parentData, error: parentError } = await executeQuery(
-                    supabase.from('body_records').select('*').order('date', { ascending: false }) as any,
+                // ATTEMPT 2: Parent Only (Fallback)
+                console.log('[useMeasurements] Full fetch failed/empty. Trying parents only...');
+                const { data: parentData } = await executeNativeFetch(
                     'body_records?select=*&order=date.desc'
                 );
 
-                if (parentError) {
-                    console.error('[useMeasurements] CRITICAL: Parent table inaccessible:', parentError);
-                } else if (parentData && parentData.length > 0) {
-                    console.log(`[useMeasurements] Parent-only success: ${parentData.length} records found (details missing).`);
-                    // We found parents! The issue is definitely the child join policies.
-                    setRecords(mapData(parentData)); // Will produce entries with empty measurements/photos
-                    return;
-                } else {
-                    console.log('[useMeasurements] Parent table query returned 0 records.');
+                if (parentData && parentData.length > 0) {
+                    setRecords(mapData(parentData));
                 }
             }
+
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) setRecords(JSON.parse(saved));
         } catch (err) {
-            console.error('[useMeasurements] Refresh failed:', err);
+            console.error('[useMeasurements] Refresh logic failed:', err);
         } finally {
             setLoading(false);
         }

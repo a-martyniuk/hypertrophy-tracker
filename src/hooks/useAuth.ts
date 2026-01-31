@@ -10,12 +10,31 @@ export const useAuth = () => {
     useEffect(() => {
         // Check current session
         const getSession = async () => {
-            let { data: { session: currentSession } } = await supabase.auth.getSession();
+            let sessionToUse = null;
+            const { data: { session: existingSession } } = await supabase.auth.getSession();
+
+            if (existingSession) {
+                // AGGRESSIVE REFRESH: If session is valid but we want to ensure it's not stale
+                // Refresh if it expires in less than 1 hour (3600s) to be super safe
+                const now = Math.floor(Date.now() / 1000);
+                if (existingSession.expires_at && (existingSession.expires_at - now < 3600)) {
+                    console.log('[useAuth] Session expiring soon (<1h), forcing refresh...');
+                    const { data: { session: refreshedSession } } = await supabase.auth.refreshSession();
+                    if (refreshedSession) {
+                        console.log('[useAuth] Refresh SUCCESS.');
+                        sessionToUse = refreshedSession;
+                    } else {
+                        console.warn('[useAuth] Refresh failed, using existing session.');
+                        sessionToUse = existingSession;
+                    }
+                } else {
+                    sessionToUse = existingSession;
+                }
+            }
 
             // FAILSAFE: Auto-Recovery from LocalStorage
-            // Sometimes the SDK fails to initialize the session from storage on first load.
-            // We manually check for the token and force restoration if found.
-            if (!currentSession && typeof window !== 'undefined') {
+            // If we still don't have a usable session, try to scrape one from storage
+            if (!sessionToUse && typeof window !== 'undefined') {
                 try {
                     const keys = Object.keys(localStorage);
                     const sbKey = keys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
@@ -25,16 +44,17 @@ export const useAuth = () => {
                         const raw = localStorage.getItem(sbKey);
                         if (raw) {
                             const { access_token, refresh_token } = JSON.parse(raw);
-                            const { data, error } = await supabase.auth.setSession({
+                            // We use setSession which validates and refreshes if needed
+                            const { data, error: restoreError } = await supabase.auth.setSession({
                                 access_token,
                                 refresh_token
                             });
 
-                            if (!error && data.session) {
+                            if (!restoreError && data.session) {
                                 console.log('[useAuth] Session recovered successfully.');
-                                currentSession = data.session;
+                                sessionToUse = data.session;
                             } else {
-                                console.warn('[useAuth] Recovery failed:', error);
+                                console.warn('[useAuth] Recovery failed:', restoreError);
                             }
                         }
                     }
@@ -43,8 +63,8 @@ export const useAuth = () => {
                 }
             }
 
-            setSession(currentSession);
-            setUser(currentSession?.user ?? null);
+            setSession(sessionToUse);
+            setUser(sessionToUse?.user ?? null);
             setLoading(false);
         };
 
