@@ -23,7 +23,14 @@ function App() {
   const [isGuest, setIsGuest] = useState(false)
 
   const { user: authUser, session: authSession, loading: authLoading, signOut } = useAuth()
-  const { records, saveRecord, deleteRecord } = useMeasurements(authUser?.id, authSession)
+  const { records, saveRecord, deleteRecord, refresh } = useMeasurements(authUser?.id, authSession)
+
+  // Force data refresh when session updates (e.g. login from stale state)
+  useEffect(() => {
+    if (authSession?.access_token) {
+      refresh()
+    }
+  }, [authSession?.access_token])
 
   // Ensure Guest Mode is disabled if we have a real user
   useEffect(() => {
