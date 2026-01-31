@@ -307,15 +307,31 @@ export const useMeasurements = (userId?: string | null, authSession?: any | null
     return {
         records, loading, saveRecord,
         deleteRecord: async (id: string) => {
-            const { data: { session } } = await supabase.auth.getSession();
-            let token = session?.access_token || authSession?.access_token;
+            console.log('[deleteRecord] Invoked for ID:', id);
+
+            let token = authSession?.access_token;
+            if (!token) {
+                try {
+                    console.log('[deleteRecord] No prop token, fetching session...');
+                    const sessionPromise = supabase.auth.getSession();
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Auth Timeout')), 5000));
+
+                    const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+                    token = session?.access_token;
+                } catch (e) {
+                    console.warn('[deleteRecord] Session fetch warning:', e);
+                }
+            }
 
             if (!token) {
+                console.log('[deleteRecord] No token found. Deleting locally only.');
                 const filtered = records.filter(r => r.id !== id);
                 setRecords(filtered);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
                 return { success: true };
             }
+
+            console.log('[deleteRecord] Token acquired. Proceeding to cloud delete.');
 
             try {
                 const baseUrl = import.meta.env.VITE_SUPABASE_URL;
