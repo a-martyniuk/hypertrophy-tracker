@@ -271,63 +271,70 @@ function App() {
                   <h3>Últimos Valores</h3>
                   {latestRecord ? (
                     <ul className="summary-list">
-                      <ul className="summary-list">
-                        {[
-                          { key: 'height', label: 'Altura', unit: 'cm' },
-                          { key: 'weight', label: 'Peso', unit: 'kg', inverse: true },
-                          { key: 'bodyFat', label: 'Grasa', unit: '%', inverse: true },
-                          { key: 'neck', label: 'Cuello', unit: 'cm' },
-                          { key: 'back', label: 'Espalda', unit: 'cm' },
-                          { key: 'pecho', label: 'Pecho', unit: 'cm' },
-                          { key: 'waist', label: 'Cintura', unit: 'cm', inverse: true },
-                          { key: 'hips', label: 'Cadera', unit: 'cm', inverse: true },
-                          { key: 'arm.right', label: 'Bíceps (D)', unit: 'cm' },
-                          { key: 'arm.left', label: 'Bíceps (I)', unit: 'cm' },
-                          { key: 'forearm.right', label: 'Antebrazo (D)', unit: 'cm' },
-                          { key: 'forearm.left', label: 'Antebrazo (I)', unit: 'cm' },
-                          { key: 'thigh.right', label: 'Muslo (D)', unit: 'cm' },
-                          { key: 'thigh.left', label: 'Muslo (I)', unit: 'cm' },
-                          { key: 'calf.right', label: 'Gemelo (D)', unit: 'cm' },
-                          { key: 'calf.left', label: 'Gemelo (I)', unit: 'cm' },
-                        ].map(({ key, label, unit, inverse }) => {
-                          // Helper to get nested value
-                          const getValue = (record: any) => {
-                            if (!record) return undefined
-                            if (key.includes('.')) {
-                              const [k1, k2] = key.split('.')
-                              return record.measurements[k1]?.[k2] // Unsafe access fixed
-                            }
-                            return record.measurements[key]
+                      {[
+                        { key: 'height', label: 'Altura', unit: 'cm' },
+                        { key: 'weight', label: 'Peso', unit: 'kg', inverse: true },
+                        { key: 'bodyFat', label: 'Grasa', unit: '%', inverse: true },
+                        { key: 'neck', label: 'Cuello', unit: 'cm' },
+                        { key: 'back', label: 'Espalda', unit: 'cm' },
+                        { key: 'pecho', label: 'Pecho', unit: 'cm' },
+                        { key: 'waist', label: 'Cintura', unit: 'cm', inverse: true },
+                        { key: 'hips', label: 'Cadera', unit: 'cm', inverse: true },
+                        { key: 'arm.right', label: 'Bíceps (D)', unit: 'cm' },
+                        { key: 'arm.left', label: 'Bíceps (I)', unit: 'cm' },
+                        { key: 'forearm.right', label: 'Antebrazo (D)', unit: 'cm' },
+                        { key: 'forearm.left', label: 'Antebrazo (I)', unit: 'cm' },
+                        { key: 'thigh.right', label: 'Muslo (D)', unit: 'cm' },
+                        { key: 'thigh.left', label: 'Muslo (I)', unit: 'cm' },
+                        { key: 'calf.right', label: 'Gemelo (D)', unit: 'cm' },
+                        { key: 'calf.left', label: 'Gemelo (I)', unit: 'cm' },
+                      ].map(({ key, label, unit, inverse }) => {
+                        // Helper to get nested value
+                        const getValue = (record: any) => {
+                          if (!record) return undefined
+                          if (key.includes('.')) {
+                            const [k1, k2] = key.split('.')
+                            return record.measurements[k1]?.[k2]
                           }
+                          return record.measurements[key]
+                        }
 
-                          const val = getValue(latestRecord)
-                          const prevVal = getValue(previousRecord)
-                          const history = records
-                            .map(r => getValue(r))
-                            .filter(v => typeof v === 'number')
-                            .reverse()
-                            .slice(-5)
+                        const val = getValue(latestRecord)
+                        const prevVal = getValue(previousRecord)
+                        const history = records
+                          .map(r => getValue(r))
+                          .filter(v => typeof v === 'number')
+                          .reverse()
+                          .slice(-5)
 
-                          // Skip if no value ever recorded (except core ones maybe?) 
-                          // For now show all to encourage filling them, or maybe hide completely empty?
-                          // Let's show placeholders.
+                        const hasValue = val !== undefined && val !== 0;
 
-                          return (
-                            <li key={key}>
-                              <span>{label}:</span>
-                              <div className="summary-val-wrap">
-                                {history.length > 1 && <Sparkline data={history} />}
-                                <strong>{val ?? '--'} {unit}</strong>
-                                <TrendIndicator
-                                  current={val}
-                                  previous={prevVal}
-                                  inverse={inverse}
-                                />
-                              </div>
-                            </li>
-                          )
-                        })}
-                      </ul>
+                        return (
+                          <li key={key}>
+                            <span>{label}:</span>
+                            <div className="summary-val-wrap">
+                              {history.length > 1 && <Sparkline data={history} />}
+                              {hasValue ? (
+                                <>
+                                  <strong>{val} {unit}</strong>
+                                  <TrendIndicator
+                                    current={val}
+                                    previous={prevVal}
+                                    inverse={inverse}
+                                  />
+                                </>
+                              ) : (
+                                <button
+                                  className="btn-tiny-action"
+                                  onClick={() => setActiveView('new-entry')}
+                                >
+                                  Registrar
+                                </button>
+                              )}
+                            </div>
+                          </li>
+                        )
+                      })}
                     </ul>
                   ) : (
                     <p>No hay datos recientes</p>
@@ -753,6 +760,21 @@ function App() {
         .trend-icon.up { color: #f59e0b; }
         .trend-icon.down { color: #f59e0b; }
         .trend-icon.warn { color: #ef4444; }
+
+        .btn-tiny-action {
+          background: rgba(245, 158, 11, 0.1);
+          color: #f59e0b;
+          border: 1px solid rgba(245, 158, 11, 0.2);
+          border-radius: 4px;
+          padding: 2px 8px;
+          font-size: 0.7rem;
+          cursor: pointer;
+          transition: var(--transition-smooth);
+        }
+        .btn-tiny-action:hover {
+          background: rgba(245, 158, 11, 0.2);
+          box-shadow: 0 0 10px rgba(245, 158, 11, 0.1);
+        }
 
         .placeholder-silhouette {
           flex: 1;
