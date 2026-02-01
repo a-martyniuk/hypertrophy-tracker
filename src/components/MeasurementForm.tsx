@@ -100,8 +100,14 @@ interface ConnectorLine {
 }
 
 export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit, sex = 'male' }: Props) => {
-  // DATE: Use edit record date if available, else today
-  const [date, setDate] = useState(recordToEdit?.date ? new Date(recordToEdit.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
+  // DATE: Use edit record date if available, else today (Local Time)
+  const [date, setDate] = useState(() => {
+    if (recordToEdit?.date) {
+      return new Date(recordToEdit.date).toLocaleDateString('en-CA');
+    }
+    return new Date().toLocaleDateString('en-CA');
+  });
+
   const containerRef = useRef<HTMLFormElement>(null);
   const [lines, setLines] = useState<ConnectorLine[]>([]);
 
@@ -239,7 +245,8 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
     const record: MeasurementRecord = {
       id: recordToEdit?.id || crypto.randomUUID(),
       userId: user?.id || 'default-user',
-      date,
+      // Convert Local YYYY-MM-DD to ISO string at Local Midnight to preserve day correctness
+      date: new Date(`${date}T00:00:00`).toISOString(),
       measurements,
       notes,
       metadata,

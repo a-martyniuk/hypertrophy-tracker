@@ -110,7 +110,10 @@ function App() {
       <nav className="sidebar glass">
         <div className="logo">
           <Activity color="var(--primary-color)" size={32} />
-          <span style={{ fontSize: '0.9em', letterSpacing: '-0.5px' }}>HYPERTROPHY<b>TRACKER</b></span>
+          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '0.9', marginLeft: '6px' }}>
+            <span style={{ fontSize: '0.75rem', letterSpacing: '0.05em', opacity: 0.9 }}>HYPERTROPHY</span>
+            <span style={{ fontSize: '1rem', fontWeight: '800', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>TRACKER</span>
+          </div>
         </div>
 
         <div className="nav-items">
