@@ -1,12 +1,18 @@
-import type { MeasurementRecord } from '../types/measurements';
+import type { MeasurementRecord, MeasurementCondition } from '../types/measurements';
 import React from 'react';
-import { Calendar, ChevronRight, Trash2 } from 'lucide-react';
+import { Calendar, ChevronRight, Trash2, Moon, TestTube, Zap, Coffee } from 'lucide-react';
 
 interface Props {
   records: MeasurementRecord[];
   onDelete: (id: string) => Promise<{ success: boolean; error?: string }>;
   onSelect: (record: MeasurementRecord) => void;
 }
+
+const CONDITION_MAP: Record<MeasurementCondition, { label: string; icon: React.ReactNode; color: string }> = {
+  fasted: { label: 'Ayunas', icon: <TestTube size={14} />, color: '#60a5fa' },
+  post_workout: { label: 'Post-Entreno', icon: <Zap size={14} />, color: '#fbbf24' },
+  rest_day: { label: 'Descanso', icon: <Coffee size={14} />, color: '#a3a3a3' }
+};
 
 export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
   const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
@@ -38,6 +44,20 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
                 Peso: <span className="highlighted">{record.measurements.weight || '--'} kg</span> |
                 Cintura: <span className="highlighted">{record.measurements.waist} cm</span>
               </p>
+              <div className="record-tags">
+                {record.metadata?.condition && CONDITION_MAP[record.metadata.condition] && (
+                  <span className="tag" style={{ color: CONDITION_MAP[record.metadata.condition].color, borderColor: CONDITION_MAP[record.metadata.condition].color }}>
+                    {CONDITION_MAP[record.metadata.condition].icon}
+                    {CONDITION_MAP[record.metadata.condition].label}
+                  </span>
+                )}
+                {record.metadata?.sleepHours && (
+                  <span className="tag sleep">
+                    <Moon size={14} />
+                    {record.metadata.sleepHours}h sueño
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="record-actions">
@@ -134,6 +154,26 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
         .highlighted {
           color: var(--text-primary);
           font-weight: 500;
+        }
+        .record-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+        .tag {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
+            color: var(--text-secondary);
+        }
+        .tag.sleep {
+            color: #c084fc;
+            border-color: rgba(192, 132, 252, 0.3);
         }
         .record-actions {
           display: flex;
