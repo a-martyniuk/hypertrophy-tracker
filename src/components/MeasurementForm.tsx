@@ -177,7 +177,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
 
         <div className="editor-center glass">
           <div className="map-link-container">
-            <Tooltip content={t('common.form.muscle_map.tooltip')} position="top">
+            <Tooltip content={t('common.form.muscle_map.tooltip')} position="bottom">
               <button
                 type="button"
                 className="btn-map-link"
