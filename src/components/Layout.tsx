@@ -152,7 +152,6 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                 .app-container {
                     display: flex;
                     min-height: 100vh;
-                    background-color: var(--bg-color);
                 }
 
                 .mobile-header {
