@@ -20,28 +20,21 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
 
     // ... methods ...
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            setSubmitting(true);
-            await onAddGoal({
-                userId: 'default-user',
-                ...newGoal
-            });
-            setIsAdding(false);
-            setNewGoal(prev => ({ ...prev, measurementType: 'weight', targetValue: 0 })); // Reset
-        } catch (error) {
-            console.error("Failed to add goal", error);
-        } finally {
-            setSubmitting(false);
-        }
-    };
+    // Removed duplicate handleSubmit
+
     const [newGoal, setNewGoal] = useState({
         measurementType: 'weight',
         targetValue: 0,
         targetDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default 3 months
         status: 'active' as const
     });
+
+    // ... (rest of the code)
+
+    // In the JSX:
+    // <button type="submit" className="btn-primary" disabled={submitting}>
+    //   {submitting ? 'Guardando...' : 'Guardar Objetivo'}
+    // </button>
 
     const measurementLabels: Record<string, string> = {
         weight: 'Peso (kg)',
@@ -253,7 +246,9 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                             />
                         </div>
                     </div>
-                    <button type="submit" className="btn-primary">Guardar Objetivo</button>
+                    <button type="submit" className="btn-primary" disabled={submitting}>
+                        {submitting ? 'Guardando...' : 'Guardar Objetivo'}
+                    </button>
                 </form>
             )}
 
