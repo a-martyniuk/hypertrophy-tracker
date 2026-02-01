@@ -224,7 +224,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                     <div className="input-group">
                         <label className="flex items-center gap-2">
                             {t('common.metabolism.frequency')}
-                            <Tooltip content="Número de días que entrenas a la semana." position="top">
+                            <Tooltip content={t('common.metabolism.frequency_tooltip')} position="top">
                                 <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
                             </Tooltip>
                         </label>
@@ -233,7 +233,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                     <div className="input-group">
                         <label className="flex items-center gap-2">
                             {t('common.metabolism.duration')}
-                            <Tooltip content="Duración promedio de una sesión (sin contar vestuario/ducha)." position="top">
+                            <Tooltip content={t('common.metabolism.duration_tooltip')} position="top">
                                 <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
                             </Tooltip>
                         </label>
@@ -242,7 +242,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                     <div className="input-group">
                         <label className="flex items-center gap-2">
                             {t('common.metabolism.intensity')}
-                            <Tooltip content="RPE (Esfuerzo Percibido). Baja (paseo), Media (gym normal), Alta (Crossfit/HIIT real)." position="top">
+                            <Tooltip content={t('common.metabolism.intensity_tooltip')} position="top">
                                 <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
                             </Tooltip>
                         </label>

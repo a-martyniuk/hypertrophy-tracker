@@ -321,7 +321,9 @@
     }
 
     .connector-overlay {
-        display: none;
+        display: block;
+        opacity: 0.4;
+        pointer-events: none;
     }
 
     .editor-center {
@@ -356,5 +358,14 @@
     .form-secondary-inputs {
         grid-template-columns: 1fr;
         gap: 1rem;
+    }
+
+    .context-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .condition-buttons {
+        flex-wrap: wrap;
     }
 }

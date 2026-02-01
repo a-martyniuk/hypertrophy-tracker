@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Camera, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useStorage } from '../hooks/useStorage';
 import type { BodyPhoto, PhotoAngle } from '../types/measurements';
 
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpdated }: Props) => {
+  const { t } = useTranslation();
   const { uploadPhoto, deletePhoto } = useStorage();
   const [uploading, setUploading] = useState<PhotoAngle | null>(null);
 
@@ -56,9 +58,9 @@ export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpd
         {angles.map(angle => {
           const photo = existingPhotos.find(p => p.angle === angle);
           const angleLabels: Record<string, string> = {
-            front: 'Frente',
-            side: 'Perfil',
-            back: 'Espalda'
+            front: t('compare.angles.front'),
+            side: t('compare.angles.side'),
+            back: t('compare.angles.back')
           };
 
           return (
@@ -79,7 +81,7 @@ export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpd
                   ) : (
                     <>
                       <Camera size={24} />
-                      <span>Subir Foto</span>
+                      <span>{t('common.form.upload_photo')}</span>
                     </>
                   )}
                   <input
@@ -103,6 +105,11 @@ export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpd
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 1rem;
+        }
+        @media (max-width: 600px) {
+          .angles-grid {
+             grid-template-columns: repeat(2, 1fr);
+          }
         }
         .photo-slot {
           aspect-ratio: 3/4;

@@ -44,6 +44,29 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
     return (
         <ToastProvider>
             <div className="app-container">
+                <header className="mobile-header glass">
+                    <div className="logo-mobile">
+                        <Activity color="var(--primary-color)" size={24} />
+                        <span className="logo-text">HYPERTROPHY</span>
+                    </div>
+
+                    <div className="mobile-header-actions">
+                        <div className="gender-toggle-mobile">
+                            <button
+                                className={userSex === 'male' ? 'active' : ''}
+                                onClick={() => updateProfile({ sex: 'male' })}
+                            >M</button>
+                            <button
+                                className={userSex === 'female' ? 'active' : ''}
+                                onClick={() => updateProfile({ sex: 'female' })}
+                            >F</button>
+                        </div>
+                        <div className={`user-avatar-mobile ${userSex}`}>
+                            <User size={18} />
+                        </div>
+                    </div>
+                </header>
+
                 <nav className="sidebar glass">
                     <div className="logo">
                         <Activity color="var(--primary-color)" size={32} />
@@ -120,25 +143,99 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                     background-color: var(--bg-color);
                 }
 
+                .mobile-header {
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 60px;
+                    z-index: 100;
+                    padding: 0 1.25rem;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-bottom: 1px solid var(--border-color);
+                    background: rgba(3, 3, 5, 0.8);
+                }
+
+                .logo-mobile {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+
+                .logo-text {
+                    font-size: 0.8rem;
+                    font-weight: 800;
+                    letter-spacing: 0.05em;
+                }
+
+                .mobile-header-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                }
+
+                .gender-toggle-mobile {
+                    display: flex;
+                    background: rgba(255, 255, 255, 0.05);
+                    padding: 2px;
+                    border-radius: 6px;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
+                .gender-toggle-mobile button {
+                    width: 28px;
+                    height: 24px;
+                    font-size: 0.7rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: none;
+                    border: none;
+                    color: var(--text-secondary);
+                    border-radius: 4px;
+                }
+
+                .gender-toggle-mobile button.active {
+                    background: var(--primary-color);
+                    color: black;
+                }
+
+                .user-avatar-mobile {
+                    width: 32px;
+                    height: 32px;
+                    background: var(--surface-hover);
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 1px solid var(--border-color);
+                    color: var(--primary-color);
+                }
+
+                .user-avatar-mobile.female {
+                    color: #ec4899;
+                    border-color: rgba(236, 72, 153, 0.4);
+                }
+
                 .mobile-nav {
                     display: none;
                     position: fixed;
                     bottom: 0;
                     left: 0;
                     width: 100%;
-                    padding: 0.8rem;
+                    padding: 0.5rem;
                     z-index: 100;
                     border-top: 1px solid var(--border-color);
                     background: rgba(3, 3, 5, 0.95);
                     backdrop-filter: blur(20px);
                     
-                    /* Scrolling for many items */
                     overflow-x: auto;
                     white-space: nowrap;
                     justify-content: flex-start;
-                    gap: 1.2rem;
+                    gap: 0.5rem;
                     
-                    /* Hide scrollbar structure */
                     -ms-overflow-style: none;
                     scrollbar-width: none;
                 }
@@ -333,12 +430,16 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                     .sidebar {
                         display: none;
                     }
+                    .mobile-header {
+                        display: flex;
+                    }
                     .mobile-nav {
                         display: flex;
                     }
                     .content {
-                        padding: 1.5rem;
-                        padding-bottom: 7rem;
+                        padding: 1rem;
+                        padding-top: 75px;
+                        padding-bottom: 80px;
                     }
                 }
             `}</style>

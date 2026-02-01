@@ -74,37 +74,35 @@ export const VolumeHeatmap = ({ currentMeasurements, referenceMeasurements, sex 
         return [
             {
                 id: 'neck',
-                label: 'Cuello',
+                label: t('common.form.neck'),
                 path: paths['neck'],
                 value: getVal(currentMeasurements?.neck),
                 ref: getVal(referenceMeasurements?.neck)
             },
             {
                 id: 'pecho',
-                label: 'Pecho',
+                label: t('common.form.chest'),
                 path: paths['pecho'],
-                // Female bust approximate path provided by script or fallback
                 value: getVal(currentMeasurements?.pecho),
                 ref: getVal(referenceMeasurements?.pecho)
             },
             {
                 id: 'waist',
-                label: 'Abdomen',
+                label: t('common.form.waist'),
                 path: paths['waist'],
                 value: getVal(currentMeasurements?.waist),
                 ref: getVal(referenceMeasurements?.waist)
             },
             {
                 id: 'hips',
-                label: 'Cadera',
+                label: t('common.form.hips'),
                 path: paths['hips'],
                 value: getVal(currentMeasurements?.hips),
                 ref: getVal(referenceMeasurements?.hips)
             },
-            // Arms
             {
                 id: 'arm-left',
-                label: 'Bíceps Izq',
+                label: `${t('common.form.arm')} (L)`,
                 side: 'left',
                 path: paths['arm-left'],
                 value: getVal(currentMeasurements?.arm, 'left'),
@@ -112,16 +110,15 @@ export const VolumeHeatmap = ({ currentMeasurements, referenceMeasurements, sex 
             },
             {
                 id: 'arm-right',
-                label: 'Bíceps Der',
+                label: `${t('common.form.arm')} (R)`,
                 side: 'right',
                 path: paths['arm-right'],
                 value: getVal(currentMeasurements?.arm, 'right'),
                 ref: getVal(referenceMeasurements?.arm, 'right')
             },
-            // Forearms
             {
                 id: 'forearm-left',
-                label: 'Antebrazo Izq',
+                label: `${t('common.form.forearm')} (L)`,
                 side: 'left',
                 path: paths['forearm-left'],
                 value: getVal(currentMeasurements?.forearm, 'left'),
@@ -129,16 +126,15 @@ export const VolumeHeatmap = ({ currentMeasurements, referenceMeasurements, sex 
             },
             {
                 id: 'forearm-right',
-                label: 'Antebrazo Der',
+                label: `${t('common.form.forearm')} (R)`,
                 side: 'right',
                 path: paths['forearm-right'],
                 value: getVal(currentMeasurements?.forearm, 'right'),
                 ref: getVal(referenceMeasurements?.forearm, 'right')
             },
-            // Thighs
             {
                 id: 'thigh-left',
-                label: 'Muslo Izq',
+                label: `${t('common.form.thigh')} (L)`,
                 side: 'left',
                 path: paths['thigh-left'],
                 value: getVal(currentMeasurements?.thigh, 'left'),
@@ -146,16 +142,15 @@ export const VolumeHeatmap = ({ currentMeasurements, referenceMeasurements, sex 
             },
             {
                 id: 'thigh-right',
-                label: 'Muslo Der',
+                label: `${t('common.form.thigh')} (R)`,
                 side: 'right',
                 path: paths['thigh-right'],
                 value: getVal(currentMeasurements?.thigh, 'right'),
                 ref: getVal(referenceMeasurements?.thigh, 'right')
             },
-            // Calves
             {
                 id: 'calf-left',
-                label: 'Gemelo Izq',
+                label: `${t('common.form.calf')} (L)`,
                 side: 'left',
                 path: paths['calf-left'],
                 value: getVal(currentMeasurements?.calf, 'left'),
@@ -163,7 +158,7 @@ export const VolumeHeatmap = ({ currentMeasurements, referenceMeasurements, sex 
             },
             {
                 id: 'calf-right',
-                label: 'Gemelo Der',
+                label: `${t('common.form.calf')} (R)`,
                 side: 'right',
                 path: paths['calf-right'],
                 value: getVal(currentMeasurements?.calf, 'right'),
