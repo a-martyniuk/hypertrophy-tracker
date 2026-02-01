@@ -20,7 +20,6 @@ export function Tooltip({ content, children, position = 'top', width = 'max-cont
       onMouseEnter={show}
       onMouseLeave={hide}
       onClick={() => setIsVisible(!isVisible)} // Mobile toggle
-      onClick={() => setIsVisible(!isVisible)} // Mobile toggle
       style={{ position: 'relative', display: 'inline-flex', ...containerStyle }}
     >
       {children}
