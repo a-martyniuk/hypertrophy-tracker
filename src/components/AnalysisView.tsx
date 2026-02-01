@@ -176,26 +176,26 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
 
             <header className="view-header-stats">
                 <StatCard
-                    label="Indice W/H (Cintura/Cadera)"
+                    label={t('analysis.stats.whr_title')}
                     value={stats.whrValue}
                     subtitle={
                         <span>
-                            {Number(stats.whrValue) < stats.whrThreshold ? 'Rango Saludable' : 'Riesgo Elevado'}
+                            {Number(stats.whrValue) < stats.whrThreshold ? t('analysis.stats.healthy_range') : t('analysis.stats.elevated_risk')}
                             <span style={{ fontSize: '0.6em', opacity: 0.7 }}> (Ref: {stats.whrThreshold})</span>
                         </span>
                     }
                     tooltipContent={<div>{t('common.tooltips.whr')}</div>}
                 />
                 <StatCard
-                    label="Ratio Brazo/Muñeca"
+                    label={t('analysis.stats.arm_wrist_ratio')}
                     value={stats.armPotential}
-                    subtitle="Potencial Genético"
+                    subtitle={t('analysis.stats.genetic_potential')}
                     tooltipContent={<div>{t('common.tooltips.arm_potential')}</div>}
                 />
                 <StatCard
-                    label="Ratio Cintura/Pecho"
+                    label={t('analysis.stats.waist_chest_ratio')}
                     value={stats.vShapeRatio}
-                    subtitle="Estética (V-Shape)"
+                    subtitle={t('analysis.stats.v_shape')}
                     tooltipContent={<div>{t('common.tooltips.v_shape')}</div>}
                 />
             </header>

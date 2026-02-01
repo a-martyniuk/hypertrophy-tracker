@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Target, Info, Activity, HelpCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Tooltip as AppTooltip } from './Tooltip';
 import type { BodyMeasurements, SkeletalFrame } from '../types/measurements';
 import { calculateSkeletalPotential, calculateIEO } from '../utils/skeletal';
@@ -54,6 +55,8 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
     localStorage.setItem('skeletal_height', height.toString());
   }, [height]);
 
+  const { t } = useTranslation();
+
   useEffect(() => {
     localStorage.setItem('skeletal_frame_draft', JSON.stringify(frame));
   }, [frame]);
@@ -62,15 +65,15 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
   const ieo = calculateIEO(frame.wrist, frame.ankle, sex);
 
   const IEO_CATEGORIES = sex === 'female' ? [
-    { label: 'Pequeña', range: '< 16', min: 0, max: 16 },
-    { label: 'Mediana', range: '16 – 17.9', min: 16, max: 17.99 },
-    { label: 'Grande', range: '18 – 19.9', min: 18, max: 19.99, highlight: true },
-    { label: 'Muy grande', range: '≥ 20', min: 20, max: 999, highlight: true },
+    { label: t('genetics.ieo.small'), range: '< 16', min: 0, max: 16 },
+    { label: t('genetics.ieo.medium'), range: '16 – 17.9', min: 16, max: 17.99 },
+    { label: t('genetics.ieo.large'), range: '18 – 19.9', min: 18, max: 19.99, highlight: true },
+    { label: t('genetics.ieo.very_large'), range: '≥ 20', min: 20, max: 999, highlight: true },
   ] : [
-    { label: 'Pequeña', range: '< 18', min: 0, max: 18 },
-    { label: 'Mediana', range: '18 – 19.9', min: 18, max: 19.99 },
-    { label: 'Grande', range: '20 – 21.9', min: 20, max: 21.99, highlight: true },
-    { label: 'Muy grande', range: '≥ 22', min: 22, max: 999, highlight: true },
+    { label: t('genetics.ieo.small'), range: '< 18', min: 0, max: 18 },
+    { label: t('genetics.ieo.medium'), range: '18 – 19.9', min: 18, max: 19.99 },
+    { label: t('genetics.ieo.large'), range: '20 – 21.9', min: 20, max: 21.99, highlight: true },
+    { label: t('genetics.ieo.very_large'), range: '≥ 22', min: 22, max: 999, highlight: true },
   ];
 
   return (
@@ -78,9 +81,9 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
       <div className="view-header">
         <div className="title-group">
           <Target className="text-primary" size={24} />
-          <h2>Estructura Ósea y Potencial Genético</h2>
+          <h2>{t('genetics.title')}</h2>
         </div>
-        <p className="subtitle">Basado en el modelo científico de Casey Butt</p>
+        <p className="subtitle">{t('genetics.subtitle')}</p>
       </div>
 
       <div className="frame-grid">
@@ -88,8 +91,8 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
           <div className="card glass baseline-input">
             <div className="card-header">
               <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                Mis Medidas Base (cm)
-                <AppTooltip content="Estas medidas determinan tu potencial máximo (Modelo Casey Butt)" position="right">
+                {t('genetics.base_measurements')}
+                <AppTooltip content={t('genetics.base_measurements_tooltip')} position="right">
                   <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
                 </AppTooltip>
               </h3>
@@ -98,8 +101,8 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
               <div className="hud-input-group">
                 <div className="hud-label-row">
                   <label>
-                    Altura (cm)
-                    <AppTooltip content="Altura total descalzo. Factor clave para el peso máximo." position="top">
+                    {t('common.form.height')}
+                    <AppTooltip content={t('genetics.height_tooltip')} position="top">
                       <HelpCircle size={12} style={{ display: 'inline', marginLeft: '4px', opacity: 0.5, cursor: 'help' }} />
                     </AppTooltip>
                   </label>
@@ -116,8 +119,8 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
               <div className="hud-input-group">
                 <div className="hud-label-row">
                   <label>
-                    Muñeca
-                    <AppTooltip content="Mide la circunferencia sobre el hueso estiloides (la parte más prominente)." position="top">
+                    {t('common.form.wrist')}
+                    <AppTooltip content={t('genetics.wrist_tooltip')} position="top">
                       <HelpCircle size={12} style={{ display: 'inline', marginLeft: '4px', opacity: 0.5, cursor: 'help' }} />
                     </AppTooltip>
                   </label>
@@ -134,8 +137,8 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
               <div className="hud-input-group">
                 <div className="hud-label-row">
                   <label>
-                    Tobillo
-                    <AppTooltip content="Mide la circunferencia en la parte más estrecha, justo encima de los huesos del tobillo." position="top">
+                    {t('common.form.ankle')}
+                    <AppTooltip content={t('genetics.ankle_tooltip')} position="top">
                       <HelpCircle size={12} style={{ display: 'inline', marginLeft: '4px', opacity: 0.5, cursor: 'help' }} />
                     </AppTooltip>
                   </label>
@@ -151,16 +154,16 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
             </div>
 
             <button className="btn-primary w-full mt-6" onClick={() => onSave(frame)}>
-              <Activity size={18} className="mr-2" /> ACTUALIZAR MEDIDAS
+              <Activity size={18} className="mr-2" /> {t('genetics.btn_update')}
             </button>
           </div>
         </div>
 
         <div className="card glass potential-analysis">
           <div className="analysis-header">
-            <h3>Límite Genético Estimado</h3>
+            <h3>{t('genetics.estimated_limit')}</h3>
             <div className="info-tag">
-              <Info size={14} /> 10% Grasa Corporal
+              <Info size={14} /> {t('genetics.body_fat_ref')}
             </div>
           </div>
 
@@ -175,12 +178,12 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
                           muscle;
 
               const displayNames: Record<string, string> = {
-                chest: 'Pecho',
-                biceps: 'Bíceps',
-                forearms: 'Antebrazos',
-                neck: 'Cuello',
-                thighs: 'Muslos',
-                calves: 'Gemelos'
+                chest: t('common.form.chest'),
+                biceps: t('common.form.arm'), // Usually biceps refers to arm measurement in this context
+                forearms: t('common.form.forearm'),
+                neck: t('common.form.neck'),
+                thighs: t('common.form.thigh'),
+                calves: t('common.form.calf')
               };
 
               const current = currentMeasurements ? (currentMeasurements as any)[muscleKey] : null;
@@ -217,7 +220,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
 
       <div className="card glass ieo-card mt-6">
         <div className="card-header">
-          <h3>Índice de Estructura (IEO)</h3>
+          <h3>{t('genetics.ieo.title')}</h3>
         </div>
         <div className="ieo-display">
           <div className="ieo-main-score">
@@ -227,11 +230,11 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
             </div>
             {ieo.isAdvantage && (
               <div className="advantage-badge">
-                ✨ Ventaja Genética
+                ✨ {t('genetics.ieo.advantage')}
               </div>
             )}
             <p className="ieo-desc">
-              Tu IEO indica la robustez de tu esqueleto. Una estructura más grande proporciona mayor palanca y superficie de anclaje muscular.
+              {t('genetics.ieo.description')}
             </p>
           </div>
 

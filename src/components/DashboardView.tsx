@@ -67,16 +67,16 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
             <header className="dash-header">
                 <div className="welcome-text">
                     <h1>{t('dashboard.greeting')}, {userName} 👋</h1>
-                    <p>Tu evolución física en números reales.</p>
+                    <p>{t('dashboard.subtitle')}</p>
                 </div>
                 <HudButton onClick={() => navigate('/new-entry')} icon={<Plus size={18} />}>
-                    Registrar Medidas
+                    {t('dashboard.register_measurements')}
                 </HudButton>
             </header>
 
             <div className="main-dashboard-content">
                 <div className="left-column">
-                    <HudCard title="Tu Silueta Actual" className="silhouette-card">
+                    <HudCard title={t('dashboard.silhouette')} className="silhouette-card">
                         <div className="silhouette-wrapper">
                             <VolumeHeatmap
                                 currentMeasurements={latestRecord?.measurements || {
@@ -95,7 +95,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                         <div className="stat-card glass gold-border">
                             <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 {t('dashboard.last_record')}
-                                <Tooltip content="Fecha de la última medición registrada." position="top">
+                                <Tooltip content={t('dashboard.last_record_tooltip')} position="top">
                                     <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
                                 </Tooltip>
                             </label>
@@ -106,7 +106,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                         <div className="stat-card glass">
                             <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 {t('dashboard.total_records')}
-                                <Tooltip content="Cantidad total de mediciones guardadas en el historial." position="top">
+                                <Tooltip content={t('dashboard.total_records_tooltip')} position="top">
                                     <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
                                 </Tooltip>
                             </label>
@@ -122,17 +122,17 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                         {latestRecord ? (
                             <ul className="summary-list">
                                 {[
-                                    { key: 'height', label: 'Altura', unit: 'cm' },
-                                    { key: 'weight', label: 'Peso', unit: 'kg', inverse: true },
-                                    { key: 'bodyFat', label: 'Grasa', unit: '%', inverse: true },
-                                    { key: 'neck', label: 'Cuello', unit: 'cm' },
-                                    { key: 'pecho', label: 'Pecho', unit: 'cm' },
-                                    { key: 'waist', label: 'Cintura', unit: 'cm', inverse: true },
-                                    { key: 'hips', label: 'Cadera', unit: 'cm', inverse: true },
-                                    { key: 'arm.right', label: 'Bíceps (D)', unit: 'cm' },
-                                    { key: 'forearm.right', label: 'Antebrazo (D)', unit: 'cm' },
-                                    { key: 'thigh.right', label: 'Muslo (D)', unit: 'cm' },
-                                    { key: 'calf.right', label: 'Gemelo (D)', unit: 'cm' },
+                                    { key: 'height', label: t('common.form.height'), unit: 'cm' },
+                                    { key: 'weight', label: t('common.form.weight'), unit: 'kg', inverse: true },
+                                    { key: 'bodyFat', label: t('common.form.body_fat'), unit: '%', inverse: true },
+                                    { key: 'neck', label: t('common.form.neck'), unit: 'cm' },
+                                    { key: 'pecho', label: t('common.form.chest'), unit: 'cm' },
+                                    { key: 'waist', label: t('common.form.waist'), unit: 'cm', inverse: true },
+                                    { key: 'hips', label: t('common.form.hips'), unit: 'cm', inverse: true },
+                                    { key: 'arm.right', label: t('common.form.arm') + ' (R)', unit: 'cm' },
+                                    { key: 'forearm.right', label: t('common.form.forearm') + ' (R)', unit: 'cm' },
+                                    { key: 'thigh.right', label: t('common.form.thigh') + ' (R)', unit: 'cm' },
+                                    { key: 'calf.right', label: t('common.form.calf') + ' (R)', unit: 'cm' },
                                 ].map(({ key, label, unit, inverse }) => {
                                     const getValue = (record: any) => {
                                         if (!record) return undefined;
@@ -164,7 +164,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                                                         <TrendIndicator current={val} previous={prevVal} inverse={inverse} />
                                                     </>
                                                 ) : (
-                                                    <button className="btn-tiny-action" onClick={() => navigate('/new-entry')}>Registrar</button>
+                                                    <button className="btn-tiny-action" onClick={() => navigate('/new-entry')}>{t('dashboard.btn_register')}</button>
                                                 )}
                                             </div>
                                         </li>
@@ -172,7 +172,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                                 })}
                             </ul>
                         ) : (
-                            <p>No hay datos recientes</p>
+                            <p>{t('dashboard.no_data')}</p>
                         )}
                     </HudCard>
                 </div>

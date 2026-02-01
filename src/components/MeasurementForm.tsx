@@ -99,7 +99,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
       if (result.success) {
         localStorage.removeItem('measurement_draft_values');
         localStorage.removeItem('measurement_draft_date');
-        addToast(t('common.save') + " " + t('common.success', { defaultValue: 'OK' }), "success");
+        addToast(t('common.save') + " " + t('common.success', { defaultValue: 'Success' }), "success");
       } else {
         addToast(result.error?.message || t('common.error'), "error");
       }
@@ -147,26 +147,26 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
 
       <header className="form-header glass">
         <div className="header-left">
-          <h2>{t('form.title')}</h2>
-          <p className="subtitle">{t('form.subtitle')}</p>
+          <h2>{t('common.form.title')}</h2>
+          <p className="subtitle">{t('common.form.subtitle')}</p>
         </div>
         <input type="date" className="date-input" value={date} onChange={(e) => setDate(e.target.value)} />
       </header>
 
       <div className="form-layout-editor">
         <div className="editor-left">
-          <MeasurementSection title={t('form.core_metrics')}>
-            {renderInput('weight', t('form.weight'))}
-            {renderInput('height', t('form.height'))}
-            {renderInput('bodyFat', t('form.body_fat'))}
+          <MeasurementSection title={t('common.form.core_metrics')}>
+            {renderInput('weight', t('common.form.weight'))}
+            {renderInput('height', t('common.form.height'))}
+            {renderInput('bodyFat', t('common.form.body_fat'))}
           </MeasurementSection>
 
-          <MeasurementSection title={t('form.torso')}>
-            {renderInput('neck', t('form.neck'))}
-            {renderInput('back', t('form.back'))}
-            {renderInput('pecho', t('form.chest'))}
-            {renderInput('waist', t('form.waist'))}
-            {renderInput('hips', t('form.hips'))}
+          <MeasurementSection title={t('common.form.torso')}>
+            {renderInput('neck', t('common.form.neck'))}
+            {renderInput('back', t('common.form.back'))}
+            {renderInput('pecho', t('common.form.chest'))}
+            {renderInput('waist', t('common.form.waist'))}
+            {renderInput('hips', t('common.form.hips'))}
           </MeasurementSection>
         </div>
 
@@ -178,16 +178,16 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
         </div>
 
         <div className="editor-right">
-          <MeasurementSection title={t('form.upper_limbs')}>
-            {renderInput('arm', t('form.arm'))}
-            {renderInput('forearm', t('form.forearm'))}
-            {renderInput('wrist', t('form.wrist'))}
+          <MeasurementSection title={t('common.form.upper_limbs')}>
+            {renderInput('arm', t('common.form.arm'))}
+            {renderInput('forearm', t('common.form.forearm'))}
+            {renderInput('wrist', t('common.form.wrist'))}
           </MeasurementSection>
 
-          <MeasurementSection title={t('form.lower_limbs')}>
-            {renderInput('thigh', t('form.thigh'))}
-            {renderInput('calf', t('form.calf'))}
-            {renderInput('ankle', t('form.ankle'))}
+          <MeasurementSection title={t('common.form.lower_limbs')}>
+            {renderInput('thigh', t('common.form.thigh'))}
+            {renderInput('calf', t('common.form.calf'))}
+            {renderInput('ankle', t('common.form.ankle'))}
           </MeasurementSection>
         </div>
       </div>
@@ -209,7 +209,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
       {hasErrors && (
         <div className="form-error-banner glass animate-fade">
           <Activity size={18} className="text-danger" />
-          <span>{t('form.errors_banner')}</span>
+          <span>{t('common.form.errors_banner')}</span>
         </div>
       )}
 

@@ -169,9 +169,16 @@
     },
     "dashboard": {
         "greeting": "Hello",
+        "subtitle": "Your physical evolution in real numbers.",
+        "register_measurements": "Log Measurements",
+        "silhouette": "Current Silhouette",
         "last_record": "Last Record",
+        "last_record_tooltip": "Date of the last recorded measurement.",
         "total_records": "Total Records",
-        "latest_values": "Latest Values"
+        "total_records_tooltip": "Total number of measurements saved in history.",
+        "latest_values": "Latest Values",
+        "btn_register": "Log",
+        "no_data": "No recent data"
     },
     "settings": {
         "title": "Settings & Data",
@@ -240,6 +247,43 @@
                 "tooltip": "Key indicator of metabolic health.",
                 "series": "W/H Ratio"
             }
+        },
+        "filter": {
+            "period": "Period",
+            "all": "All",
+            "1y": "1 Year",
+            "6m": "6 Months",
+            "3m": "3 Months"
+        },
+        "stats": {
+            "whr_title": "W/H Index (Waist/Hip)",
+            "healthy_range": "Healthy Range",
+            "elevated_risk": "High Risk",
+            "arm_wrist_ratio": "Arm/Wrist Ratio",
+            "genetic_potential": "Genetic Potential",
+            "waist_chest_ratio": "Waist/Chest Ratio",
+            "v_shape": "Aesthetics (V-Shape)"
+        }
+    },
+    "genetics": {
+        "title": "Bone Structure & Genetic Potential",
+        "subtitle": "Based on Casey Butt's scientific model",
+        "base_measurements": "My Base Measurements (cm)",
+        "base_measurements_tooltip": "These measurements determine your maximum potential (Casey Butt Model)",
+        "height_tooltip": "Total barefoot height. Key factor for maximum weight.",
+        "wrist_tooltip": "Measure circumference over the styloid process (most prominent part).",
+        "ankle_tooltip": "Measure circumference at narrowest part, just above ankle bones.",
+        "btn_update": "UPDATE MEASUREMENTS",
+        "estimated_limit": "Estimated Genetic Limit",
+        "body_fat_ref": "10% Body Fat",
+        "ieo": {
+            "title": "Structure Index (IEO)",
+            "advantage": "Genetic Advantage",
+            "description": "Your IEO indicates skeletal robustness. A larger structure provides greater leverage and muscle anchor surface.",
+            "small": "Small",
+            "medium": "Medium",
+            "large": "Large",
+            "very_large": "Very Large"
         }
     }
 }

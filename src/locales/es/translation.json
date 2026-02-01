@@ -9,7 +9,6 @@
         "edit": "Editar",
         "settings": "Configuración",
         "dashboard": "Inicio",
-        "history": "Historial",
         "analysis": "Análisis",
         "genetics": "Genética",
         "compare": "Comparar",
@@ -234,6 +233,43 @@
                 "tooltip": "Indicador clave de salud metabólica.",
                 "series": "W/H Ratio"
             }
+        },
+        "filter": {
+            "period": "Periodo",
+            "all": "Todo",
+            "1y": "1 Año",
+            "6m": "6 Meses",
+            "3m": "3 Meses"
+        },
+        "stats": {
+            "whr_title": "Indice W/H (Cintura/Cadera)",
+            "healthy_range": "Rango Saludable",
+            "elevated_risk": "Riesgo Elevado",
+            "arm_wrist_ratio": "Ratio Brazo/Muñeca",
+            "genetic_potential": "Potencial Genético",
+            "waist_chest_ratio": "Ratio Cintura/Pecho",
+            "v_shape": "Estética (V-Shape)"
+        }
+    },
+    "genetics": {
+        "title": "Estructura Ósea y Potencial Genético",
+        "subtitle": "Basado en el modelo científico de Casey Butt",
+        "base_measurements": "Mis Medidas Base (cm)",
+        "base_measurements_tooltip": "Estas medidas determinan tu potencial máximo (Modelo Casey Butt)",
+        "height_tooltip": "Altura total descalzo. Factor clave para el peso máximo.",
+        "wrist_tooltip": "Mide la circunferencia sobre el hueso estiloides (la parte más prominente).",
+        "ankle_tooltip": "Mide la circunferencia en la parte más estrecha, justo encima de los huesos del tobillo.",
+        "btn_update": "ACTUALIZAR MEDIDAS",
+        "estimated_limit": "Límite Genético Estimado",
+        "body_fat_ref": "10% Grasa Corporal",
+        "ieo": {
+            "title": "Índice de Estructura (IEO)",
+            "advantage": "Ventaja Genética",
+            "description": "Tu IEO indica la robustez de tu esqueleto. Una estructura más grande proporciona mayor palanca y superficie de anclaje muscular.",
+            "small": "Pequeña",
+            "medium": "Mediana",
+            "large": "Grande",
+            "very_large": "Muy grande"
         }
     }
 }
