@@ -87,6 +87,11 @@
             "confirm_delete": "¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.",
             "delete_error": "Error al eliminar el registro"
         },
+        "sharing": {
+            "btn": "Generar Progress Card",
+            "generating": "Generando...",
+            "saved": "Imagen Guardada!"
+        },
         "goals": {
             "title": "Centro de Objetivos",
             "subtitle": "Define metas basadas en tu potencial genético",
@@ -207,6 +212,7 @@
         "success_import": "Data imported. Reloading app...",
         "error_read": "Error reading file.",
         "stats": {
+            "records": "Registros",
             "goals": "Objetivos",
             "profile": "Perfil",
             "yes": "Si",

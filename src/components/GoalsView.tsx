@@ -14,6 +14,8 @@ interface Props {
     onRefresh?: () => void;
 }
 
+import './GoalsView.css';
+
 export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profile, records = [], onRefresh }: Props) => {
     const { t } = useTranslation();
 
@@ -32,7 +34,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
     // Removed duplicate handleSubmit
 
     const [newGoal, setNewGoal] = useState({
-        measurementType: 'weight',
+        measurementType: 'weight' as GrowthGoal['measurementType'],
         targetValue: 0,
         targetDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default 3 months
         status: 'active' as const
@@ -184,7 +186,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
     const quickAdd = (s: typeof suggestions[0]) => {
         setNewGoal({
             ...newGoal,
-            measurementType: s.type,
+            measurementType: s.type as GrowthGoal['measurementType'],
             targetValue: s.value
         });
         setIsAdding(true);
@@ -230,7 +232,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                             <label>{t('common.goals.metric')}</label>
                             <select
                                 value={newGoal.measurementType}
-                                onChange={(e) => setNewGoal({ ...newGoal, measurementType: e.target.value })}
+                                onChange={(e) => setNewGoal({ ...newGoal, measurementType: e.target.value as GrowthGoal['measurementType'] })}
                             >
                                 {Object.entries(measurementLabels).map(([key, label]) => (
                                     <option key={key} value={key}>{label}</option>

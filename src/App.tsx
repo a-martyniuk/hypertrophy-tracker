@@ -124,7 +124,7 @@ function App() {
         } />
 
         <Route path="/comparison" element={
-          <PhotoComparisonView records={records} />
+          <PhotoComparisonView records={records} userName={userName} />
         } />
 
         <Route path="/calculator" element={

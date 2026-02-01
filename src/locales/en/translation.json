@@ -87,6 +87,11 @@
             "confirm_delete": "Are you sure you want to delete this record? This action cannot be undone.",
             "delete_error": "Error deleting record"
         },
+        "sharing": {
+            "btn": "Generate Progress Card",
+            "generating": "Generating...",
+            "saved": "Image Saved!"
+        },
         "goals": {
             "title": "Goals Center",
             "subtitle": "Define goals based on your genetic potential",

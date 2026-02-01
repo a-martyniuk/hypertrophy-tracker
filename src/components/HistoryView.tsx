@@ -9,6 +9,8 @@ interface Props {
   onSelect: (record: MeasurementRecord) => void;
 }
 
+import './HistoryView.css';
+
 export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
   const { t } = useTranslation();
   const [isDeleting, setIsDeleting] = React.useState<string | null>(null);

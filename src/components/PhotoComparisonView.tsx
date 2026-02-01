@@ -4,13 +4,17 @@ import type { MeasurementRecord, PhotoAngle } from '../types/measurements';
 
 interface Props {
   records: MeasurementRecord[];
+  userName?: string;
 }
 
 type ViewMode = 'side-by-side' | 'slider' | 'ghost';
 
 import { useTranslation } from 'react-i18next';
+import { SocialShare } from './SocialShare';
 
-export const PhotoComparisonView = ({ records }: Props) => {
+import './PhotoComparisonView.css';
+
+export const PhotoComparisonView = ({ records, userName }: Props) => {
   const { t } = useTranslation();
   const recordsWithPhotos = records.filter(r => r.photos && r.photos.length > 0);
 
@@ -137,6 +141,9 @@ export const PhotoComparisonView = ({ records }: Props) => {
               <option key={r.id} value={r.id}>{new Date(r.date).toLocaleDateString()}</option>
             ))}
           </select>
+        </div>
+        <div className="share-action-wrap">
+          <SocialShare beforeRecord={beforeRecord} afterRecord={afterRecord} userName={userName} />
         </div>
       </div>
 

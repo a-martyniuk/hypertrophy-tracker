@@ -1,4 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Plus, History, Activity, LogOut, User, LayoutGrid, Target, Camera, Calculator, Dna, Settings } from 'lucide-react'
 import { Tooltip } from './Tooltip'
@@ -116,7 +117,18 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                 </nav>
 
                 <main className="content">
-                    <Outlet />
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={location.pathname}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            style={{ height: '100%', width: '100%' }}
+                        >
+                            <Outlet />
+                        </motion.div>
+                    </AnimatePresence>
                 </main>
 
                 <nav className="mobile-nav glass">
