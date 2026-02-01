@@ -6,6 +6,7 @@ import { PhotoUpload } from './PhotoUpload';
 import { useAuth } from '../hooks/useAuth';
 import type { BodyPhoto } from '../types/measurements';
 import { MeasurementInput } from './measurement/MeasurementInput';
+import { MeasurementSection } from './measurement/MeasurementSection';
 
 interface Props {
   onSave: (record: MeasurementRecord) => Promise<{ success: boolean; error?: any }>;
@@ -223,73 +224,67 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
 
       <div className="form-layout-editor">
         <div className="editor-left">
-          <section className="form-section">
-            <h3>Métricas Core</h3>
-            <div className="hud-column">
-              <MeasurementInput
-                id="input-weight"
-                label="PESO"
-                value={measurements.weight}
-                previousValue={sourceRecord?.measurements.weight}
-                onChange={(v) => updateField('weight', v)}
-              />
-              <MeasurementInput
-                id="input-height"
-                label="ALTURA"
-                value={measurements.height || 0}
-                previousValue={sourceRecord?.measurements.height}
-                onChange={(v) => updateField('height', v)}
-              />
-              <MeasurementInput
-                id="input-bodyFat"
-                label="GRASA%"
-                value={measurements.bodyFat || 0}
-                previousValue={sourceRecord?.measurements.bodyFat}
-                onChange={(v) => updateField('bodyFat', v)}
-              />
-            </div>
-          </section>
+          <MeasurementSection title="Métricas Core">
+            <MeasurementInput
+              id="input-weight"
+              label="PESO"
+              value={measurements.weight}
+              previousValue={sourceRecord?.measurements.weight}
+              onChange={(v) => updateField('weight', v)}
+            />
+            <MeasurementInput
+              id="input-height"
+              label="ALTURA"
+              value={measurements.height || 0}
+              previousValue={sourceRecord?.measurements.height}
+              onChange={(v) => updateField('height', v)}
+            />
+            <MeasurementInput
+              id="input-bodyFat"
+              label="GRASA%"
+              value={measurements.bodyFat || 0}
+              previousValue={sourceRecord?.measurements.bodyFat}
+              onChange={(v) => updateField('bodyFat', v)}
+            />
+          </MeasurementSection>
 
-          <section className="form-section">
-            <h3>Tronco</h3>
-            <div className="hud-column">
-              <MeasurementInput
-                id="input-neck"
-                label="CUELLO"
-                value={measurements.neck}
-                previousValue={sourceRecord?.measurements.neck}
-                onChange={(v) => updateField('neck', v)}
-              />
-              <MeasurementInput
-                id="input-back"
-                label="ESPALDA"
-                value={measurements.back}
-                previousValue={sourceRecord?.measurements.back}
-                onChange={(v) => updateField('back', v)}
-              />
-              <MeasurementInput
-                id="input-pecho"
-                label="PECHO"
-                value={measurements.pecho}
-                previousValue={sourceRecord?.measurements.pecho}
-                onChange={(v) => updateField('pecho', v)}
-              />
-              <MeasurementInput
-                id="input-waist"
-                label="CINTURA"
-                value={measurements.waist}
-                previousValue={sourceRecord?.measurements.waist}
-                onChange={(v) => updateField('waist', v)}
-              />
-              <MeasurementInput
-                id="input-hips"
-                label="CADERAS"
-                value={measurements.hips}
-                previousValue={sourceRecord?.measurements.hips}
-                onChange={(v) => updateField('hips', v)}
-              />
-            </div>
-          </section>
+          <MeasurementSection title="Tronco">
+            <MeasurementInput
+              id="input-neck"
+              label="CUELLO"
+              value={measurements.neck}
+              previousValue={sourceRecord?.measurements.neck}
+              onChange={(v) => updateField('neck', v)}
+            />
+            <MeasurementInput
+              id="input-back"
+              label="ESPALDA"
+              value={measurements.back}
+              previousValue={sourceRecord?.measurements.back}
+              onChange={(v) => updateField('back', v)}
+            />
+            <MeasurementInput
+              id="input-pecho"
+              label="PECHO"
+              value={measurements.pecho}
+              previousValue={sourceRecord?.measurements.pecho}
+              onChange={(v) => updateField('pecho', v)}
+            />
+            <MeasurementInput
+              id="input-waist"
+              label="CINTURA"
+              value={measurements.waist}
+              previousValue={sourceRecord?.measurements.waist}
+              onChange={(v) => updateField('waist', v)}
+            />
+            <MeasurementInput
+              id="input-hips"
+              label="CADERAS"
+              value={measurements.hips}
+              previousValue={sourceRecord?.measurements.hips}
+              onChange={(v) => updateField('hips', v)}
+            />
+          </MeasurementSection>
         </div>
 
         <div className="editor-center glass">
@@ -300,59 +295,53 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
         </div>
 
         <div className="editor-right">
-          <section className="form-section">
-            <h3>Extremidades Sup.</h3>
-            <div className="hud-column">
-              <MeasurementInput
-                id="input-arm"
-                label="BRAZO"
-                value={measurements.arm}
-                previousValue={sourceRecord?.measurements.arm}
-                onChange={(v) => updateField('arm', v)}
-              />
-              <MeasurementInput
-                id="input-forearm"
-                label="ANTEBRAZO"
-                value={measurements.forearm}
-                previousValue={sourceRecord?.measurements.forearm}
-                onChange={(v) => updateField('forearm', v)}
-              />
-              <MeasurementInput
-                id="input-wrist"
-                label="MUÑECA"
-                value={measurements.wrist}
-                previousValue={sourceRecord?.measurements.wrist}
-                onChange={(v) => updateField('wrist', v)}
-              />
-            </div>
-          </section>
+          <MeasurementSection title="Extremidades Sup.">
+            <MeasurementInput
+              id="input-arm"
+              label="BRAZO"
+              value={measurements.arm}
+              previousValue={sourceRecord?.measurements.arm}
+              onChange={(v) => updateField('arm', v)}
+            />
+            <MeasurementInput
+              id="input-forearm"
+              label="ANTEBRAZO"
+              value={measurements.forearm}
+              previousValue={sourceRecord?.measurements.forearm}
+              onChange={(v) => updateField('forearm', v)}
+            />
+            <MeasurementInput
+              id="input-wrist"
+              label="MUÑECA"
+              value={measurements.wrist}
+              previousValue={sourceRecord?.measurements.wrist}
+              onChange={(v) => updateField('wrist', v)}
+            />
+          </MeasurementSection>
 
-          <section className="form-section">
-            <h3>Extremidades Inf.</h3>
-            <div className="hud-column">
-              <MeasurementInput
-                id="input-thigh"
-                label="MUSLO"
-                value={measurements.thigh}
-                previousValue={sourceRecord?.measurements.thigh}
-                onChange={(v) => updateField('thigh', v)}
-              />
-              <MeasurementInput
-                id="input-calf"
-                label="PANTORRILLA"
-                value={measurements.calf}
-                previousValue={sourceRecord?.measurements.calf}
-                onChange={(v) => updateField('calf', v)}
-              />
-              <MeasurementInput
-                id="input-ankle"
-                label="TOBILLO"
-                value={measurements.ankle}
-                previousValue={sourceRecord?.measurements.ankle}
-                onChange={(v) => updateField('ankle', v)}
-              />
-            </div>
-          </section>
+          <MeasurementSection title="Extremidades Inf.">
+            <MeasurementInput
+              id="input-thigh"
+              label="MUSLO"
+              value={measurements.thigh}
+              previousValue={sourceRecord?.measurements.thigh}
+              onChange={(v) => updateField('thigh', v)}
+            />
+            <MeasurementInput
+              id="input-calf"
+              label="PANTORRILLA"
+              value={measurements.calf}
+              previousValue={sourceRecord?.measurements.calf}
+              onChange={(v) => updateField('calf', v)}
+            />
+            <MeasurementInput
+              id="input-ankle"
+              label="TOBILLO"
+              value={measurements.ankle}
+              previousValue={sourceRecord?.measurements.ankle}
+              onChange={(v) => updateField('ankle', v)}
+            />
+          </MeasurementSection>
         </div>
       </div>
 

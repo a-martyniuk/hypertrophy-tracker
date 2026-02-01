@@ -1,6 +1,5 @@
-import React from 'react';
-import { BilateralMeasurement } from '../../types/measurements';
-import { Minus, TrendingUp, TrendingDown } from 'lucide-react';
+import type { BilateralMeasurement } from '../../types/measurements';
+
 
 interface Props {
     label: string;
