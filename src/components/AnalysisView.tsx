@@ -104,7 +104,7 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                 <div className="stat-card-mini glass">
                     <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         Indice W/H (Cintura/Cadera)
-                        <AppTooltip content="Waist-to-Hip Ratio. Indicador de distribución de grasa y riesgo cardiovascular." position="top">
+                        <AppTooltip content="Waist-to-Hip Ratio. Indicador de distribución de grasa y riesgo cardiovascular." position="bottom">
                             <HelpCircle size={12} className="text-secondary opacity-60 cursor-help" />
                         </AppTooltip>
                     </label>
@@ -120,7 +120,7 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                 <div className="stat-card-mini glass">
                     <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         Ratio Brazo/Muñeca
-                        <AppTooltip content="Potencial genético estimado para el tamaño del brazo basado en el grosor de la muñeca." position="top">
+                        <AppTooltip content="Potencial genético estimado para el tamaño del brazo basado en el grosor de la muñeca." position="bottom">
                             <HelpCircle size={12} className="text-secondary opacity-60 cursor-help" />
                         </AppTooltip>
                     </label>
@@ -130,7 +130,7 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                 <div className="stat-card-mini glass">
                     <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         Evolución Tronco
-                        <AppTooltip content="Crecimiento promedio de la medida de pecho, espalda y cuello respecto al mes anterior." position="top">
+                        <AppTooltip content="Crecimiento promedio de la medida de pecho, espalda y cuello respecto al mes anterior." position="bottom">
                             <HelpCircle size={12} className="text-secondary opacity-60 cursor-help" />
                         </AppTooltip>
                     </label>
