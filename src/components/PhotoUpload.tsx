@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Camera, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useStorage } from '../hooks/useStorage';
+import { useToast } from './ui/ToastProvider';
 import type { BodyPhoto, PhotoAngle } from '../types/measurements';
 
 interface Props {
@@ -14,30 +15,68 @@ interface Props {
 export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpdated }: Props) => {
   const { t } = useTranslation();
   const { uploadPhoto, deletePhoto } = useStorage();
+  const { addToast } = useToast();
   const [uploading, setUploading] = useState<PhotoAngle | null>(null);
+  const [localPreviews, setLocalPreviews] = useState<Record<string, string>>({});
 
   const angles: PhotoAngle[] = ['front', 'side', 'back'];
+
+  // Clean up object URLs on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(localPreviews).forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [localPreviews]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, angle: PhotoAngle) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Create local preview immediately
+    const previewUrl = URL.createObjectURL(file);
+    setLocalPreviews(prev => ({ ...prev, [angle]: previewUrl }));
+
     setUploading(angle);
-    const fileName = `${userId}/${recordId}/${angle}_${Date.now()}.jpg`;
-    const url = await uploadPhoto(file, fileName);
+    try {
+      const fileName = `${userId}/${recordId}/${angle}_${Date.now()}.jpg`;
+      const url = await uploadPhoto(file, fileName);
 
-    if (url) {
-      const newPhoto: BodyPhoto = {
-        id: crypto.randomUUID(),
-        url,
-        angle,
-        createdAt: new Date().toISOString()
-      };
+      if (url) {
+        const newPhoto: BodyPhoto = {
+          id: crypto.randomUUID(),
+          url,
+          angle,
+          createdAt: new Date().toISOString()
+        };
 
-      const updatedPhotos = [...existingPhotos.filter(p => p.angle !== angle), newPhoto];
-      onPhotosUpdated(updatedPhotos);
+        const updatedPhotos = [...existingPhotos.filter(p => p.angle !== angle), newPhoto];
+        onPhotosUpdated(updatedPhotos);
+
+        // Remove local preview once remote is ready
+        setLocalPreviews(prev => {
+          const next = { ...prev };
+          delete next[angle];
+          return next;
+        });
+      } else {
+        addToast(t('common.error'), 'error');
+        setLocalPreviews(prev => {
+          const next = { ...prev };
+          delete next[angle];
+          return next;
+        });
+      }
+    } catch (err) {
+      console.error('Upload catch error:', err);
+      addToast(t('common.error'), 'error');
+      setLocalPreviews(prev => {
+        const next = { ...prev };
+        delete next[angle];
+        return next;
+      });
+    } finally {
+      setUploading(null);
     }
-    setUploading(null);
   };
 
   const removePhoto = async (photo: BodyPhoto) => {
@@ -57,6 +96,9 @@ export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpd
       <div className="angles-grid">
         {angles.map(angle => {
           const photo = existingPhotos.find(p => p.angle === angle);
+          const previewUrl = localPreviews[angle];
+          const isUploading = uploading === angle;
+
           const angleLabels: Record<string, string> = {
             front: t('compare.angles.front'),
             side: t('compare.angles.side'),
@@ -64,26 +106,27 @@ export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpd
           };
 
           return (
-            <div key={angle} className={`photo-slot glass ${photo ? 'has-photo' : ''}`}>
+            <div key={angle} className={`photo-slot glass ${(photo || previewUrl) ? 'has-photo' : ''}`}>
               <div className="slot-label capitalize">{angleLabels[angle]}</div>
 
-              {photo ? (
+              {(photo || previewUrl) ? (
                 <div className="photo-preview">
-                  <img src={photo.url} alt={angle} />
-                  <button className="btn-remove" onClick={() => removePhoto(photo)}>
-                    <X size={14} />
-                  </button>
+                  <img src={previewUrl || photo?.url} alt={angle} className={isUploading ? 'preview-loading' : ''} />
+                  {isUploading && (
+                    <div className="preview-overlay">
+                      <div className="spinner animate-spin"></div>
+                    </div>
+                  )}
+                  {photo && !isUploading && (
+                    <button className="btn-remove" onClick={() => removePhoto(photo)}>
+                      <X size={14} />
+                    </button>
+                  )}
                 </div>
               ) : (
                 <label className="upload-trigger">
-                  {uploading === angle ? (
-                    <div className="spinner animate-spin"></div>
-                  ) : (
-                    <>
-                      <Camera size={24} />
-                      <span>{t('common.form.upload_photo')}</span>
-                    </>
-                  )}
+                  <Camera size={24} />
+                  <span>{t('common.form.upload_photo')}</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -182,12 +225,29 @@ export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpd
           color: var(--primary-color);
           background: rgba(245, 158, 11, 0.05);
         }
+        .photo-preview img.preview-loading {
+          opacity: 0.5;
+          filter: grayscale(1);
+        }
+        .preview-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0, 0, 0, 0.3);
+          z-index: 5;
+        }
         .spinner {
-          width: 24px;
-          height: 24px;
-          border: 2px solid var(--primary-color);
+          width: 32px;
+          height: 32px;
+          border: 3px solid var(--primary-color);
           border-top-color: transparent;
           border-radius: 50%;
+          box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
         }
       `}</style>
     </div>
