@@ -9,6 +9,7 @@ import { SkeletalFrameView } from './components/SkeletalFrameView'
 import { PhotoComparisonView } from './components/PhotoComparisonView'
 import { MetabolismCalculator } from './components/MetabolismCalculator'
 import { DashboardView } from './components/DashboardView'
+import { SettingsView } from './components/SettingsView'
 import { Layout } from './components/Layout'
 import { useGoals } from './hooks/useGoals'
 import { useAuth } from './hooks/useAuth'
@@ -135,6 +136,14 @@ function App() {
             latestRecord={records[0]}
             profile={profile}
             records={records}
+          />
+        } />
+
+        <Route path="/settings" element={
+          <SettingsView
+            records={records}
+            goals={goals}
+            profile={profile}
           />
         } />
 

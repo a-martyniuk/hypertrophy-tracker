@@ -9,7 +9,8 @@ import {
     Legend,
     ReferenceLine
 } from 'recharts';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, ArrowLeft, Target, TrendingUp, Calendar } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { Tooltip as AppTooltip } from './Tooltip';
 import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
 import { AnalysisChartTooltip } from './analysis/AnalysisTooltip';
@@ -22,7 +23,25 @@ interface Props {
     sex?: 'male' | 'female';
 }
 
+const MUSCLE_LABELS: Record<string, string> = {
+    'neck': 'Cuello',
+    'pecho': 'Pecho',
+    'waist': 'Cintura',
+    'hips': 'Cadera',
+    'arm-right': 'Bíceps (Der)',
+    'arm-left': 'Bíceps (Izq)',
+    'forearm-right': 'Antebrazo (Der)',
+    'forearm-left': 'Antebrazo (Izq)',
+    'thigh-right': 'Muslo (Der)',
+    'thigh-left': 'Muslo (Izq)',
+    'calf-right': 'Gemelo (Der)',
+    'calf-left': 'Gemelo (Izq)',
+};
+
 export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const muscleId = searchParams.get('muscle');
+
     const {
         timeRange,
         setTimeRange,
@@ -38,6 +57,187 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
         { label: '6 Meses', value: '6m' },
         { label: '3 Meses', value: '3m' },
     ];
+
+    // --- SUB-COMPONENT: MUSCLE DETAIL VIEW ---
+    if (muscleId && MUSCLE_LABELS[muscleId]) {
+        const muscleLabel = MUSCLE_LABELS[muscleId];
+        const isBilateral = muscleId.includes('-left') || muscleId.includes('-right');
+        const baseKey = isBilateral ? muscleId.split('-')[0] : muscleId;
+        const side = muscleId.includes('-left') ? 'left' : muscleId.includes('-right') ? 'right' : undefined;
+
+        // Custom Data Processing for single muscle
+        const muscleHistory = records.map(r => {
+            let val = 0;
+            if (side) {
+                // @ts-ignore
+                val = r.measurements[baseKey]?.[side] || 0;
+            } else {
+                // @ts-ignore
+                val = r.measurements[baseKey] || 0;
+            }
+            return {
+                date: new Date(r.date).toLocaleDateString(),
+                rawDate: new Date(r.date),
+                value: val
+            };
+        }).filter(d => d.value > 0).reverse();
+
+        const currentVal = muscleHistory[muscleHistory.length - 1]?.value || 0;
+        const startVal = muscleHistory[0]?.value || 0;
+        const totalGrowth = currentVal - startVal;
+
+        // Find Goal
+        // Mapping complex keys to goal types might need adjustment depending on GrowthGoal type
+        // Assuming goals use same keys or we map them. 
+        // GrowthGoal type uses 'arm', 'chest', etc. We need to be careful with matching.
+        // Simple heuristic: match if goal.measurementType includes the base key
+        const goal = goals.find(g => {
+            if (baseKey === 'arm') return g.measurementType === 'biceps';
+            if (baseKey === 'pecho') return g.measurementType === 'chest';
+            if (baseKey === 'thigh') return g.measurementType === 'thigh';
+            if (baseKey === 'calf') return g.measurementType === 'calves';
+            return g.measurementType === baseKey;
+        });
+
+        // Projection Logic (Simple Linear) - Last 4 weeks
+        let projectionMsg = "Datos insuficientes para proyección.";
+        let projectedDateText = "--";
+
+        if (muscleHistory.length > 3 && goal) {
+            const recent = muscleHistory.slice(-4);
+            const weeklyGrowth = (recent[recent.length - 1].value - recent[0].value) / 4; // approx/month actually? No, specific frequency dependant.
+            // Let's take last 30 days avg
+            const lastDate = recent[recent.length - 1].rawDate;
+            const firstDate = recent[0].rawDate;
+            const daysDiff = (lastDate.getTime() - firstDate.getTime()) / (1000 * 3600 * 24);
+            const growthPerDay = (recent[recent.length - 1].value - recent[0].value) / (daysDiff || 1);
+
+            if (growthPerDay > 0 && currentVal < goal.targetValue) {
+                const remaining = goal.targetValue - currentVal;
+                const daysNeeded = remaining / growthPerDay;
+                const date = new Date();
+                date.setDate(date.getDate() + daysNeeded);
+                projectedDateText = date.toLocaleDateString();
+                projectionMsg = `A este ritmo (${(growthPerDay * 30).toFixed(1)} cm/mes), llegarás a tu meta el ${projectedDateText}.`;
+            } else if (currentVal >= goal.targetValue) {
+                projectionMsg = "¡Has alcanzado tu objetivo!";
+                projectedDateText = "¡Logrado!";
+            } else {
+                projectionMsg = "El crecimiento reciente es estable o negativo.";
+            }
+        }
+
+        return (
+            <div className="analysis-view animate-fade">
+                <button className="back-link" onClick={() => setSearchParams({})}>
+                    <ArrowLeft size={16} /> Volver al Panel General
+                </button>
+
+                <div className="muscle-header glass">
+                    <div className="header-content">
+                        <h2>Análisis: {muscleLabel}</h2>
+                        <div className="highlight-val">{currentVal} cm</div>
+                    </div>
+                    {goal && (
+                        <div className="goal-badge">
+                            <Target size={16} /> Meta: {goal.targetValue} cm
+                        </div>
+                    )}
+                </div>
+
+                <div className="stats-mini-grid">
+                    <div className="stat-card glass">
+                        <label>Crecimiento Total</label>
+                        <div className={`value ${totalGrowth >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                            {totalGrowth > 0 ? '+' : ''}{totalGrowth.toFixed(1)} cm
+                        </div>
+                    </div>
+                    <div className="stat-card glass">
+                        <label>Proyección Meta</label>
+                        <div className="value text-amber-400">
+                            {projectedDateText}
+                        </div>
+                        <div className="subtext">{projectionMsg}</div>
+                    </div>
+                </div>
+
+                <div className="chart-card glass expanded">
+                    <h3>Evolución Histórica</h3>
+                    <div className="chart-container-large">
+                        <ResponsiveContainer width="100%" height={400}>
+                            <LineChart data={muscleHistory}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                                <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
+                                <YAxis domain={['dataMin - 1', 'dataMax + 1']} stroke="#94a3b8" fontSize={12} />
+                                <Tooltip content={<AnalysisChartTooltip />} />
+                                <Legend />
+                                {goal && <ReferenceLine y={goal.targetValue} stroke="#ef4444" strokeDasharray="3 3" label="Meta" />}
+                                <Line
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="var(--primary-color)"
+                                    name={muscleLabel}
+                                    strokeWidth={3}
+                                    dot={{ r: 4, strokeWidth: 2 }}
+                                    activeDot={{ r: 6 }}
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                <style>{`
+                    .back-link {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        background: none;
+                        border: none;
+                        color: var(--text-secondary);
+                        cursor: pointer;
+                        margin-bottom: 1rem;
+                        font-size: 0.9rem;
+                    }
+                    .back-link:hover { color: var(--primary-color); }
+                    
+                    .muscle-header {
+                        padding: 1.5rem;
+                        border-radius: 16px;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 1.5rem;
+                        border: 1px solid var(--primary-glow);
+                        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%);
+                    }
+                    .header-content h2 { margin: 0; font-size: 1.2rem; color: var(--text-secondary); }
+                    .highlight-val { font-size: 2.5rem; font-weight: 800; color: white; line-height: 1; }
+                    .goal-badge {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        background: rgba(239, 68, 68, 0.1);
+                        color: #ef4444;
+                        padding: 0.5rem 1rem;
+                        border-radius: 99px;
+                        font-weight: 600;
+                        border: 1px solid rgba(239, 68, 68, 0.2);
+                    }
+
+                    .chart-container-large { width: 100%; height: 400px; }
+                    .stats-mini-grid {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 1.5rem;
+                        margin-bottom: 1.5rem;
+                    }
+                    .subtext { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+                `}</style>
+            </div>
+        );
+    }
+
+    // --- STANDARD DASHBOARD VIEW ---
 
     return (
         <div className="analysis-view animate-fade">
@@ -263,6 +463,7 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
           display: flex;
           flex-direction: column;
           gap: 2rem;
+// ... (keep existing styles)
           padding-bottom: 3rem;
           max-width: 1200px;
           margin: 0 auto;

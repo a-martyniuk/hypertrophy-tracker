@@ -83,7 +83,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                                 }}
                                 referenceMeasurements={records[records.length - 1]?.measurements}
                                 sex={sex}
-                                onMarkerClick={() => navigate('/analysis')}
+                                onMarkerClick={(zone) => navigate(`/analysis?muscle=${zone}`)}
                             />
                         </div>
                     </div>

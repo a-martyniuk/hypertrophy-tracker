@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Plus, History, Activity, LogOut, User, LayoutGrid, Target, Camera, Calculator, Dna } from 'lucide-react'
+import { Plus, History, Activity, LogOut, User, LayoutGrid, Target, Camera, Calculator, Dna, Settings } from 'lucide-react'
 import { Tooltip } from './Tooltip'
 import { ToastProvider } from './ui/ToastProvider'
 import { useAuth } from '../hooks/useAuth'
@@ -36,6 +36,7 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
         { path: 'comparison', icon: Camera, label: 'Comparativa', tooltip: 'Comparativa visual de fotos' },
         { path: 'calculator', icon: Calculator, label: 'Metabolismo', tooltip: 'Calculadora de BMR y TDEE' },
         { path: 'goals', icon: Target, label: 'Objetivos', tooltip: 'Definir metas de medidas' },
+        { path: 'settings', icon: Settings, label: 'Configuración', tooltip: 'Exportar/Importar Datos' },
     ]
 
     return (
