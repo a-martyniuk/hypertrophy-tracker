@@ -62,7 +62,12 @@ export type GoalStatus = 'active' | 'achieved' | 'failed';
 export interface GrowthGoal {
     id: string;
     userId: string;
-    measurementType: keyof BodyMeasurements | 'weight' | 'bodyFat';
+    measurementType: keyof BodyMeasurements |
+    'weight' | 'bodyFat' |
+    'arm.left' | 'arm.right' |
+    'thigh.left' | 'thigh.right' |
+    'calf.left' | 'calf.right' |
+    'biceps' | 'chest' | 'calves'; // Legacy Aliases for AnalysisView compatibility
     targetValue: number;
     targetDate: string;
     status: GoalStatus;

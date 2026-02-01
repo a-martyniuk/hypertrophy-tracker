@@ -85,10 +85,10 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
         const totalGrowth = currentVal - startVal;
 
         const goal = goals.find(g => {
-            if (baseKey === 'arm') return g.measurementType === 'biceps';
-            if (baseKey === 'pecho') return g.measurementType === 'chest';
-            if (baseKey === 'thigh') return g.measurementType === 'thigh';
-            if (baseKey === 'calf') return g.measurementType === 'calves';
+            if (baseKey === 'arm') return g.measurementType === 'biceps' || g.measurementType === 'arm.right' || g.measurementType === 'arm.left';
+            if (baseKey === 'pecho') return g.measurementType === 'chest' || g.measurementType === 'pecho';
+            if (baseKey === 'thigh') return g.measurementType === 'thigh' || g.measurementType === 'thigh.right' || g.measurementType === 'thigh.left';
+            if (baseKey === 'calf') return g.measurementType === 'calves' || g.measurementType === 'calf.right' || g.measurementType === 'calf.left';
             return g.measurementType === baseKey;
         });
 
