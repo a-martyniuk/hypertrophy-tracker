@@ -9,7 +9,7 @@ import {
     Legend,
     ReferenceLine
 } from 'recharts';
-import { HelpCircle, ArrowLeft, Target, TrendingUp, Calendar } from 'lucide-react';
+import { HelpCircle, ArrowLeft, Target } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { Tooltip as AppTooltip } from './Tooltip';
 import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
@@ -105,7 +105,7 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
 
         if (muscleHistory.length > 3 && goal) {
             const recent = muscleHistory.slice(-4);
-            const weeklyGrowth = (recent[recent.length - 1].value - recent[0].value) / 4; // approx/month actually? No, specific frequency dependant.
+            // const weeklyGrowth = (recent[recent.length - 1].value - recent[0].value) / 4; 
             // Let's take last 30 days avg
             const lastDate = recent[recent.length - 1].rawDate;
             const firstDate = recent[0].rawDate;
