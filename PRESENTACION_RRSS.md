@@ -1,0 +1,42 @@
+# Presentación Oficial: Hypertrophy Tracker 🏋️‍♂️
+
+Este documento contiene el material visual y narrativo para la exposición del proyecto en redes sociales y entornos profesionales.
+
+## 🚀 Concepto: "Inteligencia Táctica para tu Cuerpo"
+
+**Hypertrophy Tracker** no es solo una app de medidas; es un sistema HUD (Head-Up Display) de grado táctico para atletas que buscan precisión absoluta en su transformación física.
+
+---
+
+## 📸 Galería Promocional
+
+### 1. Dashboard de Control Maestro
+![Dashboard Heatmap](C:/Users/Martyniuk-Ntbk-Gmr/.gemini/antigravity/brain/fa5a40ab-6390-41e6-8c5c-99010fb0eb41/promo_dashboard_heatmap_1769972156987.png)
+*Visualización en tiempo real con heatmap de progresión acumulada.*
+
+### 2. Anatomía de Precisión
+![Muscle Map](C:/Users/Martyniuk-Ntbk-Gmr/.gemini/antigravity/brain/fa5a40ab-6390-41e6-8c5c-99010fb0eb41/promo_muscle_map_1769972173282.png)
+*Guía integrada para estandarizar cada medición y asegurar datos científicos.*
+
+### 3. Evolución Visual
+![Photo Comparison](C:/Users/Martyniuk-Ntbk-Gmr/.gemini/antigravity/brain/fa5a40ab-6390-41e6-8c5c-99010fb0eb41/promo_photo_compare_1769972189053.png)
+*Comparador lado a lado con sincronización en la nube vía Supabase.*
+
+---
+
+## 🛠️ Highlights Tecnológicos
+
+- **React 19 + TypeScript:** Arquitectura de vanguardia para una experiencia sin lags.
+- **Supabase Cloud:** Tus datos y fotos siempre contigo, protegidos y accesibles.
+- **Skeletal Analysis:** Algoritmos de Casey Butt para predecir tu potencial genético real.
+- **PWA Ready:** Instalable en iOS/Android directamente desde el navegador.
+
+---
+
+## 💡 Mensaje para Redes (Copy sugerido)
+
+> "Cansado de trackers básicos? He construido **Hypertrophy Tracker**, una herramienta HUD premium para llevar mi progreso físico al siguiente nivel. Con heatmap de crecimiento muscular, análisis de potencial genético y sincronización en la nube. 🚀💪 #FitnessTech #BuildInPublic #HypertrophyTracker"
+
+---
+
+*Nota: Este material está listo para ser copiado y pegado en LinkedIn, Instagram o tu portafolio personal.*
