@@ -281,7 +281,7 @@ function App() {
                         </div>
                       </div>
                     }
-                    position="top"
+                    position="bottom"
                   >
                     <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
                   </Tooltip>
