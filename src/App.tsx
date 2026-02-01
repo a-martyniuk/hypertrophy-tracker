@@ -235,7 +235,7 @@ function App() {
                     </Tooltip>
                   </label>
                   <div className="value">
-                    {latestRecord ? new Date(latestRecord.date).toLocaleDateString() : '--'}
+                    {loading ? <Skeleton width={100} height={24} /> : (latestRecord ? new Date(latestRecord.date).toLocaleDateString() : '--')}
                   </div>
                 </div>
                 <div className="stat-card glass">
@@ -245,9 +245,10 @@ function App() {
                       <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
                     </Tooltip>
                   </label>
-                  <div className="value">{records.length}</div>
+                  <div className="value">
+                    {loading ? <Skeleton width={40} height={24} /> : records.length}
+                  </div>
                 </div>
-
               </div>
 
               <div className="main-dashboard-content">
@@ -815,6 +816,7 @@ function App() {
             gap: 1rem;
           }
         }
+        ${SkeletonStyles}
       `}</style>
       </div>
     </ToastProvider>
