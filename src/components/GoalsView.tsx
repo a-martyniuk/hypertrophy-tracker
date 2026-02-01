@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Target, Plus, Trash2, TrendingUp, ChevronRight, Sparkles, Calendar, ArrowRight } from 'lucide-react';
 import type { GrowthGoal, MeasurementRecord, UserProfile } from '../types/measurements';
 import { calculateSkeletalPotential } from '../utils/skeletal';
@@ -10,9 +10,15 @@ interface Props {
     latestRecord?: MeasurementRecord;
     profile?: UserProfile | null;
     records?: MeasurementRecord[];
+    onRefresh?: () => void;
 }
 
-export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profile, records = [] }: Props) => {
+export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profile, records = [], onRefresh }: Props) => {
+    // Refresh data on mount to ensure we aren't seeing stale empty state
+    useEffect(() => {
+        if (onRefresh) onRefresh();
+    }, []);
+
     const [isAdding, setIsAdding] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 

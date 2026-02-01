@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Target, Info, Activity, HelpCircle } from 'lucide-react';
 import { Tooltip as AppTooltip } from './Tooltip';
 import type { BodyMeasurements, SkeletalFrame } from '../types/measurements';
@@ -12,9 +12,19 @@ interface Props {
 }
 
 export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex = 'male' }: Props) => {
-  const [height, setHeight] = useState<number>(currentMeasurements?.height || 177);
+  const [height, setHeight] = useState<number>(() => {
+    const saved = localStorage.getItem('skeletal_height');
+    if (saved) return parseFloat(saved);
+    return currentMeasurements?.height || 177;
+  });
+
   const [frame, setFrame] = useState<SkeletalFrame>(() => {
     if (baseline) return baseline;
+
+    const saved = localStorage.getItem('skeletal_frame_draft');
+    if (saved) {
+      try { return JSON.parse(saved); } catch { }
+    }
 
     let wrist = 17;
     let ankle = 22;
@@ -36,6 +46,17 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
 
     return { wrist, ankle, knee: 38 };
   });
+
+  // Persistence Effects
+  // Only save to local storage if it's NOT the saved profile baseline (i.e. if user is experimenting)
+  // Or simply always save the "view state" to draft
+  useEffect(() => {
+    localStorage.setItem('skeletal_height', height.toString());
+  }, [height]);
+
+  useEffect(() => {
+    localStorage.setItem('skeletal_frame_draft', JSON.stringify(frame));
+  }, [frame]);
 
   const potential = calculateSkeletalPotential(frame.wrist, frame.ankle, height, sex);
   const ieo = calculateIEO(frame.wrist, frame.ankle, sex);
@@ -133,40 +154,6 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
               <Activity size={18} className="mr-2" /> ACTUALIZAR MEDIDAS
             </button>
           </div>
-
-          <div className="card glass ieo-card mt-6">
-            <div className="card-header">
-              <h3>Índice de Estructura (IEO)</h3>
-            </div>
-            <div className="ieo-display">
-              <div className="ieo-value-row">
-                <span className="ieo-number">{ieo.value}</span>
-                <span className="ieo-label">{ieo.label}</span>
-              </div>
-              {ieo.isAdvantage && (
-                <div className="advantage-badge">
-                  ✨ Ventaja Genética
-                </div>
-              )}
-
-              <div className="ieo-reference-table">
-                {IEO_CATEGORIES.map((cat, idx) => {
-                  const isActive = ieo.rawValue >= cat.min && ieo.rawValue < cat.max;
-                  return (
-                    <div key={idx} className={`ieo-ref-row ${isActive ? 'active' : ''}`}>
-                      <span className="ref-range">{cat.range}</span>
-                      <span className="ref-label">{cat.label}</span>
-                      {cat.highlight && isActive && <span className="ref-check">✅</span>}
-                    </div>
-                  );
-                })}
-              </div>
-
-              <p className="ieo-desc mt-4">
-                Tu IEO indica la robustez de tu esqueleto. Una estructura más grande proporciona mayor palanca y superficie de anclaje muscular.
-              </p>
-            </div>
-          </div>
         </div>
 
         <div className="card glass potential-analysis">
@@ -223,9 +210,45 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
             })}
           </div>
         </div>
+      </div >
+
+
+
+
+      <div className="card glass ieo-card mt-6">
+        <div className="card-header">
+          <h3>Índice de Estructura (IEO)</h3>
+        </div>
+        <div className="ieo-display">
+          <div className="ieo-main-score">
+            <div className="ieo-value-row">
+              <span className="ieo-number">{ieo.value}</span>
+              <span className="ieo-label">{ieo.label}</span>
+            </div>
+            {ieo.isAdvantage && (
+              <div className="advantage-badge">
+                ✨ Ventaja Genética
+              </div>
+            )}
+            <p className="ieo-desc">
+              Tu IEO indica la robustez de tu esqueleto. Una estructura más grande proporciona mayor palanca y superficie de anclaje muscular.
+            </p>
+          </div>
+
+          <div className="ieo-reference-table">
+            {IEO_CATEGORIES.map((cat, idx) => {
+              const isActive = ieo.rawValue >= cat.min && ieo.rawValue < cat.max;
+              return (
+                <div key={idx} className={`ieo-ref-row ${isActive ? 'active' : ''}`}>
+                  <span className="ref-range">{cat.range}</span>
+                  <span className="ref-label">{cat.label}</span>
+                  {cat.highlight && isActive && <span className="ref-check">✅</span>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
-
-
 
       <style>{`
         .skeletal-frame-view {
@@ -372,10 +395,19 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
         
         .ieo-display {
           display: flex;
-          flex-direction: column;
           align-items: center;
-          text-align: center;
+          gap: 3rem;
+          padding: 1rem;
         }
+
+        .ieo-main-score {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
         .ieo-value-row {
           display: flex;
           align-items: baseline;
@@ -383,13 +415,14 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
           margin-bottom: 0.5rem;
         }
         .ieo-number {
-          font-size: 2.5rem;
+          font-size: 3.5rem;
           font-weight: 800;
           color: #fff;
           text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+          line-height: 1;
         }
         .ieo-label {
-          font-size: 1rem;
+          font-size: 1.2rem;
           color: var(--primary-color);
           text-transform: uppercase;
           letter-spacing: 1px;
@@ -397,48 +430,65 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
         .advantage-badge {
           background: rgba(245, 158, 11, 0.15);
           color: #f59e0b;
-          padding: 4px 12px;
+          padding: 6px 16px;
           border-radius: 20px;
-          font-size: 0.75rem;
+          font-size: 0.85rem;
           font-weight: bold;
           border: 1px solid rgba(245, 158, 11, 0.3);
           margin-bottom: 1.5rem;
         }
         .ieo-desc {
-          font-size: 0.75rem;
+          font-size: 0.9rem;
           color: var(--text-secondary);
-          line-height: 1.4;
+          line-height: 1.5;
+          max-width: 400px;
+          text-align: center;
         }
         
         /* IEO Reference Table Styles */
         .ieo-reference-table {
-          width: 100%;
+          flex: 1.5;
           background: rgba(0, 0, 0, 0.2);
-          border-radius: 8px;
-          padding: 0.5rem;
+          border-radius: 12px;
+          padding: 1rem;
           border: 1px solid rgba(255, 255, 255, 0.05);
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.5rem;
         }
         .ieo-ref-row {
           display: flex;
-          justify-content: space-between;
-          padding: 0.5rem 0.75rem;
-          border-radius: 4px;
-          font-size: 0.8rem;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+          border-radius: 8px;
+          font-size: 0.9rem;
           color: var(--text-secondary);
-          margin-bottom: 2px;
+          background: rgba(255, 255, 255, 0.03);
+          text-align: center;
+          gap: 4px;
         }
         .ieo-ref-row.active {
           background: rgba(245, 158, 11, 0.15);
           color: #fff;
           font-weight: bold;
           border: 1px solid rgba(245, 158, 11, 0.3);
+          box-shadow: 0 0 15px rgba(245, 158, 11, 0.1);
+          transform: scale(1.02);
         }
         .ref-range {
           font-family: monospace;
           opacity: 0.8;
+          font-size: 0.8rem;
+        }
+        .ref-label {
+            font-size: 1rem;
+            font-weight: 600;
         }
         .ref-check {
-          margin-left: 0.5rem;
+          margin-top: 4px;
+          font-size: 1.2rem;
         }
         
         @media (max-width: 768px) {
@@ -449,6 +499,14 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
             grid-template-columns: 1fr;
             gap: 1.5rem;
           }
+          .ieo-display {
+            flex-direction: column;
+            gap: 2rem;
+          }
+          .ieo-reference-table {
+            grid-template-columns: 1fr;
+            width: 100%;
+          }
           .analysis-header {
             flex-direction: column;
             align-items: flex-start;
@@ -456,6 +514,6 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
           }
         }
       `}</style>
-    </div>
+    </div >
   );
 };

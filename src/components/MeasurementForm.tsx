@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { BodyMeasurements, MeasurementRecord, RecordMetadata } from '../types/measurements';
 import { Save, X, Moon, Zap, Coffee, Activity } from 'lucide-react';
 import { DynamicSilhouette } from './DynamicSilhouette';
@@ -21,19 +21,36 @@ interface Props {
 export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit, sex = 'male' }: Props) => {
   // DATE: Use edit record date if available, else today (Local Time)
   const [date, setDate] = useState(() => {
-    if (recordToEdit?.date) {
-      return new Date(recordToEdit.date).toLocaleDateString('en-CA');
+    if (recordToEdit?.date) return new Date(recordToEdit.date).toLocaleDateString('en-CA');
+
+    // Attempt load draft
+    if (!recordToEdit) {
+      const saved = localStorage.getItem('measurement_draft_date');
+      if (saved) return saved;
     }
     return new Date().toLocaleDateString('en-CA');
   });
+
+  // Save Draft Effects
+  useEffect(() => {
+    if (!recordToEdit) localStorage.setItem('measurement_draft_date', date);
+  }, [date, recordToEdit]);
 
   const containerRef = useRef<HTMLFormElement>(null);
 
 
   // MEASUREMENTS: Initialize from recordToEdit (Edit Mode) OR previousRecord (Prefill Mode) OR Zeros (Fresh)
   const sourceRecord = recordToEdit || previousRecord;
-  const [measurements, setMeasurements] = useState<BodyMeasurements>(
-    sourceRecord?.measurements || {
+  const [measurements, setMeasurements] = useState<BodyMeasurements>(() => {
+    // Priority: Edit Mode -> Draft -> Previous Record -> Zero Defaults
+    if (recordToEdit) return recordToEdit.measurements;
+
+    const saved = localStorage.getItem('measurement_draft_values');
+    if (saved) {
+      try { return JSON.parse(saved); } catch { }
+    }
+
+    return previousRecord?.measurements || {
       weight: 0,
       height: 0,
       bodyFat: 0,
@@ -48,7 +65,15 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
       thigh: { left: 0, right: 0 },
       calf: { left: 0, right: 0 },
       ankle: { left: 0, right: 0 },
-    });
+    };
+  });
+
+  // Save drafts
+  useEffect(() => {
+    if (!recordToEdit) {
+      localStorage.setItem('measurement_draft_values', JSON.stringify(measurements));
+    }
+  }, [measurements, recordToEdit]);
 
   const [notes, setNotes] = useState(recordToEdit?.notes || '');
   const { user } = useAuth();
@@ -98,6 +123,11 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
 
     try {
       const result = await onSave(record);
+      if (result.success) {
+        // Clear draft on success
+        localStorage.removeItem('measurement_draft_values');
+        localStorage.removeItem('measurement_draft_date');
+      }
       if (!result.success) {
         setError(result.error?.message || "Error al guardar el registro. Inténtalo de nuevo.");
         addToast(result.error?.message || "Error al guardar el registro.", "error");

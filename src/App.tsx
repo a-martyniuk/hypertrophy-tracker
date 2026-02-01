@@ -122,7 +122,7 @@ function App() {
             sex={userSex}
             currentWeight={records[0]?.measurements.weight}
             height={records[0]?.measurements.height}
-            age={30} // Default or from profile if available
+            age={undefined} // Let calculator use storage or default
             userId={authUser?.id}
           />
         } />

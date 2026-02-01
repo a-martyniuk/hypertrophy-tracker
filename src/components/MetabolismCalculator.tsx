@@ -54,9 +54,10 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
     const [height, setHeight] = useState<number>(() => loadSetting('height', initialHeight || 175))
 
     // Sync props if they update (and aren't just defaults)
-    useEffect(() => { if (initialAge) { setAge(initialAge); saveSetting('age', initialAge) } }, [initialAge])
-    useEffect(() => { if (currentWeight) { setWeight(currentWeight); saveSetting('weight', currentWeight) } }, [currentWeight])
-    useEffect(() => { if (initialHeight) { setHeight(initialHeight); saveSetting('height', initialHeight) } }, [initialHeight])
+    // Sync props only if we explicitly want to reset (omitted to prefer user persistence)
+    // useEffect(() => { if (initialAge) { setAge(initialAge); saveSetting('age', initialAge) } }, [initialAge])
+    // useEffect(() => { if (currentWeight) { setWeight(currentWeight); saveSetting('weight', currentWeight) } }, [currentWeight])
+    // useEffect(() => { if (initialHeight) { setHeight(initialHeight); saveSetting('height', initialHeight) } }, [initialHeight])
 
     // Activity Stats
     const [neatLevel, setNeatLevel] = useState<number>(() => loadSetting('neatLevel', ACTIVITY_FACTORS.SEDENTARY))
