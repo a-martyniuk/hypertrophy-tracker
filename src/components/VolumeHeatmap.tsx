@@ -24,10 +24,10 @@ const getZoneColor = (current: number, reference: number) => {
 
     const ratio = current / reference;
 
-    if (ratio < 0.97) return 'rgba(59, 130, 246, 0.6)'; // Blue (Loss)
-    if (ratio >= 0.97 && ratio <= 1.03) return 'rgba(107, 114, 128, 0.4)'; // Gray (Stable)
-    if (ratio > 1.03 && ratio <= 1.08) return 'rgba(234, 179, 8, 0.5)'; // Yellow (Moderate Growth)
-    return 'rgba(239, 68, 68, 0.5)'; // Red (Significant Growth)
+    if (ratio < 0.99) return 'rgba(59, 130, 246, 0.6)'; // Blue (Loss < 0.99)
+    if (ratio >= 0.99 && ratio <= 1.01) return 'rgba(107, 114, 128, 0.4)'; // Gray (Stable +/- 1%)
+    if (ratio > 1.01 && ratio <= 1.025) return 'rgba(234, 179, 8, 0.5)'; // Yellow (Growth > 1%)
+    return 'rgba(239, 68, 68, 0.5)'; // Red (Hypertrophy > 2.5%)
 };
 
 export const VolumeHeatmap = ({ currentMeasurements, referenceMeasurements, sex = 'male', onMarkerClick }: Props) => {
@@ -244,11 +244,11 @@ export const VolumeHeatmap = ({ currentMeasurements, referenceMeasurements, sex 
                 </div>
                 <div className="legend-item">
                     <span className="dot" style={{ background: '#eab308' }}></span>
-                    <span>Crecimiento (1-5%)</span>
+                    <span>Crecimiento (&#62;1%)</span>
                 </div>
                 <div className="legend-item">
                     <span className="dot" style={{ background: '#ef4444' }}></span>
-                    <span>Hipertrofia (&#62;5%)</span>
+                    <span>Hipertrofia (&#62;2,5%)</span>
                 </div>
             </div>
 
