@@ -131,7 +131,222 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                         <span>Salir</span>
                     </button>
                 </nav>
+                </nav>
             </div>
-        </ToastProvider>
+            <style>{`
+                .app-container {
+                    display: flex;
+                    min-height: 100vh;
+                    background-color: var(--bg-color);
+                }
+
+                .mobile-nav {
+                    display: none;
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    justify-content: space-around;
+                    padding: 0.8rem;
+                    z-index: 100;
+                    border-top: 1px solid var(--border-color);
+                    background: rgba(0,0,0,0.8);
+                    backdrop-filter: blur(20px);
+                }
+
+                .mobile-nav button {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 4px;
+                    background: none;
+                    border: none;
+                    color: var(--text-secondary);
+                    font-size: 0.7rem;
+                    padding: 0.5rem;
+                    border-radius: 8px;
+                }
+
+                .mobile-nav button.active {
+                    color: var(--primary-color);
+                    background: rgba(245, 158, 11, 0.1);
+                }
+                
+                .btn-logout-mobile {
+                    color: var(--danger-color) !important;
+                }
+
+                .sidebar {
+                    width: 280px;
+                    height: 100vh;
+                    position: sticky;
+                    top: 0;
+                    display: flex;
+                    flex-direction: column;
+                    padding: 2.5rem 1.8rem;
+                    border-right: 1px solid var(--border-color);
+                    z-index: 100;
+                }
+
+                .logo {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    margin-bottom: 3.5rem;
+                    padding-left: 0.5rem;
+                    letter-spacing: -0.01em;
+                }
+
+                .nav-items {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                    flex: 1;
+                }
+
+                .nav-items button {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    padding: 0.9rem 1.2rem;
+                    border: 1px solid transparent;
+                    background: transparent;
+                    color: var(--text-secondary);
+                    border-radius: 14px;
+                    transition: var(--transition-smooth);
+                    font-size: 0.95rem;
+                    text-align: left;
+                }
+
+                .nav-items button:hover {
+                    background: var(--surface-hover);
+                    color: white;
+                }
+
+                .nav-items button.active {
+                    background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, transparent 100%);
+                    color: var(--primary-color);
+                    font-weight: 700;
+                    border-left: 3px solid var(--primary-color);
+                    box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);
+                    border-radius: 4px 14px 14px 4px;
+                }
+
+                .nav-footer {
+                    border-top: 1px solid var(--border-color);
+                    padding-top: 1.5rem;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+
+                .user-profile {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    padding: 0.5rem 1rem;
+                }
+
+                .user-avatar {
+                    width: 40px;
+                    height: 40px;
+                    background: var(--surface-hover);
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--primary-color);
+                    border: 1px solid var(--border-color);
+                    transition: var(--transition-smooth);
+                }
+
+                .user-avatar.female {
+                    color: #ec4899;
+                    border-color: rgba(236, 72, 153, 0.4);
+                }
+
+                .gender-toggle {
+                    display: flex;
+                    gap: 0.5rem;
+                    margin-bottom: 0.5rem;
+                    padding: 0 0.5rem;
+                }
+
+                .gender-toggle button {
+                    flex: 1;
+                    padding: 0.4rem;
+                    font-size: 0.75rem;
+                    font-weight: bold;
+                    background: rgba(255, 255, 255, 0.05);
+                    color: var(--text-secondary);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 8px;
+                }
+
+                .gender-toggle button.active {
+                    background: var(--primary-color);
+                    color: #1a1a1d;
+                    border-color: var(--primary-color);
+                }
+
+                .user-info {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .user-info .name {
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                }
+
+                .user-info .status {
+                    font-size: 0.7rem;
+                    color: var(--success-color);
+                }
+
+                .btn-logout {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    width: 100%;
+                    padding: 0.75rem 1rem;
+                    background: transparent;
+                    border: none;
+                    color: var(--text-secondary);
+                    border-radius: 12px;
+                }
+
+                .btn-logout:hover {
+                    background: rgba(239, 68, 68, 0.1);
+                    color: var(--danger-color);
+                }
+
+                .content {
+                    flex: 1;
+                    padding: 2rem 3rem;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    width: 100%;
+                }
+
+                @media (max-width: 768px) {
+                    .app-container {
+                        flex-direction: column;
+                    }
+                    .sidebar {
+                        display: none;
+                    }
+                    .mobile-nav {
+                        display: flex;
+                    }
+                    .content {
+                        padding: 1.5rem;
+                        padding-bottom: 7rem;
+                    }
+                }
+            `}</style>
+        </ToastProvider >
     )
 }
