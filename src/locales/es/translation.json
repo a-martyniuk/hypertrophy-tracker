@@ -13,8 +13,6 @@
         "analysis": "Análisis",
         "genetics": "Genética",
         "compare": "Comparar",
-        "metabolism": "Metabolismo",
-        "goals": "Objetivos",
         "new_entry": "Nueva Medida",
         "logout": "Salir",
         "tooltips": {
@@ -30,6 +28,127 @@
             "whr": "Relación Cintura/Cadera. Valores sobre el umbral sugieren mayor riesgo cardiovascular.",
             "arm_potential": "Relación Muñeca/Brazo usada para estimar potencial genético (Casey Butt).",
             "v_shape": "Relación Cintura/Pecho. Valores más bajos indican una estética en V más pronunciada."
+        },
+        "form": {
+            "title": "Auditoría Corporal",
+            "subtitle": "Configura los parámetros del HUD interactivo",
+            "core_metrics": "Métricas Core",
+            "torso": "Tronco",
+            "upper_limbs": "Extremidades Sup.",
+            "lower_limbs": "Extremidades Inf.",
+            "weight": "PESO",
+            "height": "ALTURA",
+            "body_fat": "GRASA%",
+            "neck": "CUELLO",
+            "back": "ESPALDA",
+            "chest": "PECHO",
+            "waist": "CINTURA",
+            "hips": "CADERAS",
+            "arm": "BRAZO",
+            "forearm": "ANTEBRAZO",
+            "wrist": "MUÑECA",
+            "thigh": "MUSLO",
+            "calf": "PANTORRILLA",
+            "ankle": "TOBILLO",
+            "errors_banner": "Por favor corrige los errores (valores negativos o inválidos)."
+        },
+        "history": {
+            "title": "Historial de Medidas",
+            "empty": "No hay registros aún. ¡Comienza cargando tus primeras medidas!",
+            "records_count": "registros",
+            "weight": "Peso",
+            "waist": "Cintura",
+            "sleep": "sueño",
+            "conditions": {
+                "fasted": "Ayunas",
+                "post_workout": "Post-Entreno",
+                "rest_day": "Descanso"
+            },
+            "confirm_delete": "Are you sure you want to delete this record? This action cannot be undone.",
+            "delete_error": "Error deleting record"
+        },
+        "goals": {
+            "metric": "Métrica",
+            "target_value": "Valor Objetivo",
+            "deadline": "Fecha Límite",
+            "saving": "Guardando...",
+            "save_btn": "Guardar Objetivo",
+            "empty": "No tienes metas activas. Usa las sugerencias o crea una manual.",
+            "current": "Actual",
+            "target": "Objetivo",
+            "estimate_weeks": "Est. {{weeks}} semanas al ritmo actual",
+            "opposite_trend": "Tendencia opuesta ⚠️",
+            "proximity": "Proximidad",
+            "labels": {
+                "weight": "Peso (kg)",
+                "bodyFat": "Grasa (%)",
+                "neck": "Cuello (cm)",
+                "back": "Espalda (cm)",
+                "chest": "Pecho (cm)",
+                "waist": "Cintura (cm)",
+                "hips": "Caderas (cm)",
+                "arm": "Brazo (cm)",
+                "thigh": "Muslo (cm)",
+                "calf": "Pantorrilla (cm)"
+            },
+            "suggestions": {
+                "chest_potential": "Máximo Potencial de Pecho",
+                "arm_potential": "Máximo Potencial de Brazos",
+                "waist_golden": "Cintura Estética (Golden Ratio)",
+                "reason_bone": "Basado en tu estructura ósea (Casey Butt)",
+                "reason_limit": "Límite estimado para tu muñeca",
+                "reason_ratio": "Ratio Cintura/Pecho de 0.75 (Ideal Old School)"
+            }
+        },
+        "metabolism": {
+            "physical_stats": "Datos Físicos",
+            "age": "Edad",
+            "weight": "Peso (kg)",
+            "height": "Altura (cm)",
+            "neat_title": "Nivel de Actividad (NEAT)",
+            "neat_tooltip": "Non-Exercise Activity Thermogenesis: Calorías quemadas fuera del entrenamiento (trabajo, caminar, etc).",
+            "training_title": "Entrenamiento",
+            "type": "Tipo",
+            "frequency": "Sesiones / Semana",
+            "duration": "Duración (horas)",
+            "intensity": "Intensidad",
+            "results_title": "Resultados Estimados",
+            "targets_title": "Objetivos Calóricos",
+            "bmr": "Metabolismo Basal (BMR)",
+            "bmr_sub": "Gasto en reposo absoluto",
+            "bmr_tooltip": "Energía mínima necesaria para sobrevivir si estuvieras durmiendo todo el día (Mifflin-St Jeor).",
+            "daily_expenditure": "Gasto Diario (NEAT)",
+            "daily_expenditure_sub": "BMR + Actividad diaria",
+            "daily_expenditure_tooltip": "Combina tu metabolismo basal con tu nivel de actividad cotidiana (trabajo, pasos diarios), sin contar entrenamiento deportivo.",
+            "training_expenditure": "Gasto Entrenamiento",
+            "training_expenditure_sub": "Promedio diario extra",
+            "training_expenditure_tooltip": "Calorías quemadas EXCLUSIVAMENTE en tus sesiones de ejercicio. Se promedian a lo largo de la semana.",
+            "tdee": "TDEE Total",
+            "tdee_sub": "Mantenimiento real",
+            "tdee_tooltip": "Total Daily Energy Expenditure: La suma de todo tu gasto calórico. Si comes esta cantidad, mantendrás tu peso actual.",
+            "activity_levels": {
+                "sedentary": "Sedentario (Oficina)",
+                "lightly_active": "Poco Activo (De pie)",
+                "moderately_active": "Activo (Movimiento const.)",
+                "very_active": "Muy Activo (Físico)"
+            },
+            "training_types": {
+                "strength": "Fuerza / Pesas",
+                "cardio": "Cardio / Resistencia",
+                "mixed": "Híbrido"
+            },
+            "intensities": {
+                "low": "Baja (RPE 1-4)",
+                "medium": "Media (RPE 5-7)",
+                "high": "Alta (RPE 8-10)"
+            },
+            "targets": {
+                "cut_aggressive": "Definición Agresiva",
+                "cut_sustainable": "Definición Sostenible",
+                "maintenance": "Mantenimiento",
+                "bulk_lean": "Volumen Limpio",
+                "bulk_aggressive": "Volumen Agresivo"
+            }
         }
     },
     "dashboard": {
@@ -44,7 +163,66 @@
         "export_desc": "Descarga una copia de seguridad completa de tu perfil, historial y objetivos.",
         "import": "Importar Datos",
         "import_desc": "Restaura tus datos desde un archivo de respaldo.",
-        "language": "Idioma",
-        "language_desc": "Selecciona tu idioma preferido."
+        "language": "Language",
+        "language_desc": "Select your preferred language.",
+        "confirm_import": "IMPORTANT: Importing will overwrite current local data. Continue?",
+        "error_format": "Invalid file format.",
+        "success_export": "Data exported successfully.",
+        "success_import": "Data imported. Reloading app...",
+        "error_read": "Error reading file.",
+        "stats": {
+            "goals": "Objetivos",
+            "profile": "Perfil",
+            "yes": "Si",
+            "no": "No"
+        },
+        "btn_download": "DESCARGAR RESPALDO",
+        "btn_processing": "PROCESANDO...",
+        "btn_upload": "CARGAR ARCHIVO RESPALDO",
+        "warning_overwrite": "Advertencia: Esta acción sobrescribirá los datos guardados en este dispositivo. Asegúrate de exportar tus datos actuales antes de continuar si tienes dudas."
+    },
+    "analysis": {
+        "back_to_panel": "Volver al Panel General",
+        "title": "Análisis: {{muscle}}",
+        "meta_label": "Meta: {{value}} cm",
+        "total_growth": "Crecimiento Total",
+        "projection_meta": "Proyección Meta",
+        "historical_evolution": "Evolución Histórica",
+        "panel_title": "Panel de Evoluciones",
+        "projection": {
+            "insufficient_data": "Datos insuficientes para proyección.",
+            "estimated": "A este ritmo ({{rate}} cm/mes), llegarás a tu meta el {{date}}.",
+            "reached": "¡Has alcanzado tu objetivo!",
+            "logrado": "¡Logrado!",
+            "stagnant": "El crecimiento reciente es estable o negativo."
+        },
+        "charts": {
+            "weight_waist": {
+                "title": "Peso & Cintura",
+                "tooltip": "Evolución temporal. La cintura es el mejor indicador de grasa corporal real.",
+                "weight": "Peso (kg)",
+                "waist": "Cintura (cm)"
+            },
+            "arms_comparison": {
+                "title": "Comparativa Brazos (R/L)",
+                "tooltip": "Detecta asimetrías. Pequeñas diferencias son normales, >1cm requiere atención.",
+                "right": "Derecho",
+                "left": "Izquierdo"
+            },
+            "legs_comparison": {
+                "title": "Comparativa Piernas (R/L)",
+                "tooltip": "Comparativa de volumen."
+            },
+            "torso_proportion": {
+                "title": "Proporción Tronco",
+                "tooltip": "Media de Pecho, Espalda y Cuello. Indica crecimiento global del torso.",
+                "avg_torso": "Media Tronco"
+            },
+            "whr": {
+                "title": "Ratio Cintura/Cadera",
+                "tooltip": "Indicador clave de salud metabólica.",
+                "series": "W/H Ratio"
+            }
+        }
     }
 }

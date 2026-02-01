@@ -1,5 +1,6 @@
 import type { MeasurementRecord, MeasurementCondition } from '../types/measurements';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Calendar, ChevronRight, Trash2, Moon, TestTube, Zap, Coffee } from 'lucide-react';
 
 interface Props {
@@ -8,19 +9,20 @@ interface Props {
   onSelect: (record: MeasurementRecord) => void;
 }
 
-const CONDITION_MAP: Record<MeasurementCondition, { label: string; icon: React.ReactNode; color: string }> = {
-  fasted: { label: 'Ayunas', icon: <TestTube size={14} />, color: '#60a5fa' },
-  post_workout: { label: 'Post-Entreno', icon: <Zap size={14} />, color: '#fbbf24' },
-  rest_day: { label: 'Descanso', icon: <Coffee size={14} />, color: '#a3a3a3' }
-};
-
 export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
+  const { t } = useTranslation();
   const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
+
+  const CONDITION_MAP: Record<MeasurementCondition, { label: string; icon: React.ReactNode; color: string }> = {
+    fasted: { label: t('common.history.conditions.fasted'), icon: <TestTube size={14} />, color: '#60a5fa' },
+    post_workout: { label: t('common.history.conditions.post_workout'), icon: <Zap size={14} />, color: '#fbbf24' },
+    rest_day: { label: t('common.history.conditions.rest_day'), icon: <Coffee size={14} />, color: '#a3a3a3' }
+  };
 
   if (records.length === 0) {
     return (
       <div className="empty-history animate-fade">
-        <p>No hay registros aún. ¡Comienza cargando tus primeras medidas!</p>
+        <p>{t('common.history.empty')}</p>
       </div>
     );
   }
@@ -28,8 +30,8 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
   return (
     <div className="history-view animate-fade">
       <header className="view-header">
-        <h2>Historial de Medidas</h2>
-        <span className="record-count">{records.length} registros</span>
+        <h2>{t('common.history.title')}</h2>
+        <span className="record-count">{records.length} {t('common.history.records_count')}</span>
       </header>
 
       <div className="records-list">
@@ -41,8 +43,8 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
                 <span>{new Date(record.date).toLocaleDateString()}</span>
               </div>
               <p className="record-summary">
-                Peso: <span className="highlighted">{record.measurements.weight || '--'} kg</span> |
-                Cintura: <span className="highlighted">{record.measurements.waist} cm</span>
+                {t('common.history.weight')}: <span className="highlighted">{record.measurements.weight || '--'} kg</span> |
+                {t('common.history.waist')}: <span className="highlighted">{record.measurements.waist} cm</span>
               </p>
               <div className="record-tags">
                 {record.metadata?.condition && CONDITION_MAP[record.metadata.condition] && (
@@ -54,7 +56,7 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
                 {record.metadata?.sleepHours && (
                   <span className="tag sleep">
                     <Moon size={14} />
-                    {record.metadata.sleepHours}h sueño
+                    {record.metadata.sleepHours}h {t('common.history.sleep')}
                   </span>
                 )}
               </div>
@@ -66,18 +68,18 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
                 disabled={!!isDeleting}
                 onClick={async (e) => {
                   e.stopPropagation();
-                  if (!window.confirm('¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.')) return;
+                  if (!window.confirm(t('common.history.confirm_delete'))) return;
 
                   setIsDeleting(record.id);
                   try {
                     const result = await onDelete(record.id);
                     // @ts-ignore
                     if (result && !result.success) {
-                      alert(`Error al eliminar: ${result.error || 'Inténtalo de nuevo'}`);
+                      alert(`${t('common.history.delete_error')}: ${result.error || 'ERROR'}`);
                     }
                   } catch (err) {
                     console.error('Delete error', err);
-                    alert('Error inesperado al eliminar el registro.');
+                    alert(t('common.error'));
                   } finally {
                     setIsDeleting(null);
                   }

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Target, Plus, Trash2, TrendingUp, ChevronRight, Sparkles, Calendar, ArrowRight } from 'lucide-react';
 import type { GrowthGoal, MeasurementRecord, UserProfile } from '../types/measurements';
 import { calculateSkeletalPotential } from '../utils/skeletal';
@@ -14,6 +15,8 @@ interface Props {
 }
 
 export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profile, records = [], onRefresh }: Props) => {
+    const { t } = useTranslation();
+
     // Refresh data on mount to ensure we aren't seeing stale empty state
     useEffect(() => {
         if (onRefresh) onRefresh();
@@ -43,19 +46,19 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
     // </button>
 
     const measurementLabels: Record<string, string> = {
-        weight: 'Peso (kg)',
-        bodyFat: 'Grasa (%)',
-        neck: 'Cuello (cm)',
-        back: 'Espalda (cm)',
-        pecho: 'Pecho (cm)',
-        waist: 'Cintura (cm)',
-        hips: 'Caderas (cm)',
-        'arm.left': 'Brazo Izq (cm)',
-        'arm.right': 'Brazo Der (cm)',
-        'thigh.left': 'Muslo Izq (cm)',
-        'thigh.right': 'Muslo Der (cm)',
-        'calf.left': 'Pantorrilla Izq (cm)',
-        'calf.right': 'Pantorrilla Der (cm)',
+        weight: t('common.goals.labels.weight'),
+        bodyFat: t('common.goals.labels.bodyFat'),
+        neck: t('common.goals.labels.neck'),
+        back: t('common.goals.labels.back'),
+        pecho: t('common.goals.labels.chest'),
+        waist: t('common.goals.labels.waist'),
+        hips: t('common.goals.labels.hips'),
+        'arm.left': `${t('common.goals.labels.arm')} (L)`,
+        'arm.right': `${t('common.goals.labels.arm')} (R)`,
+        'thigh.left': `${t('common.goals.labels.thigh')} (L)`,
+        'thigh.right': `${t('common.goals.labels.thigh')} (R)`,
+        'calf.left': `${t('common.goals.labels.calf')} (L)`,
+        'calf.right': `${t('common.goals.labels.calf')} (R)`,
     };
 
     const suggestions = useMemo(() => {
@@ -73,25 +76,25 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
 
         return [
             {
-                label: 'Máximo Potencial de Pecho',
+                label: t('common.goals.suggestions.chest_potential'),
                 type: 'pecho',
                 value: potential.chest,
-                reason: 'Basado en tu estructura ósea (Casey Butt)'
+                reason: t('common.goals.suggestions.reason_bone')
             },
             {
-                label: 'Máximo Potencial de Brazos',
+                label: t('common.goals.suggestions.arm_potential'),
                 type: 'arm.right',
                 value: potential.biceps,
-                reason: 'Límite estimado para tu muñeca'
+                reason: t('common.goals.suggestions.reason_limit')
             },
             {
-                label: 'Cintura Estética (Golden Ratio)',
+                label: t('common.goals.suggestions.waist_golden'),
                 type: 'waist',
                 value: parseFloat((potential.chest * 0.75).toFixed(1)),
-                reason: 'Ratio Cintura/Pecho de 0.75 (Ideal Old School)'
+                reason: t('common.goals.suggestions.reason_ratio')
             }
         ];
-    }, [profile, latestRecord]);
+    }, [profile, latestRecord, t]);
 
     const getLatestValue = (type: string): number => {
         if (!latestRecord) return 0;
@@ -192,11 +195,11 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
         <div className="goals-view animate-fade">
             <header className="view-header glass">
                 <div className="header-info">
-                    <h2>Centro de Objetivos</h2>
-                    <p className="subtitle">Define metas basadas en tu potencial genético</p>
+                    <h2>{t('common.goals.title')}</h2>
+                    <p className="subtitle">{t('common.goals.subtitle')}</p>
                 </div>
                 <button className="btn-primary" onClick={() => setIsAdding(!isAdding)}>
-                    <Plus size={18} /> {isAdding ? 'Cancelar' : 'Nueva Meta'}
+                    <Plus size={18} /> {isAdding ? t('common.goals.cancel') : t('common.goals.new_goal')}
                 </button>
             </header>
 
@@ -207,13 +210,13 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                         <div key={idx} className="suggestion-card glass" onClick={() => quickAdd(s)}>
                             <div className="sug-header">
                                 <Sparkles size={16} className="text-primary" />
-                                <span>Sugerencia</span>
+                                <span>{t('common.goals.suggestion')}</span>
                             </div>
                             <h4>{s.label}</h4>
                             <div className="sug-val">{s.value} cm</div>
                             <p>{s.reason}</p>
                             <div className="sug-action">
-                                Usar Meta <ArrowRight size={14} />
+                                {t('common.goals.use_goal')} <ArrowRight size={14} />
                             </div>
                         </div>
                     ))}
@@ -224,7 +227,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                 <form className="goal-form glass animate-slide-down" onSubmit={handleSubmit}>
                     <div className="form-grid">
                         <div className="form-group">
-                            <label>Métrica</label>
+                            <label>{t('common.goals.metric')}</label>
                             <select
                                 value={newGoal.measurementType}
                                 onChange={(e) => setNewGoal({ ...newGoal, measurementType: e.target.value })}
@@ -235,7 +238,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                             </select>
                         </div>
                         <div className="form-group">
-                            <label>Valor Objetivo</label>
+                            <label>{t('common.goals.target_value')}</label>
                             <input
                                 type="number"
                                 step="0.1"
@@ -244,7 +247,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                             />
                         </div>
                         <div className="form-group">
-                            <label>Fecha Límite</label>
+                            <label>{t('common.goals.deadline')}</label>
                             <input
                                 type="date"
                                 value={newGoal.targetDate}
@@ -253,7 +256,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                         </div>
                     </div>
                     <button type="submit" className="btn-primary" disabled={submitting}>
-                        {submitting ? 'Guardando...' : 'Guardar Objetivo'}
+                        {submitting ? t('common.goals.saving') : t('common.goals.save_btn')}
                     </button>
                 </form>
             )}
@@ -262,7 +265,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                 {goals.length === 0 ? (
                     <div className="empty-state glass">
                         <Target size={48} />
-                        <p>No tienes metas activas. Usa las sugerencias o crea una manual.</p>
+                        <p>{t('common.goals.empty')}</p>
                     </div>
                 ) : (
                     goals.map(goal => {
@@ -290,12 +293,12 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
 
                                 <div className="goal-stats">
                                     <div className="stat">
-                                        <label>Actual</label>
+                                        <label>{t('common.goals.current')}</label>
                                         <div className="val">{current}</div>
                                     </div>
                                     <ChevronRight className="arrow" size={14} />
                                     <div className="stat">
-                                        <label>Objetivo</label>
+                                        <label>{t('common.goals.target')}</label>
                                         <div className="val highlight">{goal.targetValue}</div>
                                     </div>
                                 </div>
@@ -304,12 +307,12 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                                     {estimate && (
                                         <div className="estimate-tag">
                                             {estimate.impossible
-                                                ? 'Tendencia opuesta ⚠️'
-                                                : `Est. ${estimate.weeks} semanas al ritmo actual`}
+                                                ? t('common.goals.opposite_trend')
+                                                : t('common.goals.estimate_weeks', { weeks: estimate.weeks })}
                                         </div>
                                     )}
                                     <div className="progress-header">
-                                        <span>Proximidad</span>
+                                        <span>{t('common.goals.proximity')}</span>
                                         <span>{progress}%</span>
                                     </div>
                                     <div className="progress-bar-bg">

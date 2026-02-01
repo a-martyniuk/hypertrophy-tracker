@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Activity } from 'lucide-react';
 import { DynamicSilhouette } from './DynamicSilhouette';
@@ -30,6 +31,7 @@ const DEFAULT_MEASUREMENTS = {
 };
 
 export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit, sex = 'male' }: Props) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { addToast } = useToast();
   const containerRef = useRef<HTMLFormElement>(null);
@@ -97,13 +99,13 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
       if (result.success) {
         localStorage.removeItem('measurement_draft_values');
         localStorage.removeItem('measurement_draft_date');
-        addToast("Registro guardado correctamente.", "success");
+        addToast(t('common.save') + " " + t('common.success', { defaultValue: 'OK' }), "success");
       } else {
-        addToast(result.error?.message || "Error al guardar.", "error");
+        addToast(result.error?.message || t('common.error'), "error");
       }
     } catch (err: any) {
       console.error('Submission error:', err);
-      addToast("Ocurrió un error inesperado.", "error");
+      addToast(t('common.error'), "error");
     }
   };
 
@@ -145,26 +147,26 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
 
       <header className="form-header glass">
         <div className="header-left">
-          <h2>Auditoría Corporal</h2>
-          <p className="subtitle">Configura los parámetros del HUD interactivo</p>
+          <h2>{t('form.title')}</h2>
+          <p className="subtitle">{t('form.subtitle')}</p>
         </div>
         <input type="date" className="date-input" value={date} onChange={(e) => setDate(e.target.value)} />
       </header>
 
       <div className="form-layout-editor">
         <div className="editor-left">
-          <MeasurementSection title="Métricas Core">
-            {renderInput('weight', 'PESO')}
-            {renderInput('height', 'ALTURA')}
-            {renderInput('bodyFat', 'GRASA%')}
+          <MeasurementSection title={t('form.core_metrics')}>
+            {renderInput('weight', t('form.weight'))}
+            {renderInput('height', t('form.height'))}
+            {renderInput('bodyFat', t('form.body_fat'))}
           </MeasurementSection>
 
-          <MeasurementSection title="Tronco">
-            {renderInput('neck', 'CUELLO')}
-            {renderInput('back', 'ESPALDA')}
-            {renderInput('pecho', 'PECHO')}
-            {renderInput('waist', 'CINTURA')}
-            {renderInput('hips', 'CADERAS')}
+          <MeasurementSection title={t('form.torso')}>
+            {renderInput('neck', t('form.neck'))}
+            {renderInput('back', t('form.back'))}
+            {renderInput('pecho', t('form.chest'))}
+            {renderInput('waist', t('form.waist'))}
+            {renderInput('hips', t('form.hips'))}
           </MeasurementSection>
         </div>
 
@@ -176,16 +178,16 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
         </div>
 
         <div className="editor-right">
-          <MeasurementSection title="Extremidades Sup.">
-            {renderInput('arm', 'BRAZO')}
-            {renderInput('forearm', 'ANTEBRAZO')}
-            {renderInput('wrist', 'MUÑECA')}
+          <MeasurementSection title={t('form.upper_limbs')}>
+            {renderInput('arm', t('form.arm'))}
+            {renderInput('forearm', t('form.forearm'))}
+            {renderInput('wrist', t('form.wrist'))}
           </MeasurementSection>
 
-          <MeasurementSection title="Extremidades Inf.">
-            {renderInput('thigh', 'MUSLO')}
-            {renderInput('calf', 'PANTORRILLA')}
-            {renderInput('ankle', 'TOBILLO')}
+          <MeasurementSection title={t('form.lower_limbs')}>
+            {renderInput('thigh', t('form.thigh'))}
+            {renderInput('calf', t('form.calf'))}
+            {renderInput('ankle', t('form.ankle'))}
           </MeasurementSection>
         </div>
       </div>
@@ -207,7 +209,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
       {hasErrors && (
         <div className="form-error-banner glass animate-fade">
           <Activity size={18} className="text-danger" />
-          <span>Por favor corrige los errores (valores negativos o inválidos).</span>
+          <span>{t('form.errors_banner')}</span>
         </div>
       )}
 

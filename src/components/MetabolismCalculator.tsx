@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
     Activity,
     Flame,
@@ -33,7 +34,7 @@ interface MetabolismCalculatorProps {
 }
 
 export function MetabolismCalculator({ sex, age: initialAge, currentWeight, height: initialHeight, userId }: MetabolismCalculatorProps) {
-    // Helper for persistence
+    const { t } = useTranslation();
     const loadSetting = <T,>(key: string, defaultVal: T): T => {
         if (!userId) return defaultVal
         try {
@@ -159,27 +160,27 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
         <div className="calculator-container animate-fade">
             <div className="input-section">
                 <h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Scale size={24} color="var(--primary-color)" /> Datos Físicos
+                    <Scale size={24} color="var(--primary-color)" /> {t('common.metabolism.physical_stats')}
                 </h2>
 
                 <div className="input-grid">
                     <div className="input-group">
-                        <label>Edad</label>
+                        <label>{t('common.metabolism.age')}</label>
                         <input type="number" value={age || ''} onChange={e => setAge(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
-                        <label>Peso (kg)</label>
+                        <label>{t('common.metabolism.weight')}</label>
                         <input type="number" value={weight || ''} onChange={e => setWeight(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
-                        <label>Altura (cm)</label>
+                        <label>{t('common.metabolism.height')}</label>
                         <input type="number" value={height || ''} onChange={e => setHeight(Number(e.target.value))} />
                     </div>
                 </div>
 
                 <h2 style={{ margin: '2rem 0 1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Activity size={24} color="var(--primary-color)" /> Nivel de Actividad (NEAT)
-                    <Tooltip content="Non-Exercise Activity Thermogenesis: Calorías quemadas fuera del entrenamiento (trabajo, caminar, etc)." position="right">
+                    <Activity size={24} color="var(--primary-color)" /> {t('common.metabolism.neat_title')}
+                    <Tooltip content={t('common.metabolism.neat_tooltip')} position="right">
                         <HelpCircle size={18} style={{ color: 'var(--text-secondary)', cursor: 'help' }} />
                     </Tooltip>
                 </h2>
@@ -193,36 +194,36 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                         >
                             <div className="val">x{val}</div>
                             <div className="desc">
-                                {key === 'SEDENTARY' && 'Sedentario (Oficina)'}
-                                {key === 'LIGHTLY_ACTIVE' && 'Poco Activo (De pie)'}
-                                {key === 'MODERATELY_ACTIVE' && 'Activo (Movimiento const.)'}
-                                {key === 'VERY_ACTIVE' && 'Muy Activo (Físico)'}
+                                {key === 'SEDENTARY' && t('common.metabolism.activity_levels.sedentary')}
+                                {key === 'LIGHTLY_ACTIVE' && t('common.metabolism.activity_levels.lightly_active')}
+                                {key === 'MODERATELY_ACTIVE' && t('common.metabolism.activity_levels.moderately_active')}
+                                {key === 'VERY_ACTIVE' && t('common.metabolism.activity_levels.very_active')}
                             </div>
                         </button>
                     ))}
                 </div>
 
                 <h2 style={{ margin: '2rem 0 1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Dumbbell size={24} color="var(--primary-color)" /> Entrenamiento
+                    <Dumbbell size={24} color="var(--primary-color)" /> {t('common.metabolism.training_title')}
                 </h2>
 
                 <div className="input-grid">
                     <div className="input-group">
                         <label className="flex items-center gap-2">
-                            Tipo
-                            <Tooltip content="El tipo de entrenamiento afecta el gasto calórico por hora." position="top">
+                            {t('common.metabolism.type')}
+                            <Tooltip content={t('common.metabolism.training_expenditure_tooltip')} position="top">
                                 <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
                             </Tooltip>
                         </label>
                         <select value={trainingType} onChange={(e: any) => setTrainingType(e.target.value)}>
-                            <option value="strength">Fuerza / Pesas</option>
-                            <option value="cardio">Cardio / Resistencia</option>
-                            <option value="mixed">Híbrido</option>
+                            <option value="strength">{t('common.metabolism.training_types.strength')}</option>
+                            <option value="cardio">{t('common.metabolism.training_types.cardio')}</option>
+                            <option value="mixed">{t('common.metabolism.training_types.mixed')}</option>
                         </select>
                     </div>
                     <div className="input-group">
                         <label className="flex items-center gap-2">
-                            Sesiones / Semana
+                            {t('common.metabolism.frequency')}
                             <Tooltip content="Número de días que entrenas a la semana." position="top">
                                 <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
                             </Tooltip>
@@ -231,7 +232,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                     </div>
                     <div className="input-group">
                         <label className="flex items-center gap-2">
-                            Duración (horas)
+                            {t('common.metabolism.duration')}
                             <Tooltip content="Duración promedio de una sesión (sin contar vestuario/ducha)." position="top">
                                 <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
                             </Tooltip>
@@ -240,94 +241,94 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                     </div>
                     <div className="input-group">
                         <label className="flex items-center gap-2">
-                            Intensidad
+                            {t('common.metabolism.intensity')}
                             <Tooltip content="RPE (Esfuerzo Percibido). Baja (paseo), Media (gym normal), Alta (Crossfit/HIIT real)." position="top">
                                 <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
                             </Tooltip>
                         </label>
                         <select value={intensity} onChange={(e: any) => setIntensity(e.target.value)}>
-                            <option value="low">Baja (RPE 1-4)</option>
-                            <option value="medium">Media (RPE 5-7)</option>
-                            <option value="high">Alta (RPE 8-10)</option>
+                            <option value="low">{t('common.metabolism.intensities.low')}</option>
+                            <option value="medium">{t('common.metabolism.intensities.medium')}</option>
+                            <option value="high">{t('common.metabolism.intensities.high')}</option>
                         </select>
                     </div>
                 </div>
             </div>
 
             <div className="results-section">
-                <h2 style={{ marginBottom: '1.5rem' }}>Resultados Estimados</h2>
+                <h2 style={{ marginBottom: '1.5rem' }}>{t('common.metabolism.results_title')}</h2>
 
                 <div className="results-grid">
                     <InfoCard
-                        title="Metabolismo Basal (BMR)"
+                        title={t('common.metabolism.bmr')}
                         value={bmr}
                         unit="kcal"
                         icon={Flame}
-                        subtext="Gasto en reposo absoluto"
-                        tooltip="Energía mínima necesaria para sobrevivir si estuvieras durmiendo todo el día. (Ecuación Mifflin-St Jeor)"
+                        subtext={t('common.metabolism.bmr_sub')}
+                        tooltip={t('common.metabolism.bmr_tooltip')}
                     />
                     <InfoCard
-                        title="Gasto Diario (NEAT)"
+                        title={t('common.metabolism.daily_expenditure')}
                         value={basalTotal}
                         unit="kcal"
                         icon={Activity}
-                        subtext="BMR + Actividad diaria"
-                        tooltip="Combina tu metabolismo basal con tu nivel de actividad cotidiana (trabajo, pasos diarios), sin contar entrenamiento deportivo."
+                        subtext={t('common.metabolism.daily_expenditure_sub')}
+                        tooltip={t('common.metabolism.daily_expenditure_tooltip')}
                     />
                     <InfoCard
-                        title="Gasto Entrenamiento"
+                        title={t('common.metabolism.training_expenditure')}
                         value={activeCalories}
                         unit="kcal"
                         icon={Zap}
-                        subtext="Promedio diario extra"
+                        subtext={t('common.metabolism.training_expenditure_sub')}
                         color="var(--primary-color)"
-                        tooltip="Calorías quemadas EXCLUSIVAMENTE en tus sesiones de ejercicio. Se promedian a lo largo de la semana."
+                        tooltip={t('common.metabolism.training_expenditure_tooltip')}
                     />
                     <InfoCard
-                        title="TDEE Total"
+                        title={t('common.metabolism.tdee')}
                         value={totalTDEE}
                         unit="kcal"
                         icon={Waves}
-                        subtext="Mantenimiento real"
+                        subtext={t('common.metabolism.tdee_sub')}
                         color="#fff" // Clean white for main contrast
-                        tooltip="Total Daily Energy Expenditure: La suma de todo tu gasto calórico. Si comes esta cantidad, mantendrás tu peso actual."
+                        tooltip={t('common.metabolism.tdee_tooltip')}
                     />
                 </div>
 
                 <div className="targets-wrapper card glass" style={{ marginTop: '2rem', padding: '0' }}>
                     <div className="target-header" style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
-                        <h3>Objetivos Calóricos</h3>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Basado en tu TDEE de {totalTDEE} kcal</p>
+                        <h3>{t('common.metabolism.targets_title')}</h3>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{t('common.metabolism.tdee_sub')} {totalTDEE} kcal</p>
                     </div>
 
                     {targets && (
                         <div className="targets-list">
                             <TargetRow
-                                title="Definición Agresiva"
+                                title={t('common.metabolism.targets.cut_aggressive')}
                                 calories={targets.deficit.aggressive.calories}
                                 diff="-20%"
                                 type="deficit"
                             />
                             <TargetRow
-                                title="Definición Sostenible"
+                                title={t('common.metabolism.targets.cut_sustainable')}
                                 calories={targets.deficit.mild.calories}
                                 diff="-10%"
                                 type="deficit"
                             />
                             <TargetRow
-                                title="Mantenimiento"
+                                title={t('common.metabolism.targets.maintenance')}
                                 calories={targets.maintenance}
                                 diff="0%"
                                 type="maintenance"
                             />
                             <TargetRow
-                                title="Volumen Limpio"
+                                title={t('common.metabolism.targets.bulk_lean')}
                                 calories={targets.surplus.lean.calories}
                                 diff="+5%"
                                 type="surplus"
                             />
                             <TargetRow
-                                title="Volumen Agresivo"
+                                title={t('common.metabolism.targets.bulk_aggressive')}
                                 calories={targets.surplus.aggressive.calories}
                                 diff="+15%"
                                 type="surplus"

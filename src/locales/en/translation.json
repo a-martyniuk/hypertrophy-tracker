@@ -13,8 +13,6 @@
         "analysis": "Analysis",
         "genetics": "Genetics",
         "compare": "Compare",
-        "metabolism": "Metabolism",
-        "goals": "Goals",
         "new_entry": "New Entry",
         "logout": "Log Out",
         "tooltips": {
@@ -30,6 +28,133 @@
             "whr": "Waist-to-Hip Ratio. Indications above threshold suggest higher cardiovascular risk.",
             "arm_potential": " Wrist-to-Arm ratio (Casey Butt) used to estimate genetic potential.",
             "v_shape": "Waist-to-Chest ratio. Lower values indicate a more pronounced V-taper."
+        },
+        "form": {
+            "title": "Body Audit",
+            "subtitle": "Configure interactive HUD parameters",
+            "core_metrics": "Core Metrics",
+            "torso": "Torso",
+            "upper_limbs": "Upper Limbs",
+            "lower_limbs": "Lower Limbs",
+            "weight": "WEIGHT",
+            "height": "HEIGHT",
+            "body_fat": "BODY FAT %",
+            "neck": "NECK",
+            "back": "BACK",
+            "chest": "CHEST",
+            "waist": "WAIST",
+            "hips": "HIPS",
+            "arm": "ARM",
+            "forearm": "FOREARM",
+            "wrist": "WRIST",
+            "thigh": "THIGH",
+            "calf": "CALF",
+            "ankle": "ANKLE",
+            "errors_banner": "Please fix errors (negative or invalid values)."
+        },
+        "history": {
+            "title": "Measurement History",
+            "empty": "No records yet. Start by logging your first measurements!",
+            "records_count": "records",
+            "weight": "Weight",
+            "waist": "Waist",
+            "sleep": "sleep",
+            "conditions": {
+                "fasted": "Fasted",
+                "post_workout": "Post-Workout",
+                "rest_day": "Rest Day"
+            },
+            "confirm_delete": "Are you sure you want to delete this record? This action cannot be undone.",
+            "delete_error": "Error deleting record"
+        },
+        "goals": {
+            "title": "Goals Center",
+            "subtitle": "Define goals based on your genetic potential",
+            "new_goal": "New Goal",
+            "cancel": "Cancel",
+            "suggestion": "Suggestion",
+            "use_goal": "Use Goal",
+            "metric": "Metric",
+            "target_value": "Target Value",
+            "deadline": "Deadline",
+            "saving": "Saving...",
+            "save_btn": "Save Goal",
+            "empty": "No active goals. Use suggestions or create a manual one.",
+            "current": "Current",
+            "target": "Target",
+            "estimate_weeks": "Est. {{weeks}} weeks at current rate",
+            "opposite_trend": "Opposite trend ⚠️",
+            "proximity": "Proximity",
+            "labels": {
+                "weight": "Weight (kg)",
+                "bodyFat": "Body Fat (%)",
+                "neck": "Neck (cm)",
+                "back": "Back (cm)",
+                "chest": "Chest (cm)",
+                "waist": "Waist (cm)",
+                "hips": "Hips (cm)",
+                "arm": "Arm (cm)",
+                "thigh": "Thigh (cm)",
+                "calf": "Calf (cm)"
+            },
+            "suggestions": {
+                "chest_potential": "Max Chest Potential",
+                "arm_potential": "Max Arm Potential",
+                "waist_golden": "Aesthetic Waist (Golden Ratio)",
+                "reason_bone": "Based on your bone structure (Casey Butt)",
+                "reason_limit": "Estimated limit for your wrist",
+                "reason_ratio": "Waist/Chest ratio of 0.75 (Old School Ideal)"
+            }
+        },
+        "metabolism": {
+            "physical_stats": "Physical Stats",
+            "age": "Age",
+            "weight": "Weight (kg)",
+            "height": "Height (cm)",
+            "neat_title": "Activity Level (NEAT)",
+            "neat_tooltip": "Non-Exercise Activity Thermogenesis: Calories burned outside of training (work, walking, etc).",
+            "training_title": "Training",
+            "type": "Type",
+            "frequency": "Sessions / Week",
+            "duration": "Duration (hours)",
+            "intensity": "Intensity",
+            "results_title": "Estimated Results",
+            "targets_title": "Caloric Targets",
+            "bmr": "Basal Metabolic Rate (BMR)",
+            "bmr_sub": "Absolute resting expenditure",
+            "bmr_tooltip": "Minimum energy needed to survive if sleeping all day (Mifflin-St Jeor).",
+            "daily_expenditure": "Daily Expenditure (NEAT)",
+            "daily_expenditure_sub": "BMR + Daily Activity",
+            "daily_expenditure_tooltip": "Combines basal metabolism with daily activity, excluding sports training.",
+            "training_expenditure": "Training Expenditure",
+            "training_expenditure_sub": "Daily extra average",
+            "training_expenditure_tooltip": "Calories burned EXCLUSIVELY in exercise sessions, averaged daily.",
+            "tdee": "Total TDEE",
+            "tdee_sub": "Real maintenance",
+            "tdee_tooltip": "Total Daily Energy Expenditure: Sum of all caloric burn. Eating this maintains current weight.",
+            "activity_levels": {
+                "sedentary": "Sedentary (Office)",
+                "lightly_active": "Lightly Active (Standing)",
+                "moderately_active": "Active (Const. movement)",
+                "very_active": "Very Active (Physical)"
+            },
+            "training_types": {
+                "strength": "Strength / Weights",
+                "cardio": "Cardio / Endurance",
+                "mixed": "Hybrid"
+            },
+            "intensities": {
+                "low": "Low (RPE 1-4)",
+                "medium": "Medium (RPE 5-7)",
+                "high": "High (RPE 8-10)"
+            },
+            "targets": {
+                "cut_aggressive": "Aggressive Cut",
+                "cut_sustainable": "Sustainable Cut",
+                "maintenance": "Maintenance",
+                "bulk_lean": "Lean Bulk",
+                "bulk_aggressive": "Aggressive Bulk"
+            }
         }
     },
     "dashboard": {
@@ -45,6 +170,65 @@
         "import": "Import Data",
         "import_desc": "Restore your data from a backup file.",
         "language": "Language",
-        "language_desc": "Select your preferred language."
+        "language_desc": "Select your preferred language.",
+        "confirm_import": "IMPORTANT: Importing will overwrite current local data. Continue?",
+        "error_format": "Invalid file format.",
+        "success_export": "Data exported successfully.",
+        "success_import": "Data imported. Reloading app...",
+        "error_read": "Error reading file.",
+        "stats": {
+            "records": "Records",
+            "goals": "Goals",
+            "profile": "Profile",
+            "yes": "Yes",
+            "no": "No"
+        },
+        "btn_download": "DOWNLOAD BACKUP",
+        "btn_processing": "PROCESSING...",
+        "btn_upload": "LOAD BACKUP FILE",
+        "warning_overwrite": "Warning: This action will overwrite data saved on this device. Make sure to export your current data before continuing if unsure."
+    },
+    "analysis": {
+        "back_to_panel": "Back to Dashboard",
+        "title": "Analysis: {{muscle}}",
+        "meta_label": "Goal: {{value}} cm",
+        "total_growth": "Total Growth",
+        "projection_meta": "Goal Projection",
+        "historical_evolution": "Historical Evolution",
+        "panel_title": "Evolution Panel",
+        "projection": {
+            "insufficient_data": "Insufficient data for projection.",
+            "estimated": "At this rate ({{rate}} cm/month), you'll reach your goal on {{date}}.",
+            "reached": "Goal reached!",
+            "logrado": "Achieved!",
+            "stagnant": "Recent growth is stable or negative."
+        },
+        "charts": {
+            "weight_waist": {
+                "title": "Weight & Waist",
+                "tooltip": "Time evolution. Waist is the best indicator of real body fat.",
+                "weight": "Weight (kg)",
+                "waist": "Waist (cm)"
+            },
+            "arms_comparison": {
+                "title": "Arms Comparison (R/L)",
+                "tooltip": "Detects asymmetries. Small differences are normal, >1cm requires attention.",
+                "right": "Right",
+                "left": "Left"
+            },
+            "legs_comparison": {
+                "title": "Legs Comparison (R/L)",
+                "tooltip": "Copy volume."
+            },
+            "torso_proportion": {
+                "title": "Torso Proportion",
+                "tooltip": "Average of Chest, Back, and Neck. Indicates global torso growth.",
+                "avg_torso": "Torso Avg"
+            },
+            "whr": {
+                "title": "Waist/Hip Ratio",
+                "tooltip": "Key indicator of metabolic health.",
+                "series": "W/H Ratio"
+            }
+        }
     }
-}

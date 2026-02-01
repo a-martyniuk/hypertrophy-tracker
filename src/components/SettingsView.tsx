@@ -46,12 +46,12 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
 
-        setSuccessMsg('Datos exportados correctamente.');
+        setSuccessMsg(t('settings.success_export'));
         setTimeout(() => setSuccessMsg(null), 3000);
     };
 
     const handleImportClick = () => {
-        if (confirm("IMPORTANTE: Al importar se sobrescribirán los datos locales actuales. ¿Deseas continuar?")) {
+        if (confirm(t('settings.confirm_import'))) {
             fileInputRef.current?.click();
         }
     };
@@ -70,7 +70,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
 
                 // Simple validation
                 if (!json.measurements && !json.profile) {
-                    throw new Error("Formato de archivo inválido.");
+                    throw new Error(t('settings.error_format'));
                 }
 
                 // 1. Restore Local Storage Items
@@ -86,7 +86,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                 if (json.goals) localStorage.setItem('hypertrophy_goals', JSON.stringify(json.goals));
                 if (json.profile) localStorage.setItem('hypertrophy_profile', JSON.stringify(json.profile));
 
-                setSuccessMsg('Datos importados. Recargando aplicación...');
+                setSuccessMsg(t('settings.success_import'));
 
                 // 3. Force Reload to hydrate state from LocalStorage
                 setTimeout(() => {
@@ -95,7 +95,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
 
             } catch (err: any) {
                 console.error(err);
-                setError(err.message || "Error al leer el archivo.");
+                setError(err.message || t('settings.error_read'));
             } finally {
                 setImporting(false);
                 // Clear input
@@ -126,21 +126,21 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                     </p>
                     <div className="stats-row">
                         <div className="mini-stat">
-                            <span className="label">Registros</span>
+                            <span className="label">{t('settings.stats.records')}</span>
                             <span className="val">{records.length}</span>
                         </div>
                         <div className="mini-stat">
-                            <span className="label">Objetivos</span>
+                            <span className="label">{t('settings.stats.goals')}</span>
                             <span className="val">{goals.length}</span>
                         </div>
                         <div className="mini-stat">
-                            <span className="label">Perfil</span>
-                            <span className="val">{profile ? 'Si' : 'No'}</span>
+                            <span className="label">{t('settings.stats.profile')}</span>
+                            <span className="val">{profile ? t('settings.stats.yes') : t('settings.stats.no')}</span>
                         </div>
                     </div>
                     <button className="btn-primary" onClick={handleExport}>
                         <FileJson size={18} className="mr-2" />
-                        DESCARGAR RESPALDO
+                        {t('settings.btn_download')}
                     </button>
                     {successMsg && !importing && (
                         <div className="success-tag animate-fade-in">
@@ -162,8 +162,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                     <div className="warning-box">
                         <AlertTriangle size={18} className="text-amber-400 flex-shrink-0" />
                         <div className="text-xs text-amber-100/80">
-                            <strong>Advertencia:</strong> Esta acción sobrescribirá los datos guardados en este dispositivo.
-                            Asegúrate de exportar tus datos actuales antes de continuar si tienes dudas.
+                            <strong>{t('common.warning')}:</strong> {t('settings.warning_overwrite')}
                         </div>
                     </div>
 
@@ -179,12 +178,12 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                         {importing ? (
                             <>
                                 <RefreshCw size={18} className="mr-2 animate-spin" />
-                                PROCESANDO...
+                                {t('settings.btn_processing')}
                             </>
                         ) : (
                             <>
                                 <Upload size={18} className="mr-2" />
-                                CARGAR ARCHIVO RESPALDO
+                                {t('settings.btn_upload')}
                             </>
                         )}
                     </button>

@@ -18,20 +18,7 @@ interface Props {
     sex?: 'male' | 'female';
 }
 
-const MUSCLE_LABELS: Record<string, string> = {
-    'neck': 'Cuello',
-    'pecho': 'Pecho',
-    'waist': 'Cintura',
-    'hips': 'Cadera',
-    'arm-right': 'Bíceps (Der)',
-    'arm-left': 'Bíceps (Izq)',
-    'forearm-right': 'Antebrazo (Der)',
-    'forearm-left': 'Antebrazo (Izq)',
-    'thigh-right': 'Muslo (Der)',
-    'thigh-left': 'Muslo (Izq)',
-    'calf-right': 'Gemelo (Der)',
-    'calf-left': 'Gemelo (Izq)',
-};
+
 
 import { useTranslation } from 'react-i18next';
 
@@ -39,6 +26,26 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
     const { t } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
     const muscleId = searchParams.get('muscle');
+
+    // Helper map
+    const getMuscleLabel = (id: string) => {
+        // Reuse common form labels where possible
+        const map: Record<string, string> = {
+            'neck': t('common.form.neck'),
+            'pecho': t('common.form.chest'),
+            'waist': t('common.form.waist'),
+            'hips': t('common.form.hips'),
+            'arm-right': `${t('common.form.arm')} (R)`,
+            'arm-left': `${t('common.form.arm')} (L)`,
+            'forearm-right': `${t('common.form.forearm')} (R)`,
+            'forearm-left': `${t('common.form.forearm')} (L)`,
+            'thigh-right': `${t('common.form.thigh')} (R)`,
+            'thigh-left': `${t('common.form.thigh')} (L)`,
+            'calf-right': `${t('common.form.calf')} (R)`,
+            'calf-left': `${t('common.form.calf')} (L)`,
+        };
+        return map[id] || id;
+    };
 
     const {
         timeRange,
@@ -50,8 +57,8 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
     } = useAnalysisData({ records, goals, sex });
 
     // --- SUB-COMPONENT: MUSCLE DETAIL VIEW ---
-    if (muscleId && MUSCLE_LABELS[muscleId]) {
-        const muscleLabel = MUSCLE_LABELS[muscleId];
+    if (muscleId) {
+        const muscleLabel = getMuscleLabel(muscleId);
         const isBilateral = muscleId.includes('-left') || muscleId.includes('-right');
         const baseKey = isBilateral ? muscleId.split('-')[0] : muscleId;
         const side = muscleId.includes('-left') ? 'left' : muscleId.includes('-right') ? 'right' : undefined;
@@ -86,7 +93,7 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
         });
 
         // Projection Logic
-        let projectionMsg = "Datos insuficientes para proyección.";
+        let projectionMsg = t('analysis.projection.insufficient_data');
         let projectedDateText = "--";
 
         if (muscleHistory.length > 3 && goal) {
@@ -102,42 +109,42 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                 const date = new Date();
                 date.setDate(date.getDate() + daysNeeded);
                 projectedDateText = date.toLocaleDateString();
-                projectionMsg = `A este ritmo (${(growthPerDay * 30).toFixed(1)} cm/mes), llegarás a tu meta el ${projectedDateText}.`;
+                projectionMsg = t('analysis.projection.estimated', { rate: (growthPerDay * 30).toFixed(1), date: projectedDateText });
             } else if (currentVal >= goal.targetValue) {
-                projectionMsg = "¡Has alcanzado tu objetivo!";
-                projectedDateText = "¡Logrado!";
+                projectionMsg = t('analysis.projection.reached');
+                projectedDateText = t('analysis.projection.logrado');
             } else {
-                projectionMsg = "El crecimiento reciente es estable o negativo.";
+                projectionMsg = t('analysis.projection.stagnant');
             }
         }
 
         return (
             <div className="analysis-view animate-fade">
                 <button className="back-link" onClick={() => setSearchParams({})}>
-                    <ArrowLeft size={16} /> Volver al Panel General
+                    <ArrowLeft size={16} /> {t('analysis.back_to_panel')}
                 </button>
 
                 <div className="muscle-header glass">
                     <div className="header-content">
-                        <h2>Análisis: {muscleLabel}</h2>
+                        <h2>{t('analysis.title', { muscle: muscleLabel })}</h2>
                         <div className="highlight-val">{currentVal} cm</div>
                     </div>
                     {goal && (
                         <div className="goal-badge">
-                            <Target size={16} /> Meta: {goal.targetValue} cm
+                            <Target size={16} /> {t('analysis.meta_label', { value: goal.targetValue })}
                         </div>
                     )}
                 </div>
 
                 <div className="stats-mini-grid">
                     <div className="stat-card glass">
-                        <label>Crecimiento Total</label>
+                        <label>{t('analysis.total_growth')}</label>
                         <div className={`value ${totalGrowth >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                             {totalGrowth > 0 ? '+' : ''}{totalGrowth.toFixed(1)} cm
                         </div>
                     </div>
                     <div className="stat-card glass">
-                        <label>Proyección Meta</label>
+                        <label>{t('analysis.projection_meta')}</label>
                         <div className="value text-amber-400">
                             {projectedDateText}
                         </div>
@@ -145,7 +152,7 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                     </div>
                 </div>
 
-                <MeasurementChart title="Evolución Histórica" data={muscleHistory} height={400}>
+                <MeasurementChart title={t('analysis.historical_evolution')} data={muscleHistory} height={400}>
                     <ReferenceLine y={goal?.targetValue} stroke="#ef4444" strokeDasharray="3 3" label="Meta" />
                     <Line
                         type="monotone"
@@ -204,53 +211,53 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                 </div>
             )}
 
-            <h2>Panel de Evoluciones</h2>
+            <h2>{t('analysis.panel_title')}</h2>
 
             <div className="charts-grid">
                 <MeasurementChart
-                    title="Peso & Cintura"
-                    tooltip="Evolución temporal. La cintura es el mejor indicador de grasa corporal real."
+                    title={t('analysis.charts.weight_waist.title')}
+                    tooltip={t('analysis.charts.weight_waist.tooltip')}
                     data={chartData}
                 >
                     {getGoalValue('peso') && <ReferenceLine y={getGoalValue('peso')!} stroke="#ef4444" strokeDasharray="3 3" />}
                     {getGoalValue('cintura') && <ReferenceLine y={getGoalValue('cintura')!} stroke="#ef4444" strokeDasharray="3 3" />}
-                    <Line type="monotone" dataKey="peso" stroke="#f59e0b" name="Peso (kg)" strokeWidth={2} dot={{ r: 4 }} />
-                    <Line type="monotone" dataKey="cintura" stroke="#fbbf24" name="Cintura (cm)" strokeWidth={2} dot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="peso" stroke="#f59e0b" name={t('analysis.charts.weight_waist.weight')} strokeWidth={2} dot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="cintura" stroke="#fbbf24" name={t('analysis.charts.weight_waist.waist')} strokeWidth={2} dot={{ r: 4 }} />
                 </MeasurementChart>
 
                 <MeasurementChart
-                    title="Comparativa Brazos (R/L)"
-                    tooltip="Detecta asimetrías. Pequeñas diferencias son normales, >1cm requiere atención."
+                    title={t('analysis.charts.arms_comparison.title')}
+                    tooltip={t('analysis.charts.arms_comparison.tooltip')}
                     data={chartData}
                 >
-                    <Line type="monotone" dataKey="brazoDer" stroke="#f59e0b" name="Derecho" strokeWidth={2} />
-                    <Line type="monotone" dataKey="brazoIzq" stroke="#fbbf24" name="Izquierdo" strokeWidth={2} />
+                    <Line type="monotone" dataKey="brazoDer" stroke="#f59e0b" name={t('analysis.charts.arms_comparison.right')} strokeWidth={2} />
+                    <Line type="monotone" dataKey="brazoIzq" stroke="#fbbf24" name={t('analysis.charts.arms_comparison.left')} strokeWidth={2} />
                 </MeasurementChart>
 
                 <MeasurementChart
-                    title="Comparativa Piernas (R/L)"
-                    tooltip="Comparativa de volumen."
+                    title={t('analysis.charts.legs_comparison.title')}
+                    tooltip={t('analysis.charts.legs_comparison.tooltip')}
                     data={chartData}
                 >
-                    <Line type="monotone" dataKey="piernaDer" stroke="#f59e0b" name="Derecho" strokeWidth={2} />
-                    <Line type="monotone" dataKey="piernaIzq" stroke="#fbbf24" name="Izquierdo" strokeWidth={2} />
+                    <Line type="monotone" dataKey="piernaDer" stroke="#f59e0b" name={t('analysis.charts.arms_comparison.right')} strokeWidth={2} />
+                    <Line type="monotone" dataKey="piernaIzq" stroke="#fbbf24" name={t('analysis.charts.arms_comparison.left')} strokeWidth={2} />
                 </MeasurementChart>
 
                 <MeasurementChart
-                    title="Proporción Tronco"
-                    tooltip="Media de Pecho, Espalda y Cuello. Indica crecimiento global del torso."
+                    title={t('analysis.charts.torso_proportion.title')}
+                    tooltip={t('analysis.charts.torso_proportion.tooltip')}
                     data={chartData}
                 >
-                    <Line type="step" dataKey="tronco" stroke="#f59e0b" name="Media Tronco" strokeWidth={3} />
+                    <Line type="step" dataKey="tronco" stroke="#f59e0b" name={t('analysis.charts.torso_proportion.avg_torso')} strokeWidth={3} />
                 </MeasurementChart>
 
                 <MeasurementChart
-                    title="Ratio Cintura/Cadera"
-                    tooltip="Indicador clave de salud metabólica."
+                    title={t('analysis.charts.whr.title')}
+                    tooltip={t('analysis.charts.whr.tooltip')}
                     data={chartData}
                 >
                     <YAxis domain={[0.5, 1.2]} stroke="#94a3b8" fontSize={12} />
-                    <Line type="monotone" dataKey="whr" stroke="#fbbf24" name="W/H Ratio" strokeWidth={2} />
+                    <Line type="monotone" dataKey="whr" stroke="#fbbf24" name={t('analysis.charts.whr.series')} strokeWidth={2} />
                 </MeasurementChart>
             </div>
         </div>
