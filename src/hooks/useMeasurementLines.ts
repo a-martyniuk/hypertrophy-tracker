@@ -1,5 +1,6 @@
-import { useState, useEffect, RefObject } from 'react';
-import type { BodyMeasurements } from '../../types/measurements';
+import { useState, useEffect } from 'react';
+import type { RefObject } from 'react';
+import type { BodyMeasurements } from '../types/measurements';
 
 export interface ConnectorLine {
     id: string;
