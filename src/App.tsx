@@ -705,6 +705,13 @@ function App() {
           padding: 1.5rem;
           border-radius: 20px;
           border: 1px solid var(--border-color);
+          position: relative;
+          z-index: 1;
+          transition: transform 0.2s ease, z-index 0s;
+        }
+
+        .stat-card:hover {
+            z-index: 20;
         }
 
         .gold-border {
