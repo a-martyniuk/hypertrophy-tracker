@@ -14,6 +14,17 @@
         "compare": "Compare",
         "new_entry": "New Entry",
         "logout": "Log Out",
+        "menu": {
+            "dashboard": "Dashboard",
+            "new_entry": "New Entry",
+            "history": "History",
+            "analysis": "Analysis",
+            "genetics": "Genetics",
+            "compare": "Compare",
+            "metabolism": "Metabolism",
+            "goals": "Goals",
+            "settings": "Settings"
+        },
         "tooltips": {
             "dashboard": "Overview and summary",
             "new_entry": "Log new body measurements",

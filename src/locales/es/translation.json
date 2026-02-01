@@ -15,6 +15,17 @@
         "compare": "Comparar",
         "new_entry": "Nueva Medida",
         "logout": "Salir",
+        "menu": {
+            "dashboard": "Inicio",
+            "new_entry": "Nueva Medida",
+            "history": "Historial",
+            "analysis": "Análisis",
+            "genetics": "Genética",
+            "compare": "Comparar",
+            "metabolism": "Metabolismo",
+            "goals": "Objetivos",
+            "settings": "Configuración"
+        },
         "tooltips": {
             "dashboard": "Vista general y resumen",
             "new_entry": "Registrar nuevas medidas corporales",

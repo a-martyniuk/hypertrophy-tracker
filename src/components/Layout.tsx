@@ -30,15 +30,15 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
     }
 
     const navigationItems = [
-        { path: 'dashboard', icon: LayoutGrid, label: t('common.dashboard'), tooltip: t('common.tooltips.dashboard') },
-        { path: 'new-entry', icon: Plus, label: t('common.new_entry'), tooltip: t('common.tooltips.new_entry') },
-        { path: 'history', icon: History, label: t('common.history'), tooltip: t('common.tooltips.history') },
-        { path: 'analysis', icon: Activity, label: t('common.analysis'), tooltip: t('common.tooltips.analysis') },
-        { path: 'potential', icon: Dna, label: t('common.genetics'), tooltip: t('common.tooltips.genetics') },
-        { path: 'comparison', icon: Camera, label: t('common.compare'), tooltip: t('common.tooltips.compare') },
-        { path: 'calculator', icon: Calculator, label: t('common.metabolism'), tooltip: t('common.tooltips.metabolism') },
-        { path: 'goals', icon: Target, label: t('common.goals'), tooltip: t('common.tooltips.goals') },
-        { path: 'settings', icon: Settings, label: t('common.settings'), tooltip: t('common.tooltips.settings') },
+        { path: 'dashboard', icon: LayoutGrid, label: t('common.menu.dashboard'), tooltip: t('common.tooltips.dashboard') },
+        { path: 'new-entry', icon: Plus, label: t('common.menu.new_entry'), tooltip: t('common.tooltips.new_entry') },
+        { path: 'history', icon: History, label: t('common.menu.history'), tooltip: t('common.tooltips.history') },
+        { path: 'analysis', icon: Activity, label: t('common.menu.analysis'), tooltip: t('common.tooltips.analysis') },
+        { path: 'potential', icon: Dna, label: t('common.menu.genetics'), tooltip: t('common.tooltips.genetics') },
+        { path: 'comparison', icon: Camera, label: t('common.menu.compare'), tooltip: t('common.tooltips.compare') },
+        { path: 'calculator', icon: Calculator, label: t('common.menu.metabolism'), tooltip: t('common.tooltips.metabolism') },
+        { path: 'goals', icon: Target, label: t('common.menu.goals'), tooltip: t('common.tooltips.goals') },
+        { path: 'settings', icon: Settings, label: t('common.menu.settings'), tooltip: t('common.tooltips.settings') },
     ]
 
     return (
