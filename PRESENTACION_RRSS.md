@@ -11,15 +11,15 @@ Este documento contiene el material visual y narrativo para la exposición del p
 ## 📸 Galería Promocional
 
 ### 1. Dashboard de Control Maestro
-![Dashboard Heatmap](C:/Users/Martyniuk-Ntbk-Gmr/.gemini/antigravity/brain/fa5a40ab-6390-41e6-8c5c-99010fb0eb41/promo_dashboard_heatmap_1769972156987.png)
+![Dashboard Heatmap](promo/dashboard.png)
 *Visualización en tiempo real con heatmap de progresión acumulada.*
 
 ### 2. Anatomía de Precisión
-![Muscle Map](C:/Users/Martyniuk-Ntbk-Gmr/.gemini/antigravity/brain/fa5a40ab-6390-41e6-8c5c-99010fb0eb41/promo_muscle_map_1769972173282.png)
+![Muscle Map](promo/muscle_map.png)
 *Guía integrada para estandarizar cada medición y asegurar datos científicos.*
 
 ### 3. Evolución Visual
-![Photo Comparison](C:/Users/Martyniuk-Ntbk-Gmr/.gemini/antigravity/brain/fa5a40ab-6390-41e6-8c5c-99010fb0eb41/promo_photo_compare_1769972189053.png)
+![Photo Comparison](promo/comparison.png)
 *Comparador lado a lado con sincronización en la nube vía Supabase.*
 
 ---
