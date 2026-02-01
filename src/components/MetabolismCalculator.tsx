@@ -29,22 +29,54 @@ interface MetabolismCalculatorProps {
     age?: number
     currentWeight?: number
     height?: number
+    userId?: string
 }
 
-export function MetabolismCalculator({ sex, age: initialAge, currentWeight, height: initialHeight }: MetabolismCalculatorProps) {
+export function MetabolismCalculator({ sex, age: initialAge, currentWeight, height: initialHeight, userId }: MetabolismCalculatorProps) {
+    // Helper for persistence
+    const loadSetting = <T,>(key: string, defaultVal: T): T => {
+        if (!userId) return defaultVal
+        try {
+            const saved = localStorage.getItem(`calc_settings_${userId}_${key}`)
+            return saved ? JSON.parse(saved) : defaultVal
+        } catch (e) {
+            return defaultVal
+        }
+    }
+
+    const saveSetting = (key: string, val: any) => {
+        if (userId) localStorage.setItem(`calc_settings_${userId}_${key}`, JSON.stringify(val))
+    }
+
     // Physical Stats
-    const [age, setAge] = useState<number>(initialAge || 25)
-    const [weight, setWeight] = useState<number>(currentWeight || 70)
-    const [height, setHeight] = useState<number>(initialHeight || 175)
+    const [age, setAge] = useState<number>(() => loadSetting('age', initialAge || 25))
+    const [weight, setWeight] = useState<number>(() => loadSetting('weight', currentWeight || 70))
+    const [height, setHeight] = useState<number>(() => loadSetting('height', initialHeight || 175))
+
+    // Sync props if they update (and aren't just defaults)
+    useEffect(() => { if (initialAge) { setAge(initialAge); saveSetting('age', initialAge) } }, [initialAge])
+    useEffect(() => { if (currentWeight) { setWeight(currentWeight); saveSetting('weight', currentWeight) } }, [currentWeight])
+    useEffect(() => { if (initialHeight) { setHeight(initialHeight); saveSetting('height', initialHeight) } }, [initialHeight])
 
     // Activity Stats
-    const [neatLevel, setNeatLevel] = useState<number>(ACTIVITY_FACTORS.SEDENTARY)
+    const [neatLevel, setNeatLevel] = useState<number>(() => loadSetting('neatLevel', ACTIVITY_FACTORS.SEDENTARY))
 
     // Training Stats
-    const [trainingType, setTrainingType] = useState<TrainingType>('strength')
-    const [trainingFreq, setTrainingFreq] = useState<number>(4)
-    const [sessionDuration, setSessionDuration] = useState<number>(1.5) // hours
-    const [intensity, setIntensity] = useState<TrainingIntensity>('medium')
+    const [trainingType, setTrainingType] = useState<TrainingType>(() => loadSetting('trainingType', 'strength'))
+    const [trainingFreq, setTrainingFreq] = useState<number>(() => loadSetting('trainingFreq', 4))
+    const [sessionDuration, setSessionDuration] = useState<number>(() => loadSetting('sessionDuration', 1.5))
+    const [intensity, setIntensity] = useState<TrainingIntensity>(() => loadSetting('intensity', 'medium'))
+
+    // Persistence Effects
+    useEffect(() => saveSetting('neatLevel', neatLevel), [neatLevel, userId])
+    useEffect(() => saveSetting('trainingType', trainingType), [trainingType, userId])
+    useEffect(() => saveSetting('trainingFreq', trainingFreq), [trainingFreq, userId])
+    useEffect(() => saveSetting('sessionDuration', sessionDuration), [sessionDuration, userId])
+    useEffect(() => saveSetting('intensity', intensity), [intensity, userId])
+    // Also persist manual physical changes
+    useEffect(() => saveSetting('age', age), [age, userId])
+    useEffect(() => saveSetting('weight', weight), [weight, userId])
+    useEffect(() => saveSetting('height', height), [height, userId])
 
     // Results State
     const [bmr, setBmr] = useState(0)

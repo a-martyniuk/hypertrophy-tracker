@@ -427,6 +427,7 @@ function App() {
             height={latestRecord?.measurements?.height}
             // Calculate age if birthDate exists
             age={profile?.birthDate ? new Date().getFullYear() - new Date(profile.birthDate).getFullYear() : undefined}
+            userId={authUser?.id}
           />
         )}
       </main>
