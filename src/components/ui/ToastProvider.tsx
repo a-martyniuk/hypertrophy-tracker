@@ -1,65 +1,66 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 type ToastType = 'success' | 'error' | 'info';
 
 interface Toast {
-    id: string;
-    message: string;
-    type: ToastType;
+  id: string;
+  message: string;
+  type: ToastType;
 }
 
 interface ToastContextType {
-    addToast: (message: string, type?: ToastType) => void;
-    removeToast: (id: string) => void;
+  addToast: (message: string, type?: ToastType) => void;
+  removeToast: (id: string) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export const useToast = () => {
-    const context = useContext(ToastContext);
-    if (!context) {
-        throw new Error('useToast must be used within a ToastProvider');
-    }
-    return context;
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error('useToast must be used within a ToastProvider');
+  }
+  return context;
 };
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
-    const [toasts, setToasts] = useState<Toast[]>([]);
+  const [toasts, setToasts] = useState<Toast[]>([]);
 
-    const addToast = useCallback((message: string, type: ToastType = 'info') => {
-        const id = Math.random().toString(36).substring(2, 9);
-        setToasts((prev) => [...prev, { id, message, type }]);
+  const addToast = useCallback((message: string, type: ToastType = 'info') => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, message, type }]);
 
-        // Auto dismiss
-        setTimeout(() => {
-            removeToast(id);
-        }, 4000);
-    }, []);
+    // Auto dismiss
+    setTimeout(() => {
+      removeToast(id);
+    }, 4000);
+  }, []);
 
-    const removeToast = useCallback((id: string) => {
-        setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    }, []);
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
 
-    return (
-        <ToastContext.Provider value={{ addToast, removeToast }}>
-            {children}
-            <div className="toast-container">
-                {toasts.map((toast) => (
-                    <div key={toast.id} className={`toast toast-${toast.type} animate-slide-in`}>
-                        <div className="toast-icon">
-                            {toast.type === 'success' && <CheckCircle size={18} />}
-                            {toast.type === 'error' && <AlertCircle size={18} />}
-                            {toast.type === 'info' && <Info size={18} />}
-                        </div>
-                        <span className="toast-message">{toast.message}</span>
-                        <button onClick={() => removeToast(toast.id)} className="toast-close">
-                            <X size={14} />
-                        </button>
-                    </div>
-                ))}
+  return (
+    <ToastContext.Provider value={{ addToast, removeToast }}>
+      {children}
+      <div className="toast-container">
+        {toasts.map((toast) => (
+          <div key={toast.id} className={`toast toast-${toast.type} animate-slide-in`}>
+            <div className="toast-icon">
+              {toast.type === 'success' && <CheckCircle size={18} />}
+              {toast.type === 'error' && <AlertCircle size={18} />}
+              {toast.type === 'info' && <Info size={18} />}
             </div>
-            <style>{`
+            <span className="toast-message">{toast.message}</span>
+            <button onClick={() => removeToast(toast.id)} className="toast-close">
+              <X size={14} />
+            </button>
+          </div>
+        ))}
+      </div>
+      <style>{`
         .toast-container {
           position: fixed;
           bottom: 2rem;
@@ -136,6 +137,6 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
           }
         }
       `}</style>
-        </ToastContext.Provider>
-    );
+    </ToastContext.Provider>
+  );
 };

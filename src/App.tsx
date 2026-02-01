@@ -109,336 +109,337 @@ function App() {
   if (!authUser && !isGuest) return <AuthView onGuest={() => setIsGuest(true)} />;
 
   return (
-    <div className="app-container">
-      <nav className="sidebar glass">
-        <div className="logo">
-          <Activity color="var(--primary-color)" size={32} />
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '0.9', marginLeft: '6px' }}>
-            <span style={{ fontSize: '0.75rem', letterSpacing: '0.05em', opacity: 0.9 }}>HYPERTROPHY</span>
-            <span style={{ fontSize: '1rem', fontWeight: '800', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>TRACKER</span>
-          </div>
-        </div>
-
-        <div className="nav-items">
-          <Tooltip content="Vista general y resumen" position="right">
-            <button
-              className={activeView === 'dashboard' ? 'active' : ''}
-              onClick={() => setActiveView('dashboard')}
-            >
-              <LayoutGrid size={20} /> Dashboard
-            </button>
-          </Tooltip>
-          <Tooltip content="Registrar nuevas medidas corporales" position="right">
-            <button
-              className={activeView === 'new-entry' ? 'active' : ''}
-              onClick={() => setActiveView('new-entry')}
-            >
-              <Plus size={20} /> Nueva Medida
-            </button>
-          </Tooltip>
-          <Tooltip content="Ver historial de registros" position="right">
-            <button
-              className={activeView === 'history' ? 'active' : ''}
-              onClick={() => setActiveView('history')}
-            >
-              <History size={20} /> Historial
-            </button>
-          </Tooltip>
-          <Tooltip content="Análisis gráfico de tu progreso" position="right">
-            <button
-              className={activeView === 'analysis' ? 'active' : ''}
-              onClick={() => setActiveView('analysis')}
-            >
-              <Activity size={20} /> Análisis
-            </button>
-          </Tooltip>
-          <Tooltip content="Análisis de estructura ósea (Casey Butt)" position="right">
-            <button
-              className={activeView === 'potential' ? 'active' : ''}
-              onClick={() => setActiveView('potential')}
-            >
-              <Target size={20} /> Potencial
-            </button>
-          </Tooltip>
-          <Tooltip content="Comparativa visual de fotos" position="right">
-            <button
-              className={activeView === 'comparison' ? 'active' : ''}
-              onClick={() => setActiveView('comparison')}
-            >
-              <Camera size={20} /> Comparativa
-            </button>
-          </Tooltip>
-          <Tooltip content="Calculadora de BMR y TDEE" position="right">
-            <button
-              className={activeView === 'calculator' ? 'active' : ''}
-              onClick={() => setActiveView('calculator')}
-            >
-              <Calculator size={20} /> Calculadora
-            </button>
-          </Tooltip>
-          <Tooltip content="Definir metas de medidas" position="right">
-            <button
-              className={activeView === 'goals' ? 'active' : ''}
-              onClick={() => setActiveView('goals')}
-            >
-              <Target size={20} /> Objetivos
-            </button>
-          </Tooltip>
-        </div>
-
-        <div className="nav-footer">
-          <div className="user-profile">
-            <div className={`user-avatar ${userSex}`}>
-              <User size={20} />
-            </div>
-            <div className="user-info">
-              <span className="name">{userName}</span>
-              <span className="status">{authUser ? 'Online' : 'Invitado'}</span>
+    <ToastProvider>
+      <div className="app-container">
+        <nav className="sidebar glass">
+          <div className="logo">
+            <Activity color="var(--primary-color)" size={32} />
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '0.9', marginLeft: '6px' }}>
+              <span style={{ fontSize: '0.75rem', letterSpacing: '0.05em', opacity: 0.9 }}>HYPERTROPHY</span>
+              <span style={{ fontSize: '1rem', fontWeight: '800', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>TRACKER</span>
             </div>
           </div>
-          <div className="gender-toggle">
-            <button
-              className={userSex === 'male' ? 'active' : ''}
-              onClick={() => updateProfile({ sex: 'male' })}
-            >M</button>
-            <button
-              className={userSex === 'female' ? 'active' : ''}
-              onClick={() => updateProfile({ sex: 'female' })}
-            >F</button>
-          </div>
-          <button className="btn-logout" onClick={handleLogOut}>
-            <LogOut size={20} /> Salir
-          </button>
-        </div>
-      </nav>
 
-      <main className="content">
-        {activeView === 'dashboard' && (
-          <div className="dashboard-grid animate-fade">
-            <header className="dash-header">
-              <div className="welcome-text">
-                <h1>Hola, {userName} 👋</h1>
-                <p>Tu evolución física en números reales.</p>
-              </div>
-              <button className="btn-primary" onClick={() => setActiveView('new-entry')}>
-                <Plus size={18} /> Registrar Medidas
+          <div className="nav-items">
+            <Tooltip content="Vista general y resumen" position="right">
+              <button
+                className={activeView === 'dashboard' ? 'active' : ''}
+                onClick={() => setActiveView('dashboard')}
+              >
+                <LayoutGrid size={20} /> Dashboard
               </button>
-            </header>
+            </Tooltip>
+            <Tooltip content="Registrar nuevas medidas corporales" position="right">
+              <button
+                className={activeView === 'new-entry' ? 'active' : ''}
+                onClick={() => setActiveView('new-entry')}
+              >
+                <Plus size={20} /> Nueva Medida
+              </button>
+            </Tooltip>
+            <Tooltip content="Ver historial de registros" position="right">
+              <button
+                className={activeView === 'history' ? 'active' : ''}
+                onClick={() => setActiveView('history')}
+              >
+                <History size={20} /> Historial
+              </button>
+            </Tooltip>
+            <Tooltip content="Análisis gráfico de tu progreso" position="right">
+              <button
+                className={activeView === 'analysis' ? 'active' : ''}
+                onClick={() => setActiveView('analysis')}
+              >
+                <Activity size={20} /> Análisis
+              </button>
+            </Tooltip>
+            <Tooltip content="Análisis de estructura ósea (Casey Butt)" position="right">
+              <button
+                className={activeView === 'potential' ? 'active' : ''}
+                onClick={() => setActiveView('potential')}
+              >
+                <Target size={20} /> Potencial
+              </button>
+            </Tooltip>
+            <Tooltip content="Comparativa visual de fotos" position="right">
+              <button
+                className={activeView === 'comparison' ? 'active' : ''}
+                onClick={() => setActiveView('comparison')}
+              >
+                <Camera size={20} /> Comparativa
+              </button>
+            </Tooltip>
+            <Tooltip content="Calculadora de BMR y TDEE" position="right">
+              <button
+                className={activeView === 'calculator' ? 'active' : ''}
+                onClick={() => setActiveView('calculator')}
+              >
+                <Calculator size={20} /> Calculadora
+              </button>
+            </Tooltip>
+            <Tooltip content="Definir metas de medidas" position="right">
+              <button
+                className={activeView === 'goals' ? 'active' : ''}
+                onClick={() => setActiveView('goals')}
+              >
+                <Target size={20} /> Objetivos
+              </button>
+            </Tooltip>
+          </div>
 
-            <div className="stats-row">
-              <div className="stat-card glass gold-border">
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  Último Registro
-                  <Tooltip content="Fecha de la última medición registrada." position="top">
-                    <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
-                  </Tooltip>
-                </label>
-                <div className="value">
-                  {latestRecord ? new Date(latestRecord.date).toLocaleDateString() : '--'}
+          <div className="nav-footer">
+            <div className="user-profile">
+              <div className={`user-avatar ${userSex}`}>
+                <User size={20} />
+              </div>
+              <div className="user-info">
+                <span className="name">{userName}</span>
+                <span className="status">{authUser ? 'Online' : 'Invitado'}</span>
+              </div>
+            </div>
+            <div className="gender-toggle">
+              <button
+                className={userSex === 'male' ? 'active' : ''}
+                onClick={() => updateProfile({ sex: 'male' })}
+              >M</button>
+              <button
+                className={userSex === 'female' ? 'active' : ''}
+                onClick={() => updateProfile({ sex: 'female' })}
+              >F</button>
+            </div>
+            <button className="btn-logout" onClick={handleLogOut}>
+              <LogOut size={20} /> Salir
+            </button>
+          </div>
+        </nav>
+
+        <main className="content">
+          {activeView === 'dashboard' && (
+            <div className="dashboard-grid animate-fade">
+              <header className="dash-header">
+                <div className="welcome-text">
+                  <h1>Hola, {userName} 👋</h1>
+                  <p>Tu evolución física en números reales.</p>
+                </div>
+                <button className="btn-primary" onClick={() => setActiveView('new-entry')}>
+                  <Plus size={18} /> Registrar Medidas
+                </button>
+              </header>
+
+              <div className="stats-row">
+                <div className="stat-card glass gold-border">
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    Último Registro
+                    <Tooltip content="Fecha de la última medición registrada." position="top">
+                      <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
+                    </Tooltip>
+                  </label>
+                  <div className="value">
+                    {latestRecord ? new Date(latestRecord.date).toLocaleDateString() : '--'}
+                  </div>
+                </div>
+                <div className="stat-card glass">
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    Total Registros
+                    <Tooltip content="Cantidad total de mediciones guardadas en el historial." position="top">
+                      <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
+                    </Tooltip>
+                  </label>
+                  <div className="value">{records.length}</div>
+                </div>
+
+              </div>
+
+              <div className="main-dashboard-content">
+                <div className="card silhouette-preview">
+                  <h3>Tu Silueta Actual</h3>
+                  {latestRecord ? (
+                    <VolumeHeatmap
+                      currentMeasurements={latestRecord.measurements}
+                      referenceMeasurements={records[records.length - 1]?.measurements}
+                      sex={userSex}
+                      onMarkerClick={() => setActiveView('analysis')}
+                    />
+                  ) : (
+                    <div className="placeholder-silhouette">
+                      <p>Registra medidas para ver tu silueta</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="card latest-summary">
+                  <h3>Últimos Valores</h3>
+                  {latestRecord ? (
+                    <ul className="summary-list">
+                      <ul className="summary-list">
+                        {[
+                          { key: 'height', label: 'Altura', unit: 'cm' },
+                          { key: 'weight', label: 'Peso', unit: 'kg', inverse: true },
+                          { key: 'bodyFat', label: 'Grasa', unit: '%', inverse: true },
+                          { key: 'neck', label: 'Cuello', unit: 'cm' },
+                          { key: 'back', label: 'Espalda', unit: 'cm' },
+                          { key: 'pecho', label: 'Pecho', unit: 'cm' },
+                          { key: 'waist', label: 'Cintura', unit: 'cm', inverse: true },
+                          { key: 'hips', label: 'Cadera', unit: 'cm', inverse: true },
+                          { key: 'arm.right', label: 'Bíceps (D)', unit: 'cm' },
+                          { key: 'arm.left', label: 'Bíceps (I)', unit: 'cm' },
+                          { key: 'forearm.right', label: 'Antebrazo (D)', unit: 'cm' },
+                          { key: 'forearm.left', label: 'Antebrazo (I)', unit: 'cm' },
+                          { key: 'thigh.right', label: 'Muslo (D)', unit: 'cm' },
+                          { key: 'thigh.left', label: 'Muslo (I)', unit: 'cm' },
+                          { key: 'calf.right', label: 'Gemelo (D)', unit: 'cm' },
+                          { key: 'calf.left', label: 'Gemelo (I)', unit: 'cm' },
+                        ].map(({ key, label, unit, inverse }) => {
+                          // Helper to get nested value
+                          const getValue = (record: any) => {
+                            if (!record) return undefined
+                            if (key.includes('.')) {
+                              const [k1, k2] = key.split('.')
+                              return record.measurements[k1]?.[k2] // Unsafe access fixed
+                            }
+                            return record.measurements[key]
+                          }
+
+                          const val = getValue(latestRecord)
+                          const prevVal = getValue(previousRecord)
+                          const history = records
+                            .map(r => getValue(r))
+                            .filter(v => typeof v === 'number')
+                            .reverse()
+                            .slice(-5)
+
+                          // Skip if no value ever recorded (except core ones maybe?) 
+                          // For now show all to encourage filling them, or maybe hide completely empty?
+                          // Let's show placeholders.
+
+                          return (
+                            <li key={key}>
+                              <span>{label}:</span>
+                              <div className="summary-val-wrap">
+                                {history.length > 1 && <Sparkline data={history} />}
+                                <strong>{val ?? '--'} {unit}</strong>
+                                <TrendIndicator
+                                  current={val}
+                                  previous={prevVal}
+                                  inverse={inverse}
+                                />
+                              </div>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </ul>
+                  ) : (
+                    <p>No hay datos recientes</p>
+                  )}
                 </div>
               </div>
-              <div className="stat-card glass">
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  Total Registros
-                  <Tooltip content="Cantidad total de mediciones guardadas en el historial." position="top">
-                    <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
-                  </Tooltip>
-                </label>
-                <div className="value">{records.length}</div>
-              </div>
-
             </div>
+          )}
 
-            <div className="main-dashboard-content">
-              <div className="card silhouette-preview">
-                <h3>Tu Silueta Actual</h3>
-                {latestRecord ? (
-                  <VolumeHeatmap
-                    currentMeasurements={latestRecord.measurements}
-                    referenceMeasurements={records[records.length - 1]?.measurements}
-                    sex={userSex}
-                    onMarkerClick={() => setActiveView('analysis')}
-                  />
-                ) : (
-                  <div className="placeholder-silhouette">
-                    <p>Registra medidas para ver tu silueta</p>
-                  </div>
-                )}
-              </div>
+          {activeView === 'new-entry' && (
+            <MeasurementForm
+              onSave={handleSave}
+              onCancel={() => {
+                setActiveView('dashboard')
+                setEditingRecord(null)
+              }}
+              previousRecord={latestRecord}
+              recordToEdit={editingRecord || undefined}
+              sex={userSex}
+            />
+          )}
 
-              <div className="card latest-summary">
-                <h3>Últimos Valores</h3>
-                {latestRecord ? (
-                  <ul className="summary-list">
-                    <ul className="summary-list">
-                      {[
-                        { key: 'height', label: 'Altura', unit: 'cm' },
-                        { key: 'weight', label: 'Peso', unit: 'kg', inverse: true },
-                        { key: 'bodyFat', label: 'Grasa', unit: '%', inverse: true },
-                        { key: 'neck', label: 'Cuello', unit: 'cm' },
-                        { key: 'back', label: 'Espalda', unit: 'cm' },
-                        { key: 'pecho', label: 'Pecho', unit: 'cm' },
-                        { key: 'waist', label: 'Cintura', unit: 'cm', inverse: true },
-                        { key: 'hips', label: 'Cadera', unit: 'cm', inverse: true },
-                        { key: 'arm.right', label: 'Bíceps (D)', unit: 'cm' },
-                        { key: 'arm.left', label: 'Bíceps (I)', unit: 'cm' },
-                        { key: 'forearm.right', label: 'Antebrazo (D)', unit: 'cm' },
-                        { key: 'forearm.left', label: 'Antebrazo (I)', unit: 'cm' },
-                        { key: 'thigh.right', label: 'Muslo (D)', unit: 'cm' },
-                        { key: 'thigh.left', label: 'Muslo (I)', unit: 'cm' },
-                        { key: 'calf.right', label: 'Gemelo (D)', unit: 'cm' },
-                        { key: 'calf.left', label: 'Gemelo (I)', unit: 'cm' },
-                      ].map(({ key, label, unit, inverse }) => {
-                        // Helper to get nested value
-                        const getValue = (record: any) => {
-                          if (!record) return undefined
-                          if (key.includes('.')) {
-                            const [k1, k2] = key.split('.')
-                            return record.measurements[k1]?.[k2] // Unsafe access fixed
-                          }
-                          return record.measurements[key]
-                        }
+          {activeView === 'history' && (
+            <HistoryView
+              records={records}
+              onDelete={deleteRecord}
+              onSelect={(record) => {
+                setEditingRecord(record)
+                setActiveView('new-entry')
+              }}
+            />
+          )}
 
-                        const val = getValue(latestRecord)
-                        const prevVal = getValue(previousRecord)
-                        const history = records
-                          .map(r => getValue(r))
-                          .filter(v => typeof v === 'number')
-                          .reverse()
-                          .slice(-5)
+          {activeView === 'analysis' && (
+            <AnalysisView records={records} goals={goals} sex={userSex} />
+          )}
 
-                        // Skip if no value ever recorded (except core ones maybe?) 
-                        // For now show all to encourage filling them, or maybe hide completely empty?
-                        // Let's show placeholders.
+          {activeView === 'goals' && (
+            <GoalsView
+              goals={goals}
+              onAddGoal={addGoal}
+              onDeleteGoal={deleteGoal}
+              latestRecord={latestRecord}
+              profile={profile}
+              records={records}
+            />
+          )}
+          {activeView === 'potential' && (
+            <SkeletalFrameView
+              baseline={profile?.baseline}
+              currentMeasurements={latestRecord?.measurements}
+              onSave={(baseline) => updateProfile({ baseline })}
+              sex={userSex}
+            />
+          )}
 
-                        return (
-                          <li key={key}>
-                            <span>{label}:</span>
-                            <div className="summary-val-wrap">
-                              {history.length > 1 && <Sparkline data={history} />}
-                              <strong>{val ?? '--'} {unit}</strong>
-                              <TrendIndicator
-                                current={val}
-                                previous={prevVal}
-                                inverse={inverse}
-                              />
-                            </div>
-                          </li>
-                        )
-                      })}
-                    </ul>
-                  </ul>
-                ) : (
-                  <p>No hay datos recientes</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+          {activeView === 'comparison' && (
+            <PhotoComparisonView records={records} />
+          )}
 
-        {activeView === 'new-entry' && (
-          <MeasurementForm
-            onSave={handleSave}
-            onCancel={() => {
-              setActiveView('dashboard')
-              setEditingRecord(null)
-            }}
-            previousRecord={latestRecord}
-            recordToEdit={editingRecord || undefined}
-            sex={userSex}
-          />
-        )}
+          {activeView === 'calculator' && (
+            <MetabolismCalculator
+              sex={userSex}
+              currentWeight={latestRecord?.measurements?.weight}
+              height={latestRecord?.measurements?.height}
+              // Calculate age if birthDate exists
+              age={profile?.birthDate ? new Date().getFullYear() - new Date(profile.birthDate).getFullYear() : undefined}
+              userId={authUser?.id}
+            />
+          )}
+        </main>
 
-        {activeView === 'history' && (
-          <HistoryView
-            records={records}
-            onDelete={deleteRecord}
-            onSelect={(record) => {
-              setEditingRecord(record)
-              setActiveView('new-entry')
-            }}
-          />
-        )}
+        <nav className="mobile-nav glass">
+          <button className={activeView === 'dashboard' ? 'active' : ''} onClick={() => setActiveView('dashboard')}>
+            <LayoutGrid size={24} />
+            <span>Inicio</span>
+          </button>
+          <button className={activeView === 'new-entry' ? 'active' : ''} onClick={() => setActiveView('new-entry')}>
+            <Plus size={24} />
+            <span>Nuevo</span>
+          </button>
+          <button className={activeView === 'history' ? 'active' : ''} onClick={() => setActiveView('history')}>
+            <History size={24} />
+            <span>Diario</span>
+          </button>
+          <button className={activeView === 'analysis' ? 'active' : ''} onClick={() => setActiveView('analysis')}>
+            <Activity size={24} />
+            <span>Análisis</span>
+          </button>
+          <button className={activeView === 'potential' ? 'active' : ''} onClick={() => setActiveView('potential')}>
+            <Target size={24} />
+            <span>Potencial</span>
+          </button>
+          <button className={activeView === 'comparison' ? 'active' : ''} onClick={() => setActiveView('comparison')}>
+            <Camera size={24} />
+            <span>Comparar</span>
+          </button>
+          <button className={activeView === 'calculator' ? 'active' : ''} onClick={() => setActiveView('calculator')}>
+            <Calculator size={24} />
+            <span>Calc.</span>
+          </button>
+          <button className={activeView === 'goals' ? 'active' : ''} onClick={() => setActiveView('goals')}>
+            <Target size={24} />
+            <span>Objetivos</span>
+          </button>
+          <button className="btn-logout-mobile" onClick={handleLogOut}>
+            <LogOut size={24} />
+            <span>Salir</span>
+          </button>
+        </nav>
 
-        {activeView === 'analysis' && (
-          <AnalysisView records={records} goals={goals} sex={userSex} />
-        )}
-
-        {activeView === 'goals' && (
-          <GoalsView
-            goals={goals}
-            onAddGoal={addGoal}
-            onDeleteGoal={deleteGoal}
-            latestRecord={latestRecord}
-            profile={profile}
-            records={records}
-          />
-        )}
-        {activeView === 'potential' && (
-          <SkeletalFrameView
-            baseline={profile?.baseline}
-            currentMeasurements={latestRecord?.measurements}
-            onSave={(baseline) => updateProfile({ baseline })}
-            sex={userSex}
-          />
-        )}
-
-        {activeView === 'comparison' && (
-          <PhotoComparisonView records={records} />
-        )}
-
-        {activeView === 'calculator' && (
-          <MetabolismCalculator
-            sex={userSex}
-            currentWeight={latestRecord?.measurements?.weight}
-            height={latestRecord?.measurements?.height}
-            // Calculate age if birthDate exists
-            age={profile?.birthDate ? new Date().getFullYear() - new Date(profile.birthDate).getFullYear() : undefined}
-            userId={authUser?.id}
-          />
-        )}
-      </main>
-
-      <nav className="mobile-nav glass">
-        <button className={activeView === 'dashboard' ? 'active' : ''} onClick={() => setActiveView('dashboard')}>
-          <LayoutGrid size={24} />
-          <span>Inicio</span>
-        </button>
-        <button className={activeView === 'new-entry' ? 'active' : ''} onClick={() => setActiveView('new-entry')}>
-          <Plus size={24} />
-          <span>Nuevo</span>
-        </button>
-        <button className={activeView === 'history' ? 'active' : ''} onClick={() => setActiveView('history')}>
-          <History size={24} />
-          <span>Diario</span>
-        </button>
-        <button className={activeView === 'analysis' ? 'active' : ''} onClick={() => setActiveView('analysis')}>
-          <Activity size={24} />
-          <span>Análisis</span>
-        </button>
-        <button className={activeView === 'potential' ? 'active' : ''} onClick={() => setActiveView('potential')}>
-          <Target size={24} />
-          <span>Potencial</span>
-        </button>
-        <button className={activeView === 'comparison' ? 'active' : ''} onClick={() => setActiveView('comparison')}>
-          <Camera size={24} />
-          <span>Comparar</span>
-        </button>
-        <button className={activeView === 'calculator' ? 'active' : ''} onClick={() => setActiveView('calculator')}>
-          <Calculator size={24} />
-          <span>Calc.</span>
-        </button>
-        <button className={activeView === 'goals' ? 'active' : ''} onClick={() => setActiveView('goals')}>
-          <Target size={24} />
-          <span>Objetivos</span>
-        </button>
-        <button className="btn-logout-mobile" onClick={handleLogOut}>
-          <LogOut size={24} />
-          <span>Salir</span>
-        </button>
-      </nav>
-
-      <style>{`
+        <style>{`
         .app-container {
           display: flex;
           min-height: 100vh;
@@ -793,7 +794,8 @@ function App() {
           }
         }
       `}</style>
-    </div>
+      </div>
+    </ToastProvider>
   )
 }
 
