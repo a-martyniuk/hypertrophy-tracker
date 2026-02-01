@@ -102,7 +102,12 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
         <div className="analysis-view animate-fade">
             <header className="view-header-stats">
                 <div className="stat-card-mini glass">
-                    <label>Indice W/H (Cintura/Cadera)</label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        Indice W/H (Cintura/Cadera)
+                        <AppTooltip content="Waist-to-Hip Ratio. Indicador de distribución de grasa y riesgo cardiovascular." position="top">
+                            <HelpCircle size={12} className="text-secondary opacity-60 cursor-help" />
+                        </AppTooltip>
+                    </label>
                     <div className="value">{whrValue}</div>
                     <span className="subtitle">
                         {Number(whrValue) < whrThreshold
@@ -113,12 +118,22 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                     </span>
                 </div>
                 <div className="stat-card-mini glass">
-                    <label>Ratio Brazo/Muñeca</label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        Ratio Brazo/Muñeca
+                        <AppTooltip content="Potencial genético estimado para el tamaño del brazo basado en el grosor de la muñeca." position="top">
+                            <HelpCircle size={12} className="text-secondary opacity-60 cursor-help" />
+                        </AppTooltip>
+                    </label>
                     <div className="value">{armPotential}</div>
                     <span className="subtitle">Potencial Genético</span>
                 </div>
                 <div className="stat-card-mini glass">
-                    <label>Evolución Tronco</label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        Evolución Tronco
+                        <AppTooltip content="Crecimiento promedio de la medida de pecho, espalda y cuello respecto al mes anterior." position="top">
+                            <HelpCircle size={12} className="text-secondary opacity-60 cursor-help" />
+                        </AppTooltip>
+                    </label>
                     <div className="value">
                         {latest && previous ? (((latest.measurements.pecho + latest.measurements.back) / 2) - ((previous.measurements.pecho + previous.measurements.back) / 2)).toFixed(1) : '0.0'}
                         <small>cm</small>
