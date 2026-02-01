@@ -312,19 +312,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
         </div>
       </div>
 
-      <div className="info-card glass mt-4">
-        <div className="flex gap-4">
-          <Activity className="text-primary shrink-0" size={24} />
-          <div>
-            <h4>¿Qué significa esto?</h4>
-            <p className="text-sm text-secondary">
-              Estas medidas representan el límite natural teórico para tu estructura ósea.
-              Mecánicamente, huesos más gruesos pueden soportar y anclar más masa muscular.
-              Llegar al 90-95% de estos valores es una hazaña de años de entrenamiento constante.
-            </p>
-          </div>
-        </div>
-      </div>
+
 
       <style>{`
         .skeletal-frame-view {
