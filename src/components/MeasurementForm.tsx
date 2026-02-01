@@ -8,6 +8,7 @@ import type { BodyPhoto } from '../types/measurements';
 import { MeasurementInput } from './measurement/MeasurementInput';
 import { MeasurementSection } from './measurement/MeasurementSection';
 import { useToast } from './ui/ToastProvider';
+import { useMeasurementLines } from '../hooks/useMeasurementLines';
 
 interface Props {
   onSave: (record: MeasurementRecord) => Promise<{ success: boolean; error?: any }>;
