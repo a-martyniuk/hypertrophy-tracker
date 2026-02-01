@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import type { GrowthGoal } from '../types/measurements';
 
@@ -7,7 +7,7 @@ const STORAGE_KEY = 'hypertrophy_goals';
 export const useGoals = (userId?: string) => {
     const [goals, setGoals] = useState<GrowthGoal[]>([]);
 
-    const fetchGoals = async () => {
+    const fetchGoals = useCallback(async () => {
         if (!userId) {
             console.log('[useGoals] No userId provided, fetching from local storage');
             const saved = localStorage.getItem(STORAGE_KEY);
@@ -23,13 +23,12 @@ export const useGoals = (userId?: string) => {
         const { data, error } = await supabase
             .from('growth_goals')
             .select('*')
-            .eq('user_id', userId) // Explicitly filter by userId just in case
+            .eq('user_id', userId)
             .order('created_at', { ascending: false });
 
         if (error) {
             console.error('[useGoals] Error fetching goals:', error);
         } else if (data) {
-            console.log(`[useGoals] Found ${data.length} goals for user ${userId}`);
             const mappedGoals: GrowthGoal[] = data.map((g: any) => ({
                 id: g.id,
                 userId: g.user_id,
@@ -41,7 +40,7 @@ export const useGoals = (userId?: string) => {
             }));
             setGoals(mappedGoals);
         }
-    };
+    }, [userId]);
 
     const addGoal = async (goal: Omit<GrowthGoal, 'id' | 'createdAt'>) => {
         console.log('[useGoals] Adding goal for user:', userId, goal);
@@ -93,7 +92,7 @@ export const useGoals = (userId?: string) => {
             .from('growth_goals')
             .delete()
             .eq('id', id)
-            .eq('user_id', userId); // Security: ensure we own it
+            .eq('user_id', userId);
 
         if (error) {
             console.error('[useGoals] Error deleting goal:', error);
@@ -103,7 +102,7 @@ export const useGoals = (userId?: string) => {
         }
     };
 
-    const syncLocalGoalsToCloud = async () => {
+    const syncLocalGoalsToCloud = useCallback(async () => {
         if (!userId) return;
 
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -114,6 +113,8 @@ export const useGoals = (userId?: string) => {
 
         console.log(`Syncing ${localGoals.length} goals to cloud for user ${userId}...`);
 
+        // We can't use addGoal here easily if it depends on state/other things, 
+        // but let's implement the core insert logic directly to avoid circular deps or complexity
         for (const goal of localGoals) {
             const { data: existing } = await supabase
                 .from('growth_goals')
@@ -124,22 +125,26 @@ export const useGoals = (userId?: string) => {
                 .maybeSingle();
 
             if (!existing) {
-                await addGoal(goal);
+                await supabase.from('growth_goals').insert({
+                    user_id: userId,
+                    measurement_type: goal.measurementType,
+                    target_value: goal.targetValue,
+                    target_date: goal.targetDate,
+                    status: goal.status
+                });
             }
         }
 
         localStorage.removeItem(STORAGE_KEY);
-        // fetchGoals() is called by useEffect when userId changes
-    };
+    }, [userId]);
 
-    // Watch for userId changes to refetch or sync
     useEffect(() => {
         if (userId) {
             syncLocalGoalsToCloud().then(() => fetchGoals());
         } else {
             fetchGoals();
         }
-    }, [userId]);
+    }, [userId, fetchGoals, syncLocalGoalsToCloud]);
 
     return {
         goals,

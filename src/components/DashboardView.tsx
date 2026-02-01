@@ -3,6 +3,8 @@ import { Plus, HelpCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { Tooltip } from './Tooltip';
 import { Skeleton } from './ui/Skeleton';
 import { VolumeHeatmap } from './VolumeHeatmap';
+import { HudCard } from './ui/HudCard';
+import { HudButton } from './ui/HudButton';
 import type { MeasurementRecord } from '../types/measurements';
 
 interface DashboardViewProps {
@@ -65,15 +67,14 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                     <h1>Hola, {userName} 👋</h1>
                     <p>Tu evolución física en números reales.</p>
                 </div>
-                <button className="btn-primary" onClick={() => navigate('/new-entry')}>
-                    <Plus size={18} /> Registrar Medidas
-                </button>
+                <HudButton onClick={() => navigate('/new-entry')} icon={<Plus size={18} />}>
+                    Registrar Medidas
+                </HudButton>
             </header>
 
             <div className="main-dashboard-content">
                 <div className="left-column">
-                    <div className="silhouette-card glass">
-                        <h3>Tu Silueta Actual</h3>
+                    <HudCard title="Tu Silueta Actual" className="silhouette-card">
                         <div className="silhouette-wrapper">
                             <VolumeHeatmap
                                 currentMeasurements={latestRecord?.measurements || {
@@ -86,7 +87,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                                 onMarkerClick={(zone) => navigate(`/analysis?muscle=${zone}`)}
                             />
                         </div>
-                    </div>
+                    </HudCard>
 
                     <div className="stats-mini-grid">
                         <div className="stat-card glass gold-border">
@@ -115,8 +116,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                 </div>
 
                 <div className="side-stats-column">
-                    <div className="card latest-summary glass" style={{ flex: 1, padding: '1.5rem', maxHeight: 'none', overflow: 'visible' }}>
-                        <h3>Últimos Valores</h3>
+                    <HudCard title="Últimos Valores" className="latest-summary" style={{ flex: 1, maxHeight: 'none', overflow: 'visible' }}>
                         {latestRecord ? (
                             <ul className="summary-list">
                                 {[
@@ -172,7 +172,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                         ) : (
                             <p>No hay datos recientes</p>
                         )}
-                    </div>
+                    </HudCard>
                 </div>
             </div>
             <style>{`
@@ -209,11 +209,6 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                      display: flex;
                      flex-direction: column;
                      gap: 1.5rem;
-                }
-
-                .silhouette-card {
-                     padding: 1.5rem;
-                     border-radius: 20px;
                 }
                 
                 .silhouette-wrapper {
@@ -261,7 +256,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                 }
 
                 .latest-summary {
-                    background: var(--surface-color);
+                    /* Overrides for hud card if needed */
                 }
 
                 .summary-list {

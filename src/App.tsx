@@ -17,6 +17,7 @@ import { useProfile } from './hooks/useProfile'
 import { AuthView } from './components/AuthView'
 import type { MeasurementRecord } from './types/measurements'
 import { Activity } from 'lucide-react'
+import { ErrorBoundary } from './components/ui/ErrorBoundary'
 
 function App() {
   const [isGuest, setIsGuest] = useState(false)
@@ -65,44 +66,52 @@ function App() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
         <Route path="/dashboard" element={
-          <DashboardView
-            userName={userName}
-            sex={userSex}
-            records={records}
-            loading={loading}
-          />
+          <ErrorBoundary>
+            <DashboardView
+              userName={userName}
+              sex={userSex}
+              records={records}
+              loading={loading}
+            />
+          </ErrorBoundary>
         } />
 
         <Route path="/new-entry" element={
-          <MeasurementForm
-            onSave={handleSave}
-            previousRecord={records[0]}
-            recordToEdit={editingRecord || undefined}
-            onCancel={() => {
-              setEditingRecord(null)
-              navigate('/history')
-            }}
-            sex={userSex}
-          />
+          <ErrorBoundary>
+            <MeasurementForm
+              onSave={handleSave}
+              previousRecord={records[0]}
+              recordToEdit={editingRecord || undefined}
+              onCancel={() => {
+                setEditingRecord(null)
+                navigate('/history')
+              }}
+              sex={userSex}
+            />
+          </ErrorBoundary>
         } />
 
         <Route path="/history" element={
-          <HistoryView
-            records={records}
-            onDelete={deleteRecord}
-            onSelect={(record) => {
-              setEditingRecord(record)
-              navigate('/new-entry')
-            }}
-          />
+          <ErrorBoundary>
+            <HistoryView
+              records={records}
+              onDelete={deleteRecord}
+              onSelect={(record) => {
+                setEditingRecord(record)
+                navigate('/new-entry')
+              }}
+            />
+          </ErrorBoundary>
         } />
 
         <Route path="/analysis" element={
-          <AnalysisView
-            records={records}
-            goals={goals}
-            sex={userSex}
-          />
+          <ErrorBoundary>
+            <AnalysisView
+              records={records}
+              goals={goals}
+              sex={userSex}
+            />
+          </ErrorBoundary>
         } />
 
         <Route path="/potential" element={

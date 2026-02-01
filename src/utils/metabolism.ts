@@ -23,7 +23,7 @@ export function calculateBMR(weight: number, height: number, age: number, sex: S
     // Mifflin-St Jeor
     // Men: (10 × weight) + (6.25 × height) − (5 × age) + 5
     // Women: (10 × weight) + (6.25 × height) − (5 × age) − 161
-    let bmr = (10 * weight) + (6.25 * height) - (5 * age)
+    const bmr = (10 * weight) + (6.25 * height) - (5 * age)
     return sex === 'male' ? bmr + 5 : bmr - 161
 }
 
