@@ -9,7 +9,6 @@
         "edit": "Edit",
         "settings": "Settings",
         "dashboard": "Dashboard",
-        "history": "History",
         "analysis": "Analysis",
         "genetics": "Genetics",
         "compare": "Compare",
@@ -232,3 +231,4 @@
             }
         }
     }
+}
