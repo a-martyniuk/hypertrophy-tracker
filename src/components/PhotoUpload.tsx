@@ -58,17 +58,15 @@ export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpd
           delete next[angle];
           return next;
         });
-      } else {
-        addToast(t('common.error'), 'error');
-        setLocalPreviews(prev => {
-          const next = { ...prev };
-          delete next[angle];
-          return next;
-        });
       }
-    } catch (err) {
-      console.error('Upload catch error:', err);
-      addToast(t('common.error'), 'error');
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      // More specific error for common setup issues
+      const msg = err.message?.includes('bucket') || err.message?.includes('not found')
+        ? 'Error: Cubeta "body_photos" no configurada'
+        : t('common.error');
+      addToast(msg, 'error');
+
       setLocalPreviews(prev => {
         const next = { ...prev };
         delete next[angle];
