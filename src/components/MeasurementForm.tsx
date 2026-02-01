@@ -473,17 +473,17 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
           <label>Observaciones</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Añade observaciones del registro..."></textarea>
         </div>
-
-        <section className="form-section photos-section glass">
-          <h3>Fotos de Progreso</h3>
-          <PhotoUpload
-            userId={user?.id || 'guest'}
-            recordId={recordToEdit?.id && recordToEdit.id !== 'new-record' ? recordToEdit.id : (previousRecord?.id || 'new-record')}
-            existingPhotos={photos}
-            onPhotosUpdated={setPhotos}
-          />
-        </section>
       </div>
+
+      <section className="form-section photos-section glass">
+        <h3>Fotos de Progreso</h3>
+        <PhotoUpload
+          userId={user?.id || 'guest'}
+          recordId={recordToEdit?.id && recordToEdit.id !== 'new-record' ? recordToEdit.id : (previousRecord?.id || 'new-record')}
+          existingPhotos={photos}
+          onPhotosUpdated={setPhotos}
+        />
+      </section>
 
       {error && (
         <div className="form-error-banner glass animate-fade">
