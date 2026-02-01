@@ -227,27 +227,77 @@ function App() {
                 </button>
               </header>
 
-              <div className="stats-row">
-                <div className="stat-card glass gold-border">
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    Último Registro
-                    <Tooltip content="Fecha de la última medición registrada." position="top">
-                      <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
-                    </Tooltip>
-                  </label>
-                  <div className="value">
-                    {loading ? <Skeleton width={100} height={24} /> : (latestRecord ? new Date(latestRecord.date).toLocaleDateString() : '--')}
+              <div className="main-dashboard-content">
+                <div className="silhouette-card glass">
+                  <h3>Tu Silueta Actual</h3>
+                  <div className="silhouette-wrapper">
+                    <DynamicSilhouette
+                      measurements={latestRecord?.measurements || {
+                        weight: 0, height: 0, bodyFat: 0, neck: 0, back: 0, pecho: 0, waist: 0, hips: 0,
+                        arm: { left: 0, right: 0 }, forearm: { left: 0, right: 0 }, wrist: { left: 0, right: 0 },
+                        thigh: { left: 0, right: 0 }, calf: { left: 0, right: 0 }, ankle: { left: 0, right: 0 }
+                      }}
+                      sex={userSex}
+                    />
                   </div>
                 </div>
-                <div className="stat-card glass">
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    Total Registros
-                    <Tooltip content="Cantidad total de mediciones guardadas en el historial." position="top">
-                      <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
-                    </Tooltip>
-                  </label>
-                  <div className="value">
-                    {loading ? <Skeleton width={40} height={24} /> : records.length}
+
+                <div className="side-stats-column">
+                  {/* Latest Values List */}
+                  <div className="latest-values-card glass">
+                    <h3>Últimos Valores</h3>
+                    <div className="values-list">
+                      <div className="value-row">
+                        <span>Altura:</span>
+                        <span className="val">{loading ? <Skeleton width={50} height={20} /> : (latestRecord?.measurements.height ? `${latestRecord.measurements.height} cm` : <button className="btn-link-small" onClick={() => setActiveView('new-entry')}>Registrar</button>)}</span>
+                      </div>
+                      <div className="value-row">
+                        <span>Peso:</span>
+                        <span className="val">{loading ? <Skeleton width={50} height={20} /> : (latestRecord?.measurements.weight ? `${latestRecord.measurements.weight} kg` : <button className="btn-link-small" onClick={() => setActiveView('new-entry')}>Registrar</button>)}</span>
+                      </div>
+                      <div className="value-row">
+                        <span>Grasa:</span>
+                        <span className="val">{loading ? <Skeleton width={50} height={20} /> : (latestRecord?.measurements.bodyFat ? `${latestRecord.measurements.bodyFat} %` : <button className="btn-link-small" onClick={() => setActiveView('new-entry')}>Registrar</button>)}</span>
+                      </div>
+                      <div className="value-row">
+                        <span>Cintura:</span>
+                        <span className="val">{loading ? <Skeleton width={50} height={20} /> : (latestRecord?.measurements.waist ? `${latestRecord.measurements.waist} cm` : '--')}</span>
+                      </div>
+                      <div className="value-row">
+                        <span>Pecho:</span>
+                        <span className="val">{loading ? <Skeleton width={50} height={20} /> : (latestRecord?.measurements.pecho ? `${latestRecord.measurements.pecho} cm` : '--')}</span>
+                      </div>
+                      <div className="value-row">
+                        <span>Brazos:</span>
+                        <span className="val">{loading ? <Skeleton width={50} height={20} /> : (latestRecord?.measurements.arm.right ? `${latestRecord.measurements.arm.right} cm` : '--')}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Moved Stats Cards */}
+                  <div className="stats-mini-grid">
+                    <div className="stat-card glass gold-border">
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        Último Registro
+                        <Tooltip content="Fecha de la última medición registrada." position="top">
+                          <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
+                        </Tooltip>
+                      </label>
+                      <div className="value">
+                        {loading ? <Skeleton width={100} height={24} /> : (latestRecord ? new Date(latestRecord.date).toLocaleDateString() : '--')}
+                      </div>
+                    </div>
+                    <div className="stat-card glass">
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        Total Registros
+                        <Tooltip content="Cantidad total de mediciones guardadas en el historial." position="top">
+                          <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
+                        </Tooltip>
+                      </label>
+                      <div className="value">
+                        {loading ? <Skeleton width={40} height={24} /> : records.length}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
