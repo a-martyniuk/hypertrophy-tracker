@@ -226,7 +226,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
           <div className="ieo-main-score">
             <div className="ieo-value-row">
               <span className="ieo-number">{ieo.value}</span>
-              <span className="ieo-label">{ieo.label}</span>
+              <span className="ieo-label">{t(`genetics.ieo.${ieo.label}`)}</span>
             </div>
             {ieo.isAdvantage && (
               <div className="advantage-badge">

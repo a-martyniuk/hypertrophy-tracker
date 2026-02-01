@@ -60,7 +60,16 @@
             "thigh": "MUSLO",
             "calf": "PANTORRILLA",
             "ankle": "TOBILLO",
-            "errors_banner": "Por favor corrige los errores (valores negativos o inválidos)."
+            "errors_banner": "Por favor corrige los errores (valores negativos o inválidos).",
+            "physiological_state": "Estado Fisiológico",
+            "current_condition": "Condición Actual",
+            "sleep_hours": "Horas de Sueño",
+            "observations": "Observaciones",
+            "observations_placeholder": "Añade observaciones del registro...",
+            "photos_title": "Fotos de Progreso",
+            "btn_confirm": "Confirmar Registro",
+            "btn_cancel": "Salir",
+            "saving": "Guardando..."
         },
         "history": {
             "title": "Historial de Medidas",
@@ -249,6 +258,12 @@
             "genetic_potential": "Potencial Genético",
             "waist_chest_ratio": "Ratio Cintura/Pecho",
             "v_shape": "Estética (V-Shape)"
+        },
+        "legend": {
+            "loss": "Pérdida (<99%)",
+            "stable": "Estable (±1%)",
+            "growth": "Crecimiento (>1%)",
+            "hypertrophy": "Hipertrofia (>2,5%)"
         }
     },
     "genetics": {

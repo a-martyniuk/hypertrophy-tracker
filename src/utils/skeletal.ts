@@ -72,14 +72,14 @@ export const calculateIEO = (wrist: number, ankle: number, sex: 'male' | 'female
         : { small: 18, med: 20, large: 22 };
 
     if (ieo < ranges.small) {
-        label = 'Pequeña';
+        label = 'small';
     } else if (ieo < ranges.med) {
-        label = 'Mediana';
+        label = 'medium';
     } else if (ieo < ranges.large) {
-        label = 'Grande';
+        label = 'large';
         isAdvantage = true;
     } else {
-        label = 'Muy Grande';
+        label = 'very_large';
         isAdvantage = true;
     }
 

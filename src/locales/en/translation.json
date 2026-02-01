@@ -60,7 +60,16 @@
             "thigh": "THIGH",
             "calf": "CALF",
             "ankle": "ANKLE",
-            "errors_banner": "Please fix errors (negative or invalid values)."
+            "errors_banner": "Please fix errors (negative or invalid values).",
+            "physiological_state": "Physiological State",
+            "current_condition": "Current Condition",
+            "sleep_hours": "Sleep Hours",
+            "observations": "Observations",
+            "observations_placeholder": "Add notes about this record...",
+            "photos_title": "Progress Photos",
+            "btn_confirm": "Confirm Record",
+            "btn_cancel": "Exit",
+            "saving": "Saving..."
         },
         "history": {
             "title": "Measurement History",
@@ -263,6 +272,12 @@
             "genetic_potential": "Genetic Potential",
             "waist_chest_ratio": "Waist/Chest Ratio",
             "v_shape": "Aesthetics (V-Shape)"
+        },
+        "legend": {
+            "loss": "Loss (<99%)",
+            "stable": "Stable (±1%)",
+            "growth": "Growth (>1%)",
+            "hypertrophy": "Hypertrophy (>2.5%)"
         }
     },
     "genetics": {
