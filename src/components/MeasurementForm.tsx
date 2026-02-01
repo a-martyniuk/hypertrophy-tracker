@@ -36,7 +36,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
   });
 
   const containerRef = useRef<HTMLFormElement>(null);
-  const [lines, setLines] = useState<ConnectorLine[]>([]);
+  const lines = useMeasurementLines(containerRef, measurements, sex);
 
   // MEASUREMENTS: Initialize from recordToEdit (Edit Mode) OR previousRecord (Prefill Mode) OR Zeros (Fresh)
   const sourceRecord = recordToEdit || previousRecord;
