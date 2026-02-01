@@ -5,7 +5,7 @@ import { useStorage } from '../hooks/useStorage';
 import { useToast } from './ui/ToastProvider';
 import type { BodyPhoto, PhotoAngle } from '../types/measurements';
 
-const BUCKET_NAME = 'BODY_PHOTOS';
+const BUCKET_NAME = 'body_photos';
 
 interface Props {
   userId: string;
@@ -62,12 +62,10 @@ export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpd
         });
       }
     } catch (err: any) {
-      console.error('Upload error:', err);
-      // More specific error for common setup issues
-      const msg = err.message?.includes('bucket') || err.message?.includes('not found')
-        ? 'Error: Cubeta "body_photos" no configurada'
-        : t('common.error');
-      addToast(msg, 'error');
+      console.error('Upload error details:', err);
+      // Show the actual error message for better debugging
+      const errorDetail = err.message || JSON.stringify(err);
+      addToast(`Error al subir: ${errorDetail}`, 'error');
 
       setLocalPreviews(prev => {
         const next = { ...prev };
