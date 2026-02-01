@@ -38,9 +38,14 @@ export const useProfile = () => {
             if (error) throw error;
 
             if (data) {
+                // Self-healing: If name became 'User' due to previous bug, restore from email
+                const cleanName = (data.name === 'User' && user.email)
+                    ? user.email.split('@')[0]
+                    : data.name;
+
                 setProfile({
                     id: data.id,
-                    name: data.name,
+                    name: cleanName,
                     sex: data.sex,
                     birthDate: data.birth_date,
                     baseline: data.baseline
@@ -61,17 +66,21 @@ export const useProfile = () => {
     };
 
     const updateProfile = async (updates: Partial<UserProfile>) => {
+        // 0. Get user context first to ensure we have correct defaults
+        // This is slightly less optimistic but prevents data corruption (e.g. overwriting name with 'User')
+        const { data: { user } } = await supabase.auth.getUser();
+
         // 1. Snapshot previous state for rollback
         const previousProfile = profile;
 
         // 2. Create optimistic new state
-        // We merge existing profile with updates. 
-        // If profile is null (unlikely if interacting), we try to construct a partial one.
+        const defaultName = user?.email?.split('@')[0] || 'Atleta';
+
         const newProfile: UserProfile = profile
             ? { ...profile, ...updates }
             : {
-                id: 'temp',
-                name: 'User',
+                id: user?.id || 'temp', // Use real ID if available
+                name: defaultName,      // Use email-derived name instead of 'User'
                 sex: 'male',
                 ...updates
             } as UserProfile;
@@ -80,8 +89,6 @@ export const useProfile = () => {
         setProfile(newProfile);
 
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-
             if (!user) {
                 // Guest mode: persist to local storage
                 localStorage.setItem('hypertrophy_profile', JSON.stringify(newProfile));
@@ -89,7 +96,6 @@ export const useProfile = () => {
             }
 
             // 4. Perform DB update
-            // We use the optimistic values or fallback to current state for non-updated fields
             const { error } = await supabase
                 .from('profiles')
                 .upsert({
@@ -102,17 +108,12 @@ export const useProfile = () => {
                 });
 
             if (error) throw error;
-
-            // 5. Optionally re-fetch to ensure sync (e.g. triggers, server-side defaults)
-            // We skip this for simple fields like sex to avoid flickering if DB is slightly behind,
-            // but strictly we should. Let's rely on the optimistic update for now for smoothness.
-            // fetchProfile(); 
         } catch (err) {
             console.error('[useProfile] Error updating profile:', err);
             // 6. Rollback on error
             setProfile(previousProfile);
             // Optionally notify user here if we had a toast system
-            alert('Error updating profile. Please check your connection.');
+            // alert('Error updating profile. Please check your connection.');
         }
     };
 
