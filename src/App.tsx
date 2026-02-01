@@ -18,7 +18,6 @@ import { Tooltip } from './components/Tooltip'
 import { ToastProvider } from './components/ui/ToastProvider'
 import { AuthView } from './components/AuthView'
 import { Skeleton, SkeletonStyles } from './components/ui/Skeleton'
-import { DynamicSilhouette } from './components/DynamicSilhouette'
 
 
 type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals' | 'potential' | 'comparison' | 'calculator'
@@ -232,47 +231,78 @@ function App() {
                 <div className="silhouette-card glass">
                   <h3>Tu Silueta Actual</h3>
                   <div className="silhouette-wrapper">
-                    <DynamicSilhouette
-                      measurements={latestRecord?.measurements || {
+                    <VolumeHeatmap
+                      currentMeasurements={latestRecord?.measurements || {
                         weight: 0, height: 0, bodyFat: 0, neck: 0, back: 0, pecho: 0, waist: 0, hips: 0,
                         arm: { left: 0, right: 0 }, forearm: { left: 0, right: 0 }, wrist: { left: 0, right: 0 },
                         thigh: { left: 0, right: 0 }, calf: { left: 0, right: 0 }, ankle: { left: 0, right: 0 }
                       }}
+                      referenceMeasurements={records[records.length - 1]?.measurements}
                       sex={userSex}
+                      onMarkerClick={() => setActiveView('analysis')}
                     />
                   </div>
                 </div>
 
                 <div className="side-stats-column">
-                  {/* Latest Values List */}
-                  <div className="latest-values-card glass">
+                  {/* Latest Values List with Sparklines & Trend */}
+                  <div className="card latest-summary glass" style={{ flex: 1, padding: '1.5rem', maxHeight: 'none', overflow: 'visible' }}>
                     <h3>Últimos Valores</h3>
-                    <div className="values-list">
-                      <div className="value-row">
-                        <span>Altura:</span>
-                        <span className="val">{loading ? <Skeleton width={50} height={20} /> : (latestRecord?.measurements.height ? `${latestRecord.measurements.height} cm` : <button className="btn-link-small" onClick={() => setActiveView('new-entry')}>Registrar</button>)}</span>
-                      </div>
-                      <div className="value-row">
-                        <span>Peso:</span>
-                        <span className="val">{loading ? <Skeleton width={50} height={20} /> : (latestRecord?.measurements.weight ? `${latestRecord.measurements.weight} kg` : <button className="btn-link-small" onClick={() => setActiveView('new-entry')}>Registrar</button>)}</span>
-                      </div>
-                      <div className="value-row">
-                        <span>Grasa:</span>
-                        <span className="val">{loading ? <Skeleton width={50} height={20} /> : (latestRecord?.measurements.bodyFat ? `${latestRecord.measurements.bodyFat} %` : <button className="btn-link-small" onClick={() => setActiveView('new-entry')}>Registrar</button>)}</span>
-                      </div>
-                      <div className="value-row">
-                        <span>Cintura:</span>
-                        <span className="val">{loading ? <Skeleton width={50} height={20} /> : (latestRecord?.measurements.waist ? `${latestRecord.measurements.waist} cm` : '--')}</span>
-                      </div>
-                      <div className="value-row">
-                        <span>Pecho:</span>
-                        <span className="val">{loading ? <Skeleton width={50} height={20} /> : (latestRecord?.measurements.pecho ? `${latestRecord.measurements.pecho} cm` : '--')}</span>
-                      </div>
-                      <div className="value-row">
-                        <span>Brazos:</span>
-                        <span className="val">{loading ? <Skeleton width={50} height={20} /> : (latestRecord?.measurements.arm.right ? `${latestRecord.measurements.arm.right} cm` : '--')}</span>
-                      </div>
-                    </div>
+                    {latestRecord ? (
+                      <ul className="summary-list">
+                        {[
+                          { key: 'height', label: 'Altura', unit: 'cm' },
+                          { key: 'weight', label: 'Peso', unit: 'kg', inverse: true },
+                          { key: 'bodyFat', label: 'Grasa', unit: '%', inverse: true },
+                          { key: 'neck', label: 'Cuello', unit: 'cm' },
+                          { key: 'pecho', label: 'Pecho', unit: 'cm' },
+                          { key: 'waist', label: 'Cintura', unit: 'cm', inverse: true },
+                          { key: 'hips', label: 'Cadera', unit: 'cm', inverse: true },
+                          { key: 'arm.right', label: 'Bíceps (D)', unit: 'cm' },
+                          { key: 'forearm.right', label: 'Antebrazo (D)', unit: 'cm' },
+                          { key: 'thigh.right', label: 'Muslo (D)', unit: 'cm' },
+                          { key: 'calf.right', label: 'Gemelo (D)', unit: 'cm' },
+                        ].map(({ key, label, unit, inverse }) => {
+                          const getValue = (record: any) => {
+                            if (!record) return undefined
+                            if (key.includes('.')) {
+                              const [k1, k2] = key.split('.')
+                              return record.measurements[k1]?.[k2]
+                            }
+                            return record.measurements[key]
+                          }
+
+                          const val = getValue(latestRecord)
+                          const prevVal = getValue(previousRecord)
+                          const history = records
+                            .map(r => getValue(r))
+                            .filter(v => typeof v === 'number')
+                            .reverse()
+                            .slice(-5)
+
+                          const hasValue = val !== undefined && val !== 0;
+
+                          return (
+                            <li key={key}>
+                              <span>{label}:</span>
+                              <div className="summary-val-wrap">
+                                {history.length > 1 && <Sparkline data={history} />}
+                                {hasValue ? (
+                                  <>
+                                    <strong>{val} {unit}</strong>
+                                    <TrendIndicator current={val} previous={prevVal} inverse={inverse} />
+                                  </>
+                                ) : (
+                                  <button className="btn-tiny-action" onClick={() => setActiveView('new-entry')}>Registrar</button>
+                                )}
+                              </div>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    ) : (
+                      <p>No hay datos recientes</p>
+                    )}
                   </div>
 
                   {/* Moved Stats Cards */}
@@ -300,98 +330,6 @@ function App() {
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              <div className="main-dashboard-content">
-                <div className="card silhouette-preview">
-                  <h3>Tu Silueta Actual</h3>
-                  {latestRecord ? (
-                    <VolumeHeatmap
-                      currentMeasurements={latestRecord.measurements}
-                      referenceMeasurements={records[records.length - 1]?.measurements}
-                      sex={userSex}
-                      onMarkerClick={() => setActiveView('analysis')}
-                    />
-                  ) : (
-                    <div className="placeholder-silhouette">
-                      <p>Registra medidas para ver tu silueta</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="card latest-summary">
-                  <h3>Últimos Valores</h3>
-                  {latestRecord ? (
-                    <ul className="summary-list">
-                      {[
-                        { key: 'height', label: 'Altura', unit: 'cm' },
-                        { key: 'weight', label: 'Peso', unit: 'kg', inverse: true },
-                        { key: 'bodyFat', label: 'Grasa', unit: '%', inverse: true },
-                        { key: 'neck', label: 'Cuello', unit: 'cm' },
-                        { key: 'back', label: 'Espalda', unit: 'cm' },
-                        { key: 'pecho', label: 'Pecho', unit: 'cm' },
-                        { key: 'waist', label: 'Cintura', unit: 'cm', inverse: true },
-                        { key: 'hips', label: 'Cadera', unit: 'cm', inverse: true },
-                        { key: 'arm.right', label: 'Bíceps (D)', unit: 'cm' },
-                        { key: 'arm.left', label: 'Bíceps (I)', unit: 'cm' },
-                        { key: 'forearm.right', label: 'Antebrazo (D)', unit: 'cm' },
-                        { key: 'forearm.left', label: 'Antebrazo (I)', unit: 'cm' },
-                        { key: 'thigh.right', label: 'Muslo (D)', unit: 'cm' },
-                        { key: 'thigh.left', label: 'Muslo (I)', unit: 'cm' },
-                        { key: 'calf.right', label: 'Gemelo (D)', unit: 'cm' },
-                        { key: 'calf.left', label: 'Gemelo (I)', unit: 'cm' },
-                      ].map(({ key, label, unit, inverse }) => {
-                        // Helper to get nested value
-                        const getValue = (record: any) => {
-                          if (!record) return undefined
-                          if (key.includes('.')) {
-                            const [k1, k2] = key.split('.')
-                            return record.measurements[k1]?.[k2]
-                          }
-                          return record.measurements[key]
-                        }
-
-                        const val = getValue(latestRecord)
-                        const prevVal = getValue(previousRecord)
-                        const history = records
-                          .map(r => getValue(r))
-                          .filter(v => typeof v === 'number')
-                          .reverse()
-                          .slice(-5)
-
-                        const hasValue = val !== undefined && val !== 0;
-
-                        return (
-                          <li key={key}>
-                            <span>{label}:</span>
-                            <div className="summary-val-wrap">
-                              {history.length > 1 && <Sparkline data={history} />}
-                              {hasValue ? (
-                                <>
-                                  <strong>{val} {unit}</strong>
-                                  <TrendIndicator
-                                    current={val}
-                                    previous={prevVal}
-                                    inverse={inverse}
-                                  />
-                                </>
-                              ) : (
-                                <button
-                                  className="btn-tiny-action"
-                                  onClick={() => setActiveView('new-entry')}
-                                >
-                                  Registrar
-                                </button>
-                              )}
-                            </div>
-                          </li>
-                        )
-                      })}
-                    </ul>
-                  ) : (
-                    <p>No hay datos recientes</p>
-                  )}
                 </div>
               </div>
             </div>
