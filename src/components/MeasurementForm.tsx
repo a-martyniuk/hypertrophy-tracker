@@ -775,12 +775,23 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
                 @media (max-width: 1000px) {
                     .form-layout-editor {
                         grid-template-columns: 1fr;
-                        gap: 1.5rem;
+                        gap: 2rem;
                     }
-                    /* .connector-overlay { display: none; }  Removed to show arrows on mobile */
+                    .connector-overlay { display: none; }
                     .editor-center {
                         order: -1;
-                        min-height: 300px;
+                        min-height: auto;
+                        padding: 1rem;
+                        margin-bottom: 1rem;
+                    }
+                    .hud-column {
+                        gap: 1rem;
+                    }
+                    .form-section {
+                        background: rgba(255, 255, 255, 0.03);
+                        padding: 1rem;
+                        border-radius: 12px;
+                        border: 1px solid rgba(255, 255, 255, 0.05);
                     }
                 }
             `}</style>
