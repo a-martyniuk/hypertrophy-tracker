@@ -162,15 +162,18 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('[GoalsView] Submitting new goal:', newGoal);
         try {
             setSubmitting(true);
             await onAddGoal({
                 userId: 'default-user',
                 ...newGoal
             });
+            console.log('[GoalsView] Add goal success, closing form');
             setIsAdding(false);
         } catch (error) {
-            console.error("Failed to add goal", error);
+            console.error("[GoalsView] Failed to add goal:", error);
+            // alert("Error al guardar la meta. Revisa la consola."); // Optional: verify if alert helps
         } finally {
             setSubmitting(false);
         }

@@ -4,28 +4,32 @@ import type { GrowthGoal } from '../types/measurements';
 
 const STORAGE_KEY = 'hypertrophy_goals';
 
-export const useGoals = () => {
+export const useGoals = (userId?: string) => {
     const [goals, setGoals] = useState<GrowthGoal[]>([]);
 
     const fetchGoals = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
+        if (!userId) {
+            console.log('[useGoals] No userId provided, fetching from local storage');
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 setGoals(JSON.parse(saved));
+            } else {
+                setGoals([]);
             }
             return;
         }
 
+        console.log('[useGoals] Fetching goals for user:', userId);
         const { data, error } = await supabase
             .from('growth_goals')
             .select('*')
+            .eq('user_id', userId) // Explicitly filter by userId just in case
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error('Error fetching goals:', error);
+            console.error('[useGoals] Error fetching goals:', error);
         } else if (data) {
+            console.log(`[useGoals] Found ${data.length} goals for user ${userId}`);
             const mappedGoals: GrowthGoal[] = data.map((g: any) => ({
                 id: g.id,
                 userId: g.user_id,
@@ -40,13 +44,15 @@ export const useGoals = () => {
     };
 
     const addGoal = async (goal: Omit<GrowthGoal, 'id' | 'createdAt'>) => {
-        const { data: { user } } = await supabase.auth.getUser();
+        console.log('[useGoals] Adding goal for user:', userId, goal);
 
-        if (!user) {
+        if (!userId) {
+            console.log('[useGoals] No user, saving to local storage');
             const newGoal: GrowthGoal = {
                 ...goal,
                 id: crypto.randomUUID(),
                 createdAt: new Date().toISOString(),
+                userId: 'guest'
             };
             const newGoals = [newGoal, ...goals];
             setGoals(newGoals);
@@ -54,28 +60,29 @@ export const useGoals = () => {
             return;
         }
 
-        const { error } = await supabase
+        console.log('[useGoals] Attempting Supabase insert...');
+        const { data, error } = await supabase
             .from('growth_goals')
             .insert({
-                user_id: user.id,
+                user_id: userId,
                 measurement_type: goal.measurementType,
                 target_value: goal.targetValue,
                 target_date: goal.targetDate,
                 status: goal.status
-            });
+            })
+            .select();
 
         if (error) {
-            console.error('Error adding goal:', error);
+            console.error('[useGoals] Supabase insert error:', error);
             throw error;
         } else {
+            console.log('[useGoals] Insert successful, fetching updated goals...', data);
             await fetchGoals();
         }
     };
 
     const deleteGoal = async (id: string) => {
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
+        if (!userId) {
             const newGoals = goals.filter(g => g.id !== id);
             setGoals(newGoals);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(newGoals));
@@ -85,10 +92,11 @@ export const useGoals = () => {
         const { error } = await supabase
             .from('growth_goals')
             .delete()
-            .eq('id', id);
+            .eq('id', id)
+            .eq('user_id', userId); // Security: ensure we own it
 
         if (error) {
-            console.error('Error deleting goal:', error);
+            console.error('[useGoals] Error deleting goal:', error);
             throw error;
         } else {
             await fetchGoals();
@@ -96,8 +104,7 @@ export const useGoals = () => {
     };
 
     const syncLocalGoalsToCloud = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!userId) return;
 
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) return;
@@ -105,14 +112,13 @@ export const useGoals = () => {
         const localGoals: GrowthGoal[] = JSON.parse(saved);
         if (localGoals.length === 0) return;
 
-        console.log(`Syncing ${localGoals.length} goals to cloud...`);
+        console.log(`Syncing ${localGoals.length} goals to cloud for user ${userId}...`);
 
         for (const goal of localGoals) {
-            // Simple deduplication by type and value
             const { data: existing } = await supabase
                 .from('growth_goals')
                 .select('id')
-                .eq('user_id', user.id)
+                .eq('user_id', userId)
                 .eq('measurement_type', goal.measurementType)
                 .eq('target_value', goal.targetValue)
                 .maybeSingle();
@@ -123,28 +129,22 @@ export const useGoals = () => {
         }
 
         localStorage.removeItem(STORAGE_KEY);
-        fetchGoals();
+        // fetchGoals() is called by useEffect when userId changes
     };
 
+    // Watch for userId changes to refetch or sync
     useEffect(() => {
-        fetchGoals();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
-            if (event === 'SIGNED_IN') {
-                await syncLocalGoalsToCloud();
-            } else {
-                fetchGoals();
-            }
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
+        if (userId) {
+            syncLocalGoalsToCloud().then(() => fetchGoals());
+        } else {
+            fetchGoals();
+        }
+    }, [userId]);
 
     return {
         goals,
         addGoal,
         deleteGoal,
-        syncLocalGoalsToCloud,
         refresh: fetchGoals
     };
 };

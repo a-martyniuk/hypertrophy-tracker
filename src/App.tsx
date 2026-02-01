@@ -41,7 +41,7 @@ function App() {
   }, [authUser])
 
   const { profile, updateProfile } = useProfile()
-  const { goals, addGoal, deleteGoal } = useGoals()
+  const { goals, addGoal, deleteGoal } = useGoals(authUser?.id)
 
   const userSex = profile?.sex || 'male'
   const userName = profile?.name || authUser?.email?.split('@')[0] || 'Atleta'
