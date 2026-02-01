@@ -4,7 +4,7 @@ export const useStorage = () => {
     const uploadPhoto = async (file: File, path: string) => {
         try {
             const { data, error } = await supabase.storage
-                .from('body_photos')
+                .from('BODY_PHOTOS')
                 .upload(path, file, {
                     cacheControl: '3600',
                     upsert: true
@@ -16,7 +16,7 @@ export const useStorage = () => {
             }
 
             const { data: { publicUrl } } = supabase.storage
-                .from('body_photos')
+                .from('BODY_PHOTOS')
                 .getPublicUrl(data.path);
 
             return publicUrl;
@@ -28,7 +28,7 @@ export const useStorage = () => {
 
     const deletePhoto = async (path: string) => {
         const { error } = await supabase.storage
-            .from('body_photos')
+            .from('BODY_PHOTOS')
             .remove([path]);
 
         if (error) {

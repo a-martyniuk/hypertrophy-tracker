@@ -5,6 +5,8 @@ import { useStorage } from '../hooks/useStorage';
 import { useToast } from './ui/ToastProvider';
 import type { BodyPhoto, PhotoAngle } from '../types/measurements';
 
+const BUCKET_NAME = 'BODY_PHOTOS';
+
 interface Props {
   userId: string;
   recordId: string;
@@ -78,11 +80,14 @@ export const PhotoUpload = ({ userId, recordId, existingPhotos = [], onPhotosUpd
   };
 
   const removePhoto = async (photo: BodyPhoto) => {
-    // Extract path from URL (Supabase path is typically at the end)
-    const urlParts = photo.url.split('body_photos/');
-    const path = urlParts[1];
+    // Extract path from URL - more robust parsing
+    // Split by the bucket name regardless of case if possible, or just the known structure
+    const searchStr = `${BUCKET_NAME}/`;
+    const lowerUrl = photo.url.toLowerCase();
+    const index = lowerUrl.indexOf(searchStr.toLowerCase());
 
-    if (path) {
+    if (index !== -1) {
+      const path = photo.url.substring(index + searchStr.length);
       await deletePhoto(path);
       const updatedPhotos = existingPhotos.filter(p => p.id !== photo.id);
       onPhotosUpdated(updatedPhotos);
