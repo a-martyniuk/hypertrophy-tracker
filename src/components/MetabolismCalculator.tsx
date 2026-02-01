@@ -175,7 +175,12 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
 
                 <div className="input-grid">
                     <div className="input-group">
-                        <label>Tipo</label>
+                        <label className="flex items-center gap-2">
+                            Tipo
+                            <Tooltip content="El tipo de entrenamiento afecta el gasto calórico por hora." position="top">
+                                <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
+                            </Tooltip>
+                        </label>
                         <select value={trainingType} onChange={(e: any) => setTrainingType(e.target.value)}>
                             <option value="strength">Fuerza / Pesas</option>
                             <option value="cardio">Cardio / Resistencia</option>
@@ -183,15 +188,30 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                         </select>
                     </div>
                     <div className="input-group">
-                        <label>Sesiones / Semana</label>
+                        <label className="flex items-center gap-2">
+                            Sesiones / Semana
+                            <Tooltip content="Número de días que entrenas a la semana." position="top">
+                                <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
+                            </Tooltip>
+                        </label>
                         <input type="number" value={trainingFreq} onChange={e => setTrainingFreq(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
-                        <label>Duración (horas)</label>
+                        <label className="flex items-center gap-2">
+                            Duración (horas)
+                            <Tooltip content="Duración promedio de una sesión (sin contar vestuario/ducha)." position="top">
+                                <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
+                            </Tooltip>
+                        </label>
                         <input type="number" step="0.5" value={sessionDuration} onChange={e => setSessionDuration(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
-                        <label>Intensidad</label>
+                        <label className="flex items-center gap-2">
+                            Intensidad
+                            <Tooltip content="RPE (Esfuerzo Percibido). Baja (paseo), Media (gym normal), Alta (Crossfit/HIIT real)." position="top">
+                                <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
+                            </Tooltip>
+                        </label>
                         <select value={intensity} onChange={(e: any) => setIntensity(e.target.value)}>
                             <option value="low">Baja (RPE 1-4)</option>
                             <option value="medium">Media (RPE 5-7)</option>
