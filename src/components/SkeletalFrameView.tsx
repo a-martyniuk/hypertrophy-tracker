@@ -302,7 +302,11 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
                     <span className="potential-val">Máx {value} cm</span>
                   </div>
                   <div style={{ width: '100%' }}>
-                    <AppTooltip content={`Actual: ${currentVal ? currentVal.toFixed(1) : '--'} cm`} position="top">
+                    <AppTooltip
+                      content={`Actual: ${currentVal ? currentVal.toFixed(1) : '--'} cm`}
+                      position="top"
+                      containerStyle={{ width: '100%', display: 'block' }}
+                    >
                       <div className="progress-bar-container" style={{ cursor: 'help' }}>
                         <div className="progress-bar" style={{ width: `${Math.min(progress, 100)}%` }}></div>
                         <span className="progress-pct">{progress.toFixed(0)}%</span>
@@ -335,6 +339,12 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
           border-radius: 16px;
           padding: 1.5rem;
           border: 1px solid rgba(255, 255, 255, 0.05);
+          position: relative;
+          z-index: 1;
+          transition: transform 0.2s ease, z-index 0s;
+        }
+        .card:hover {
+            z-index: 10;
         }
         .card-header h3 {
           font-size: 0.8rem;

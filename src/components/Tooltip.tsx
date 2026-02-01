@@ -1,36 +1,38 @@
 import React, { useState } from 'react'
 
 interface TooltipProps {
-    content: string | React.ReactNode
-    children: React.ReactNode
-    position?: 'top' | 'bottom' | 'left' | 'right'
-    width?: string
+  content: string | React.ReactNode
+  children: React.ReactNode
+  position?: 'top' | 'bottom' | 'left' | 'right'
+  width?: string
+  containerStyle?: React.CSSProperties
 }
 
-export function Tooltip({ content, children, position = 'top', width = 'max-content' }: TooltipProps) {
-    const [isVisible, setIsVisible] = useState(false)
+export function Tooltip({ content, children, position = 'top', width = 'max-content', containerStyle = {} }: TooltipProps) {
+  const [isVisible, setIsVisible] = useState(false)
 
-    const show = () => setIsVisible(true)
-    const hide = () => setIsVisible(false)
+  const show = () => setIsVisible(true)
+  const hide = () => setIsVisible(false)
 
-    return (
-        <div
-            className="tooltip-wrapper"
-            onMouseEnter={show}
-            onMouseLeave={hide}
-            onClick={() => setIsVisible(!isVisible)} // Mobile toggle
-            style={{ position: 'relative', display: 'inline-flex' }}
-        >
-            {children}
+  return (
+    <div
+      className="tooltip-wrapper"
+      onMouseEnter={show}
+      onMouseLeave={hide}
+      onClick={() => setIsVisible(!isVisible)} // Mobile toggle
+      onClick={() => setIsVisible(!isVisible)} // Mobile toggle
+      style={{ position: 'relative', display: 'inline-flex', ...containerStyle }}
+    >
+      {children}
 
-            {isVisible && (
-                <div className={`tooltip-content ${position}`}>
-                    {content}
-                    <div className="tooltip-arrow" />
-                </div>
-            )}
+      {isVisible && (
+        <div className={`tooltip-content ${position}`}>
+          {content}
+          <div className="tooltip-arrow" />
+        </div>
+      )}
 
-            <style>{`
+      <style>{`
         .tooltip-content {
           position: absolute;
           background: rgba(13, 13, 15, 0.95);
@@ -86,6 +88,6 @@ export function Tooltip({ content, children, position = 'top', width = 'max-cont
         .tooltip-content.bottom { animation-name: fadeBottom; }
         @keyframes fadeBottom { from { opacity: 0; transform: translateX(-50%) translateY(0); } to { opacity: 1; transform: translateX(-50%) translateY(8px); } }
       `}</style>
-        </div>
-    )
+    </div>
+  )
 }
