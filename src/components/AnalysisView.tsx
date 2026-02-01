@@ -358,6 +358,14 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
+            position: relative;
+            z-index: 1;
+            transition: all 0.2s ease;
+        }
+        .stat-card-mini:hover {
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.03);
+            transform: translateY(-2px);
         }
         .stat-card-mini label {
             font-size: 0.65rem;
