@@ -104,8 +104,46 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                 <div className="stat-card-mini glass">
                     <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         Indice W/H (Cintura/Cadera)
-                        <AppTooltip content="Waist-to-Hip Ratio. Indicador de distribución de grasa y riesgo cardiovascular." position="bottom">
-                            <HelpCircle size={12} className="text-secondary opacity-60 cursor-help" />
+                        <AppTooltip
+                            width="300px"
+                            content={
+                                <div className="text-xs space-y-2">
+                                    <p className="font-bold border-b border-white/10 pb-1 mb-2">RANGOS CLÍNICOS (HOMBRES)</p>
+
+                                    <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 items-start">
+                                        <span className="text-emerald-400 font-bold whitespace-nowrap">≤ 0.89</span>
+                                        <div>
+                                            <span className="text-emerald-400 font-bold">Bajo Riesgo</span>
+                                            <ul className="list-disc pl-3 opacity-70 text-[10px] leading-tight space-y-1 mt-1">
+                                                <li>Buena distribución de grasa</li>
+                                                <li>Predominio subcutáneo</li>
+                                                <li>Menor riesgo cardiometabólico</li>
+                                            </ul>
+                                        </div>
+
+                                        <span className="text-yellow-400 font-bold whitespace-nowrap">0.90 - 0.94</span>
+                                        <div>
+                                            <span className="text-yellow-400 font-bold">Riesgo Moderado</span>
+                                            <ul className="list-disc pl-3 opacity-70 text-[10px] leading-tight space-y-1 mt-1">
+                                                <li>Inicio de acumulación central</li>
+                                                <li>Grasa visceral en aumento</li>
+                                            </ul>
+                                        </div>
+
+                                        <span className="text-red-400 font-bold whitespace-nowrap">≥ 0.95</span>
+                                        <div>
+                                            <span className="text-red-400 font-bold">Riesgo Elevado</span>
+                                            <ul className="list-disc pl-3 opacity-70 text-[10px] leading-tight space-y-1 mt-1">
+                                                <li>Alta probabilidad de grasa visceral</li>
+                                                <li>Mayor riesgo: Resistencia a la insulina, Hipertensión, Enfermedad cardiovascular</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            position="bottom"
+                        >
+                            <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
                         </AppTooltip>
                     </label>
                     <div className="value">{whrValue}</div>
@@ -120,7 +158,47 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                 <div className="stat-card-mini glass">
                     <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         Ratio Brazo/Muñeca
-                        <AppTooltip content="Potencial genético estimado para el tamaño del brazo basado en el grosor de la muñeca." position="bottom">
+                        <AppTooltip
+                            width="300px"
+                            content={
+                                <div className="text-xs space-y-2">
+                                    <p className="font-bold border-b border-white/10 pb-1 mb-2">POTENCIAL ESTRUCTURAL (BRAZOS)</p>
+
+                                    <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 items-start">
+                                        <span className="text-red-400 font-bold whitespace-nowrap">≤ 2.1</span>
+                                        <div>
+                                            <span className="text-red-400 font-bold">Bajo potencial</span>
+                                            <ul className="list-disc pl-3 opacity-70 text-[10px] leading-tight space-y-1 mt-1">
+                                                <li>Estructura fina</li>
+                                                <li>Brazos grandes se ven "llenos" pero no masivos</li>
+                                            </ul>
+                                        </div>
+
+                                        <span className="text-yellow-400 font-bold whitespace-nowrap">2.2 - 2.4</span>
+                                        <div>
+                                            <span className="text-yellow-400 font-bold">Potencial medio</span>
+                                            <ul className="list-disc pl-3 opacity-70 text-[10px] leading-tight space-y-1 mt-1">
+                                                <li>Buen balance estructura / músculo</li>
+                                                <li>Físico atlético sólido</li>
+                                            </ul>
+                                        </div>
+
+                                        <span className="text-emerald-400 font-bold whitespace-nowrap">≥ 2.5</span>
+                                        <div>
+                                            <span className="text-emerald-400 font-bold">Alto potencial</span>
+                                            <ul className="list-disc pl-3 opacity-70 text-[10px] leading-tight space-y-1 mt-1">
+                                                <li>Muñeca gruesa + gran masa muscular</li>
+                                                <li>Brazos con look "culturista"</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div className="mt-2 pt-2 border-t border-white/10 text-[10px] opacity-60 italic">
+                                        ⚠️ Ojo: no es un límite genético duro, es potencial visual y estructural.
+                                    </div>
+                                </div>
+                            }
+                            position="bottom"
+                        >
                             <HelpCircle size={12} className="text-secondary opacity-60 cursor-help" />
                         </AppTooltip>
                     </label>
