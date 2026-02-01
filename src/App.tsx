@@ -7,16 +7,17 @@ import { GoalsView } from './components/GoalsView'
 import { VolumeHeatmap } from './components/VolumeHeatmap'
 import { SkeletalFrameView } from './components/SkeletalFrameView'
 import { PhotoComparisonView } from './components/PhotoComparisonView'
+import { MetabolismCalculator } from './components/MetabolismCalculator'
 import { useGoals } from './hooks/useGoals'
 import { useAuth } from './hooks/useAuth'
 import { useProfile } from './hooks/useProfile'
 import type { MeasurementRecord } from './types/measurements'
-import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus, Camera } from 'lucide-react'
+import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus, Camera, Calculator } from 'lucide-react'
 
 import { AuthView } from './components/AuthView'
 
 
-type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals' | 'potential' | 'comparison'
+type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals' | 'potential' | 'comparison' | 'calculator'
 
 function App() {
   const [activeView, setActiveView] = useState<View>('dashboard')
@@ -152,6 +153,12 @@ function App() {
             onClick={() => setActiveView('comparison')}
           >
             <Camera size={20} /> Comparativa
+          </button>
+          <button
+            className={activeView === 'calculator' ? 'active' : ''}
+            onClick={() => setActiveView('calculator')}
+          >
+            <Calculator size={20} /> Calculadora
           </button>
           <button
             className={activeView === 'goals' ? 'active' : ''}
@@ -346,6 +353,16 @@ function App() {
         {activeView === 'comparison' && (
           <PhotoComparisonView records={records} />
         )}
+
+        {activeView === 'calculator' && (
+          <MetabolismCalculator
+            sex={userSex}
+            currentWeight={latestRecord?.measurements?.weight}
+            height={latestRecord?.measurements?.height}
+            // Calculate age if birthDate exists
+            age={profile?.birthDate ? new Date().getFullYear() - new Date(profile.birthDate).getFullYear() : undefined}
+          />
+        )}
       </main>
 
       <nav className="mobile-nav glass">
@@ -372,6 +389,10 @@ function App() {
         <button className={activeView === 'comparison' ? 'active' : ''} onClick={() => setActiveView('comparison')}>
           <Camera size={24} />
           <span>Comparar</span>
+        </button>
+        <button className={activeView === 'calculator' ? 'active' : ''} onClick={() => setActiveView('calculator')}>
+          <Calculator size={24} />
+          <span>Calc.</span>
         </button>
         <button className={activeView === 'goals' ? 'active' : ''} onClick={() => setActiveView('goals')}>
           <Target size={24} />
