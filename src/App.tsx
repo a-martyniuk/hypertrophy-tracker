@@ -12,7 +12,7 @@ import { useGoals } from './hooks/useGoals'
 import { useAuth } from './hooks/useAuth'
 import { useProfile } from './hooks/useProfile'
 import type { MeasurementRecord } from './types/measurements'
-import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus, Camera, Calculator, HelpCircle } from 'lucide-react'
+import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus, Camera, Calculator, HelpCircle, Dna } from 'lucide-react'
 import { Tooltip } from './components/Tooltip'
 
 import { ToastProvider } from './components/ui/ToastProvider'
@@ -159,7 +159,7 @@ function App() {
                 className={activeView === 'potential' ? 'active' : ''}
                 onClick={() => setActiveView('potential')}
               >
-                <Target size={20} /> Potencial
+                <Dna size={20} /> Genética
               </button>
             </Tooltip>
             <Tooltip content="Comparativa visual de fotos" position="right">
@@ -175,7 +175,7 @@ function App() {
                 className={activeView === 'calculator' ? 'active' : ''}
                 onClick={() => setActiveView('calculator')}
               >
-                <Calculator size={20} /> Calculadora
+                <Calculator size={20} /> Metabolismo
               </button>
             </Tooltip>
             <Tooltip content="Definir metas de medidas" position="right">
@@ -418,8 +418,8 @@ function App() {
             <span>Análisis</span>
           </button>
           <button className={activeView === 'potential' ? 'active' : ''} onClick={() => setActiveView('potential')}>
-            <Target size={24} />
-            <span>Potencial</span>
+            <Dna size={24} />
+            <span>Genética</span>
           </button>
           <button className={activeView === 'comparison' ? 'active' : ''} onClick={() => setActiveView('comparison')}>
             <Camera size={24} />
@@ -427,7 +427,7 @@ function App() {
           </button>
           <button className={activeView === 'calculator' ? 'active' : ''} onClick={() => setActiveView('calculator')}>
             <Calculator size={24} />
-            <span>Calc.</span>
+            <span>Metab.</span>
           </button>
           <button className={activeView === 'goals' ? 'active' : ''} onClick={() => setActiveView('goals')}>
             <Target size={24} />
