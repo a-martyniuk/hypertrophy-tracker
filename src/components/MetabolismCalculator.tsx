@@ -77,7 +77,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
     }, [weight, height, age, sex, neatLevel, trainingType, trainingFreq, sessionDuration, intensity])
 
     const InfoCard = ({ title, value, unit, icon: Icon, subtext, color = 'var(--text-primary)', tooltip }: any) => (
-        <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div className="card glass info-card-interactive" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', position: 'relative' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                 <Icon size={16} />
                 {title}
@@ -391,6 +391,17 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 1rem;
+        }
+
+        .info-card-interactive {
+          transition: transform 0.2s, background 0.2s, z-index 0s;
+          z-index: 1;
+        }
+
+        .info-card-interactive:hover {
+          z-index: 10;
+          transform: translateY(-2px);
+          background: var(--surface-hover);
         }
       `}</style>
         </div>
