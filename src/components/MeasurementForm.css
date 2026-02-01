@@ -352,4 +352,9 @@
         flex: 1;
         justify-content: center;
     }
+
+    .form-secondary-inputs {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
 }

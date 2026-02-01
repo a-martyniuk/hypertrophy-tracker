@@ -95,40 +95,18 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                 </main>
 
                 <nav className="mobile-nav glass">
-                    <button className={activeView === 'dashboard' ? 'active' : ''} onClick={() => navigate('dashboard')}>
-                        <LayoutGrid size={24} />
-                        <span>Inicio</span>
-                    </button>
-                    <button className={activeView === 'new-entry' ? 'active' : ''} onClick={() => navigate('new-entry')}>
-                        <Plus size={24} />
-                        <span>Nuevo</span>
-                    </button>
-                    <button className={activeView === 'history' ? 'active' : ''} onClick={() => navigate('history')}>
-                        <History size={24} />
-                        <span>Diario</span>
-                    </button>
-                    <button className={activeView === 'analysis' ? 'active' : ''} onClick={() => navigate('analysis')}>
-                        <Activity size={24} />
-                        <span>Análisis</span>
-                    </button>
-                    <button className={activeView === 'potential' ? 'active' : ''} onClick={() => navigate('potential')}>
-                        <Dna size={24} />
-                        <span>Genética</span>
-                    </button>
-                    <button className={activeView === 'comparison' ? 'active' : ''} onClick={() => navigate('comparison')}>
-                        <Camera size={24} />
-                        <span>Comparar</span>
-                    </button>
-                    <button className={activeView === 'calculator' ? 'active' : ''} onClick={() => navigate('calculator')}>
-                        <Calculator size={24} />
-                        <span>Metab.</span>
-                    </button>
-                    <button className={activeView === 'goals' ? 'active' : ''} onClick={() => navigate('goals')}>
-                        <Target size={24} />
-                        <span>Objetivos</span>
-                    </button>
+                    {navigationItems.map(item => (
+                        <button
+                            key={item.path}
+                            className={activeView === item.path ? 'active' : ''}
+                            onClick={() => navigate(item.path)}
+                        >
+                            <item.icon size={22} />
+                            <span>{item.label === 'Nueva Medida' ? 'Nuevo' : item.label}</span>
+                        </button>
+                    ))}
                     <button className="btn-logout-mobile" onClick={handleLogOut}>
-                        <LogOut size={24} />
+                        <LogOut size={22} />
                         <span>Salir</span>
                     </button>
                 </nav>
@@ -146,15 +124,29 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                     bottom: 0;
                     left: 0;
                     width: 100%;
-                    justify-content: space-around;
                     padding: 0.8rem;
                     z-index: 100;
                     border-top: 1px solid var(--border-color);
-                    background: rgba(0,0,0,0.8);
+                    background: rgba(3, 3, 5, 0.95);
                     backdrop-filter: blur(20px);
+                    
+                    /* Scrolling for many items */
+                    overflow-x: auto;
+                    white-space: nowrap;
+                    justify-content: flex-start;
+                    gap: 1.2rem;
+                    
+                    /* Hide scrollbar structure */
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+                
+                .mobile-nav::-webkit-scrollbar {
+                    display: none;
                 }
 
                 .mobile-nav button {
+                    flex: 0 0 auto; /* Don't shrink */
                     display: flex;
                     flex-direction: column;
                     align-items: center;
@@ -162,9 +154,10 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                     background: none;
                     border: none;
                     color: var(--text-secondary);
-                    font-size: 0.7rem;
+                    font-size: 0.65rem;
                     padding: 0.5rem;
                     border-radius: 8px;
+                    min-width: 60px;
                 }
 
                 .mobile-nav button.active {

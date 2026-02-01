@@ -322,6 +322,10 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                         align-items: flex-start;
                         gap: 1rem;
                     }
+                    
+                    .stats-mini-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
             `}</style>
         </div>
