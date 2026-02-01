@@ -10,7 +10,7 @@ interface LayoutProps {
     setIsGuest: (val: boolean) => void;
 }
 
-export const Layout = ({ isGuest, setIsGuest }: LayoutProps) => {
+export const Layout = ({ setIsGuest }: LayoutProps) => {
     const navigate = useNavigate()
     const location = useLocation()
     const activeView = location.pathname.slice(1) || 'dashboard'

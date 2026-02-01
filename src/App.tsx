@@ -37,7 +37,7 @@ function App() {
     if (authUser) setIsGuest(false)
   }, [authUser])
 
-  const { profile } = useProfile()
+  const { profile, updateProfile } = useProfile()
   const { goals, addGoal, deleteGoal } = useGoals(authUser?.id)
 
   const userSex = profile?.sex || 'male'
@@ -105,11 +105,16 @@ function App() {
         } />
 
         <Route path="/potential" element={
-          <SkeletalFrameView />
+          <SkeletalFrameView
+            baseline={profile?.baseline}
+            currentMeasurements={records[0]?.measurements}
+            sex={userSex}
+            onSave={(baseline) => updateProfile({ baseline })}
+          />
         } />
 
         <Route path="/comparison" element={
-          <PhotoComparisonView />
+          <PhotoComparisonView records={records} />
         } />
 
         <Route path="/calculator" element={
