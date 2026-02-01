@@ -155,5 +155,18 @@
 
     .stats-mini-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .silhouette-wrapper {
+        min-height: 320px;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .card {
+        padding: 1.25rem;
     }
 }

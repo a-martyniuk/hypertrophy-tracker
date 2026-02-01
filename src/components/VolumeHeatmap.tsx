@@ -260,8 +260,8 @@ export const VolumeHeatmap = ({ currentMeasurements, referenceMeasurements, sex 
             align-items: center;
         }
         .volume-svg {
-            height: 100%;
-            max-height: 550px;
+            height: auto;
+            max-height: 350px;
             filter: drop-shadow(0 0 20px rgba(0,0,0,0.5));
         }
         .zone-hitbox {
@@ -273,15 +273,9 @@ export const VolumeHeatmap = ({ currentMeasurements, referenceMeasurements, sex 
             stroke-width: 2;
         }
         .heatmap-legend {
-            margin-top: 1rem;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            background: rgba(0,0,0,0.3);
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.05);
+            margin-top: 0.5rem;
+            gap: 0.5rem;
+            padding: 0.4rem 0.75rem;
         }
         .legend-item {
             display: flex;
