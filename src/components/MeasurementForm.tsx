@@ -777,7 +777,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
                         grid-template-columns: 1fr;
                         gap: 1.5rem;
                     }
-                    .connector-overlay { display: none; }
+                    /* .connector-overlay { display: none; }  Removed to show arrows on mobile */
                     .editor-center {
                         order: -1;
                         min-height: 300px;
