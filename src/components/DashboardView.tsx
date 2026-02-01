@@ -86,7 +86,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                                     arm: { left: 0, right: 0 }, forearm: { left: 0, right: 0 }, wrist: { left: 0, right: 0 },
                                     thigh: { left: 0, right: 0 }, calf: { left: 0, right: 0 }, ankle: { left: 0, right: 0 }
                                 }}
-                                referenceMeasurements={records[records.length - 1]?.measurements}
+                                referenceMeasurements={records[1]?.measurements || records[0]?.measurements}
                                 sex={sex}
                                 onMarkerClick={(zone) => navigate(`/analysis?muscle=${zone}`)}
                             />
