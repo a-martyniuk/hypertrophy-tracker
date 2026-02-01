@@ -12,15 +12,15 @@ Este documento contiene el material visual y narrativo para la exposición del p
 
 ### 1. Dashboard de Control Maestro
 ![Dashboard Heatmap](promo/dashboard.png)
-*Visualización en tiempo real con heatmap de progresión acumulada.*
+*Captura real de la visualización HUD con heatmap de progresión acumulada.*
 
 ### 2. Anatomía de Precisión
 ![Muscle Map](promo/muscle_map.png)
-*Guía integrada para estandarizar cada medición y asegurar datos científicos.*
+*Captura real de la guía integrada para estandarizar mediciones.*
 
 ### 3. Evolución Visual
 ![Photo Comparison](promo/comparison.png)
-*Comparador lado a lado con sincronización en la nube vía Supabase.*
+*Captura real del módulo de análisis fotográfico sincronizado.*
 
 ---
 

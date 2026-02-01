@@ -48,13 +48,16 @@ El proyecto utiliza una arquitectura moderna enfocada en la velocidad y la exper
 
 ---
 
-## 📸 Vista Previa (Screenshots)
+## 📸 Galería (Capturas Reales)
 
-*Para añadir tus screenshots, simplemente reemplaza las rutas a continuación:*
+*Nota: Para una exposición auténtica, captura pantallas reales de tu app corriendo en local o en el demo live y guárdalas en la carpeta `promo/` con estos nombres:*
 
 | Dashboard & Heatmap | Registro de Medidas | Potencial Genético |
 | :---: | :---: | :---: |
-| ![Dashboard](https://via.placeholder.com/300x600/131315/f59e0b?text=Dashboard+Heatmap) | ![Formulario](https://via.placeholder.com/300x600/131315/f59e0b?text=Nueva+Medida) | ![Potencial](https://via.placeholder.com/300x600/131315/f59e0b?text=Analisis+Genetico) |
+| ![Dashboard](promo/dashboard.png) | ![Formulario](promo/formulario.png) | ![Potencial](promo/potencial.png) |
+
+> [!TIP]
+> Te recomiendo tomar las capturas desde un dispositivo móvil para resaltar el diseño **Mobile-First** y el acabado **HUD**.
 
 ---
 
