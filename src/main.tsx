@@ -4,10 +4,14 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 
+import { ProfileProvider } from './context/ProfileContext'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <ProfileProvider>
+        <App />
+      </ProfileProvider>
     </BrowserRouter>
   </StrictMode>,
 )
