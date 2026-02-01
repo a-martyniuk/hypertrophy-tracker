@@ -48,16 +48,20 @@ El proyecto utiliza una arquitectura moderna enfocada en la velocidad y la exper
 
 ---
 
-## 📸 Galería (Capturas Reales)
+## 📸 Galería del Proyecto
 
-*Nota: Para una exposición auténtica, captura pantallas reales de tu app corriendo en local o en el demo live y guárdalas en la carpeta `promo/` con estos nombres:*
+Aquí puedes ver la interfaz real "Premium Amber HUD":
 
-| Dashboard & Heatmap | Registro de Medidas | Potencial Genético |
+| Dashboard & Heatmap | Auditoría Corporal (HUD) | Historial de Medidas |
 | :---: | :---: | :---: |
-| ![Dashboard](promo/dashboard.png) | ![Formulario](promo/formulario.png) | ![Potencial](promo/potencial.png) |
+| ![Dashboard](promo/dashboard.png) | ![Formulario](promo/formulario.png) | ![Historial](promo/historial.png) |
+
+| Centro de Objetivos | Configuración & Cloud |
+| :---: | :---: |
+| ![Objetivos](promo/objetivos.png) | ![Configuración](promo/config.png) |
 
 > [!TIP]
-> Te recomiendo tomar las capturas desde un dispositivo móvil para resaltar el diseño **Mobile-First** y el acabado **HUD**.
+> El diseño está optimizado para dispositivos móviles, ofreciendo una experiencia táctica y fluida durante el entrenamiento.
 
 ---
 

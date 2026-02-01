@@ -12,15 +12,15 @@ Este documento contiene el material visual y narrativo para la exposición del p
 
 ### 1. Dashboard de Control Maestro
 ![Dashboard Heatmap](promo/dashboard.png)
-*Captura real de la visualización HUD con heatmap de progresión acumulada.*
+*Visualización HUD 100% real con el heatmap dinámico de progresión.*
 
-### 2. Anatomía de Precisión
-![Muscle Map](promo/muscle_map.png)
-*Captura real de la guía integrada para estandarizar mediciones.*
+### 2. Auditoría Corporal Interactiva
+![Formulario](promo/formulario.png)
+*Interfaz táctica para el registro preciso de perímetros y pliegues.*
 
-### 3. Evolución Visual
-![Photo Comparison](promo/comparison.png)
-*Captura real del módulo de análisis fotográfico sincronizado.*
+### 3. Centro de Inteligencia y Objetivos
+![Objetivos](promo/objetivos.png)
+*Monitoreo de metas basado en datos y potencial genético real.*
 
 ---
 
