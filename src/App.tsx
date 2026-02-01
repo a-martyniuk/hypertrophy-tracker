@@ -18,7 +18,7 @@ import { Tooltip } from './components/Tooltip'
 import { ToastProvider } from './components/ui/ToastProvider'
 import { AuthView } from './components/AuthView'
 import { Skeleton, SkeletonStyles } from './components/ui/Skeleton'
-import DynamicSilhouette from './components/DynamicSilhouette'
+import { DynamicSilhouette } from './components/DynamicSilhouette'
 
 
 type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals' | 'potential' | 'comparison' | 'calculator'
