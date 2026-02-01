@@ -1,0 +1,47 @@
+{
+    "common": {
+        "welcome": "Welcome",
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "settings": "Settings",
+        "dashboard": "Dashboard",
+        "history": "History",
+        "analysis": "Analysis",
+        "genetics": "Genetics",
+        "compare": "Compare",
+        "metabolism": "Metabolism",
+        "goals": "Goals",
+        "new_entry": "New Entry",
+        "logout": "Log Out",
+        "tooltips": {
+            "dashboard": "Overview and summary",
+            "new_entry": "Log new body measurements",
+            "history": "View measurement history",
+            "analysis": "Graphical analysis of your progress",
+            "genetics": "Bone structure analysis (Casey Butt)",
+            "compare": "Visual photo comparison",
+            "metabolism": "BMR and TDEE Calculator",
+            "goals": "Define measurement goals",
+            "settings": "Export/Import Data"
+        }
+    },
+    "dashboard": {
+        "greeting": "Hello",
+        "last_record": "Last Record",
+        "total_records": "Total Records",
+        "latest_values": "Latest Values"
+    },
+    "settings": {
+        "title": "Settings & Data",
+        "export": "Export Data",
+        "export_desc": "Download a complete backup of your profile, history, and goals.",
+        "import": "Import Data",
+        "import_desc": "Restore your data from a backup file.",
+        "language": "Language",
+        "language_desc": "Select your preferred language."
+    }
+}

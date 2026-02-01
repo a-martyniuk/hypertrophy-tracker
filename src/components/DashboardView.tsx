@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Plus, HelpCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 import { Skeleton } from './ui/Skeleton';
@@ -56,6 +57,7 @@ const Sparkline = ({ data }: { data: number[] }) => {
 };
 
 export const DashboardView = ({ userName, sex, records, loading }: DashboardViewProps) => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const latestRecord = records[0];
     const previousRecord = records[1];
@@ -64,7 +66,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
         <div className="dashboard-grid animate-fade">
             <header className="dash-header">
                 <div className="welcome-text">
-                    <h1>Hola, {userName} 👋</h1>
+                    <h1>{t('dashboard.greeting')}, {userName} 👋</h1>
                     <p>Tu evolución física en números reales.</p>
                 </div>
                 <HudButton onClick={() => navigate('/new-entry')} icon={<Plus size={18} />}>
@@ -92,7 +94,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                     <div className="stats-mini-grid">
                         <div className="stat-card glass gold-border">
                             <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                Último Registro
+                                {t('dashboard.last_record')}
                                 <Tooltip content="Fecha de la última medición registrada." position="top">
                                     <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
                                 </Tooltip>
@@ -103,7 +105,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                         </div>
                         <div className="stat-card glass">
                             <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                Total Registros
+                                {t('dashboard.total_records')}
                                 <Tooltip content="Cantidad total de mediciones guardadas en el historial." position="top">
                                     <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
                                 </Tooltip>
@@ -116,7 +118,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                 </div>
 
                 <div className="side-stats-column">
-                    <HudCard title="Últimos Valores" className="latest-summary" style={{ flex: 1, maxHeight: 'none', overflow: 'visible' }}>
+                    <HudCard title={t('dashboard.latest_values')} className="latest-summary" style={{ flex: 1, maxHeight: 'none', overflow: 'visible' }}>
                         {latestRecord ? (
                             <ul className="summary-list">
                                 {[

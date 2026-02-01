@@ -1,0 +1,47 @@
+{
+    "common": {
+        "welcome": "Bienvenido",
+        "loading": "Cargando...",
+        "error": "Ocurrió un error",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "edit": "Editar",
+        "settings": "Configuración",
+        "dashboard": "Inicio",
+        "history": "Historial",
+        "analysis": "Análisis",
+        "genetics": "Genética",
+        "compare": "Comparar",
+        "metabolism": "Metabolismo",
+        "goals": "Objetivos",
+        "new_entry": "Nueva Medida",
+        "logout": "Salir",
+        "tooltips": {
+            "dashboard": "Vista general y resumen",
+            "new_entry": "Registrar nuevas medidas corporales",
+            "history": "Ver historial de registros",
+            "analysis": "Análisis gráfico de tu progreso",
+            "genetics": "Análisis de estructura ósea (Casey Butt)",
+            "compare": "Comparativa visual de fotos",
+            "metabolism": "Calculadora de BMR y TDEE",
+            "goals": "Definir metas de medidas",
+            "settings": "Exportar/Importar Datos"
+        }
+    },
+    "dashboard": {
+        "greeting": "Hola",
+        "last_record": "Último Registro",
+        "total_records": "Total Registros",
+        "latest_values": "Últimos Valores"
+    },
+    "settings": {
+        "title": "Configuración y Datos",
+        "export": "Exportar Datos",
+        "export_desc": "Descarga una copia de seguridad completa de tu perfil, historial y objetivos.",
+        "import": "Importar Datos",
+        "import_desc": "Restaura tus datos desde un archivo de respaldo.",
+        "language": "Idioma",
+        "language_desc": "Selecciona tu idioma preferido."
+    }
+}

@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { Download, Upload, AlertTriangle, Check, Database, FileJson, RefreshCw } from 'lucide-react';
+import { Download, Upload, AlertTriangle, Check, Database, FileJson, RefreshCw, Languages } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import type { MeasurementRecord, GrowthGoal, UserProfile } from '../types/measurements';
 
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export const SettingsView = ({ records, goals, profile }: Props) => {
+    const { t, i18n } = useTranslation();
     const { user } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [importing, setImporting] = useState(false);
@@ -108,7 +110,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
             <div className="view-header">
                 <div className="title-group">
                     <Database className="text-primary" size={24} />
-                    <h2>Configuración y Datos</h2>
+                    <h2>{t('settings.title')}</h2>
                 </div>
             </div>
 
@@ -117,11 +119,10 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                 <div className="card glass settings-card">
                     <div className="card-header">
                         <Download className="text-emerald-400" size={24} />
-                        <h3>Exportar Datos</h3>
+                        <h3>{t('settings.export')}</h3>
                     </div>
                     <p className="card-desc">
-                        Descarga una copia de seguridad completa de tu perfil, historial de medidas, fotos y objetivos.
-                        Guarda este archivo <code>.json</code> en un lugar seguro.
+                        {t('settings.export_desc')}
                     </p>
                     <div className="stats-row">
                         <div className="mini-stat">
@@ -152,10 +153,10 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                 <div className="card glass settings-card">
                     <div className="card-header">
                         <Upload className="text-amber-400" size={24} />
-                        <h3>Importar Datos</h3>
+                        <h3>{t('settings.import')}</h3>
                     </div>
                     <p className="card-desc">
-                        Restaura tus datos desde un archivo de respaldo.
+                        {t('settings.import_desc')}
                     </p>
 
                     <div className="warning-box">
@@ -198,6 +199,31 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                             <Check size={14} /> {successMsg}
                         </div>
                     )}
+                </div>
+
+                {/* LANGUAGE CARD */}
+                <div className="card glass settings-card">
+                    <div className="card-header">
+                        <Languages className="text-blue-400" size={24} />
+                        <h3>{t('settings.language')}</h3>
+                    </div>
+                    <p className="card-desc">
+                        {t('settings.language_desc')}
+                    </p>
+                    <div className="language-selector">
+                        <button
+                            className={`lang-btn ${i18n.language === 'es' ? 'active' : ''}`}
+                            onClick={() => i18n.changeLanguage('es')}
+                        >
+                            🇪🇸 Español
+                        </button>
+                        <button
+                            className={`lang-btn ${i18n.language === 'en' ? 'active' : ''}`}
+                            onClick={() => i18n.changeLanguage('en')}
+                        >
+                            🇺🇸 English
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -292,6 +318,38 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                     padding: 0.5rem 1rem;
                     border-radius: 8px;
                     margin-top: 0.5rem;
+                }
+
+                .language-selector {
+                    display: flex;
+                    gap: 1rem;
+                }
+                
+                .lang-btn {
+                    flex: 1;
+                    padding: 1rem;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    color: var(--text-secondary);
+                    font-weight: 600;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 0.5rem;
+                    transition: all 0.2s ease;
+                }
+                
+                .lang-btn:hover {
+                    background: rgba(255, 255, 255, 0.1);
+                    color: white;
+                }
+                
+                .lang-btn.active {
+                    background: rgba(59, 130, 246, 0.15);
+                    border-color: #3b82f6;
+                    color: #3b82f6;
+                    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
                 }
             `}</style>
         </div>

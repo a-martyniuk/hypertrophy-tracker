@@ -1,4 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Plus, History, Activity, LogOut, User, LayoutGrid, Target, Camera, Calculator, Dna, Settings } from 'lucide-react'
 import { Tooltip } from './Tooltip'
 import { ToastProvider } from './ui/ToastProvider'
@@ -11,6 +12,7 @@ interface LayoutProps {
 }
 
 export const Layout = ({ setIsGuest }: LayoutProps) => {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const location = useLocation()
     const activeView = location.pathname.slice(1) || 'dashboard'
@@ -28,15 +30,15 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
     }
 
     const navigationItems = [
-        { path: 'dashboard', icon: LayoutGrid, label: 'Dashboard', tooltip: 'Vista general y resumen' },
-        { path: 'new-entry', icon: Plus, label: 'Nueva Medida', tooltip: 'Registrar nuevas medidas corporales' },
-        { path: 'history', icon: History, label: 'Historial', tooltip: 'Ver historial de registros' },
-        { path: 'analysis', icon: Activity, label: 'Análisis', tooltip: 'Análisis gráfico de tu progreso' },
-        { path: 'potential', icon: Dna, label: 'Genética', tooltip: 'Análisis de estructura ósea (Casey Butt)' },
-        { path: 'comparison', icon: Camera, label: 'Comparativa', tooltip: 'Comparativa visual de fotos' },
-        { path: 'calculator', icon: Calculator, label: 'Metabolismo', tooltip: 'Calculadora de BMR y TDEE' },
-        { path: 'goals', icon: Target, label: 'Objetivos', tooltip: 'Definir metas de medidas' },
-        { path: 'settings', icon: Settings, label: 'Configuración', tooltip: 'Exportar/Importar Datos' },
+        { path: 'dashboard', icon: LayoutGrid, label: t('common.dashboard'), tooltip: t('common.tooltips.dashboard') },
+        { path: 'new-entry', icon: Plus, label: t('common.new_entry'), tooltip: t('common.tooltips.new_entry') },
+        { path: 'history', icon: History, label: t('common.history'), tooltip: t('common.tooltips.history') },
+        { path: 'analysis', icon: Activity, label: t('common.analysis'), tooltip: t('common.tooltips.analysis') },
+        { path: 'potential', icon: Dna, label: t('common.genetics'), tooltip: t('common.tooltips.genetics') },
+        { path: 'comparison', icon: Camera, label: t('common.compare'), tooltip: t('common.tooltips.compare') },
+        { path: 'calculator', icon: Calculator, label: t('common.metabolism'), tooltip: t('common.tooltips.metabolism') },
+        { path: 'goals', icon: Target, label: t('common.goals'), tooltip: t('common.tooltips.goals') },
+        { path: 'settings', icon: Settings, label: t('common.settings'), tooltip: t('common.tooltips.settings') },
     ]
 
     return (
@@ -85,7 +87,7 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                             >F</button>
                         </div>
                         <button className="btn-logout" onClick={handleLogOut}>
-                            <LogOut size={20} /> Salir
+                            <LogOut size={20} /> {t('common.logout')}
                         </button>
                     </div>
                 </nav>
@@ -107,7 +109,7 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                     ))}
                     <button className="btn-logout-mobile" onClick={handleLogOut}>
                         <LogOut size={22} />
-                        <span>Salir</span>
+                        <span>{t('common.logout')}</span>
                     </button>
                 </nav>
             </div>
