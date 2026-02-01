@@ -145,6 +145,13 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
     let rafId: number;
     const updateLines = () => {
       if (!containerRef.current) return;
+
+      // Feature Flag: Disable arrows on mobile (<1000px) to prevent clutter
+      if (window.innerWidth < 1000) {
+        setLines([]);
+        return;
+      }
+
       const containerRect = containerRef.current.getBoundingClientRect();
       const newLines: ConnectorLine[] = [];
 
@@ -213,11 +220,13 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
     setTimeout(debouncedUpdate, 500); // After animations settle
 
     window.addEventListener('scroll', debouncedUpdate, true);
+    window.addEventListener('resize', debouncedUpdate, true); // Added resize listener
 
     return () => {
       observer.disconnect();
       cancelAnimationFrame(rafId);
       window.removeEventListener('scroll', debouncedUpdate, true);
+      window.removeEventListener('resize', debouncedUpdate, true);
     };
   }, [measurements, sex]);
 
