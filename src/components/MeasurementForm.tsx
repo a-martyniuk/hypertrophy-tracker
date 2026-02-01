@@ -14,6 +14,9 @@ import { PhotoUploadSection } from './measurement/PhotoUploadSection';
 import { ContextSection } from './measurement/ContextSection';
 import { useToast } from './ui/ToastProvider';
 import { useMeasurementLines } from '../hooks/useMeasurementLines';
+import { MapModal } from './measurement/MapModal';
+import { Tooltip } from './Tooltip';
+import { Map as MapIcon } from 'lucide-react';
 import './MeasurementForm.css';
 
 interface Props {
@@ -82,6 +85,8 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
   });
 
   const lines = useMeasurementLines(containerRef as React.RefObject<HTMLElement>, measurements as unknown as BodyMeasurements, sex);
+
+  const [isMapOpen, setIsMapOpen] = useState(false);
 
   const onSubmit = async (data: MeasurementFormValues['measurements']) => {
     const record: MeasurementRecord = {
@@ -171,9 +176,28 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
         </div>
 
         <div className="editor-center glass">
+          <div className="map-link-container">
+            <Tooltip content={t('common.form.muscle_map.tooltip')} position="top">
+              <button
+                type="button"
+                className="btn-map-link"
+                onClick={() => setIsMapOpen(true)}
+              >
+                <MapIcon size={16} />
+                <span>{t('common.form.muscle_map.label')}</span>
+              </button>
+            </Tooltip>
+          </div>
+
           <DynamicSilhouette
             measurements={measurements as unknown as BodyMeasurements}
             sex={sex}
+          />
+
+          <MapModal
+            isOpen={isMapOpen}
+            onClose={() => setIsMapOpen(false)}
+            title={t('common.form.muscle_map.label')}
           />
         </div>
 

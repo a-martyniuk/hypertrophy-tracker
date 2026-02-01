@@ -70,7 +70,11 @@
             "upload_photo": "Upload Photo",
             "btn_confirm": "Confirm Record",
             "btn_cancel": "Exit",
-            "saving": "Saving..."
+            "saving": "Saving...",
+            "muscle_map": {
+                "label": "Muscle Measurement Map",
+                "tooltip": "Visual guide indicating the precise points for placing the measuring tape to ensure consistent and correct measurements."
+            }
         },
         "history": {
             "title": "Measurement History",

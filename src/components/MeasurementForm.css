@@ -136,6 +136,43 @@
     align-items: center;
     justify-content: center;
     background: radial-gradient(circle at center, rgba(245, 158, 11, 0.05) 0%, transparent 70%);
+    position: relative;
+    flex-direction: column;
+}
+
+.map-link-container {
+    position: absolute;
+    top: 1.5rem;
+    z-index: 10;
+}
+
+.btn-map-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(13, 13, 15, 0.6);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn-map-link:hover {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: #f59e0b;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-map-link svg {
+    opacity: 0.8;
 }
 
 .form-section h3 {

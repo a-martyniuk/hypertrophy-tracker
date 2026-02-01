@@ -70,7 +70,11 @@
             "upload_photo": "Subir Foto",
             "btn_confirm": "Confirmar Registro",
             "btn_cancel": "Salir",
-            "saving": "Guardando..."
+            "saving": "Guardando...",
+            "muscle_map": {
+                "label": "Mapa de Medición Muscular",
+                "tooltip": "Guía visual que indica los puntos precisos para colocar la cinta métrica y asegurar mediciones consistentes y correctas."
+            }
         },
         "history": {
             "title": "Historial de Medidas",
