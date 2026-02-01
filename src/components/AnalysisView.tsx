@@ -33,7 +33,10 @@ const MUSCLE_LABELS: Record<string, string> = {
     'calf-left': 'Gemelo (Izq)',
 };
 
+import { useTranslation } from 'react-i18next';
+
 export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
+    const { t } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
     const muscleId = searchParams.get('muscle');
 
@@ -174,17 +177,19 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                             <span style={{ fontSize: '0.6em', opacity: 0.7 }}> (Ref: {stats.whrThreshold})</span>
                         </span>
                     }
-                    tooltipContent={<div>{/* Keep complex tooltip content or extract if needed */}</div>}
+                    tooltipContent={<div>{t('common.tooltips.whr')}</div>}
                 />
                 <StatCard
                     label="Ratio Brazo/Muñeca"
                     value={stats.armPotential}
                     subtitle="Potencial Genético"
+                    tooltipContent={<div>{t('common.tooltips.arm_potential')}</div>}
                 />
                 <StatCard
                     label="Ratio Cintura/Pecho"
                     value={stats.vShapeRatio}
                     subtitle="Estética (V-Shape)"
+                    tooltipContent={<div>{t('common.tooltips.v_shape')}</div>}
                 />
             </header>
 

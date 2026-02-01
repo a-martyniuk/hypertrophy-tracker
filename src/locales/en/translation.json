@@ -26,7 +26,10 @@
             "compare": "Visual photo comparison",
             "metabolism": "BMR and TDEE Calculator",
             "goals": "Define measurement goals",
-            "settings": "Export/Import Data"
+            "settings": "Export/Import Data",
+            "whr": "Waist-to-Hip Ratio. Indications above threshold suggest higher cardiovascular risk.",
+            "arm_potential": " Wrist-to-Arm ratio (Casey Butt) used to estimate genetic potential.",
+            "v_shape": "Waist-to-Chest ratio. Lower values indicate a more pronounced V-taper."
         }
     },
     "dashboard": {

@@ -26,7 +26,10 @@
             "compare": "Comparativa visual de fotos",
             "metabolism": "Calculadora de BMR y TDEE",
             "goals": "Definir metas de medidas",
-            "settings": "Exportar/Importar Datos"
+            "settings": "Exportar/Importar Datos",
+            "whr": "Relación Cintura/Cadera. Valores sobre el umbral sugieren mayor riesgo cardiovascular.",
+            "arm_potential": "Relación Muñeca/Brazo usada para estimar potencial genético (Casey Butt).",
+            "v_shape": "Relación Cintura/Pecho. Valores más bajos indican una estética en V más pronunciada."
         }
     },
     "dashboard": {
