@@ -164,15 +164,15 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                 <div className="input-grid">
                     <div className="input-group">
                         <label>Edad</label>
-                        <input type="number" value={age} onChange={e => setAge(Number(e.target.value))} />
+                        <input type="number" value={age || ''} onChange={e => setAge(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
                         <label>Peso (kg)</label>
-                        <input type="number" value={weight} onChange={e => setWeight(Number(e.target.value))} />
+                        <input type="number" value={weight || ''} onChange={e => setWeight(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
                         <label>Altura (cm)</label>
-                        <input type="number" value={height} onChange={e => setHeight(Number(e.target.value))} />
+                        <input type="number" value={height || ''} onChange={e => setHeight(Number(e.target.value))} />
                     </div>
                 </div>
 
@@ -226,7 +226,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                                 <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
                             </Tooltip>
                         </label>
-                        <input type="number" value={trainingFreq} onChange={e => setTrainingFreq(Number(e.target.value))} />
+                        <input type="number" value={trainingFreq || ''} onChange={e => setTrainingFreq(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
                         <label className="flex items-center gap-2">
@@ -235,7 +235,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                                 <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
                             </Tooltip>
                         </label>
-                        <input type="number" step="0.5" value={sessionDuration} onChange={e => setSessionDuration(Number(e.target.value))} />
+                        <input type="number" step="0.5" value={sessionDuration || ''} onChange={e => setSessionDuration(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
                         <label className="flex items-center gap-2">
