@@ -12,7 +12,7 @@ import { useGoals } from './hooks/useGoals'
 import { useAuth } from './hooks/useAuth'
 import { useProfile } from './hooks/useProfile'
 import type { MeasurementRecord } from './types/measurements'
-import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus, Camera, Calculator } from 'lucide-react'
+import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus, Camera, Calculator, HelpCircle } from 'lucide-react'
 import { Tooltip } from './components/Tooltip'
 
 import { AuthView } from './components/AuthView'
@@ -226,17 +226,32 @@ function App() {
 
             <div className="stats-row">
               <div className="stat-card glass gold-border">
-                <label>Último Registro</label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  Último Registro
+                  <Tooltip content="Fecha de la última medición registrada." position="top">
+                    <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
+                  </Tooltip>
+                </label>
                 <div className="value">
                   {latestRecord ? new Date(latestRecord.date).toLocaleDateString() : '--'}
                 </div>
               </div>
               <div className="stat-card glass">
-                <label>Total Registros</label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  Total Registros
+                  <Tooltip content="Cantidad total de mediciones guardadas en el historial." position="top">
+                    <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
+                  </Tooltip>
+                </label>
                 <div className="value">{records.length}</div>
               </div>
               <div className="stat-card glass">
-                <label>Ratio Cintura/Pecho</label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  Ratio Cintura/Pecho
+                  <Tooltip content="Relación entre cintura y pecho. Un valor menor indica una silueta más en 'V' (estética)." position="top">
+                    <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
+                  </Tooltip>
+                </label>
                 <div className="value">
                   {latestRecord?.measurements.pecho ? (latestRecord.measurements.waist / latestRecord.measurements.pecho).toFixed(2) : '--'}
                 </div>
