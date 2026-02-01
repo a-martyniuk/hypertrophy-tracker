@@ -245,51 +245,7 @@ function App() {
                 </label>
                 <div className="value">{records.length}</div>
               </div>
-              <div className="stat-card glass">
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  Ratio Cintura/Pecho
-                  <Tooltip
-                    width="280px"
-                    content={
-                      <div className="text-xs space-y-2">
-                        <p className="font-bold border-b border-white/10 pb-1 mb-2">Rangos Orientativos (Hombres)</p>
 
-                        <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 items-start">
-                          <span className="text-emerald-400 font-bold whitespace-nowrap">≤ 0.75</span>
-                          <div>
-                            <span className="text-emerald-400 font-bold">Excelente</span>
-                            <p className="opacity-70 text-[10px] leading-tight">Estética en "V" muy marcada. Culturismo / Modelo.</p>
-                          </div>
-
-                          <span className="text-yellow-400 font-bold whitespace-nowrap">0.76 - 0.82</span>
-                          <div>
-                            <span className="text-yellow-400 font-bold">Bueno</span>
-                            <p className="opacity-70 text-[10px] leading-tight">Atlético. Buena relación hombros-cintura.</p>
-                          </div>
-
-                          <span className="text-orange-400 font-bold whitespace-nowrap">0.83 - 0.88</span>
-                          <div>
-                            <span className="text-orange-400 font-bold">Promedio</span>
-                            <p className="opacity-70 text-[10px] leading-tight">Normal. Poco contraste visual.</p>
-                          </div>
-
-                          <span className="text-red-400 font-bold whitespace-nowrap">≥ 0.89</span>
-                          <div>
-                            <span className="text-red-400 font-bold">Desfavorable</span>
-                            <p className="opacity-70 text-[10px] leading-tight">Silueta recta o bloque. Posible grasa central.</p>
-                          </div>
-                        </div>
-                      </div>
-                    }
-                    position="bottom"
-                  >
-                    <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
-                  </Tooltip>
-                </label>
-                <div className="value">
-                  {latestRecord?.measurements.pecho ? (latestRecord.measurements.waist / latestRecord.measurements.pecho).toFixed(2) : '--'}
-                </div>
-              </div>
             </div>
 
             <div className="main-dashboard-content">
