@@ -15,6 +15,7 @@ import type { MeasurementRecord } from './types/measurements'
 import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus, Camera, Calculator, HelpCircle } from 'lucide-react'
 import { Tooltip } from './components/Tooltip'
 
+import { ToastProvider } from './components/ui/ToastProvider'
 import { AuthView } from './components/AuthView'
 
 

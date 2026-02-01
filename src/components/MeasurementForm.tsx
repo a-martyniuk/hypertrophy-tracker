@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import type { BodyMeasurements, BilateralMeasurement, MeasurementRecord, RecordMetadata } from '../types/measurements';
+import type { BodyMeasurements, MeasurementRecord, RecordMetadata } from '../types/measurements';
 import { Save, X, Moon, Zap, Coffee, Activity } from 'lucide-react';
 import { DynamicSilhouette } from './DynamicSilhouette';
 import { PhotoUpload } from './PhotoUpload';
@@ -7,6 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 import type { BodyPhoto } from '../types/measurements';
 import { MeasurementInput } from './measurement/MeasurementInput';
 import { MeasurementSection } from './measurement/MeasurementSection';
+import { useToast } from './ui/ToastProvider';
 
 interface Props {
   onSave: (record: MeasurementRecord) => Promise<{ success: boolean; error?: any }>;
@@ -65,6 +66,8 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { addToast } = useToast();
 
   useEffect(() => {
     let rafId: number;
@@ -171,6 +174,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
 
     if (flattenedMeasurements.some(v => typeof v === 'number' && v < 0)) {
       setError("No se admiten valores negativos en las medidas.");
+      addToast("No se admiten valores negativos.", "error");
       return;
     }
 
@@ -191,10 +195,15 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
       const result = await onSave(record);
       if (!result.success) {
         setError(result.error?.message || "Error al guardar el registro. Inténtalo de nuevo.");
+        addToast(result.error?.message || "Error al guardar el registro.", "error");
+      } else {
+        addToast("Registro guardado correctamente.", "success");
       }
     } catch (err: any) {
       console.error('Submission error:', err);
-      setError(err.message || "Ocurrió un error inesperado al procesar el guardado.");
+      const msg = err.message || "Ocurrió un error inesperado al procesar el guardado.";
+      setError(msg);
+      addToast(msg, "error");
     } finally {
       setIsSaving(false);
     }
