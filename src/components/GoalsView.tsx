@@ -321,6 +321,9 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                     display: flex;
                     flex-direction: column;
                     gap: 2rem;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    width: 100%;
                 }
                 .view-header {
                     padding: 1.5rem;
@@ -419,7 +422,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
 
                 .goals-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
                     gap: 1.5rem;
                 }
                 .goal-card {

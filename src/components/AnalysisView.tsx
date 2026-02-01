@@ -380,6 +380,9 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
           flex-direction: column;
           gap: 2rem;
           padding-bottom: 3rem;
+          max-width: 1200px;
+          margin: 0 auto;
+          width: 100%;
         }
         .view-header-stats {
             display: grid;
@@ -445,7 +448,7 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
 
         .charts-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
           gap: 1.5rem;
         }
         @media (max-width: 500px) {

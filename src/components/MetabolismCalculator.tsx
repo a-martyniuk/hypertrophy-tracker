@@ -109,20 +109,20 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
     }, [weight, height, age, sex, neatLevel, trainingType, trainingFreq, sessionDuration, intensity])
 
     const InfoCard = ({ title, value, unit, icon: Icon, subtext, color = 'var(--text-primary)', tooltip }: any) => (
-        <div className="card glass info-card-interactive" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', position: 'relative' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+        <div className="card glass info-card-interactive">
+            <div className="card-header">
                 <Icon size={16} />
                 {title}
                 {tooltip && (
                     <Tooltip content={tooltip} position="top">
-                        <HelpCircle size={14} style={{ cursor: 'help', opacity: 0.6 }} />
+                        <HelpCircle size={14} className="help-icon" />
                     </Tooltip>
                 )}
             </div>
-            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: color }}>
-                {value} <span style={{ fontSize: '1rem', fontWeight: '500', color: 'var(--text-secondary)' }}>{unit}</span>
+            <div className="card-value" style={{ color: color }}>
+                {value} <span className="unit">{unit}</span>
             </div>
-            {subtext && <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{subtext}</div>}
+            {subtext && <div className="card-subtext">{subtext}</div>}
         </div>
     )
 
@@ -342,6 +342,45 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
           grid-template-columns: 1fr 1fr;
           gap: 2rem;
           padding-bottom: 4rem;
+          max-width: 1200px;
+          margin: 0 auto;
+          width: 100%;
+        }
+
+        .info-card-interactive {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .help-icon {
+            cursor: help;
+            opacity: 0.6;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .unit {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .card-subtext {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
         }
 
         @media (max-width: 1024px) {

@@ -96,6 +96,9 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
           display: flex;
           flex-direction: column;
           gap: 1.5rem;
+          max-width: 1200px;
+          margin: 0 auto;
+          width: 100%;
         }
         .view-header {
           display: flex;
