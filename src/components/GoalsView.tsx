@@ -553,6 +553,29 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                     border-width: 2px;
                 }
                 .text-primary { color: var(--primary-color); }
+
+                @media (max-width: 768px) {
+                    .goals-view {
+                        padding: 0 1rem 2rem 1rem;
+                    }
+                    .view-header {
+                        flex-direction: column;
+                        align-items: stretch;
+                        gap: 1rem;
+                    }
+                    .header-info {
+                        text-align: center;
+                    }
+                    .goals-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    .form-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    .suggestions-scroll {
+                        grid-template-columns: 1fr;
+                    }
+                }
             `}</style>
         </div>
     );

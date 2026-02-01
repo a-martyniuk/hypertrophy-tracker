@@ -451,7 +451,15 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
           grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
           gap: 1.5rem;
         }
-        @media (max-width: 500px) {
+        @media (max-width: 768px) {
+          .analysis-view {
+            padding: 0 1rem 3rem 1rem;
+            gap: 1.5rem;
+          }
+          .view-header-stats {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+          }
           .charts-grid {
             grid-template-columns: 1fr;
           }

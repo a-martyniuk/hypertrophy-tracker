@@ -383,8 +383,19 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
             color: var(--text-secondary);
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 768px) {
           .calculator-container {
+             grid-template-columns: 1fr;
+             padding: 0 1rem 4rem 1rem;
+             gap: 1.5rem;
+          }
+          .input-grid {
+            grid-template-columns: 1fr;
+          }
+          .selector-group {
+            grid-template-columns: 1fr;
+          }
+          .results-grid {
             grid-template-columns: 1fr;
           }
         }

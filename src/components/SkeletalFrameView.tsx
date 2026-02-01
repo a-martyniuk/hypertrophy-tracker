@@ -441,9 +441,18 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
           margin-left: 0.5rem;
         }
         
-        @media (max-width: 900px) {
+        @media (max-width: 768px) {
+          .skeletal-frame-view {
+            padding: 1rem;
+          }
           .frame-grid {
             grid-template-columns: 1fr;
+            gap: 1.5rem;
+          }
+          .analysis-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
           }
         }
       `}</style>

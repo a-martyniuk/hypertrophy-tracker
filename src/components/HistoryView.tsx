@@ -214,6 +214,29 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
+
+        @media (max-width: 768px) {
+          .history-view {
+            padding: 0 1rem;
+          }
+          .view-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+          }
+          .record-count {
+            align-self: flex-start;
+          }
+          .record-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+          }
+          .record-actions {
+            width: 100%;
+            justify-content: flex-end;
+          }
+        }
       `}</style>
     </div>
   );
