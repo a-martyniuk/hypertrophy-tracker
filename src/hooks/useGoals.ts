@@ -66,8 +66,9 @@ export const useGoals = () => {
 
         if (error) {
             console.error('Error adding goal:', error);
+            throw error;
         } else {
-            fetchGoals();
+            await fetchGoals();
         }
     };
 
@@ -88,8 +89,9 @@ export const useGoals = () => {
 
         if (error) {
             console.error('Error deleting goal:', error);
+            throw error;
         } else {
-            fetchGoals();
+            await fetchGoals();
         }
     };
 

@@ -5,8 +5,8 @@ import { calculateSkeletalPotential } from '../utils/skeletal';
 
 interface Props {
     goals: GrowthGoal[];
-    onAddGoal: (goal: Omit<GrowthGoal, 'id' | 'createdAt'>) => void;
-    onDeleteGoal: (id: string) => void;
+    onAddGoal: (goal: Omit<GrowthGoal, 'id' | 'createdAt'>) => Promise<void>;
+    onDeleteGoal: (id: string) => Promise<void>;
     latestRecord?: MeasurementRecord;
     profile?: UserProfile | null;
     records?: MeasurementRecord[];
@@ -14,6 +14,28 @@ interface Props {
 
 export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profile, records = [] }: Props) => {
     const [isAdding, setIsAdding] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+
+    // ... state ...
+
+    // ... methods ...
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            setSubmitting(true);
+            await onAddGoal({
+                userId: 'default-user',
+                ...newGoal
+            });
+            setIsAdding(false);
+            setNewGoal(prev => ({ ...prev, measurementType: 'weight', targetValue: 0 })); // Reset
+        } catch (error) {
+            console.error("Failed to add goal", error);
+        } finally {
+            setSubmitting(false);
+        }
+    };
     const [newGoal, setNewGoal] = useState({
         measurementType: 'weight',
         targetValue: 0,
@@ -138,13 +160,20 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
         return Math.max(0, Math.min(100, Math.round(100 - (gap / target * 100))));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onAddGoal({
-            userId: 'default-user',
-            ...newGoal
-        });
-        setIsAdding(false);
+        try {
+            setSubmitting(true);
+            await onAddGoal({
+                userId: 'default-user',
+                ...newGoal
+            });
+            setIsAdding(false);
+        } catch (error) {
+            console.error("Failed to add goal", error);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const quickAdd = (s: typeof suggestions[0]) => {
