@@ -17,6 +17,7 @@ import { Tooltip } from './components/Tooltip'
 
 import { ToastProvider } from './components/ui/ToastProvider'
 import { AuthView } from './components/AuthView'
+import { Skeleton, SkeletonStyles } from './components/ui/Skeleton'
 
 
 type View = 'dashboard' | 'history' | 'new-entry' | 'analysis' | 'goals' | 'potential' | 'comparison' | 'calculator'
@@ -27,7 +28,7 @@ function App() {
   const [editingRecord, setEditingRecord] = useState<MeasurementRecord | null>(null)
 
   const { user: authUser, session: authSession, loading: authLoading, signOut } = useAuth()
-  const { records, saveRecord, deleteRecord, refresh } = useMeasurements(authUser?.id, authSession)
+  const { records, saveRecord, deleteRecord, refresh, loading } = useMeasurements(authUser?.id, authSession)
 
   // Force data refresh when session updates (e.g. login from stale state)
   useEffect(() => {
@@ -448,6 +449,7 @@ function App() {
         </nav>
 
         <style>{`
+        ${SkeletonStyles}
         .app-container {
           display: flex;
           min-height: 100vh;
