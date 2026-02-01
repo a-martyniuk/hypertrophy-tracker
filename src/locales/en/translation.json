@@ -285,5 +285,25 @@
             "large": "Large",
             "very_large": "Very Large"
         }
+    },
+    "compare": {
+        "title": "Visual Comparison",
+        "empty": "Upload photos to your records to use visual comparison.",
+        "before": "Before",
+        "after": "After",
+        "opacity": "Opacity",
+        "no_date": "No date",
+        "no_photo": "No {{angle}} photo",
+        "two_photos_required": "Both photos are required for this mode.",
+        "angles": {
+            "front": "Front",
+            "side": "Side",
+            "back": "Back"
+        },
+        "mode": {
+            "side_by_side": "Side by Side",
+            "slider": "Split Slider",
+            "ghost": "Ghost Overlay"
+        }
     }
 }

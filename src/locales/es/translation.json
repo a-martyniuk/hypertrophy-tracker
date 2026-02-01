@@ -271,5 +271,25 @@
             "large": "Grande",
             "very_large": "Muy grande"
         }
+    },
+    "compare": {
+        "title": "Comparativa Visual",
+        "empty": "Sube fotos en tus registros para usar la comparación visual.",
+        "before": "Antes",
+        "after": "Después",
+        "opacity": "Opacidad",
+        "no_date": "Sin fecha",
+        "no_photo": "No hay foto {{angle}}",
+        "two_photos_required": "Se requieren ambas fotos para usar este modo.",
+        "angles": {
+            "front": "Frente",
+            "side": "Perfil",
+            "back": "Espalda"
+        },
+        "mode": {
+            "side_by_side": "Lado a Lado",
+            "slider": "Deslizador Split",
+            "ghost": "Superposición Fantasma"
+        }
     }
 }

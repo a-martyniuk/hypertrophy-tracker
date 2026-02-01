@@ -8,7 +8,10 @@ interface Props {
 
 type ViewMode = 'side-by-side' | 'slider' | 'ghost';
 
+import { useTranslation } from 'react-i18next';
+
 export const PhotoComparisonView = ({ records }: Props) => {
+  const { t } = useTranslation();
   const recordsWithPhotos = records.filter(r => r.photos && r.photos.length > 0);
 
   const [beforeRecordId, setBeforeRecordId] = useState<string>(recordsWithPhotos[recordsWithPhotos.length - 1]?.id || '');
@@ -63,7 +66,7 @@ export const PhotoComparisonView = ({ records }: Props) => {
     return (
       <div className="empty-state glass">
         <Columns size={48} className="text-secondary opacity-20" />
-        <p>Sube fotos en tus registros para usar la comparación visual.</p>
+        <p>{t('compare.empty')}</p>
       </div>
     );
   }
@@ -76,7 +79,7 @@ export const PhotoComparisonView = ({ records }: Props) => {
       <div className="view-header">
         <div className="title-group">
           <ArrowLeftRight className="text-primary" size={24} />
-          <h2>Comparativa Visual</h2>
+          <h2>{t('compare.title')}</h2>
         </div>
 
         <div className="controls-group">
@@ -87,7 +90,7 @@ export const PhotoComparisonView = ({ records }: Props) => {
                 className={activeAngle === angle ? 'active' : ''}
                 onClick={() => setActiveAngle(angle)}
               >
-                {angle === 'front' ? 'Frente' : angle === 'side' ? 'Perfil' : 'Espalda'}
+                {angle === 'front' ? t('compare.angles.front') : angle === 'side' ? t('compare.angles.side') : t('compare.angles.back')}
               </button>
             ))}
           </div>
@@ -96,21 +99,21 @@ export const PhotoComparisonView = ({ records }: Props) => {
             <button
               className={viewMode === 'side-by-side' ? 'active' : ''}
               onClick={() => setViewMode('side-by-side')}
-              title="Lado a Lado"
+              title={t('compare.mode.side_by_side')}
             >
               <Columns size={16} />
             </button>
             <button
               className={viewMode === 'slider' ? 'active' : ''}
               onClick={() => setViewMode('slider')}
-              title="Deslizador Split"
+              title={t('compare.mode.slider')}
             >
               <ScanLine size={16} />
             </button>
             <button
               className={viewMode === 'ghost' ? 'active' : ''}
               onClick={() => setViewMode('ghost')}
-              title="Superposición Fantasma"
+              title={t('compare.mode.ghost')}
             >
               <Layers size={16} />
             </button>
@@ -120,7 +123,7 @@ export const PhotoComparisonView = ({ records }: Props) => {
 
       <div className="selectors-row">
         <div className="record-selector">
-          <label><Calendar size={14} /> Antes:</label>
+          <label><Calendar size={14} /> {t('compare.before')}:</label>
           <select value={beforeRecordId} onChange={e => setBeforeRecordId(e.target.value)}>
             {recordsWithPhotos.map(r => (
               <option key={r.id} value={r.id}>{new Date(r.date).toLocaleDateString()}</option>
@@ -128,7 +131,7 @@ export const PhotoComparisonView = ({ records }: Props) => {
           </select>
         </div>
         <div className="record-selector">
-          <label><Calendar size={14} /> Después:</label>
+          <label><Calendar size={14} /> {t('compare.after')}:</label>
           <select value={afterRecordId} onChange={e => setAfterRecordId(e.target.value)}>
             {recordsWithPhotos.map(r => (
               <option key={r.id} value={r.id}>{new Date(r.date).toLocaleDateString()}</option>
@@ -140,7 +143,7 @@ export const PhotoComparisonView = ({ records }: Props) => {
       {/* Slider / Ghost Control Bar */}
       {viewMode === 'ghost' && (
         <div className="slider-control-bar glass">
-          <span className="text-xs text-secondary">Opacidad: {ghostOpacity}%</span>
+          <span className="text-xs text-secondary">{t('compare.opacity')}: {ghostOpacity}%</span>
           <input
             type="range"
             min="0"
@@ -159,28 +162,28 @@ export const PhotoComparisonView = ({ records }: Props) => {
           <div className="comparison-grid">
             <div className="photo-card glass">
               <div className="card-label">
-                {beforeRecord ? new Date(beforeRecord.date).toLocaleDateString() : 'Sin fecha'}
+                {beforeRecord ? new Date(beforeRecord.date).toLocaleDateString() : t('compare.no_date')}
                 <span className="weight">{beforeRecord?.measurements.weight} kg</span>
               </div>
               <div className="photo-wrap">
                 {beforePhotoUrl ? (
                   <img src={beforePhotoUrl} alt="Before" />
                 ) : (
-                  <div className="no-photo">No hay foto {activeAngle}</div>
+                  <div className="no-photo">{t('compare.no_photo', { angle: activeAngle })}</div>
                 )}
               </div>
             </div>
 
             <div className="photo-card glass after">
               <div className="card-label">
-                {afterRecord ? new Date(afterRecord.date).toLocaleDateString() : 'Sin fecha'}
+                {afterRecord ? new Date(afterRecord.date).toLocaleDateString() : t('compare.no_date')}
                 <span className="weight">{afterRecord?.measurements.weight} kg</span>
               </div>
               <div className="photo-wrap">
                 {afterPhotoUrl ? (
                   <img src={afterPhotoUrl} alt="After" />
                 ) : (
-                  <div className="no-photo">No hay foto {activeAngle}</div>
+                  <div className="no-photo">{t('compare.no_photo', { angle: activeAngle })}</div>
                 )}
               </div>
             </div>
@@ -197,7 +200,7 @@ export const PhotoComparisonView = ({ records }: Props) => {
           >
             {!beforePhotoUrl || !afterPhotoUrl ? (
               <div className="p-8 text-center text-secondary">
-                Se requieren ambas fotos para usar este modo.
+                {t('compare.two_photos_required')}
               </div>
             ) : (
               <div className="viewer-stack">
