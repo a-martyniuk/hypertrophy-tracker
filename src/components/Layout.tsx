@@ -131,7 +131,6 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                         <span>Salir</span>
                     </button>
                 </nav>
-                </nav>
             </div>
             <style>{`
                 .app-container {
