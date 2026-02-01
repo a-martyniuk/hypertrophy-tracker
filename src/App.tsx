@@ -663,11 +663,15 @@ function App() {
           color: var(--text-secondary);
         }
 
-        .stats-row {
+        .stats-mini-grid {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: 1fr 1fr;
           gap: 1.5rem;
-          margin-bottom: 2rem;
+          margin-top: 1.5rem;
+        }
+
+        .stats-row {
+          display: none; /* Hide old row if present */
         }
 
         .stat-card {
