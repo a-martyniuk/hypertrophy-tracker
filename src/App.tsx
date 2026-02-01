@@ -405,6 +405,8 @@ function App() {
             onAddGoal={addGoal}
             onDeleteGoal={deleteGoal}
             latestRecord={latestRecord}
+            profile={profile}
+            records={records}
           />
         )}
         {activeView === 'potential' && (

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Target, Info, Activity, HelpCircle } from 'lucide-react';
 import { Tooltip as AppTooltip } from './Tooltip';
 import type { BodyMeasurements, SkeletalFrame } from '../types/measurements';
+import { calculateSkeletalPotential, calculateIEO } from '../utils/skeletal';
 
 interface Props {
   baseline?: SkeletalFrame;
@@ -36,104 +37,8 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
     return { wrist, ankle, knee: 38 };
   });
 
-  // Authentic Casey Butt Formula Constants (Male Base)
-  // Source: "Your Muscular Potential" (http://www.weightrainer.net/potential.html)
-  const CASEY_BUTT_CONSTANTS = {
-    chest: { wrist: 1.6817, ankle: 1.3759, height: 0.3314 },
-    biceps: { wrist: 1.2033, height: 0.1236 },
-    forearms: { wrist: 0.9626, height: 0.0989 },
-    neck: { wrist: 1.1424, height: 0.1236 },
-    thighs: { ankle: 1.3868, height: 0.1805 },
-    calves: { ankle: 0.9298, height: 0.1210 }
-  };
-
-  // Sexual Dimorphism Adjustment Factors
-  // Since Casey Butt's formula is derived from elite natural male bodybuilders,
-  // we apply physiological scaling factors for female potential.
-  // Upper body ~65-75% of male potential
-  // Lower body ~85% of male potential
-  const FEMALE_MODIFIERS = {
-    chest: 0.85,
-    biceps: 0.70,
-    forearms: 0.70,
-    neck: 0.75,
-    thighs: 0.90, // Females store more mass in lower body relative to upper
-    calves: 0.90
-  };
-
-  const calculatePotential = () => {
-    const { wrist, ankle } = frame;
-    // Use local height state for calculation
-    const heightCm = height;
-
-    // Convert to Imperial (Inches) for authentic Casey Butt calculation
-    const W = wrist / 2.54;
-    const A = ankle / 2.54;
-    const H = heightCm / 2.54;
-
-    // Authentic Casey Butt Formulas (output in Inches)
-    // Source: "Your Muscular Potential" - height factors corrected
-    let chestIn = CASEY_BUTT_CONSTANTS.chest.wrist * W + CASEY_BUTT_CONSTANTS.chest.ankle * A + CASEY_BUTT_CONSTANTS.chest.height * H;
-
-    // Upper Body (Wrist + Height)
-    let bicepsIn = CASEY_BUTT_CONSTANTS.biceps.wrist * W + CASEY_BUTT_CONSTANTS.biceps.height * H;
-    let forearmsIn = CASEY_BUTT_CONSTANTS.forearms.wrist * W + CASEY_BUTT_CONSTANTS.forearms.height * H;
-    let neckIn = CASEY_BUTT_CONSTANTS.neck.wrist * W + CASEY_BUTT_CONSTANTS.neck.height * H;
-
-    // Lower Body (Ankle + Height)
-    let thighsIn = CASEY_BUTT_CONSTANTS.thighs.ankle * A + CASEY_BUTT_CONSTANTS.thighs.height * H;
-    let calvesIn = CASEY_BUTT_CONSTANTS.calves.ankle * A + CASEY_BUTT_CONSTANTS.calves.height * H;
-
-    // Apply Female Modifiers if necessary
-    if (sex === 'female') {
-      chestIn *= FEMALE_MODIFIERS.chest;
-      bicepsIn *= FEMALE_MODIFIERS.biceps;
-      forearmsIn *= FEMALE_MODIFIERS.forearms;
-      neckIn *= FEMALE_MODIFIERS.neck;
-      thighsIn *= FEMALE_MODIFIERS.thighs;
-      calvesIn *= FEMALE_MODIFIERS.calves;
-    }
-
-    // Convert back to CM for display
-    return {
-      chest: (chestIn * 2.54).toFixed(1),
-      biceps: (bicepsIn * 2.54).toFixed(1),
-      forearms: (forearmsIn * 2.54).toFixed(1),
-      neck: (neckIn * 2.54).toFixed(1),
-      thighs: (thighsIn * 2.54).toFixed(1),
-      calves: (calvesIn * 2.54).toFixed(1),
-    };
-  };
-
-  const calculateIEO = () => {
-    const { wrist, ankle } = frame;
-    const ieo = (wrist + ankle) / 2;
-    let label = '';
-    let isAdvantage = false;
-
-    // Female structure is generally finer. 
-    // We shift ranges by approx -2.0 units based on average anthropometry diffs.
-    const ranges = sex === 'female'
-      ? { small: 16, med: 18, large: 20 }
-      : { small: 18, med: 20, large: 22 };
-
-    if (ieo < ranges.small) {
-      label = 'Pequeña';
-    } else if (ieo < ranges.med) {
-      label = 'Mediana';
-    } else if (ieo < ranges.large) {
-      label = 'Grande';
-      isAdvantage = true;
-    } else {
-      label = 'Muy Grande';
-      isAdvantage = true;
-    }
-
-    return { value: ieo.toFixed(1), label, isAdvantage, rawValue: ieo };
-  };
-
-  const potential = calculatePotential();
-  const ieo = calculateIEO();
+  const potential = calculateSkeletalPotential(frame.wrist, frame.ankle, height, sex);
+  const ieo = calculateIEO(frame.wrist, frame.ankle, sex);
 
   const IEO_CATEGORIES = sex === 'female' ? [
     { label: 'Pequeña', range: '< 16', min: 0, max: 16 },

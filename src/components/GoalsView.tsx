@@ -1,20 +1,23 @@
-import { useState } from 'react';
-import { Target, Plus, Trash2, TrendingUp, ChevronRight } from 'lucide-react';
-import type { GrowthGoal, MeasurementRecord } from '../types/measurements';
+import { useState, useMemo } from 'react';
+import { Target, Plus, Trash2, TrendingUp, ChevronRight, Sparkles, Calendar, ArrowRight } from 'lucide-react';
+import type { GrowthGoal, MeasurementRecord, UserProfile } from '../types/measurements';
+import { calculateSkeletalPotential } from '../utils/skeletal';
 
 interface Props {
     goals: GrowthGoal[];
     onAddGoal: (goal: Omit<GrowthGoal, 'id' | 'createdAt'>) => void;
     onDeleteGoal: (id: string) => void;
     latestRecord?: MeasurementRecord;
+    profile?: UserProfile | null;
+    records?: MeasurementRecord[];
 }
 
-export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord }: Props) => {
+export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profile, records = [] }: Props) => {
     const [isAdding, setIsAdding] = useState(false);
     const [newGoal, setNewGoal] = useState({
         measurementType: 'weight',
         targetValue: 0,
-        targetDate: new Date().toISOString().split('T')[0],
+        targetDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default 3 months
         status: 'active' as const
     });
 
@@ -34,6 +37,41 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord }: Prop
         'calf.right': 'Pantorrilla Der (cm)',
     };
 
+    const suggestions = useMemo(() => {
+        if (!profile?.baseline) return [];
+
+        // Calculate potential based on skeletal frame
+        // Assuming height 177 if missing (avg)
+        const height = (latestRecord?.measurements.height) || 177;
+        const potential = calculateSkeletalPotential(
+            profile.baseline.wrist,
+            profile.baseline.ankle,
+            height,
+            profile.sex
+        );
+
+        return [
+            {
+                label: 'Máximo Potencial de Pecho',
+                type: 'pecho',
+                value: potential.chest,
+                reason: 'Basado en tu estructura ósea (Casey Butt)'
+            },
+            {
+                label: 'Máximo Potencial de Brazos',
+                type: 'arm.right',
+                value: potential.biceps,
+                reason: 'Límite estimado para tu muñeca'
+            },
+            {
+                label: 'Cintura Estética (Golden Ratio)',
+                type: 'waist',
+                value: parseFloat((potential.chest * 0.75).toFixed(1)),
+                reason: 'Ratio Cintura/Pecho de 0.75 (Ideal Old School)'
+            }
+        ];
+    }, [profile, latestRecord]);
+
     const getLatestValue = (type: string): number => {
         if (!latestRecord) return 0;
         const measurements = latestRecord.measurements as any;
@@ -44,21 +82,60 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord }: Prop
         return measurements[type] || 0;
     };
 
+    const calculateTimeEstimate = (goal: GrowthGoal, current: number) => {
+        // Find historical rate of change per week
+        // Simply: (Current - Oldest) / weeks
+        if (records.length < 2) return null;
+
+        const type = goal.measurementType;
+        const getValue = (r: MeasurementRecord) => {
+            const m = r.measurements as any;
+            if (type.includes('.')) {
+                const [b, s] = type.split('.');
+                return m[b]?.[s];
+            }
+            return m[type];
+        };
+
+        const oldest = records[records.length - 1];
+        const oldestVal = getValue(oldest);
+
+        if (!oldestVal) return null;
+
+        const weeksDiff = (new Date(latestRecord!.date).getTime() - new Date(oldest.date).getTime()) / (1000 * 60 * 60 * 24 * 7);
+        if (weeksDiff < 1) return null;
+
+        const growth = current - oldestVal;
+        const ratePerWeek = growth / weeksDiff;
+
+        if (Math.abs(ratePerWeek) < 0.01) return null; // Stagnant
+
+        const remaining = goal.targetValue - current;
+
+        // Check if moving in right direction
+        if ((remaining > 0 && ratePerWeek < 0) || (remaining < 0 && ratePerWeek > 0)) {
+            return { weeks: 0, impossible: true };
+        }
+
+        const weeksToGoal = Math.abs(remaining / ratePerWeek);
+        return { weeks: Math.round(weeksToGoal), rate: ratePerWeek };
+    };
+
     const calculateProgress = (goal: GrowthGoal) => {
         const current = getLatestValue(goal.measurementType);
         if (current === 0) return 0;
 
-        // Handle both fat loss (target < current) and mass gain (target > current)
-        // This is a simplified progress calculation
-
-        // For now, let's just do current/target ratio if target > current, etc.
-        if (goal.targetValue > current) {
-            return Math.min(Math.round((current / goal.targetValue) * 100), 100);
-        } else if (goal.targetValue < current) {
-            // For fat loss/waist reduction
-            return Math.min(Math.round((goal.targetValue / current) * 100), 100);
-        }
-        return 100;
+        // Simple percent towards target
+        // If target > current (Bulking): 
+        // 100 - ((Target - Current) / Target * 100) -> No.
+        // Let's assume start was 0? No.
+        // We lack "Start Value" in the goal. Simple visual deviation.
+        const gap = Math.abs(goal.targetValue - current);
+        const target = goal.targetValue;
+        // If gap is 0, 100%. If gap is 10% of target, 90%?
+        // Let's just do a Closeness metric.
+        // 100% - (Gap / Target * 100)
+        return Math.max(0, Math.min(100, Math.round(100 - (gap / target * 100))));
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -70,17 +147,47 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord }: Prop
         setIsAdding(false);
     };
 
+    const quickAdd = (s: typeof suggestions[0]) => {
+        setNewGoal({
+            ...newGoal,
+            measurementType: s.type,
+            targetValue: s.value
+        });
+        setIsAdding(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
         <div className="goals-view animate-fade">
             <header className="view-header glass">
                 <div className="header-info">
                     <h2>Centro de Objetivos</h2>
-                    <p className="subtitle">Configura tus metas y monitorea el progreso en tiempo real</p>
+                    <p className="subtitle">Define metas basadas en tu potencial genético</p>
                 </div>
                 <button className="btn-primary" onClick={() => setIsAdding(!isAdding)}>
                     <Plus size={18} /> {isAdding ? 'Cancelar' : 'Nueva Meta'}
                 </button>
             </header>
+
+            {/* Smart Suggestions */}
+            {suggestions.length > 0 && !isAdding && (
+                <div className="suggestions-scroll">
+                    {suggestions.map((s, idx) => (
+                        <div key={idx} className="suggestion-card glass" onClick={() => quickAdd(s)}>
+                            <div className="sug-header">
+                                <Sparkles size={16} className="text-primary" />
+                                <span>Sugerencia</span>
+                            </div>
+                            <h4>{s.label}</h4>
+                            <div className="sug-val">{s.value} cm</div>
+                            <p>{s.reason}</p>
+                            <div className="sug-action">
+                                Usar Meta <ArrowRight size={14} />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {isAdding && (
                 <form className="goal-form glass animate-slide-down" onSubmit={handleSubmit}>
@@ -122,12 +229,13 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord }: Prop
                 {goals.length === 0 ? (
                     <div className="empty-state glass">
                         <Target size={48} />
-                        <p>No tienes metas activas. ¡Define una para empezar!</p>
+                        <p>No tienes metas activas. Usa las sugerencias o crea una manual.</p>
                     </div>
                 ) : (
                     goals.map(goal => {
                         const progress = calculateProgress(goal);
                         const current = getLatestValue(goal.measurementType);
+                        const estimate = calculateTimeEstimate(goal, current);
 
                         return (
                             <div key={goal.id} className="goal-card glass">
@@ -137,7 +245,10 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord }: Prop
                                     </div>
                                     <div className="goal-title">
                                         <h3>{measurementLabels[goal.measurementType] || goal.measurementType}</h3>
-                                        <span className="deadline">Meta: {goal.targetDate}</span>
+                                        <span className="deadline">
+                                            <Calendar size={10} style={{ marginRight: 4 }} />
+                                            {new Date(goal.targetDate).toLocaleDateString()}
+                                        </span>
                                     </div>
                                     <button className="delete-btn" onClick={() => onDeleteGoal(goal.id)}>
                                         <Trash2 size={16} />
@@ -157,8 +268,15 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord }: Prop
                                 </div>
 
                                 <div className="progress-section">
+                                    {estimate && (
+                                        <div className="estimate-tag">
+                                            {estimate.impossible
+                                                ? 'Tendencia opuesta ⚠️'
+                                                : `Est. ${estimate.weeks} semanas al ritmo actual`}
+                                        </div>
+                                    )}
                                     <div className="progress-header">
-                                        <span>Progreso</span>
+                                        <span>Proximidad</span>
                                         <span>{progress}%</span>
                                     </div>
                                     <div className="progress-bar-bg">
@@ -219,6 +337,59 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord }: Prop
                     background: #1a1a1d;
                 }
 
+                .suggestions-scroll {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 1rem;
+                    margin-bottom: 0.5rem;
+                }
+                .suggestion-card {
+                    padding: 1.25rem;
+                    border-radius: 16px;
+                    border: 1px dashed rgba(245, 158, 11, 0.3);
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .suggestion-card:hover {
+                    background: rgba(245, 158, 11, 0.1);
+                    border-style: solid;
+                }
+                .sug-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 0.7rem;
+                    text-transform: uppercase;
+                    color: var(--primary-color);
+                    margin-bottom: 0.5rem;
+                }
+                .suggestion-card h4 {
+                    font-size: 0.95rem;
+                    margin-bottom: 0.25rem;
+                }
+                .sug-val {
+                    font-size: 1.5rem;
+                    font-weight: 800;
+                    color: white;
+                    margin-bottom: 0.5rem;
+                }
+                .suggestion-card p {
+                    font-size: 0.75rem;
+                    color: var(--text-secondary);
+                    line-height: 1.4;
+                    margin-bottom: 1rem;
+                }
+                .sug-action {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 0.8rem;
+                    font-weight: bold;
+                    color: var(--primary-color);
+                }
+
                 .goals-grid {
                     display: grid;
                     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -236,6 +407,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord }: Prop
                 .goal-card:hover {
                     border-color: #f59e0b;
                     box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);
+                    transform: translateY(-2px);
                 }
                 .goal-card-header {
                     display: flex;
@@ -260,6 +432,8 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord }: Prop
                     font-size: 0.7rem;
                     color: var(--text-secondary);
                     opacity: 0.7;
+                    display: flex;
+                    align-items: center;
                 }
                 .delete-btn {
                     margin-left: auto;
@@ -307,6 +481,15 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord }: Prop
                     flex-direction: column;
                     gap: 0.5rem;
                 }
+                .estimate-tag {
+                    font-size: 0.7rem;
+                    color: var(--text-secondary);
+                    background: rgba(255, 255, 255, 0.05);
+                    padding: 2px 8px;
+                    border-radius: 4px;
+                    align-self: flex-start;
+                    margin-bottom: 4px;
+                }
                 .progress-header {
                     display: flex;
                     justify-content: space-between;
@@ -339,6 +522,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord }: Prop
                     border-style: dashed;
                     border-width: 2px;
                 }
+                .text-primary { color: var(--primary-color); }
             `}</style>
         </div>
     );
