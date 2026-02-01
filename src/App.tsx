@@ -271,7 +271,9 @@ function App() {
                   <ul className="summary-list">
                     <ul className="summary-list">
                       {[
+                        { key: 'height', label: 'Altura', unit: 'cm' },
                         { key: 'weight', label: 'Peso', unit: 'kg', inverse: true },
+                        { key: 'bodyFat', label: 'Grasa', unit: '%', inverse: true },
                         { key: 'neck', label: 'Cuello', unit: 'cm' },
                         { key: 'back', label: 'Espalda', unit: 'cm' },
                         { key: 'pecho', label: 'Pecho', unit: 'cm' },
@@ -279,6 +281,8 @@ function App() {
                         { key: 'hips', label: 'Cadera', unit: 'cm', inverse: true },
                         { key: 'arm.right', label: 'Bíceps (D)', unit: 'cm' },
                         { key: 'arm.left', label: 'Bíceps (I)', unit: 'cm' },
+                        { key: 'forearm.right', label: 'Antebrazo (D)', unit: 'cm' },
+                        { key: 'forearm.left', label: 'Antebrazo (I)', unit: 'cm' },
                         { key: 'thigh.right', label: 'Muslo (D)', unit: 'cm' },
                         { key: 'thigh.left', label: 'Muslo (I)', unit: 'cm' },
                         { key: 'calf.right', label: 'Gemelo (D)', unit: 'cm' },
@@ -302,12 +306,16 @@ function App() {
                           .reverse()
                           .slice(-5)
 
+                        // Skip if no value ever recorded (except core ones maybe?) 
+                        // For now show all to encourage filling them, or maybe hide completely empty?
+                        // Let's show placeholders.
+
                         return (
                           <li key={key}>
                             <span>{label}:</span>
                             <div className="summary-val-wrap">
                               {history.length > 1 && <Sparkline data={history} />}
-                              <strong>{val} {unit}</strong>
+                              <strong>{val ?? '--'} {unit}</strong>
                               <TrendIndicator
                                 current={val}
                                 previous={prevVal}
