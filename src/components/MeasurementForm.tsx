@@ -802,6 +802,15 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
                         border-radius: 12px;
                         border: 1px solid rgba(255, 255, 255, 0.05);
                     }
+                    .form-actions {
+                        justify-content: center;
+                        padding: 1.5rem;
+                        gap: 1rem;
+                    }
+                    .form-actions button {
+                        flex: 1;
+                        justify-content: center;
+                    }
                 }
             `}</style>
     </form >
