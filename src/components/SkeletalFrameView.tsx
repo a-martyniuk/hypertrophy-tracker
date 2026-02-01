@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Target, Info, Activity, HelpCircle } from 'lucide-react';
-import { Tooltip } from './Tooltip';
+import { Tooltip as AppTooltip } from './Tooltip';
 import type { BodyMeasurements, SkeletalFrame } from '../types/measurements';
 
 interface Props {
@@ -163,9 +163,9 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
             <div className="card-header">
               <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 Mis Medidas Base (cm)
-                <Tooltip content="Estas medidas determinan tu potencial máximo (Modelo Casey Butt)" position="right">
+                <AppTooltip content="Estas medidas determinan tu potencial máximo (Modelo Casey Butt)" position="right">
                   <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
-                </Tooltip>
+                </AppTooltip>
               </h3>
             </div>
             <div className="hud-column">
@@ -173,9 +173,9 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
                 <div className="hud-label-row">
                   <label>
                     Altura (cm)
-                    <Tooltip content="Altura total descalzo. Factor clave para el peso máximo." position="top">
+                    <AppTooltip content="Altura total descalzo. Factor clave para el peso máximo." position="top">
                       <HelpCircle size={12} style={{ display: 'inline', marginLeft: '4px', opacity: 0.5, cursor: 'help' }} />
-                    </Tooltip>
+                    </AppTooltip>
                   </label>
                 </div>
                 <input
@@ -191,9 +191,9 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
                 <div className="hud-label-row">
                   <label>
                     Muñeca
-                    <Tooltip content="Mide la circunferencia sobre el hueso estiloides (la parte más prominente)." position="top">
+                    <AppTooltip content="Mide la circunferencia sobre el hueso estiloides (la parte más prominente)." position="top">
                       <HelpCircle size={12} style={{ display: 'inline', marginLeft: '4px', opacity: 0.5, cursor: 'help' }} />
-                    </Tooltip>
+                    </AppTooltip>
                   </label>
                 </div>
                 <input
@@ -209,9 +209,9 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
                 <div className="hud-label-row">
                   <label>
                     Tobillo
-                    <Tooltip content="Mide la circunferencia en la parte más estrecha, justo encima de los huesos del tobillo." position="top">
+                    <AppTooltip content="Mide la circunferencia en la parte más estrecha, justo encima de los huesos del tobillo." position="top">
                       <HelpCircle size={12} style={{ display: 'inline', marginLeft: '4px', opacity: 0.5, cursor: 'help' }} />
-                    </Tooltip>
+                    </AppTooltip>
                   </label>
                 </div>
                 <input
@@ -301,9 +301,13 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
                     <span className="muscle-name capitalize">{displayNames[muscle] || muscle}:</span>
                     <span className="potential-val">Máx {value} cm</span>
                   </div>
-                  <div className="progress-bar-container">
-                    <div className="progress-bar" style={{ width: `${Math.min(progress, 100)}%` }}></div>
-                    <span className="progress-pct">{progress.toFixed(0)}%</span>
+                  <div style={{ width: '100%' }}>
+                    <AppTooltip content={`Actual: ${currentVal ? currentVal.toFixed(1) : '--'} cm`} position="top">
+                      <div className="progress-bar-container" style={{ cursor: 'help' }}>
+                        <div className="progress-bar" style={{ width: `${Math.min(progress, 100)}%` }}></div>
+                        <span className="progress-pct">{progress.toFixed(0)}%</span>
+                      </div>
+                    </AppTooltip>
                   </div>
                 </div>
               );
