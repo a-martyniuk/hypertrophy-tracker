@@ -228,19 +228,47 @@ function App() {
               </header>
 
               <div className="main-dashboard-content">
-                <div className="silhouette-card glass">
-                  <h3>Tu Silueta Actual</h3>
-                  <div className="silhouette-wrapper">
-                    <VolumeHeatmap
-                      currentMeasurements={latestRecord?.measurements || {
-                        weight: 0, height: 0, bodyFat: 0, neck: 0, back: 0, pecho: 0, waist: 0, hips: 0,
-                        arm: { left: 0, right: 0 }, forearm: { left: 0, right: 0 }, wrist: { left: 0, right: 0 },
-                        thigh: { left: 0, right: 0 }, calf: { left: 0, right: 0 }, ankle: { left: 0, right: 0 }
-                      }}
-                      referenceMeasurements={records[records.length - 1]?.measurements}
-                      sex={userSex}
-                      onMarkerClick={() => setActiveView('analysis')}
-                    />
+                <div className="left-column">
+                  <div className="silhouette-card glass">
+                    <h3>Tu Silueta Actual</h3>
+                    <div className="silhouette-wrapper">
+                      <VolumeHeatmap
+                        currentMeasurements={latestRecord?.measurements || {
+                          weight: 0, height: 0, bodyFat: 0, neck: 0, back: 0, pecho: 0, waist: 0, hips: 0,
+                          arm: { left: 0, right: 0 }, forearm: { left: 0, right: 0 }, wrist: { left: 0, right: 0 },
+                          thigh: { left: 0, right: 0 }, calf: { left: 0, right: 0 }, ankle: { left: 0, right: 0 }
+                        }}
+                        referenceMeasurements={records[records.length - 1]?.measurements}
+                        sex={userSex}
+                        onMarkerClick={() => setActiveView('analysis')}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Stats Cards Moved Here */}
+                  <div className="stats-mini-grid">
+                    <div className="stat-card glass gold-border">
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        Último Registro
+                        <Tooltip content="Fecha de la última medición registrada." position="top">
+                          <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
+                        </Tooltip>
+                      </label>
+                      <div className="value">
+                        {loading ? <Skeleton width={100} height={24} /> : (latestRecord ? new Date(latestRecord.date).toLocaleDateString() : '--')}
+                      </div>
+                    </div>
+                    <div className="stat-card glass">
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        Total Registros
+                        <Tooltip content="Cantidad total de mediciones guardadas en el historial." position="top">
+                          <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
+                        </Tooltip>
+                      </label>
+                      <div className="value">
+                        {loading ? <Skeleton width={40} height={24} /> : records.length}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -303,32 +331,6 @@ function App() {
                     ) : (
                       <p>No hay datos recientes</p>
                     )}
-                  </div>
-
-                  {/* Moved Stats Cards */}
-                  <div className="stats-mini-grid">
-                    <div className="stat-card glass gold-border">
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        Último Registro
-                        <Tooltip content="Fecha de la última medición registrada." position="top">
-                          <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
-                        </Tooltip>
-                      </label>
-                      <div className="value">
-                        {loading ? <Skeleton width={100} height={24} /> : (latestRecord ? new Date(latestRecord.date).toLocaleDateString() : '--')}
-                      </div>
-                    </div>
-                    <div className="stat-card glass">
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        Total Registros
-                        <Tooltip content="Cantidad total de mediciones guardadas en el historial." position="top">
-                          <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
-                        </Tooltip>
-                      </label>
-                      <div className="value">
-                        {loading ? <Skeleton width={40} height={24} /> : records.length}
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
