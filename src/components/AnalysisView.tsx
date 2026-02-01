@@ -9,6 +9,8 @@ import {
     Legend,
     ReferenceLine
 } from 'recharts';
+import { HelpCircle } from 'lucide-react';
+import { Tooltip as AppTooltip } from './Tooltip';
 import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
 
 interface Props {
@@ -139,7 +141,12 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
 
             <div className="charts-grid">
                 <div className="chart-card glass">
-                    <h3>Peso & Cintura</h3>
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        Peso & Cintura
+                        <AppTooltip content="Evolución temporal. La cintura es el mejor indicador de grasa corporal real." position="right">
+                            <HelpCircle size={14} className="text-secondary opacity-50 cursor-help" />
+                        </AppTooltip>
+                    </h3>
                     <div className="chart-container">
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={chartData}>
@@ -158,7 +165,12 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                 </div>
 
                 <div className="chart-card glass">
-                    <h3>Comparativa Brazos (R/L)</h3>
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        Comparativa Brazos (R/L)
+                        <AppTooltip content="Detecta asimetrías. Pequeñas diferencias son normales, >1cm requiere atención." position="right">
+                            <HelpCircle size={14} className="text-secondary opacity-50 cursor-help" />
+                        </AppTooltip>
+                    </h3>
                     <div className="chart-container">
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={chartData}>
@@ -194,7 +206,12 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                 </div>
 
                 <div className="chart-card glass">
-                    <h3>Proporción Tronco (Pecho/Espalda/Cuello)</h3>
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        Proporción Tronco
+                        <AppTooltip content="Media de Pecho, Espalda y Cuello. Indica crecimiento global del torso." position="right">
+                            <HelpCircle size={14} className="text-secondary opacity-50 cursor-help" />
+                        </AppTooltip>
+                    </h3>
                     <div className="chart-container">
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={chartData}>
@@ -210,7 +227,12 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                 </div>
 
                 <div className="chart-card glass">
-                    <h3>Ratio Cintura/Cadera (Salud Metabólica)</h3>
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        Ratio Cintura/Cadera
+                        <AppTooltip content="Indicador clave de salud metabólica. Hombres < 0.9, Mujeres < 0.85 recomendado." position="right">
+                            <HelpCircle size={14} className="text-secondary opacity-50 cursor-help" />
+                        </AppTooltip>
+                    </h3>
                     <div className="chart-container">
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={chartData}>

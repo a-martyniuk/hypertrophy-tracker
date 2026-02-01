@@ -13,6 +13,7 @@ import { useAuth } from './hooks/useAuth'
 import { useProfile } from './hooks/useProfile'
 import type { MeasurementRecord } from './types/measurements'
 import { LayoutGrid, Plus, History, Activity, LogOut, User, Target, TrendingUp, TrendingDown, Minus, Camera, Calculator } from 'lucide-react'
+import { Tooltip } from './components/Tooltip'
 
 import { AuthView } from './components/AuthView'
 
@@ -118,54 +119,70 @@ function App() {
         </div>
 
         <div className="nav-items">
-          <button
-            className={activeView === 'dashboard' ? 'active' : ''}
-            onClick={() => setActiveView('dashboard')}
-          >
-            <LayoutGrid size={20} /> Dashboard
-          </button>
-          <button
-            className={activeView === 'new-entry' ? 'active' : ''}
-            onClick={() => setActiveView('new-entry')}
-          >
-            <Plus size={20} /> Nueva Medida
-          </button>
-          <button
-            className={activeView === 'history' ? 'active' : ''}
-            onClick={() => setActiveView('history')}
-          >
-            <History size={20} /> Historial
-          </button>
-          <button
-            className={activeView === 'analysis' ? 'active' : ''}
-            onClick={() => setActiveView('analysis')}
-          >
-            <Activity size={20} /> Análisis
-          </button>
-          <button
-            className={activeView === 'potential' ? 'active' : ''}
-            onClick={() => setActiveView('potential')}
-          >
-            <Target size={20} /> Potencial
-          </button>
-          <button
-            className={activeView === 'comparison' ? 'active' : ''}
-            onClick={() => setActiveView('comparison')}
-          >
-            <Camera size={20} /> Comparativa
-          </button>
-          <button
-            className={activeView === 'calculator' ? 'active' : ''}
-            onClick={() => setActiveView('calculator')}
-          >
-            <Calculator size={20} /> Calculadora
-          </button>
-          <button
-            className={activeView === 'goals' ? 'active' : ''}
-            onClick={() => setActiveView('goals')}
-          >
-            <Target size={20} /> Objetivos
-          </button>
+          <Tooltip content="Vista general y resumen" position="right">
+            <button
+              className={activeView === 'dashboard' ? 'active' : ''}
+              onClick={() => setActiveView('dashboard')}
+            >
+              <LayoutGrid size={20} /> Dashboard
+            </button>
+          </Tooltip>
+          <Tooltip content="Registrar nuevas medidas corporales" position="right">
+            <button
+              className={activeView === 'new-entry' ? 'active' : ''}
+              onClick={() => setActiveView('new-entry')}
+            >
+              <Plus size={20} /> Nueva Medida
+            </button>
+          </Tooltip>
+          <Tooltip content="Ver historial de registros" position="right">
+            <button
+              className={activeView === 'history' ? 'active' : ''}
+              onClick={() => setActiveView('history')}
+            >
+              <History size={20} /> Historial
+            </button>
+          </Tooltip>
+          <Tooltip content="Análisis gráfico de tu progreso" position="right">
+            <button
+              className={activeView === 'analysis' ? 'active' : ''}
+              onClick={() => setActiveView('analysis')}
+            >
+              <Activity size={20} /> Análisis
+            </button>
+          </Tooltip>
+          <Tooltip content="Análisis de estructura ósea (Casey Butt)" position="right">
+            <button
+              className={activeView === 'potential' ? 'active' : ''}
+              onClick={() => setActiveView('potential')}
+            >
+              <Target size={20} /> Potencial
+            </button>
+          </Tooltip>
+          <Tooltip content="Comparativa visual de fotos" position="right">
+            <button
+              className={activeView === 'comparison' ? 'active' : ''}
+              onClick={() => setActiveView('comparison')}
+            >
+              <Camera size={20} /> Comparativa
+            </button>
+          </Tooltip>
+          <Tooltip content="Calculadora de BMR y TDEE" position="right">
+            <button
+              className={activeView === 'calculator' ? 'active' : ''}
+              onClick={() => setActiveView('calculator')}
+            >
+              <Calculator size={20} /> Calculadora
+            </button>
+          </Tooltip>
+          <Tooltip content="Definir metas de medidas" position="right">
+            <button
+              className={activeView === 'goals' ? 'active' : ''}
+              onClick={() => setActiveView('goals')}
+            >
+              <Target size={20} /> Objetivos
+            </button>
+          </Tooltip>
         </div>
 
         <div className="nav-footer">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Target, Info, Activity } from 'lucide-react';
+import { Target, Info, Activity, HelpCircle } from 'lucide-react';
+import { Tooltip } from './Tooltip';
 import type { BodyMeasurements, SkeletalFrame } from '../types/measurements';
 
 interface Props {
@@ -160,12 +161,22 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
         <div className="left-column">
           <div className="card glass baseline-input">
             <div className="card-header">
-              <h3>Mis Medidas Base (cm)</h3>
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                Mis Medidas Base (cm)
+                <Tooltip content="Estas medidas determinan tu potencial máximo (Modelo Casey Butt)" position="right">
+                  <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
+                </Tooltip>
+              </h3>
             </div>
             <div className="hud-column">
               <div className="hud-input-group">
                 <div className="hud-label-row">
-                  <label>Altura (cm)</label>
+                  <label>
+                    Altura (cm)
+                    <Tooltip content="Altura total descalzo. Factor clave para el peso máximo." position="top">
+                      <HelpCircle size={12} style={{ display: 'inline', marginLeft: '4px', opacity: 0.5, cursor: 'help' }} />
+                    </Tooltip>
+                  </label>
                 </div>
                 <input
                   type="number"
@@ -178,7 +189,12 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
 
               <div className="hud-input-group">
                 <div className="hud-label-row">
-                  <label>Muñeca</label>
+                  <label>
+                    Muñeca
+                    <Tooltip content="Mide la circunferencia sobre el hueso estiloides (la parte más prominente)." position="top">
+                      <HelpCircle size={12} style={{ display: 'inline', marginLeft: '4px', opacity: 0.5, cursor: 'help' }} />
+                    </Tooltip>
+                  </label>
                 </div>
                 <input
                   type="number"
@@ -191,7 +207,12 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave, sex =
 
               <div className="hud-input-group">
                 <div className="hud-label-row">
-                  <label>Tobillo</label>
+                  <label>
+                    Tobillo
+                    <Tooltip content="Mide la circunferencia en la parte más estrecha, justo encima de los huesos del tobillo." position="top">
+                      <HelpCircle size={12} style={{ display: 'inline', marginLeft: '4px', opacity: 0.5, cursor: 'help' }} />
+                    </Tooltip>
+                  </label>
                 </div>
                 <input
                   type="number"

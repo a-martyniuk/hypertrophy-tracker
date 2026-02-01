@@ -8,8 +8,10 @@ import {
     Waves,
     TrendingDown,
     TrendingUp,
-    Minus
+    Minus,
+    HelpCircle
 } from 'lucide-react'
+import { Tooltip } from './Tooltip'
 import {
     calculateBMR,
     calculateBasalCalories,
@@ -74,11 +76,16 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
 
     }, [weight, height, age, sex, neatLevel, trainingType, trainingFreq, sessionDuration, intensity])
 
-    const InfoCard = ({ title, value, unit, icon: Icon, subtext, color = 'var(--text-primary)' }: any) => (
+    const InfoCard = ({ title, value, unit, icon: Icon, subtext, color = 'var(--text-primary)', tooltip }: any) => (
         <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                 <Icon size={16} />
                 {title}
+                {tooltip && (
+                    <Tooltip content={tooltip} position="top">
+                        <HelpCircle size={14} style={{ cursor: 'help', opacity: 0.6 }} />
+                    </Tooltip>
+                )}
             </div>
             <div style={{ fontSize: '1.8rem', fontWeight: '700', color: color }}>
                 {value} <span style={{ fontSize: '1rem', fontWeight: '500', color: 'var(--text-secondary)' }}>{unit}</span>
@@ -139,6 +146,9 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
 
                 <h2 style={{ margin: '2rem 0 1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Activity size={24} color="var(--primary-color)" /> Nivel de Actividad (NEAT)
+                    <Tooltip content="Non-Exercise Activity Thermogenesis: Calorías quemadas fuera del entrenamiento (trabajo, caminar, etc)." position="right">
+                        <HelpCircle size={18} style={{ color: 'var(--text-secondary)', cursor: 'help' }} />
+                    </Tooltip>
                 </h2>
 
                 <div className="selector-group">
@@ -201,6 +211,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                         unit="kcal"
                         icon={Flame}
                         subtext="Gasto en reposo absoluto"
+                        tooltip="Energía mínima necesaria para sobrevivir si estuvieras durmiendo todo el día. (Ecuación Mifflin-St Jeor)"
                     />
                     <InfoCard
                         title="Gasto Diario (NEAT)"
@@ -208,6 +219,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                         unit="kcal"
                         icon={Activity}
                         subtext="BMR + Actividad diaria"
+                        tooltip="Combina tu metabolismo basal con tu nivel de actividad cotidiana (trabajo, pasos diarios), sin contar entrenamiento deportivo."
                     />
                     <InfoCard
                         title="Gasto Entrenamiento"
@@ -216,6 +228,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                         icon={Zap}
                         subtext="Promedio diario extra"
                         color="var(--primary-color)"
+                        tooltip="Calorías quemadas EXCLUSIVAMENTE en tus sesiones de ejercicio. Se promedian a lo largo de la semana."
                     />
                     <InfoCard
                         title="TDEE Total"
@@ -224,6 +237,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                         icon={Waves}
                         subtext="Mantenimiento real"
                         color="#fff" // Clean white for main contrast
+                        tooltip="Total Daily Energy Expenditure: La suma de todo tu gasto calórico. Si comes esta cantidad, mantendrás tu peso actual."
                     />
                 </div>
 
