@@ -153,6 +153,12 @@ function App() {
           >
             <Camera size={20} /> Comparativa
           </button>
+          <button
+            className={activeView === 'goals' ? 'active' : ''}
+            onClick={() => setActiveView('goals')}
+          >
+            <Target size={20} /> Objetivos
+          </button>
         </div>
 
         <div className="nav-footer">
