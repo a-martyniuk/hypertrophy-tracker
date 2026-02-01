@@ -207,15 +207,15 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                 </div>
                 <div className="stat-card-mini glass">
                     <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        Evolución Tronco
-                        <AppTooltip content="Crecimiento promedio de la medida de pecho, espalda y cuello respecto al mes anterior." position="bottom">
+                        Ratio Cintura/Pecho
+                        <AppTooltip content="Relación entre cintura y pecho. Ideal 'Old School' ≈ 0.70 - 0.75 (V-Taper)." position="bottom">
                             <HelpCircle size={12} className="text-secondary opacity-60 cursor-help" />
                         </AppTooltip>
                     </label>
                     <div className="value">
-                        {latest && previous ? (((latest.measurements.pecho + latest.measurements.back) / 2) - ((previous.measurements.pecho + previous.measurements.back) / 2)).toFixed(1) : '0.0'}
-                        <small>cm</small>
+                        {latest ? (latest.measurements.waist / latest.measurements.pecho).toFixed(2) : '--'}
                     </div>
+                    <span className="subtitle">Estética (V-Shape)</span>
                 </div>
             </header>
 
