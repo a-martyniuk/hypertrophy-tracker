@@ -14,6 +14,7 @@
         "compare": "Comparar",
         "new_entry": "Nueva Medida",
         "logout": "Salir",
+        "warning": "Advertencia",
         "menu": {
             "dashboard": "Inicio",
             "new_entry": "Nueva Medida",
@@ -225,7 +226,7 @@
         "btn_download": "DESCARGAR RESPALDO",
         "btn_processing": "PROCESANDO...",
         "btn_upload": "CARGAR ARCHIVO RESPALDO",
-        "warning_overwrite": "Advertencia: Esta acción sobrescribirá los datos guardados en este dispositivo. Asegúrate de exportar tus datos actuales antes de continuar si tienes dudas."
+        "warning_overwrite": "Esta acción sobrescribirá los datos guardados en este dispositivo. Asegúrate de exportar tus datos actuales antes de continuar si tienes dudas."
     },
     "analysis": {
         "back_to_panel": "Volver al Panel General",

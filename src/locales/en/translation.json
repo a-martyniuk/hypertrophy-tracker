@@ -12,8 +12,9 @@
         "analysis": "Analysis",
         "genetics": "Genetics",
         "compare": "Compare",
-        "new_entry": "New Entry",
-        "logout": "Log Out",
+        "new_entry": "New Measurement",
+        "logout": "Logout",
+        "warning": "Warning",
         "menu": {
             "dashboard": "Dashboard",
             "new_entry": "New Entry",
@@ -225,7 +226,7 @@
         "btn_download": "DOWNLOAD BACKUP",
         "btn_processing": "PROCESSING...",
         "btn_upload": "LOAD BACKUP FILE",
-        "warning_overwrite": "Warning: This action will overwrite data saved on this device. Make sure to export your current data before continuing if unsure."
+        "warning_overwrite": "This action will overwrite data saved on this device. Make sure to export your current data before continuing if unsure."
     },
     "analysis": {
         "back_to_panel": "Back to Dashboard",
