@@ -30,11 +30,11 @@
       "destination": "/index.html"
     },
     {
-      "source": "/hypertrophyracker/(.*)",
+      "source": "/hypertrophyracker/:path*",
       "destination": "/index.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ]
