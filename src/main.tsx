@@ -7,9 +7,12 @@ import App from './App.tsx'
 
 import { ProfileProvider } from './context/ProfileContext'
 
+// React Router basename MUST NOT end with a trailing slash
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter basename={basename}>
       <ProfileProvider>
         <App />
       </ProfileProvider>
