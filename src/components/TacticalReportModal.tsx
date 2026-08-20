@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { toPng } from 'html-to-image';
 import { X, Download, Sparkles, Activity, Award, CheckCircle2, AlertCircle } from 'lucide-react';
 import type { MeasurementRecord } from '../types/measurements';
@@ -100,11 +101,17 @@ export const TacticalReportModal: React.FC<Props> = ({
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
-            <div className="relative w-full max-w-2xl my-8 bg-neutral-950 border border-amber-500/30 rounded-2xl shadow-2xl overflow-hidden">
+    const modalContent = (
+        <div
+            className="fixed inset-0 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto"
+            style={{ zIndex: 99999 }}
+            onClick={(e) => {
+                if (e.target === e.currentTarget) onClose();
+            }}
+        >
+            <div className="relative w-full max-w-2xl my-8 bg-neutral-950 border border-amber-500/40 rounded-2xl shadow-2xl overflow-hidden">
                 {/* Modal Toolbar */}
-                <div className="flex items-center justify-between p-4 bg-neutral-900/90 border-b border-neutral-800">
+                <div className="flex items-center justify-between p-4 bg-neutral-900/95 border-b border-neutral-800">
                     <div className="flex items-center gap-2 text-amber-400 font-mono text-xs sm:text-sm font-bold">
                         <Activity size={18} />
                         <span>FICHA TÁCTICA DE INTELIGENCIA CORPORAL</span>
@@ -154,7 +161,7 @@ export const TacticalReportModal: React.FC<Props> = ({
                 )}
 
                 {/* Printable Report Canvas */}
-                <div className="p-4 sm:p-6 overflow-x-auto">
+                <div className="p-4 sm:p-6 overflow-x-auto max-h-[80vh]">
                     <div
                         ref={reportRef}
                         id="tactical-report-card"
@@ -339,4 +346,6 @@ export const TacticalReportModal: React.FC<Props> = ({
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 };
