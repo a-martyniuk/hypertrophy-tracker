@@ -33,23 +33,7 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/v1\/render\/image\/.*/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'supabase-images-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-        ],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
       }
     })
   ],

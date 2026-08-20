@@ -11,32 +11,33 @@ Este documento contiene el material visual y narrativo para la exposición del p
 ## 📸 Galería Promocional
 
 ### 1. Dashboard de Control Maestro
-![Dashboard Heatmap](promo/dashboard.png)
+![Dashboard Heatmap](promo/1-Inicio.png)
 *Visualización HUD 100% real con el heatmap dinámico de progresión.*
 
 ### 2. Auditoría Corporal Interactiva
-![Formulario](promo/formulario.png)
-*Interfaz táctica para el registro preciso de perímetros y pliegues.*
+![Formulario](promo/2-Nueva%20medida.png)
+*Interfaz táctica para el registro preciso de perímetros corporales.*
 
 ### 3. Centro de Inteligencia y Objetivos
-![Objetivos](promo/objetivos.png)
+![Objetivos](promo/8-Objetivos.png)
 *Monitoreo de metas basado en datos y potencial genético real.*
 
 ---
 
 ## 🛠️ Highlights Tecnológicos
 
-- **React 19 + TypeScript:** Arquitectura de vanguardia para una experiencia sin lags.
-- **Supabase Cloud:** Tus datos y fotos siempre contigo, protegidos y accesibles.
+- **React 19 + TypeScript:** Arquitectura moderna y ultra-rápida.
+- **Firebase Firestore (Always-On):** Base de datos documental NoSQL siempre activa 24/7 sin suspensiones por inactividad.
 - **Skeletal Analysis:** Algoritmos de Casey Butt para predecir tu potencial genético real.
-- **PWA Ready:** Instalable en iOS/Android directamente desde el navegador.
+- **Calculadora Metabólica:** Algoritmos Mifflin-St Jeor y Katch-McArdle para control energético.
+- **PWA Nativa:** Instalable en iOS/Android directamente desde el navegador para uso sin conexión en el gimnasio.
 
 ---
 
 ## 💡 Mensaje para Redes (Copy sugerido)
 
-> "Cansado de trackers básicos? He construido **Hypertrophy Tracker**, una herramienta HUD premium para llevar mi progreso físico al siguiente nivel. Con heatmap de crecimiento muscular, análisis de potencial genético y sincronización en la nube. 🚀💪 #FitnessTech #BuildInPublic #HypertrophyTracker"
+> "¿Cansado de trackers básicos o bases de datos lentas? He construido **Hypertrophy Tracker**, una herramienta HUD premium para llevar mi progreso físico al siguiente nivel. Con heatmap de crecimiento muscular, análisis de potencial genético, calculadora metabólica y sincronización en la nube 24/7. 🚀💪 #FitnessTech #BuildInPublic #HypertrophyTracker #React #Firebase"
 
 ---
 
-*Nota: Este material está listo para ser copiado y pegado en LinkedIn, Instagram o tu portafolio personal.*
+*Nota: Este material está listo para ser copiado y pegado en LinkedIn, Twitter o tu portafolio personal.*

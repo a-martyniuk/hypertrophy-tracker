@@ -5,12 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Activity } from 'lucide-react';
 import { DynamicSilhouette } from './DynamicSilhouette';
 import { useAuth } from '../hooks/useAuth';
-import type { BodyPhoto, MeasurementRecord, RecordMetadata, BodyMeasurements } from '../types/measurements';
+import type { MeasurementRecord, RecordMetadata, BodyMeasurements } from '../types/measurements';
 import { measurementRecordSchema, type MeasurementFormValues } from '../schemas/measurements';
 import { MeasurementInput } from './measurement/MeasurementInput';
 import { MeasurementSection } from './measurement/MeasurementSection';
 import { FormActions } from './measurement/FormActions';
-import { PhotoUploadSection } from './measurement/PhotoUploadSection';
 import { ContextSection } from './measurement/ContextSection';
 import { useToast } from './ui/ToastProvider';
 import { useMeasurementLines } from '../hooks/useMeasurementLines';
@@ -78,7 +77,6 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
   }, [measurements, date, recordToEdit]);
 
   const [notes, setNotes] = useState(recordToEdit?.notes || '');
-  const [photos, setPhotos] = useState<BodyPhoto[]>(recordToEdit?.photos || []);
   const [metadata, setMetadata] = useState<RecordMetadata>(recordToEdit?.metadata || {
     condition: 'fasted',
     sleepHours: 8
@@ -91,12 +89,11 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
   const onSubmit = async (data: MeasurementFormValues['measurements']) => {
     const record: MeasurementRecord = {
       id: recordToEdit?.id || crypto.randomUUID(),
-      userId: user?.id || 'default-user',
+      userId: user?.uid || 'default-user',
       date: new Date(`${date}T00:00:00`).toISOString(),
       measurements: data,
       notes,
       metadata,
-      photos,
     };
 
     try {
@@ -221,13 +218,6 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
         onChange={setMetadata}
         notes={notes}
         onNotesChange={(e) => setNotes(e.target.value)}
-      />
-
-      <PhotoUploadSection
-        userId={user?.id || 'guest'}
-        recordId={recordToEdit?.id && recordToEdit.id !== 'new-record' ? recordToEdit.id : (previousRecord?.id || 'new-record')}
-        existingPhotos={photos}
-        onPhotosUpdated={setPhotos}
       />
 
       {hasErrors && (

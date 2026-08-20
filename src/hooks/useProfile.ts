@@ -1,9 +1,12 @@
-import { useProfileContext } from '../context/ProfileContext';
+import { useContext } from 'react';
+import { ProfileContext } from '../context/ProfileContext';
 
-/**
- * Hook to access the global User Profile context.
- * Now wraps useProfileContext to maintain backward compatibility.
- */
 export const useProfile = () => {
-    return useProfileContext();
+    const context = useContext(ProfileContext);
+    if (context === undefined) {
+        throw new Error('useProfile must be used within a ProfileProvider');
+    }
+    return context;
 };
+
+export const useProfileContext = useProfile;

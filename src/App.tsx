@@ -6,7 +6,6 @@ import { HistoryView } from './components/HistoryView'
 import { AnalysisView } from './components/AnalysisView'
 import { GoalsView } from './components/GoalsView'
 import { SkeletalFrameView } from './components/SkeletalFrameView'
-import { PhotoComparisonView } from './components/PhotoComparisonView'
 import { MetabolismCalculator } from './components/MetabolismCalculator'
 import { DashboardView } from './components/DashboardView'
 import { SettingsView } from './components/SettingsView'
@@ -24,15 +23,15 @@ function App() {
   const [editingRecord, setEditingRecord] = useState<MeasurementRecord | null>(null)
   const navigate = useNavigate()
 
-  const { user: authUser, session: authSession, loading: authLoading } = useAuth()
-  const { records, saveRecord, deleteRecord, refresh, loading } = useMeasurements(authUser?.id, authSession)
+  const { user: authUser, loading: authLoading } = useAuth()
+  const { records, saveRecord, deleteRecord, refresh, loading } = useMeasurements(authUser?.uid)
 
-  // Force data refresh when session updates (e.g. login from stale state)
+  // Force data refresh when authUser updates
   useEffect(() => {
-    if (authSession?.access_token && authUser?.id) {
-      refresh(authUser.id)
+    if (authUser?.uid) {
+      refresh(authUser.uid)
     }
-  }, [authSession?.access_token, authUser?.id])
+  }, [authUser?.uid, refresh])
 
   // Ensure Guest Mode is disabled if we have a real user
   useEffect(() => {
@@ -40,10 +39,10 @@ function App() {
   }, [authUser])
 
   const { profile, updateProfile } = useProfile()
-  const { goals, addGoal, deleteGoal } = useGoals(authUser?.id)
+  const { goals, addGoal, deleteGoal } = useGoals(authUser?.uid)
 
   const userSex = profile?.sex || 'male'
-  const userName = profile?.name || authUser?.email?.split('@')[0] || 'Atleta'
+  const userName = profile?.name || authUser?.displayName || authUser?.email?.split('@')[0] || 'Atleta'
 
   const handleSave = async (record: MeasurementRecord) => {
     const result = await saveRecord(record)
@@ -123,17 +122,13 @@ function App() {
           />
         } />
 
-        <Route path="/comparison" element={
-          <PhotoComparisonView records={records} userName={userName} />
-        } />
-
         <Route path="/calculator" element={
           <MetabolismCalculator
             sex={userSex}
             currentWeight={records[0]?.measurements.weight}
             height={records[0]?.measurements.height}
-            age={undefined} // Let calculator use storage or default
-            userId={authUser?.id}
+            age={undefined}
+            userId={authUser?.uid}
           />
         } />
 

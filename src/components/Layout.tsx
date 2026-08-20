@@ -1,7 +1,7 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { Plus, History, Activity, LogOut, User, LayoutGrid, Target, Camera, Calculator, Dna, Settings } from 'lucide-react'
+import { Plus, History, Activity, LogOut, User, LayoutGrid, Target, Calculator, Dna, Settings } from 'lucide-react'
 import { Tooltip } from './Tooltip'
 import { ToastProvider } from './ui/ToastProvider'
 import { useAuth } from '../hooks/useAuth'
@@ -36,7 +36,6 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
         { path: 'history', icon: History, label: t('common.menu.history'), tooltip: t('common.tooltips.history') },
         { path: 'analysis', icon: Activity, label: t('common.menu.analysis'), tooltip: t('common.tooltips.analysis') },
         { path: 'potential', icon: Dna, label: t('common.menu.genetics'), tooltip: t('common.tooltips.genetics') },
-        { path: 'comparison', icon: Camera, label: t('common.menu.compare'), tooltip: t('common.tooltips.compare') },
         { path: 'calculator', icon: Calculator, label: t('common.menu.metabolism'), tooltip: t('common.tooltips.metabolism') },
         { path: 'goals', icon: Target, label: t('common.menu.goals'), tooltip: t('common.tooltips.goals') },
         { path: 'settings', icon: Settings, label: t('common.menu.settings'), tooltip: t('common.tooltips.settings') },

@@ -1,5 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import {
+    collection,
+    doc,
+    getDocs,
+    setDoc,
+    deleteDoc,
+    query,
+    orderBy
+} from 'firebase/firestore';
+import { db, isFirebaseConfigured } from '../lib/firebase';
 import type { GrowthGoal } from '../types/measurements';
 
 const STORAGE_KEY = 'hypertrophy_goals';
@@ -8,130 +17,120 @@ export const useGoals = (userId?: string) => {
     const [goals, setGoals] = useState<GrowthGoal[]>([]);
 
     const fetchGoals = useCallback(async () => {
-        if (!userId) {
-            console.log('[useGoals] No userId provided, fetching from local storage');
+        if (!userId || userId === 'guest' || !isFirebaseConfigured) {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
-                setGoals(JSON.parse(saved));
+                try {
+                    setGoals(JSON.parse(saved));
+                } catch {
+                    setGoals([]);
+                }
             } else {
                 setGoals([]);
             }
             return;
         }
 
-        console.log('[useGoals] Fetching goals for user:', userId);
-        const { data, error } = await supabase
-            .from('growth_goals')
-            .select('*')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
+        try {
+            const goalsRef = collection(db, 'users', userId, 'goals');
+            const q = query(goalsRef, orderBy('createdAt', 'desc'));
+            const snapshot = await getDocs(q);
 
-        if (error) {
-            console.error('[useGoals] Error fetching goals:', error);
-        } else if (data) {
-            const mappedGoals: GrowthGoal[] = data.map((g: any) => ({
-                id: g.id,
-                userId: g.user_id,
-                measurementType: g.measurement_type,
-                targetValue: g.target_value,
-                targetDate: g.target_date,
-                status: g.status,
-                createdAt: g.created_at
-            }));
+            const mappedGoals: GrowthGoal[] = [];
+            snapshot.forEach((d) => {
+                const data = d.data();
+                mappedGoals.push({
+                    id: d.id,
+                    userId: data.userId || userId,
+                    measurementType: data.measurementType,
+                    targetValue: data.targetValue,
+                    targetDate: data.targetDate,
+                    status: data.status,
+                    createdAt: data.createdAt
+                });
+            });
+
             setGoals(mappedGoals);
+        } catch (error) {
+            console.error('[useGoals] Error al obtener objetivos de Firestore:', error);
         }
     }, [userId]);
 
     const addGoal = async (goal: Omit<GrowthGoal, 'id' | 'createdAt'>) => {
-        console.log('[useGoals] Adding goal for user:', userId, goal);
+        const isCloud = isFirebaseConfigured && userId && userId !== 'guest';
+        const newId = crypto.randomUUID();
+        const createdAt = new Date().toISOString();
 
-        if (!userId) {
-            console.log('[useGoals] No user, saving to local storage');
-            const newGoal: GrowthGoal = {
-                ...goal,
-                id: crypto.randomUUID(),
-                createdAt: new Date().toISOString(),
-                userId: 'guest'
-            };
+        const newGoal: GrowthGoal = {
+            ...goal,
+            id: newId,
+            createdAt,
+            userId: isCloud ? userId : 'guest'
+        };
+
+        if (!isCloud) {
             const newGoals = [newGoal, ...goals];
             setGoals(newGoals);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(newGoals));
             return;
         }
 
-        console.log('[useGoals] Attempting Supabase insert...');
-        const { data, error } = await supabase
-            .from('growth_goals')
-            .insert({
-                user_id: userId,
-                measurement_type: goal.measurementType,
-                target_value: goal.targetValue,
-                target_date: goal.targetDate,
-                status: goal.status
-            })
-            .select();
-
-        if (error) {
-            console.error('[useGoals] Supabase insert error:', error);
+        try {
+            const goalDocRef = doc(db, 'users', userId, 'goals', newId);
+            await setDoc(goalDocRef, newGoal);
+            setGoals(prev => [newGoal, ...prev]);
+        } catch (error) {
+            console.error('[useGoals] Error al insertar objetivo en Firestore:', error);
             throw error;
-        } else {
-            console.log('[useGoals] Insert successful, fetching updated goals...', data);
-            await fetchGoals();
         }
     };
 
     const deleteGoal = async (id: string) => {
-        if (!userId) {
+        const isCloud = isFirebaseConfigured && userId && userId !== 'guest';
+
+        if (!isCloud) {
             const newGoals = goals.filter(g => g.id !== id);
             setGoals(newGoals);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(newGoals));
             return;
         }
 
-        const { error } = await supabase
-            .from('growth_goals')
-            .delete()
-            .eq('id', id)
-            .eq('user_id', userId);
-
-        if (error) {
-            console.error('[useGoals] Error deleting goal:', error);
+        try {
+            const goalDocRef = doc(db, 'users', userId, 'goals', id);
+            await deleteDoc(goalDocRef);
+            setGoals(prev => prev.filter(g => g.id !== id));
+        } catch (error) {
+            console.error('[useGoals] Error al eliminar objetivo de Firestore:', error);
             throw error;
-        } else {
-            await fetchGoals();
         }
     };
 
     const syncLocalGoalsToCloud = useCallback(async () => {
-        if (!userId) return;
+        if (!userId || userId === 'guest' || !isFirebaseConfigured) return;
 
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) return;
 
-        const localGoals: GrowthGoal[] = JSON.parse(saved);
+        let localGoals: GrowthGoal[] = [];
+        try {
+            localGoals = JSON.parse(saved);
+        } catch {
+            return;
+        }
+
         if (localGoals.length === 0) return;
 
-        console.log(`Syncing ${localGoals.length} goals to cloud for user ${userId}...`);
+        console.log(`[useGoals] Sincronizando ${localGoals.length} objetivos locales a Firestore...`);
 
-        // We can't use addGoal here easily if it depends on state/other things, 
-        // but let's implement the core insert logic directly to avoid circular deps or complexity
         for (const goal of localGoals) {
-            const { data: existing } = await supabase
-                .from('growth_goals')
-                .select('id')
-                .eq('user_id', userId)
-                .eq('measurement_type', goal.measurementType)
-                .eq('target_value', goal.targetValue)
-                .maybeSingle();
-
-            if (!existing) {
-                await supabase.from('growth_goals').insert({
-                    user_id: userId,
-                    measurement_type: goal.measurementType,
-                    target_value: goal.targetValue,
-                    target_date: goal.targetDate,
-                    status: goal.status
-                });
+            try {
+                const goalDocRef = doc(db, 'users', userId, 'goals', goal.id || crypto.randomUUID());
+                await setDoc(goalDocRef, {
+                    ...goal,
+                    userId
+                }, { merge: true });
+            } catch (err) {
+                console.error('[useGoals] Error al sincronizar objetivo individual:', err);
             }
         }
 
@@ -139,11 +138,17 @@ export const useGoals = (userId?: string) => {
     }, [userId]);
 
     useEffect(() => {
-        if (userId) {
-            syncLocalGoalsToCloud().then(() => fetchGoals());
-        } else {
-            fetchGoals();
-        }
+        let isMounted = true;
+        const init = async () => {
+            if (userId && userId !== 'guest' && isFirebaseConfigured) {
+                await syncLocalGoalsToCloud();
+                if (isMounted) await fetchGoals();
+            } else {
+                if (isMounted) await fetchGoals();
+            }
+        };
+        void init();
+        return () => { isMounted = false; };
     }, [userId, fetchGoals, syncLocalGoalsToCloud]);
 
     return {
