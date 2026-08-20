@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus, HelpCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Plus, HelpCircle, TrendingUp, TrendingDown, Minus, FileText } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 import { Skeleton } from './ui/Skeleton';
 import { VolumeHeatmap } from './VolumeHeatmap';
 import { HudCard } from './ui/HudCard';
 import { HudButton } from './ui/HudButton';
+import { TacticalInsightCard } from './TacticalInsightCard';
+import { TacticalReportModal } from './TacticalReportModal';
 import type { MeasurementRecord } from '../types/measurements';
 
 interface DashboardViewProps {
@@ -61,20 +64,39 @@ import './DashboardView.css';
 export const DashboardView = ({ userName, sex, records, loading }: DashboardViewProps) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const [reportModalOpen, setReportModalOpen] = useState(false);
     const latestRecord = records[0];
     const previousRecord = records[1];
 
     return (
-        <div className="dashboard-grid animate-fade">
+        <div className="dashboard-grid animate-fade space-y-6">
             <header className="dash-header">
                 <div className="welcome-text">
                     <h1>{t('dashboard.greeting')}, {userName} 👋</h1>
                     <p>{t('dashboard.subtitle')}</p>
                 </div>
-                <HudButton onClick={() => navigate('/new-entry')} icon={<Plus size={18} />}>
-                    {t('dashboard.register_measurements')}
-                </HudButton>
+                <div className="flex items-center gap-3">
+                    {latestRecord && (
+                        <button
+                            onClick={() => setReportModalOpen(true)}
+                            className="btn-secondary flex items-center gap-1.5 font-mono text-xs text-amber-400 border-amber-500/30 hover:border-amber-400"
+                        >
+                            <FileText size={16} />
+                            <span>FICHA TÁCTICA HD</span>
+                        </button>
+                    )}
+                    <HudButton onClick={() => navigate('/new-entry')} icon={<Plus size={18} />}>
+                        {t('dashboard.register_measurements')}
+                    </HudButton>
+                </div>
             </header>
+
+            {/* Tactical Diagnosis Intelligence Card */}
+            <TacticalInsightCard
+                latestRecord={latestRecord}
+                previousRecord={previousRecord}
+                onOpenReport={() => setReportModalOpen(true)}
+            />
 
             <div className="main-dashboard-content">
                 <div className="left-column">
@@ -113,17 +135,24 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                                 </Tooltip>
                             </label>
                             <div className="value">
-                                {loading ? <Skeleton width={40} height={24} /> : records.length}
+                                {loading ? <Skeleton width={50} height={24} /> : records.length}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="side-stats-column">
-                    <HudCard title={t('dashboard.latest_values')} className="latest-summary" style={{ flex: 1, maxHeight: 'none', overflow: 'visible' }}>
-                        {latestRecord ? (
-                            <ul className="summary-list">
-                                {[
+                <div className="right-column">
+                    <HudCard title={t('dashboard.last_values')} className="latest-values-card">
+                        <div className="values-list">
+                            {loading ? (
+                                Array.from({ length: 8 }).map((_, i) => (
+                                    <div key={i} className="value-item-skeleton">
+                                        <Skeleton width="40%" height={16} />
+                                        <Skeleton width="30%" height={16} />
+                                    </div>
+                                ))
+                            ) : latestRecord ? (
+                                [
                                     { key: 'height', label: t('common.form.height'), unit: 'cm' },
                                     { key: 'weight', label: t('common.form.weight'), unit: 'kg', inverse: true },
                                     { key: 'bodyFat', label: t('common.form.body_fat'), unit: '%', inverse: true },
@@ -136,49 +165,55 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                                     { key: 'thigh.right', label: t('common.form.thigh') + ' (R)', unit: 'cm' },
                                     { key: 'calf.right', label: t('common.form.calf') + ' (R)', unit: 'cm' },
                                 ].map(({ key, label, unit, inverse }) => {
-                                    const getValue = (record: any) => {
+                                    const getValue = (record?: MeasurementRecord) => {
                                         if (!record) return undefined;
                                         if (key.includes('.')) {
-                                            const [k1, k2] = key.split('.');
-                                            return record.measurements[k1]?.[k2];
+                                            const [parent, child] = key.split('.');
+                                            // @ts-ignore
+                                            return record.measurements[parent]?.[child];
                                         }
+                                        // @ts-ignore
                                         return record.measurements[key];
                                     };
 
                                     const val = getValue(latestRecord);
                                     const prevVal = getValue(previousRecord);
-                                    const history = records
-                                        .map(r => getValue(r))
-                                        .filter(v => typeof v === 'number')
-                                        .reverse()
-                                        .slice(-5);
 
-                                    const hasValue = val !== undefined && val !== 0;
+                                    // Extract history for sparkline
+                                    const history = records.map(r => getValue(r)).filter((v): v is number => typeof v === 'number' && v > 0).reverse();
+
+                                    if (val === undefined || val === 0) return null;
 
                                     return (
-                                        <li key={key}>
-                                            <span>{label}:</span>
-                                            <div className="summary-val-wrap">
-                                                {history.length > 1 && <Sparkline data={history} />}
-                                                {hasValue ? (
-                                                    <>
-                                                        <strong>{val} {unit}</strong>
-                                                        <TrendIndicator current={val} previous={prevVal} inverse={inverse} />
-                                                    </>
-                                                ) : (
-                                                    <button className="btn-tiny-action" onClick={() => navigate('/new-entry')}>{t('dashboard.btn_register')}</button>
-                                                )}
+                                        <div key={key} className="value-item">
+                                            <span className="value-label">{label}</span>
+                                            <div className="value-data">
+                                                <Sparkline data={history} />
+                                                <TrendIndicator current={val} previous={prevVal} inverse={inverse} />
+                                                <span className="value-num">{val}</span>
+                                                <span className="value-unit">{unit}</span>
                                             </div>
-                                        </li>
+                                        </div>
                                     );
-                                })}
-                            </ul>
-                        ) : (
-                            <p>{t('dashboard.no_data')}</p>
-                        )}
+                                })
+                            ) : (
+                                <div className="empty-state">
+                                    <p>{t('dashboard.no_data')}</p>
+                                </div>
+                            )}
+                        </div>
                     </HudCard>
                 </div>
             </div>
+
+            {/* Tactical Report Modal */}
+            <TacticalReportModal
+                isOpen={reportModalOpen}
+                onClose={() => setReportModalOpen(false)}
+                latestRecord={latestRecord}
+                previousRecord={previousRecord}
+                userName={userName}
+            />
         </div>
     );
 };

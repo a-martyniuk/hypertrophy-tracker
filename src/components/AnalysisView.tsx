@@ -10,6 +10,7 @@ import { StatCard } from './ui/StatCard';
 import { useAnalysisData } from '../hooks/useAnalysisData';
 import { MeasurementChart } from './analysis/MeasurementChart';
 import { AnalysisFilter } from './analysis/AnalysisFilter';
+import { ProportionsRadar } from './analysis/ProportionsRadar';
 import './AnalysisView.css';
 
 interface Props {
@@ -210,6 +211,11 @@ export const AnalysisView = ({ records, goals, sex = 'male' }: Props) => {
                     ))}
                 </div>
             )}
+
+            {/* RADAR DE SIMETRÍA CLÁSICA Y PROPORCIONES ÁUREAS */}
+            <div className="mb-8">
+                <ProportionsRadar measurements={records[0]?.measurements} />
+            </div>
 
             <h2>{t('analysis.panel_title')}</h2>
 

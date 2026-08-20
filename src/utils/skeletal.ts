@@ -85,3 +85,104 @@ export const calculateIEO = (wrist: number, ankle: number, sex: 'male' | 'female
 
     return { value: ieo.toFixed(1), label, isAdvantage, rawValue: ieo };
 };
+
+export interface FFMIResult {
+    rawFFMI: number;
+    normalizedFFMI: number;
+    leanMassKg: number;
+    fatMassKg: number;
+    categoryKey: string;
+    scorePercent: number; // 0 to 100 on natural scale (15 to 25)
+}
+
+export const calculateFFMI = (
+    weight: number,
+    height: number,
+    bodyFat: number
+): FFMIResult | null => {
+    if (!weight || !height || weight <= 0 || height <= 0) return null;
+    const bf = Math.max(3, Math.min(60, bodyFat || 15));
+    const leanMassKg = weight * (1 - bf / 100);
+    const fatMassKg = weight - leanMassKg;
+    const heightM = height / 100;
+
+    const rawFFMI = leanMassKg / (heightM * heightM);
+    // Normalized FFMI formula by Kouri et al. (normalizes to 1.8m standard height)
+    const normalizedFFMI = rawFFMI + 6.1 * (1.8 - heightM);
+
+    let categoryKey = 'average';
+    if (normalizedFFMI < 18) categoryKey = 'below_average';
+    else if (normalizedFFMI < 20) categoryKey = 'average';
+    else if (normalizedFFMI < 22) categoryKey = 'athletic';
+    else if (normalizedFFMI < 23) categoryKey = 'advanced';
+    else if (normalizedFFMI < 25) categoryKey = 'natural_limit';
+    else categoryKey = 'exceptional';
+
+    // 15 = 0%, 25 = 100%
+    const scorePercent = Math.min(100, Math.max(0, ((normalizedFFMI - 15) / 10) * 100));
+
+    return {
+        rawFFMI: parseFloat(rawFFMI.toFixed(1)),
+        normalizedFFMI: parseFloat(normalizedFFMI.toFixed(1)),
+        leanMassKg: parseFloat(leanMassKg.toFixed(1)),
+        fatMassKg: parseFloat(fatMassKg.toFixed(1)),
+        categoryKey,
+        scorePercent: Math.round(scorePercent)
+    };
+};
+
+export interface BerkhanResult {
+    maxLeanWeightKg: number;
+    maxWeightAtCurrentBf: number;
+    maxWeightAtCompBf: number;
+}
+
+export const calculateBerkhanLimit = (
+    height: number,
+    sex: 'male' | 'female',
+    currentBodyFat: number = 15
+): BerkhanResult => {
+    // Martin Berkhan (Leangains) natural formula: Height (cm) - 100 = Max Stage Weight in kg (at 5-6% body fat)
+    const baseLean = sex === 'female' ? (height - 100) * 0.85 : (height - 100);
+    const maxWeightAtCompBf = Math.max(30, baseLean);
+    const maxLeanWeightKg = maxWeightAtCompBf * 0.95; // ~5% BF stage condition
+    
+    const bfFraction = Math.max(0.04, Math.min(0.5, (currentBodyFat || 15) / 100));
+    const maxWeightAtCurrentBf = maxLeanWeightKg / (1 - bfFraction);
+
+    return {
+        maxLeanWeightKg: parseFloat(maxLeanWeightKg.toFixed(1)),
+        maxWeightAtCurrentBf: parseFloat(maxWeightAtCurrentBf.toFixed(1)),
+        maxWeightAtCompBf: parseFloat(maxWeightAtCompBf.toFixed(1))
+    };
+};
+
+export interface HelmsGainRates {
+    beginner: { minKgMonth: number; maxKgMonth: number; minGramsWeek: number; maxGramsWeek: number };
+    intermediate: { minKgMonth: number; maxKgMonth: number; minGramsWeek: number; maxGramsWeek: number };
+    advanced: { minKgMonth: number; maxKgMonth: number; minGramsWeek: number; maxGramsWeek: number };
+}
+
+export const calculateHelmsGainRates = (weight: number): HelmsGainRates => {
+    const w = weight > 0 ? weight : 75;
+    return {
+        beginner: {
+            minKgMonth: parseFloat((w * 0.01).toFixed(2)),
+            maxKgMonth: parseFloat((w * 0.015).toFixed(2)),
+            minGramsWeek: Math.round((w * 0.01 * 1000) / 4.3),
+            maxGramsWeek: Math.round((w * 0.015 * 1000) / 4.3)
+        },
+        intermediate: {
+            minKgMonth: parseFloat((w * 0.005).toFixed(2)),
+            maxKgMonth: parseFloat((w * 0.01).toFixed(2)),
+            minGramsWeek: Math.round((w * 0.005 * 1000) / 4.3),
+            maxGramsWeek: Math.round((w * 0.01 * 1000) / 4.3)
+        },
+        advanced: {
+            minKgMonth: parseFloat((w * 0.0025).toFixed(2)),
+            maxKgMonth: parseFloat((w * 0.005).toFixed(2)),
+            minGramsWeek: Math.round((w * 0.0025 * 1000) / 4.3),
+            maxGramsWeek: Math.round((w * 0.005 * 1000) / 4.3)
+        }
+    };
+};
