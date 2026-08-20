@@ -142,7 +142,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                 </div>
 
                 <div className="right-column">
-                    <HudCard title={t('dashboard.last_values')} className="latest-values-card">
+                    <HudCard title={t('dashboard.latest_values')} className="latest-values-card">
                         <div className="values-list">
                             {loading ? (
                                 Array.from({ length: 8 }).map((_, i) => (

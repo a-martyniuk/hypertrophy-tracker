@@ -14,20 +14,24 @@
 }
 
 .record-count {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    background: var(--surface-hover);
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
+    color: var(--primary-color);
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
 }
 
 .empty-history {
     text-align: center;
     padding: 4rem 2rem;
     background: var(--surface-color);
-    border-radius: 16px;
-    border: 1px dashed var(--border-color);
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
     color: var(--text-secondary);
+    backdrop-filter: var(--glass-blur);
 }
 
 .records-list {
@@ -37,18 +41,23 @@
 }
 
 .record-card {
-    padding: 1.25rem;
+    padding: 1.4rem;
     border-radius: 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    backdrop-filter: var(--glass-blur);
     transition: var(--transition-smooth);
 }
 
 .record-card:hover {
-    background: var(--primary-glow);
-    border-color: var(--primary-color);
+    background: var(--surface-hover);
+    border-color: var(--border-active);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -5px var(--primary-glow);
 }
 
 .record-info {
@@ -62,17 +71,20 @@
     align-items: center;
     gap: 0.5rem;
     color: var(--primary-color);
-    font-weight: 600;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.95rem;
 }
 
 .record-summary {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
 }
 
 .highlighted {
     color: var(--text-primary);
-    font-weight: 500;
+    font-weight: 700;
 }
 
 .record-tags {
@@ -87,85 +99,77 @@
     gap: 4px;
     font-size: 0.75rem;
     padding: 2px 8px;
-    border-radius: 12px;
+    border-radius: 999px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.03);
     color: var(--text-secondary);
+    font-family: var(--font-mono);
+}
+
+.tag.condition {
+    color: var(--accent-color);
+    border-color: rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.08);
 }
 
 .tag.sleep {
-    color: #c084fc;
-    border-color: rgba(192, 132, 252, 0.3);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.3);
+    background: rgba(56, 189, 248, 0.08);
 }
 
 .record-actions {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
-.btn-icon {
+.btn-icon-del {
     background: transparent;
     border: none;
-    color: var(--text-secondary);
-    padding: 0.5rem;
-    border-radius: 8px;
+    color: var(--text-muted);
+    padding: 8px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: var(--transition-smooth);
 }
 
-.btn-icon.delete:hover {
+.btn-icon-del:hover {
     color: var(--danger-color);
     background: rgba(239, 68, 68, 0.1);
 }
 
-.arrow {
-    color: var(--text-secondary);
-    transition: transform 0.3s ease;
+.details-modal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+    font-family: var(--font-mono);
 }
 
-.record-card:hover .arrow {
-    transform: translateX(5px);
-    color: var(--primary-color);
+.detail-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.75rem;
+    border-radius: 12px;
 }
 
-.spinner-mini {
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: var(--danger-color);
-    animation: spin 0.8s linear infinite;
+.detail-item .label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+.detail-item .value {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-top: 0.2rem;
 }
 
-@media (max-width: 768px) {
-    .history-view {
-        padding: 0 1rem;
-    }
-
-    .view-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .record-count {
-        align-self: flex-start;
-    }
-
-    .record-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .record-actions {
-        width: 100%;
-        justify-content: flex-end;
-    }
+.detail-item .value span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
 }

@@ -328,12 +328,12 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                 }
 
                 .nav-items button.active {
-                    background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, transparent 100%);
-                    color: var(--primary-color);
+                    background: rgba(245, 158, 11, 0.12);
+                    color: #fbbf24;
                     font-weight: 700;
-                    border-left: 3px solid var(--primary-color);
-                    box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);
-                    border-radius: 4px 14px 14px 4px;
+                    border: 1px solid rgba(245, 158, 11, 0.4);
+                    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+                    border-radius: 12px;
                 }
 
                 .nav-footer {

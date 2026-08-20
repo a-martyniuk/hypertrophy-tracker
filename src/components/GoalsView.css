@@ -8,8 +8,8 @@
 }
 
 .view-header {
-    padding: 1.5rem;
-    border-radius: 16px;
+    padding: 1.5rem 1.8rem;
+    border-radius: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -17,7 +17,7 @@
 
 .goal-form {
     padding: 2rem;
-    border-radius: 16px;
+    border-radius: 20px;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -36,84 +36,132 @@
 }
 
 .form-group label {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.05em;
 }
 
 .form-group select,
 .form-group input {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(18, 22, 34, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: white;
-    padding: 0.75rem;
-    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    font-family: var(--font-mono);
     outline: none;
+    transition: var(--transition-smooth);
+}
+
+.form-group select:focus,
+.form-group input:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
 }
 
 .form-group select option {
-    background: #1a1a1d;
+    background: #0d111a;
+    color: white;
 }
 
 .suggestions-scroll {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
     margin-bottom: 0.5rem;
 }
 
 .suggestion-card {
-    padding: 1.25rem;
+    padding: 1.4rem;
     border-radius: 16px;
-    border: 1px dashed rgba(245, 158, 11, 0.3);
+    background: rgba(18, 22, 34, 0.65);
+    border: 1px solid rgba(245, 158, 11, 0.2);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: var(--transition-smooth);
     position: relative;
     overflow: hidden;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .suggestion-card:hover {
-    background: rgba(245, 158, 11, 0.1);
-    border-style: solid;
+    background: rgba(26, 32, 50, 0.85);
+    border-color: rgba(245, 158, 11, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px var(--primary-glow);
 }
 
 .sug-header {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
     text-transform: uppercase;
     color: var(--primary-color);
     margin-bottom: 0.5rem;
 }
 
 .suggestion-card h4 {
-    font-size: 0.95rem;
-    margin-bottom: 0.25rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.35rem;
 }
 
 .sug-val {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: white;
+    font-size: 1.75rem;
+    font-family: var(--font-mono);
+    font-weight: 900;
+    color: #ffffff;
     margin-bottom: 0.5rem;
 }
 
-.suggestion-card p {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    line-height: 1.4;
-    margin-bottom: 1rem;
+.sug-val span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: normal;
 }
 
-.sug-action {
+.sug-source {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.btn-use-sug {
+    background: transparent;
+    border: none;
+    color: var(--primary-color);
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    padding: 0;
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: var(--primary-color);
+    gap: 0.3rem;
+    transition: gap 0.2s;
+}
+
+.suggestion-card:hover .btn-use-sug {
+    gap: 0.6rem;
+    color: #fbbf24;
+}
+
+.empty-goals {
+    padding: 4rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
 }
 
 .goals-grid {
@@ -124,171 +172,115 @@
 
 .goal-card {
     padding: 1.5rem;
-    border-radius: 20px;
+    border-radius: 16px;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
     position: relative;
-    transition: all 0.3s ease;
 }
 
-.goal-card:hover {
-    border-color: #f59e0b;
-    box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);
-    transform: translateY(-2px);
-}
-
-.goal-card-header {
+.goal-header {
     display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.icon-wrap {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: rgba(245, 158, 11, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #f59e0b;
-}
-
-.goal-title h3 {
-    font-size: 1rem;
-    margin-bottom: 2px;
-}
-
-.deadline {
-    font-size: 0.7rem;
-    color: var(--text-secondary);
-    opacity: 0.7;
-    display: flex;
-    align-items: center;
-}
-
-.delete-btn {
-    margin-left: auto;
-    color: var(--text-secondary);
-    opacity: 0.5;
-    transition: all 0.2s;
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-.delete-btn:hover {
-    opacity: 1;
-    color: #ef4444;
-}
-
-.goal-stats {
-    display: flex;
-    align-items: center;
     justify-content: space-between;
-    background: rgba(255, 255, 255, 0.02);
-    padding: 1rem;
-    border-radius: 12px;
+    align-items: flex-start;
 }
 
-.stat label {
-    font-size: 0.6rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    margin-bottom: 4px;
-    display: block;
-}
-
-.stat .val {
-    font-size: 1.25rem;
+.goal-title-wrap h4 {
+    font-size: 1.1rem;
     font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.2rem;
 }
 
-.stat .val.highlight {
-    color: #f59e0b;
+.goal-deadline {
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
 }
 
-.arrow {
-    color: var(--text-secondary);
-    opacity: 0.3;
+.btn-del-goal {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 4px;
+    border-radius: 8px;
+    transition: var(--transition-smooth);
 }
 
-.progress-section {
+.btn-del-goal:hover {
+    color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.goal-metrics {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+}
+
+.metric-col label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.metric-col .val {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.metric-col .val.target {
+    color: var(--primary-color);
+}
+
+.goal-progress {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-}
-
-.estimate-tag {
-    font-size: 0.7rem;
-    color: var(--text-secondary);
-    background: rgba(255, 255, 255, 0.05);
-    padding: 2px 8px;
-    border-radius: 4px;
-    align-self: flex-start;
-    margin-bottom: 4px;
 }
 
 .progress-header {
     display: flex;
     justify-content: space-between;
     font-size: 0.75rem;
-    color: var(--text-secondary);
+    font-family: var(--font-mono);
 }
 
-.progress-bar-bg {
+.progress-track {
     height: 8px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
+    border-radius: 999px;
     overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.progress-bar-fill {
+.progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #f59e0b, #fbbf24);
-    box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
-    border-radius: 4px;
-    transition: width 0.5s ease-out;
+    background: var(--primary-gradient);
+    border-radius: 999px;
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.empty-state {
-    grid-column: 1 / -1;
-    padding: 4rem;
+.goal-footer {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    gap: 1rem;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
     color: var(--text-secondary);
-    text-align: center;
-    border-style: dashed;
-    border-width: 2px;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
 }
 
 @media (max-width: 768px) {
-    .goals-view {
-        padding: 0 1rem 2rem 1rem;
-    }
-
-    .view-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 1rem;
-    }
-
-    .header-info {
-        text-align: center;
-    }
-
-    .goals-grid {
-        grid-template-columns: 1fr;
-    }
-
     .form-grid {
         grid-template-columns: 1fr;
     }
-
-    .suggestions-scroll {
-        grid-template-columns: 1fr;
+    .view-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
     }
 }

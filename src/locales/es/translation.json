@@ -200,6 +200,7 @@
         "total_records": "Total Registros",
         "total_records_tooltip": "Número total de mediciones guardadas en el historial.",
         "latest_values": "Últimos Valores",
+        "last_values": "Últimos Valores",
         "btn_register": "Registrar",
         "no_data": "Sin datos recientes"
     },

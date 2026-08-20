@@ -345,10 +345,10 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                 }
                 
                 .lang-btn.active {
-                    background: rgba(59, 130, 246, 0.15);
-                    border-color: #3b82f6;
-                    color: #3b82f6;
-                    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+                    background: rgba(245, 158, 11, 0.15);
+                    border-color: #f59e0b;
+                    color: #fbbf24;
+                    box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
                 }
             `}</style>
         </div>
