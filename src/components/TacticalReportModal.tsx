@@ -74,7 +74,6 @@ export const TacticalReportModal: React.FC<Props> = ({
         setDownloadError(null);
 
         try {
-            // High reliability export without cross-origin font blockage
             const dataUrl = await toPng(reportRef.current, {
                 quality: 0.98,
                 pixelRatio: 2,
@@ -103,28 +102,28 @@ export const TacticalReportModal: React.FC<Props> = ({
 
     const modalContent = (
         <div
-            className="fixed inset-0 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto"
-            style={{ zIndex: 99999 }}
+            className="modal-overlay animate-fade"
             onClick={(e) => {
                 if (e.target === e.currentTarget) onClose();
             }}
         >
-            <div className="relative w-full max-w-2xl my-8 bg-neutral-950 border border-amber-500/40 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="modal-dialog">
                 {/* Modal Toolbar */}
-                <div className="flex items-center justify-between p-4 bg-neutral-900/95 border-b border-neutral-800">
-                    <div className="flex items-center gap-2 text-amber-400 font-mono text-xs sm:text-sm font-bold">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', background: '#0f121d', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-color)', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 800 }}>
                         <Activity size={18} />
                         <span>FICHA TÁCTICA DE INTELIGENCIA CORPORAL</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <button
                             onClick={handleDownload}
                             disabled={downloading}
-                            className="btn-primary !py-1.5 !px-3 !text-xs flex items-center gap-1.5 font-mono"
+                            className="btn-primary"
+                            style={{ padding: '0.45rem 0.85rem', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}
                         >
                             {downloadSuccess ? (
                                 <>
-                                    <CheckCircle2 size={14} className="text-green-300" />
+                                    <CheckCircle2 size={14} style={{ color: '#86efac' }} />
                                     <span>¡DESCARGADO!</span>
                                 </>
                             ) : downloading ? (
@@ -138,183 +137,197 @@ export const TacticalReportModal: React.FC<Props> = ({
                         </button>
                         <button
                             onClick={onClose}
-                            className="p-1.5 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition"
+                            style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'var(--text-secondary)', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                         >
                             <X size={18} />
                         </button>
                     </div>
                 </div>
 
-                {/* Demo Notification if no real measurements exist yet */}
+                {/* Demo Notification */}
                 {isDemo && (
-                    <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-xs font-mono text-amber-300 flex items-center gap-2">
-                        <AlertCircle size={14} className="flex-shrink-0" />
+                    <div style={{ background: 'rgba(245, 158, 11, 0.12)', borderBottom: '1px solid rgba(245, 158, 11, 0.25)', padding: '0.6rem 1rem', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <AlertCircle size={14} style={{ flexShrink: 0 }} />
                         <span>MODO DEMOSTRACIÓN: Registra tus medidas en "Nueva Medida" para personalizar esta ficha con tu telemetría real.</span>
                     </div>
                 )}
 
                 {downloadError && (
-                    <div className="bg-rose-500/20 border-b border-rose-500/40 px-4 py-2 text-xs font-mono text-rose-300 flex items-center gap-2">
-                        <AlertCircle size={14} className="flex-shrink-0" />
+                    <div style={{ background: 'rgba(239, 68, 68, 0.15)', borderBottom: '1px solid rgba(239, 68, 68, 0.3)', padding: '0.6rem 1rem', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: '#fb7185', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <AlertCircle size={14} style={{ flexShrink: 0 }} />
                         <span>{downloadError}</span>
                     </div>
                 )}
 
                 {/* Printable Report Canvas */}
-                <div className="p-4 sm:p-6 overflow-x-auto max-h-[80vh]">
+                <div style={{ padding: '1.25rem', overflowX: 'auto', maxHeight: '80vh' }}>
                     <div
                         ref={reportRef}
                         id="tactical-report-card"
-                        className="w-[580px] mx-auto bg-[#030305] p-6 rounded-xl border border-amber-500/40 text-neutral-200 font-sans relative overflow-hidden"
-                        style={{ minHeight: '750px', backgroundColor: '#030305' }}
+                        style={{
+                            width: '580px',
+                            margin: '0 auto',
+                            backgroundColor: '#030305',
+                            padding: '1.5rem',
+                            borderRadius: '14px',
+                            border: '1px solid rgba(245, 158, 11, 0.4)',
+                            color: '#e2e8f0',
+                            fontFamily: 'monospace, system-ui, sans-serif',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            minHeight: '750px'
+                        }}
                     >
                         {/* Tactical Background Grid Effect */}
                         <div
-                            className="absolute inset-0 opacity-10 pointer-events-none"
                             style={{
+                                position: 'absolute',
+                                inset: 0,
+                                opacity: 0.1,
+                                pointerEvents: 'none',
                                 backgroundImage: `radial-gradient(#f59e0b 1px, transparent 1px)`,
                                 backgroundSize: '16px 16px'
                             }}
                         />
 
                         {/* Report Header */}
-                        <div className="flex justify-between items-start pb-4 mb-4 border-b border-amber-500/30 relative">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '1rem', marginBottom: '1rem', borderBottom: '1px solid rgba(245, 158, 11, 0.3)', position: 'relative' }}>
                             <div>
-                                <div className="text-[10px] font-mono text-amber-400 uppercase tracking-widest">
+                                <div style={{ fontSize: '10px', color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                                     HYPERTROPHY TRACKER PRO // AUDIT REPORT
                                 </div>
-                                <h2 className="text-xl font-bold text-white font-mono mt-0.5">
-                                    EXPEDIENTE: <span className="text-amber-400">{userName.toUpperCase()}</span>
+                                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', marginTop: '2px' }}>
+                                    EXPEDIENTE: <span style={{ color: '#fbbf24' }}>{userName.toUpperCase()}</span>
                                 </h2>
-                                <div className="text-xs text-neutral-400 font-mono mt-0.5">
+                                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
                                     FECHA AUDITORÍA: {reportDate} {isDemo && '(DEMO)'}
                                 </div>
                             </div>
-                            <div className="text-right font-mono">
-                                <div className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold inline-block">
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.4)', fontWeight: 700, display: 'inline-block' }}>
                                     {diagnosis.statusText}
                                 </div>
-                                <div className="text-[11px] text-neutral-400 mt-1">
+                                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>
                                     ESTADO: {record.metadata?.condition || 'Entrenamiento'}
                                 </div>
                             </div>
                         </div>
 
                         {/* Core Physiology Grid */}
-                        <div className="grid grid-cols-4 gap-2 mb-4 font-mono text-center">
-                            <div className="p-2.5 rounded bg-neutral-900/80 border border-neutral-800">
-                                <div className="text-[10px] text-neutral-400">PESO</div>
-                                <div className="text-base font-bold text-white mt-0.5">{m.weight} kg</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginBottom: '1rem', textAlign: 'center' }}>
+                            <div style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                                <div style={{ fontSize: '10px', color: '#94a3b8' }}>PESO</div>
+                                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#ffffff', marginTop: '2px' }}>{m.weight} kg</div>
                             </div>
-                            <div className="p-2.5 rounded bg-neutral-900/80 border border-neutral-800">
-                                <div className="text-[10px] text-neutral-400">ESTATURA</div>
-                                <div className="text-base font-bold text-white mt-0.5">{m.height} cm</div>
+                            <div style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                                <div style={{ fontSize: '10px', color: '#94a3b8' }}>ESTATURA</div>
+                                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#ffffff', marginTop: '2px' }}>{m.height} cm</div>
                             </div>
-                            <div className="p-2.5 rounded bg-neutral-900/80 border border-neutral-800">
-                                <div className="text-[10px] text-neutral-400">GRASA (%BF)</div>
-                                <div className="text-base font-bold text-amber-300 mt-0.5">{m.bodyFat || '-'}%</div>
+                            <div style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                                <div style={{ fontSize: '10px', color: '#94a3b8' }}>GRASA (%BF)</div>
+                                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#fbbf24', marginTop: '2px' }}>{m.bodyFat || '-'}%</div>
                             </div>
-                            <div className="p-2.5 rounded bg-neutral-900/80 border border-neutral-800">
-                                <div className="text-[10px] text-neutral-400">FFMI NORM.</div>
-                                <div className="text-base font-bold text-amber-400 mt-0.5">{ffmi?.normalizedFFMI || '-'}</div>
+                            <div style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                                <div style={{ fontSize: '10px', color: '#94a3b8' }}>FFMI NORM.</div>
+                                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#fbbf24', marginTop: '2px' }}>{ffmi?.normalizedFFMI || '-'}</div>
                             </div>
                         </div>
 
                         {/* Anthropometric Measurements Matrix */}
-                        <div className="mb-4 bg-neutral-900/50 p-3 rounded border border-neutral-800 font-mono text-xs">
-                            <div className="text-amber-400 font-bold text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <div style={{ marginBottom: '1rem', background: 'rgba(255, 255, 255, 0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '11px' }}>
+                            <div style={{ color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                                 <Activity size={13} />
                                 <span>Matriz Antropométrica (cm)</span>
                             </div>
-                            <div className="grid grid-cols-3 gap-y-2 gap-x-4">
-                                <div className="flex justify-between border-b border-neutral-800 pb-1">
-                                    <span className="text-neutral-400">Pecho:</span>
-                                    <span className="font-bold text-white">{m.pecho || '-'}</span>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', columnGap: '1rem', rowGap: '0.4rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.04)', paddingBottom: '2px' }}>
+                                    <span style={{ color: '#94a3b8' }}>Pecho:</span>
+                                    <span style={{ fontWeight: 700, color: '#ffffff' }}>{m.pecho || '-'}</span>
                                 </div>
-                                <div className="flex justify-between border-b border-neutral-800 pb-1">
-                                    <span className="text-neutral-400">Espalda:</span>
-                                    <span className="font-bold text-white">{m.back || '-'}</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.04)', paddingBottom: '2px' }}>
+                                    <span style={{ color: '#94a3b8' }}>Espalda:</span>
+                                    <span style={{ fontWeight: 700, color: '#ffffff' }}>{m.back || '-'}</span>
                                 </div>
-                                <div className="flex justify-between border-b border-neutral-800 pb-1">
-                                    <span className="text-neutral-400">Cintura:</span>
-                                    <span className="font-bold text-amber-300">{m.waist || '-'}</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.04)', paddingBottom: '2px' }}>
+                                    <span style={{ color: '#94a3b8' }}>Cintura:</span>
+                                    <span style={{ fontWeight: 700, color: '#fbbf24' }}>{m.waist || '-'}</span>
                                 </div>
-                                <div className="flex justify-between border-b border-neutral-800 pb-1">
-                                    <span className="text-neutral-400">Cuello:</span>
-                                    <span className="font-bold text-white">{m.neck || '-'}</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.04)', paddingBottom: '2px' }}>
+                                    <span style={{ color: '#94a3b8' }}>Cuello:</span>
+                                    <span style={{ fontWeight: 700, color: '#ffffff' }}>{m.neck || '-'}</span>
                                 </div>
-                                <div className="flex justify-between border-b border-neutral-800 pb-1">
-                                    <span className="text-neutral-400">Cadera:</span>
-                                    <span className="font-bold text-white">{m.hips || '-'}</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.04)', paddingBottom: '2px' }}>
+                                    <span style={{ color: '#94a3b8' }}>Cadera:</span>
+                                    <span style={{ fontWeight: 700, color: '#ffffff' }}>{m.hips || '-'}</span>
                                 </div>
-                                <div className="flex justify-between border-b border-neutral-800 pb-1">
-                                    <span className="text-neutral-400">V-Taper:</span>
-                                    <span className="font-bold text-amber-400">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.04)', paddingBottom: '2px' }}>
+                                    <span style={{ color: '#94a3b8' }}>V-Taper:</span>
+                                    <span style={{ fontWeight: 700, color: '#fbbf24' }}>
                                         {m.waist && m.pecho ? (m.pecho / m.waist).toFixed(2) : '-'}
                                     </span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-neutral-400">Brazo (L/R):</span>
-                                    <span className="font-bold text-white">{m.arm?.left || '-'}/{m.arm?.right || '-'}</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ color: '#94a3b8' }}>Brazo (L/R):</span>
+                                    <span style={{ fontWeight: 700, color: '#ffffff' }}>{m.arm?.left || '-'}/{m.arm?.right || '-'}</span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-neutral-400">Muslo (L/R):</span>
-                                    <span className="font-bold text-white">{m.thigh?.left || '-'}/{m.thigh?.right || '-'}</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ color: '#94a3b8' }}>Muslo (L/R):</span>
+                                    <span style={{ fontWeight: 700, color: '#ffffff' }}>{m.thigh?.left || '-'}/{m.thigh?.right || '-'}</span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-neutral-400">Gemelo (L/R):</span>
-                                    <span className="font-bold text-white">{m.calf?.left || '-'}/{m.calf?.right || '-'}</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ color: '#94a3b8' }}>Gemelo (L/R):</span>
+                                    <span style={{ fontWeight: 700, color: '#ffffff' }}>{m.calf?.left || '-'}/{m.calf?.right || '-'}</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Classical Proportions & Symmetry */}
                         {proportions && (
-                            <div className="grid grid-cols-2 gap-3 mb-4 font-mono text-xs">
-                                <div className="bg-neutral-900/60 p-3 rounded border border-neutral-800">
-                                    <div className="text-amber-400 font-bold text-[10px] uppercase mb-1.5 flex items-center gap-1">
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem', fontSize: '11px' }}>
+                                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                                    <div style={{ color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px' }}>
                                         <Award size={12} />
                                         <span>Tríada Steve Reeves (1:1:1)</span>
                                     </div>
-                                    <div className="space-y-1 text-[11px]">
-                                        <div className="flex justify-between">
-                                            <span className="text-neutral-400">Brazo Promedio:</span>
-                                            <span className="text-white font-bold">{proportions.reevesTriad.armAvg} cm</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ color: '#94a3b8' }}>Brazo Promedio:</span>
+                                            <span style={{ fontWeight: 700, color: '#ffffff' }}>{proportions.reevesTriad.armAvg} cm</span>
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-neutral-400">Cuello:</span>
-                                            <span className="text-white font-bold">{proportions.reevesTriad.neck} cm</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ color: '#94a3b8' }}>Cuello:</span>
+                                            <span style={{ fontWeight: 700, color: '#ffffff' }}>{proportions.reevesTriad.neck} cm</span>
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-neutral-400">Gemelo:</span>
-                                            <span className="text-white font-bold">{proportions.reevesTriad.calfAvg} cm</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ color: '#94a3b8' }}>Gemelo:</span>
+                                            <span style={{ fontWeight: 700, color: '#ffffff' }}>{proportions.reevesTriad.calfAvg} cm</span>
                                         </div>
-                                        <div className="flex justify-between pt-1 border-t border-neutral-800 text-amber-300 font-bold">
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '4px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', color: '#fbbf24', fontWeight: 700 }}>
                                             <span>Simetría Tríada:</span>
                                             <span>{proportions.reevesTriad.symmetryScore}%</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="bg-neutral-900/60 p-3 rounded border border-neutral-800">
-                                    <div className="text-amber-400 font-bold text-[10px] uppercase mb-1.5 flex items-center gap-1">
+                                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                                    <div style={{ color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px' }}>
                                         <Sparkles size={12} />
                                         <span>Proporción Áurea Adonis</span>
                                     </div>
-                                    <div className="space-y-1 text-[11px]">
-                                        <div className="flex justify-between">
-                                            <span className="text-neutral-400">Ratio Pecho/Cintura:</span>
-                                            <span className="text-amber-300 font-bold">{proportions.adonisIndex.chestWaistRatio}</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ color: '#94a3b8' }}>Ratio Pecho/Cintura:</span>
+                                            <span style={{ fontWeight: 700, color: '#fbbf24' }}>{proportions.adonisIndex.chestWaistRatio}</span>
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-neutral-400">Objetivo Áureo:</span>
-                                            <span className="text-neutral-400">1.618 (Φ)</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ color: '#94a3b8' }}>Objetivo Áureo:</span>
+                                            <span style={{ color: '#94a3b8' }}>1.618 (Φ)</span>
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-neutral-400">Cintura Ideal:</span>
-                                            <span className="text-neutral-300">{proportions.adonisIndex.idealWaistRange[0]}-{proportions.adonisIndex.idealWaistRange[1]} cm</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ color: '#94a3b8' }}>Cintura Ideal:</span>
+                                            <span style={{ color: '#ffffff' }}>{proportions.adonisIndex.idealWaistRange[0]}-{proportions.adonisIndex.idealWaistRange[1]} cm</span>
                                         </div>
-                                        <div className="flex justify-between pt-1 border-t border-neutral-800 text-amber-300 font-bold">
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '4px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', color: '#fbbf24', fontWeight: 700 }}>
                                             <span>Puntaje Escultural:</span>
                                             <span>{proportions.overallGoldenScore}%</span>
                                         </div>
@@ -324,20 +337,20 @@ export const TacticalReportModal: React.FC<Props> = ({
                         )}
 
                         {/* Executive Tactical Diagnosis Briefing */}
-                        <div className="bg-neutral-900/70 p-3 rounded border border-amber-500/30 font-mono text-xs mb-4">
-                            <div className="text-amber-400 font-bold text-[11px] uppercase mb-1">
+                        <div style={{ background: 'rgba(245, 158, 11, 0.06)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(245, 158, 11, 0.25)', fontSize: '11px', marginBottom: '1rem' }}>
+                            <div style={{ color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px' }}>
                                 {diagnosis.headline}
                             </div>
-                            <p className="text-neutral-300 text-[11px] leading-relaxed mb-2 font-sans">
+                            <p style={{ color: '#cbd5e1', lineHeight: 1.4, marginBottom: '6px', fontFamily: 'system-ui, sans-serif' }}>
                                 {diagnosis.summary}
                             </p>
-                            <div className="text-[11px] text-amber-300/90 pt-1.5 border-t border-neutral-800 font-mono">
+                            <div style={{ color: '#fbbf24', paddingTop: '4px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
                                 <strong>Directriz:</strong> {diagnosis.actionableAdvice}
                             </div>
                         </div>
 
                         {/* Footer Watermark */}
-                        <div className="flex justify-between items-center pt-2 border-t border-neutral-800 text-[9px] font-mono text-neutral-500">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '9px', color: '#64748b' }}>
                             <span>HYPERTROPHY TRACKER PRO // MILITARY GRADE PHYSIOLOGY</span>
                             <span>VERIFICADO POR ALGORITMOS CASEY BUTT / REEVES / KOURI</span>
                         </div>
