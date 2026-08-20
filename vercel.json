@@ -1,0 +1,41 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/hypertrophyracker/assets/:match*",
+      "destination": "/assets/:match*"
+    },
+    {
+      "source": "/hypertrophyracker/pwa-icon.svg",
+      "destination": "/pwa-icon.svg"
+    },
+    {
+      "source": "/hypertrophyracker/manifest.webmanifest",
+      "destination": "/manifest.webmanifest"
+    },
+    {
+      "source": "/hypertrophyracker/registerSW.js",
+      "destination": "/registerSW.js"
+    },
+    {
+      "source": "/hypertrophyracker/sw.js",
+      "destination": "/sw.js"
+    },
+    {
+      "source": "/hypertrophyracker/workbox-:match*",
+      "destination": "/workbox-:match*"
+    },
+    {
+      "source": "/hypertrophyracker",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/hypertrophyracker/:match*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
