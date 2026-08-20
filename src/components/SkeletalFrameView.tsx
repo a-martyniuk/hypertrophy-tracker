@@ -91,208 +91,212 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
   ];
 
   return (
-    <div className="skeletal-frame-view animate-fade space-y-6">
+    <div className="skeletal-frame-view animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2 border-b border-white/5">
-        <div>
-          <div className="flex items-center gap-2.5 text-amber-400">
-            <Dna size={22} />
-            <h2 className="text-2xl font-extrabold text-white">{t('genetics.title')}</h2>
-          </div>
-          <p className="text-xs text-neutral-400 mt-1 max-w-2xl leading-relaxed">
-            Análisis multidimensional de límites genéticos naturales: Casey Butt, FFMI Normalizado, Martin Berkhan y Eric Helms.
-          </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', paddingBottom: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--primary-color)' }}>
+          <Dna size={24} />
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff' }}>{t('genetics.title')}</h2>
         </div>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          Análisis multidimensional de límites genéticos naturales: Casey Butt, FFMI Normalizado, Martin Berkhan y Eric Helms.
+        </p>
       </div>
 
       {/* Grid 1: Casey Butt Inputs & Potential Limits */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="frame-layout">
         {/* Left Inputs Column */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="card glass p-6 rounded-2xl border border-white/10 shadow-xl">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
-              <h3 className="text-sm font-mono font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                <span>{t('genetics.base_measurements')}</span>
-                <AppTooltip content={t('genetics.base_measurements_tooltip')} position="right">
-                  <HelpCircle size={14} className="opacity-60 cursor-help" />
-                </AppTooltip>
-              </h3>
+        <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
+            <h3 style={{ fontSize: '0.8rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--primary-color)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span>{t('genetics.base_measurements')}</span>
+              <AppTooltip content={t('genetics.base_measurements_tooltip')} position="right">
+                <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
+              </AppTooltip>
+            </h3>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontFamily: 'var(--font-mono)' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+                <label>{t('common.form.height')} (CM)</label>
+              </div>
+              <input
+                type="number"
+                step="0.5"
+                value={height || ''}
+                onChange={(e) => setHeight(parseFloat(e.target.value) || 0)}
+                style={{ width: '100%', background: 'transparent', border: 'none', fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', outline: 'none', padding: 0 }}
+                placeholder="177"
+              />
             </div>
 
-            <div className="space-y-3 font-mono">
-              <div className="bg-neutral-900/70 border border-white/5 rounded-xl p-3 focus-within:border-amber-500/50 transition-all">
-                <div className="flex justify-between items-center text-xs text-neutral-400 mb-1">
-                  <label>{t('common.form.height')} (CM)</label>
-                </div>
-                <input
-                  type="number"
-                  step="0.5"
-                  value={height || ''}
-                  onChange={(e) => setHeight(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-transparent text-xl font-bold text-white outline-none"
-                  placeholder="177"
-                />
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+                <label>{t('common.form.weight')} (KG)</label>
               </div>
+              <input
+                type="number"
+                step="0.5"
+                value={weight || ''}
+                onChange={(e) => setWeight(parseFloat(e.target.value) || 0)}
+                style={{ width: '100%', background: 'transparent', border: 'none', fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', outline: 'none', padding: 0 }}
+                placeholder="75"
+              />
+            </div>
 
-              <div className="bg-neutral-900/70 border border-white/5 rounded-xl p-3 focus-within:border-amber-500/50 transition-all">
-                <div className="flex justify-between items-center text-xs text-neutral-400 mb-1">
-                  <label>{t('common.form.weight')} (KG)</label>
-                </div>
-                <input
-                  type="number"
-                  step="0.5"
-                  value={weight || ''}
-                  onChange={(e) => setWeight(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-transparent text-xl font-bold text-white outline-none"
-                  placeholder="75"
-                />
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+                <label>{t('common.form.body_fat')} (%)</label>
               </div>
+              <input
+                type="number"
+                step="0.5"
+                value={bodyFat || ''}
+                onChange={(e) => setBodyFat(parseFloat(e.target.value) || 0)}
+                style={{ width: '100%', background: 'transparent', border: 'none', fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', outline: 'none', padding: 0 }}
+                placeholder="15"
+              />
+            </div>
 
-              <div className="bg-neutral-900/70 border border-white/5 rounded-xl p-3 focus-within:border-amber-500/50 transition-all">
-                <div className="flex justify-between items-center text-xs text-neutral-400 mb-1">
-                  <label>{t('common.form.body_fat')} (%)</label>
-                </div>
-                <input
-                  type="number"
-                  step="0.5"
-                  value={bodyFat || ''}
-                  onChange={(e) => setBodyFat(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-transparent text-xl font-bold text-white outline-none"
-                  placeholder="15"
-                />
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(245, 158, 11, 0.25)', borderRadius: '12px', padding: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+                <label>{t('common.form.wrist')} (CM)</label>
+                <AppTooltip content="Medida del hueso de la muñeca para calcular estructura ósea" position="top">
+                  <HelpCircle size={12} style={{ opacity: 0.5 }} />
+                </AppTooltip>
               </div>
+              <input
+                type="number"
+                step="0.1"
+                value={frame.wrist || ''}
+                onChange={(e) => setFrame({ ...frame, wrist: parseFloat(e.target.value) || 0 })}
+                style={{ width: '100%', background: 'transparent', border: 'none', fontSize: '1.25rem', fontWeight: 800, color: '#fbbf24', outline: 'none', padding: 0 }}
+                placeholder="17.5"
+              />
+            </div>
 
-              <div className="bg-neutral-900/70 border border-white/5 rounded-xl p-3 focus-within:border-amber-500/50 transition-all">
-                <div className="flex justify-between items-center text-xs text-neutral-400 mb-1">
-                  <label>{t('common.form.wrist')} (CM)</label>
-                  <AppTooltip content="Medida del hueso de la muñeca para calcular estructura ósea" position="top">
-                    <HelpCircle size={12} className="opacity-50" />
-                  </AppTooltip>
-                </div>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={frame.wrist || ''}
-                  onChange={(e) => setFrame({ ...frame, wrist: parseFloat(e.target.value) || 0 })}
-                  className="w-full bg-transparent text-xl font-bold text-amber-400 outline-none"
-                  placeholder="17.5"
-                />
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(245, 158, 11, 0.25)', borderRadius: '12px', padding: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+                <label>{t('common.form.ankle')} (CM)</label>
+                <AppTooltip content="Medida del perímetro mínimo sobre el tobillo" position="top">
+                  <HelpCircle size={12} style={{ opacity: 0.5 }} />
+                </AppTooltip>
               </div>
-
-              <div className="bg-neutral-900/70 border border-white/5 rounded-xl p-3 focus-within:border-amber-500/50 transition-all">
-                <div className="flex justify-between items-center text-xs text-neutral-400 mb-1">
-                  <label>{t('common.form.ankle')} (CM)</label>
-                  <AppTooltip content="Medida del perímetro mínimo sobre el tobillo" position="top">
-                    <HelpCircle size={12} className="opacity-50" />
-                  </AppTooltip>
-                </div>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={frame.ankle || ''}
-                  onChange={(e) => setFrame({ ...frame, ankle: parseFloat(e.target.value) || 0 })}
-                  className="w-full bg-transparent text-xl font-bold text-amber-400 outline-none"
-                  placeholder="22.5"
-                />
-              </div>
+              <input
+                type="number"
+                step="0.1"
+                value={frame.ankle || ''}
+                onChange={(e) => setFrame({ ...frame, ankle: parseFloat(e.target.value) || 0 })}
+                style={{ width: '100%', background: 'transparent', border: 'none', fontSize: '1.25rem', fontWeight: 800, color: '#fbbf24', outline: 'none', padding: 0 }}
+                placeholder="22.5"
+              />
             </div>
           </div>
         </div>
 
         {/* Right Potential Limits Display */}
-        <div className="lg:col-span-8">
-          <div className="card glass p-6 rounded-2xl border border-white/10 shadow-xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/5">
-              <h3 className="text-sm font-mono font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Target size={16} className="text-amber-400" />
-                <span>Límite Genético Estimado (Modelo Casey Butt)</span>
-              </h3>
-              <span className="badge badge-amber font-mono text-[11px]">@ {bodyFat}% Grasa</span>
-            </div>
+        <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
+            <h3 style={{ fontSize: '0.85rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Target size={18} style={{ color: 'var(--primary-color)' }} />
+              <span>Límite Genético Estimado (Modelo Casey Butt)</span>
+            </h3>
+            <span className="badge badge-amber font-mono text-[11px]">@ {bodyFat}% Grasa</span>
+          </div>
 
-            <div className="space-y-3.5 font-mono">
-              {[
-                { key: 'chest', label: t('common.form.chest'), current: currentMeasurements?.pecho, max: potential.chest },
-                { key: 'arm', label: t('common.form.arm'), current: currentMeasurements?.arm ? (currentMeasurements.arm.left + currentMeasurements.arm.right) / 2 : undefined, max: potential.biceps },
-                { key: 'forearm', label: t('common.form.forearm'), current: currentMeasurements?.forearm ? (currentMeasurements.forearm.left + currentMeasurements.forearm.right) / 2 : undefined, max: potential.forearms },
-                { key: 'neck', label: t('common.form.neck'), current: currentMeasurements?.neck, max: potential.neck },
-                { key: 'thigh', label: t('common.form.thigh'), current: currentMeasurements?.thigh ? (currentMeasurements.thigh.left + currentMeasurements.thigh.right) / 2 : undefined, max: potential.thighs },
-                { key: 'calf', label: t('common.form.calf'), current: currentMeasurements?.calf ? (currentMeasurements.calf.left + currentMeasurements.calf.right) / 2 : undefined, max: potential.calves },
-              ].map(({ key, label, current, max }) => {
-                const progress = current && max ? Math.min(100, Math.round((current / max) * 100)) : 0;
-                return (
-                  <div key={key} className="bg-neutral-900/60 p-3.5 rounded-xl border border-white/5">
-                    <div className="flex justify-between items-center text-xs mb-2">
-                      <span className="font-bold text-neutral-200">{label}</span>
-                      <div className="flex items-center gap-3">
-                        {current ? (
-                          <span className="text-neutral-400">Actual: <strong className="text-white">{current} cm</strong></span>
-                        ) : null}
-                        <span className="text-amber-400 font-bold">Máx {max} cm</span>
-                      </div>
-                    </div>
-                    <div className="w-full h-2.5 bg-neutral-950 rounded-full overflow-hidden p-0.5 border border-white/5">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-300 transition-all duration-500"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-end text-[10px] text-neutral-400 mt-1">
-                      <span>Progreso: <strong className="text-amber-300">{progress}%</strong></span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontFamily: 'var(--font-mono)' }}>
+            {[
+              { key: 'chest', label: t('common.form.chest'), current: currentMeasurements?.pecho, max: potential.chest },
+              { key: 'arm', label: t('common.form.arm'), current: currentMeasurements?.arm ? (currentMeasurements.arm.left + currentMeasurements.arm.right) / 2 : undefined, max: potential.biceps },
+              { key: 'forearm', label: t('common.form.forearm'), current: currentMeasurements?.forearm ? (currentMeasurements.forearm.left + currentMeasurements.forearm.right) / 2 : undefined, max: potential.forearms },
+              { key: 'neck', label: t('common.form.neck'), current: currentMeasurements?.neck, max: potential.neck },
+              { key: 'thigh', label: t('common.form.thigh'), current: currentMeasurements?.thigh ? (currentMeasurements.thigh.left + currentMeasurements.thigh.right) / 2 : undefined, max: potential.thighs },
+              { key: 'calf', label: t('common.form.calf'), current: currentMeasurements?.calf ? (currentMeasurements.calf.left + currentMeasurements.calf.right) / 2 : undefined, max: potential.calves },
+            ].map(({ key, label, current, max }) => {
+              const progress = current && max ? Math.min(100, Math.round((current / max) * 100)) : 0;
+              return (
+                <div key={key} style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '12px', padding: '0.85rem 1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                    <span style={{ fontWeight: 700, color: '#ffffff' }}>{label}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                      {current ? (
+                        <span style={{ color: 'var(--text-secondary)' }}>Actual: <strong style={{ color: '#ffffff' }}>{current} cm</strong></span>
+                      ) : null}
+                      <span style={{ color: 'var(--primary-color)', fontWeight: 800 }}>Máx {max} cm</span>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                  <div style={{ width: '100%', height: '8px', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '999px', overflow: 'hidden', padding: '1px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                    <div
+                      style={{
+                        height: '100%',
+                        borderRadius: '999px',
+                        background: 'var(--primary-gradient)',
+                        width: `${progress}%`,
+                        transition: 'width 0.5s ease'
+                      }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
+                    <span>Progreso: <strong style={{ color: '#fbbf24' }}>{progress}%</strong></span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
       {/* Grid 2: FFMI & Berkhan Models */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid-2col">
         {/* FFMI Normalizado Card */}
-        <div className="card glass p-6 rounded-2xl border border-white/10 shadow-xl space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-white/5">
-            <h3 className="text-sm font-mono font-bold text-white flex items-center gap-2">
-              <Scale size={16} className="text-amber-400" />
+        <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
+            <h3 style={{ fontSize: '0.85rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Scale size={16} style={{ color: 'var(--primary-color)' }} />
               <span>FFMI Normalizado (Fat-Free Mass Index)</span>
             </h3>
             <span className="badge badge-amber font-mono text-[10px]">Kouri et al.</span>
           </div>
 
           {ffmi ? (
-            <div className="space-y-4 font-mono">
-              <div className="grid grid-cols-2 gap-3 p-4 bg-neutral-950/70 rounded-xl border border-white/5">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontFamily: 'var(--font-mono)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', padding: '1rem', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <div>
-                  <div className="text-[11px] text-neutral-400">FFMI NORMALIZADO</div>
-                  <div className="text-3xl font-black text-amber-400 mt-0.5">{ffmi.normalizedFFMI}</div>
-                  <div className="text-[11px] text-neutral-400 mt-0.5">FFMI Crudo: {ffmi.rawFFMI}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>FFMI NORMALIZADO</div>
+                  <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fbbf24', marginTop: '0.2rem' }}>{ffmi.normalizedFFMI}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>FFMI Crudo: {ffmi.rawFFMI}</div>
                 </div>
-                <div className="text-right">
-                  <div className="text-[11px] text-neutral-400">MASA MAGRA PURA</div>
-                  <div className="text-2xl font-black text-white mt-0.5">{ffmi.leanMassKg} kg</div>
-                  <div className="text-[11px] text-neutral-400 mt-0.5">Grasa: {ffmi.fatMassKg} kg ({bodyFat}%)</div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>MASA MAGRA PURA</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ffffff', marginTop: '0.2rem' }}>{ffmi.leanMassKg} kg</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Grasa: {ffmi.fatMassKg} kg ({bodyFat}%)</div>
                 </div>
               </div>
 
               {/* FFMI Natural Scale */}
               <div>
-                <div className="flex justify-between text-xs text-neutral-300 mb-1.5 font-sans">
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontFamily: 'var(--font-main)' }}>
                   <span>Escala Fisiológica Natural</span>
-                  <span className="text-amber-300 font-bold font-mono">
+                  <span style={{ color: '#fbbf24', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
                     {ffmi.normalizedFFMI < 20 ? 'Promedio / Recreacional' :
                      ffmi.normalizedFFMI < 22 ? 'Atlético Entrenado' :
                      ffmi.normalizedFFMI < 23 ? 'Avanzado / Competitivo' :
                      ffmi.normalizedFFMI < 25 ? 'Límite Natural Superior' : 'Excepcional / Suprafisiológico'}
                   </span>
                 </div>
-                <div className="w-full h-3.5 bg-neutral-950 rounded-full overflow-hidden p-0.5 border border-white/10">
+                <div style={{ width: '100%', height: '10px', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '999px', overflow: 'hidden', padding: '1px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-sky-500 via-amber-500 to-rose-500 transition-all duration-500"
-                    style={{ width: `${Math.min(100, Math.max(5, ffmi.scorePercent))}%` }}
+                    style={{
+                      height: '100%',
+                      borderRadius: '999px',
+                      background: 'linear-gradient(90deg, #38bdf8 0%, #fbbf24 60%, #ef4444 100%)',
+                      width: `${Math.min(100, Math.max(5, ffmi.scorePercent))}%`,
+                      transition: 'all 0.5s ease'
+                    }}
                   />
                 </div>
-                <div className="flex justify-between text-[10px] text-neutral-400 mt-1">
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
                   <span>15.0</span>
                   <span>20.0 (Atlético)</span>
                   <span>22.0</span>
@@ -301,132 +305,139 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
               </div>
             </div>
           ) : (
-            <p className="text-xs text-neutral-400">Ingresa peso, altura y grasa para calcular FFMI.</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Ingresa peso, altura y grasa para calcular FFMI.</p>
           )}
         </div>
 
         {/* Martin Berkhan Model Card */}
-        <div className="card glass p-6 rounded-2xl border border-white/10 shadow-xl font-mono space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-white/5">
-            <h3 className="text-sm font-mono font-bold text-white flex items-center gap-2">
-              <Award size={16} className="text-amber-400" />
+        <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
+            <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Award size={16} style={{ color: 'var(--primary-color)' }} />
               <span>Modelo Martin Berkhan (Leangains)</span>
             </h3>
             <span className="badge badge-amber font-mono text-[10px]">Altura - 100</span>
           </div>
 
-          <div className="space-y-3">
-            <p className="text-xs text-neutral-300 font-sans leading-relaxed">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-main)', lineHeight: 1.5 }}>
               Proyección de peso corporal máximo alcanzable por un atleta natural en estado magro de competición (~5% BF) y a tu % de grasa actual.
             </p>
 
-            <div className="grid grid-cols-2 gap-3 text-center">
-              <div className="p-4 bg-neutral-950/70 rounded-xl border border-white/5">
-                <div className="text-[11px] text-neutral-400 uppercase font-semibold">MÁXIMO EN CORTE (5% BF)</div>
-                <div className="text-2xl font-black text-amber-400 mt-1">{berkhan.maxWeightAtCompBf} kg</div>
-                <div className="text-[11px] text-neutral-400 mt-0.5">Masa magra: {berkhan.maxLeanWeightKg} kg</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'center' }}>
+              <div style={{ padding: '1rem', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>MÁXIMO EN CORTE (5% BF)</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fbbf24', marginTop: '0.25rem' }}>{berkhan.maxWeightAtCompBf} kg</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Masa magra: {berkhan.maxLeanWeightKg} kg</div>
               </div>
-              <div className="p-4 bg-neutral-950/70 rounded-xl border border-white/5">
-                <div className="text-[11px] text-neutral-400 uppercase font-semibold">MÁXIMO A TU BF ({bodyFat}%)</div>
-                <div className="text-2xl font-black text-amber-300 mt-1">{berkhan.maxWeightAtCurrentBf} kg</div>
-                <div className="text-[11px] text-neutral-400 mt-0.5">Con {bodyFat}% de grasa</div>
+              <div style={{ padding: '1rem', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>MÁXIMO A TU BF ({bodyFat}%)</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ffffff', marginTop: '0.25rem' }}>{berkhan.maxWeightAtCurrentBf} kg</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Con {bodyFat}% de grasa</div>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs font-sans text-neutral-200">
-              💡 Para tu estatura ({height} cm), tu potencial magro natural absoluto es de aproximadamente <strong className="text-amber-300 font-mono">{berkhan.maxLeanWeightKg} kg de masa muscular pura</strong>.
+            <div style={{ padding: '0.75rem 1rem', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.2)', fontSize: '0.75rem', fontFamily: 'var(--font-main)', color: 'var(--text-primary)', lineHeight: 1.4 }}>
+              💡 Para tu estatura ({height} cm), tu potencial magro natural absoluto es de aproximadamente <strong style={{ color: '#fbbf24', fontFamily: 'var(--font-mono)' }}>{berkhan.maxLeanWeightKg} kg de masa muscular pura</strong>.
             </div>
           </div>
         </div>
       </div>
 
       {/* Grid 3: Eric Helms Gain Rates & IEO */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid-2col">
         {/* Eric Helms / Lyle McDonald Rates */}
-        <div className="card glass p-6 rounded-2xl border border-white/10 shadow-xl font-mono space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-white/5">
-            <h3 className="text-sm font-mono font-bold text-white flex items-center gap-2">
-              <TrendingUp size={16} className="text-amber-400" />
+        <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
+            <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <TrendingUp size={16} style={{ color: 'var(--primary-color)' }} />
               <span>Tasas de Ganancia Realistas (Helms & McDonald)</span>
             </h3>
           </div>
 
-          <p className="text-xs text-neutral-300 font-sans leading-relaxed">
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-main)', lineHeight: 1.5 }}>
             Tasa de aumento mensual de masa muscular limpia esperable según tu nivel de experiencia:
           </p>
 
-          <div className="space-y-2.5 text-xs">
-            <div className="p-3 rounded-xl bg-neutral-950/70 border border-white/5 flex justify-between items-center">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.8rem' }}>
+            <div style={{ padding: '0.75rem 1rem', borderRadius: '12px', background: 'rgba(0, 0, 0, 0.3)', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div className="font-bold text-amber-300">PRINCIPIANTE (0 - 1 año)</div>
-                <div className="text-[11px] text-neutral-400">1.0% – 1.5% peso / mes</div>
+                <div style={{ fontWeight: 800, color: '#fbbf24' }}>PRINCIPIANTE (0 - 1 año)</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>1.0% – 1.5% peso / mes</div>
               </div>
-              <div className="text-right">
-                <div className="font-bold text-white">+{helms.beginner.minKgMonth} a {helms.beginner.maxKgMonth} kg/mes</div>
-                <div className="text-[10px] text-neutral-400">~{helms.beginner.minGramsWeek}-{helms.beginner.maxGramsWeek} g/semana</div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 800, color: '#ffffff' }}>+{helms.beginner.minKgMonth} a {helms.beginner.maxKgMonth} kg/mes</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>~{helms.beginner.minGramsWeek}-{helms.beginner.maxGramsWeek} g/semana</div>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-neutral-950/70 border border-white/5 flex justify-between items-center">
+            <div style={{ padding: '0.75rem 1rem', borderRadius: '12px', background: 'rgba(0, 0, 0, 0.3)', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div className="font-bold text-amber-400">INTERMEDIO (1 - 3 años)</div>
-                <div className="text-[11px] text-neutral-400">0.5% – 1.0% peso / mes</div>
+                <div style={{ fontWeight: 800, color: '#f59e0b' }}>INTERMEDIO (1 - 3 años)</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>0.5% – 1.0% peso / mes</div>
               </div>
-              <div className="text-right">
-                <div className="font-bold text-white">+{helms.intermediate.minKgMonth} a {helms.intermediate.maxKgMonth} kg/mes</div>
-                <div className="text-[10px] text-neutral-400">~{helms.intermediate.minGramsWeek}-{helms.intermediate.maxGramsWeek} g/semana</div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 800, color: '#ffffff' }}>+{helms.intermediate.minKgMonth} a {helms.intermediate.maxKgMonth} kg/mes</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>~{helms.intermediate.minGramsWeek}-{helms.intermediate.maxGramsWeek} g/semana</div>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-neutral-950/70 border border-white/5 flex justify-between items-center">
+            <div style={{ padding: '0.75rem 1rem', borderRadius: '12px', background: 'rgba(0, 0, 0, 0.3)', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div className="font-bold text-amber-500">AVANZADO (3+ años)</div>
-                <div className="text-[11px] text-neutral-400">0.25% – 0.5% peso / mes</div>
+                <div style={{ fontWeight: 800, color: '#d97706' }}>AVANZADO (3+ años)</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>0.25% – 0.5% peso / mes</div>
               </div>
-              <div className="text-right">
-                <div className="font-bold text-white">+{helms.advanced.minKgMonth} a {helms.advanced.maxKgMonth} kg/mes</div>
-                <div className="text-[10px] text-neutral-400">~{helms.advanced.minGramsWeek}-{helms.advanced.maxGramsWeek} g/semana</div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 800, color: '#ffffff' }}>+{helms.advanced.minKgMonth} a {helms.advanced.maxKgMonth} kg/mes</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>~{helms.advanced.minGramsWeek}-{helms.advanced.maxGramsWeek} g/semana</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* IEO Card */}
-        <div className="card glass p-6 rounded-2xl border border-white/10 shadow-xl space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-white/5">
-            <h3 className="text-sm font-mono font-bold text-white flex items-center gap-2">
-              <Sparkles size={16} className="text-amber-400" />
+        <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
+            <h3 style={{ fontSize: '0.85rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Sparkles size={16} style={{ color: 'var(--primary-color)' }} />
               <span>{t('genetics.ieo.title')}</span>
             </h3>
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-4 bg-neutral-950/70 rounded-xl border border-white/5 font-mono space-y-2">
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-amber-400">{ieo.value}</span>
-                <span className="text-xs uppercase font-bold text-neutral-300">{t(`genetics.ieo.${ieo.label}`)}</span>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div style={{ padding: '1rem', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)', fontFamily: 'var(--font-mono)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                <span style={{ fontSize: '2rem', fontWeight: 900, color: '#fbbf24' }}>{ieo.value}</span>
+                <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--text-secondary)' }}>{t(`genetics.ieo.${ieo.label}`)}</span>
               </div>
               {ieo.isAdvantage && (
                 <span className="badge badge-amber text-[10px]">
                   ✨ {t('genetics.ieo.advantage')}
                 </span>
               )}
-              <p className="font-sans text-xs text-neutral-300 leading-relaxed pt-1">
+              <p style={{ fontFamily: 'var(--font-main)', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginTop: '0.25rem' }}>
                 {t('genetics.ieo.description')}
               </p>
             </div>
 
-            <div className="space-y-1.5 font-mono">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontFamily: 'var(--font-mono)' }}>
               {IEO_CATEGORIES.map((cat, idx) => {
                 const isActive = ieo.rawValue >= cat.min && ieo.rawValue < cat.max;
                 return (
                   <div
                     key={idx}
-                    className={`flex justify-between items-center p-2.5 rounded-lg text-xs border transition-all ${
-                      isActive
-                        ? 'bg-amber-500/15 border-amber-500/40 text-amber-300 font-bold'
-                        : 'bg-neutral-900/40 border-white/5 text-neutral-400'
-                    }`}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '0.6rem 0.8rem',
+                      borderRadius: '8px',
+                      fontSize: '0.75rem',
+                      background: isActive ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.02)',
+                      border: isActive ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid rgba(255, 255, 255, 0.04)',
+                      color: isActive ? '#fbbf24' : 'var(--text-secondary)',
+                      fontWeight: isActive ? 700 : 500
+                    }}
                   >
                     <span>{cat.range}</span>
                     <span>{cat.label}</span>

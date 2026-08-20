@@ -244,3 +244,53 @@ button {
 .pulse-amber {
   animation: pulseGlow 2.5s infinite;
 }
+
+/* Responsive Grid Utilities (Zero-Dependency) */
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.grid-4col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.frame-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+
+@media (max-width: 900px) {
+  .grid-2col, .grid-3col, .grid-4col, .frame-layout {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+}
