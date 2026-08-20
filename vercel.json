@@ -26,15 +26,19 @@
       "destination": "/workbox-$1"
     },
     {
+      "source": "/hypertrophyracker/(.*)",
+      "destination": "/index.html"
+    },
+    {
       "source": "/hypertrophyracker",
       "destination": "/index.html"
     },
     {
-      "source": "/hypertrophyracker/:path*",
-      "destination": "/index.html"
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]

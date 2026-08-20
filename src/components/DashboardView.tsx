@@ -76,15 +76,13 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                     <p>{t('dashboard.subtitle')}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    {latestRecord && (
-                        <button
-                            onClick={() => setReportModalOpen(true)}
-                            className="btn-secondary flex items-center gap-1.5 font-mono text-xs text-amber-400 border-amber-500/30 hover:border-amber-400"
-                        >
-                            <FileText size={16} />
-                            <span>FICHA TÁCTICA HD</span>
-                        </button>
-                    )}
+                    <button
+                        onClick={() => setReportModalOpen(true)}
+                        className="btn-secondary flex items-center gap-1.5 font-mono text-xs text-amber-400 border-amber-500/30 hover:border-amber-400"
+                    >
+                        <FileText size={16} />
+                        <span>FICHA TÁCTICA HD</span>
+                    </button>
                     <HudButton onClick={() => navigate('/new-entry')} icon={<Plus size={18} />}>
                         {t('dashboard.register_measurements')}
                     </HudButton>

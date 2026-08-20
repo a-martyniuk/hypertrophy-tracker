@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
-import { X, Download, Sparkles, Activity, Award, CheckCircle2 } from 'lucide-react';
+import { X, Download, Sparkles, Activity, Award, CheckCircle2, AlertCircle } from 'lucide-react';
 import type { MeasurementRecord } from '../types/measurements';
 import { calculateFFMI } from '../utils/skeletal';
 import { analyzeProportions } from '../utils/proportions';
@@ -14,6 +14,32 @@ interface Props {
     userName: string;
 }
 
+const DEMO_RECORD: MeasurementRecord = {
+    id: 'demo-sample-01',
+    userId: 'demo',
+    date: new Date().toISOString(),
+    measurements: {
+        weight: 80,
+        height: 180,
+        bodyFat: 14,
+        neck: 39,
+        back: 120,
+        pecho: 110,
+        waist: 82,
+        hips: 95,
+        arm: { left: 39, right: 39 },
+        forearm: { left: 31, right: 31 },
+        wrist: { left: 17.5, right: 17.5 },
+        thigh: { left: 60, right: 60 },
+        calf: { left: 39, right: 39 },
+        ankle: { left: 22, right: 22 },
+    },
+    metadata: {
+        condition: 'fasted',
+        sleepHours: 8
+    }
+};
+
 export const TacticalReportModal: React.FC<Props> = ({
     isOpen,
     onClose,
@@ -24,14 +50,17 @@ export const TacticalReportModal: React.FC<Props> = ({
     const reportRef = useRef<HTMLDivElement>(null);
     const [downloading, setDownloading] = useState(false);
     const [downloadSuccess, setDownloadSuccess] = useState(false);
+    const [downloadError, setDownloadError] = useState<string | null>(null);
 
-    if (!isOpen || !latestRecord) return null;
+    if (!isOpen) return null;
 
-    const m = latestRecord.measurements;
+    const isDemo = !latestRecord;
+    const record = latestRecord || DEMO_RECORD;
+    const m = record.measurements;
     const ffmi = calculateFFMI(m.weight || 0, m.height || 0, m.bodyFat || 15);
     const proportions = analyzeProportions(m);
-    const diagnosis = generateTacticalDiagnosis(latestRecord, previousRecord);
-    const reportDate = new Date(latestRecord.date).toLocaleDateString('es-ES', {
+    const diagnosis = generateTacticalDiagnosis(record, previousRecord);
+    const reportDate = new Date(record.date).toLocaleDateString('es-ES', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -41,23 +70,31 @@ export const TacticalReportModal: React.FC<Props> = ({
         if (!reportRef.current) return;
         setDownloading(true);
         setDownloadSuccess(false);
+        setDownloadError(null);
 
         try {
+            // High reliability export without cross-origin font blockage
             const dataUrl = await toPng(reportRef.current, {
                 quality: 0.98,
-                pixelRatio: 2, // High resolution export
+                pixelRatio: 2,
+                skipFonts: true,
+                cacheBust: true,
                 backgroundColor: '#030305'
             });
 
             const link = document.createElement('a');
-            link.download = `ficha_tactica_${userName.toLowerCase().replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.png`;
+            const safeName = (userName || 'atleta').toLowerCase().replace(/[^a-z0-9]/g, '_');
+            link.download = `ficha_tactica_${safeName}_${new Date().toISOString().slice(0, 10)}.png`;
             link.href = dataUrl;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
 
             setDownloadSuccess(true);
             setTimeout(() => setDownloadSuccess(false), 3000);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error generating report image:', err);
+            setDownloadError('Error al renderizar imagen. Intenta nuevamente.');
         } finally {
             setDownloading(false);
         }
@@ -65,10 +102,10 @@ export const TacticalReportModal: React.FC<Props> = ({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
-            <div className="relative w-full max-w-2xl my-8 bg-neutral-950 border border-amber-500/30 rounded-xl shadow-2xl overflow-hidden">
+            <div className="relative w-full max-w-2xl my-8 bg-neutral-950 border border-amber-500/30 rounded-2xl shadow-2xl overflow-hidden">
                 {/* Modal Toolbar */}
                 <div className="flex items-center justify-between p-4 bg-neutral-900/90 border-b border-neutral-800">
-                    <div className="flex items-center gap-2 text-amber-400 font-mono text-sm font-bold">
+                    <div className="flex items-center gap-2 text-amber-400 font-mono text-xs sm:text-sm font-bold">
                         <Activity size={18} />
                         <span>FICHA TÁCTICA DE INTELIGENCIA CORPORAL</span>
                     </div>
@@ -101,13 +138,28 @@ export const TacticalReportModal: React.FC<Props> = ({
                     </div>
                 </div>
 
+                {/* Demo Notification if no real measurements exist yet */}
+                {isDemo && (
+                    <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-xs font-mono text-amber-300 flex items-center gap-2">
+                        <AlertCircle size={14} className="flex-shrink-0" />
+                        <span>MODO DEMOSTRACIÓN: Registra tus medidas en "Nueva Medida" para personalizar esta ficha con tu telemetría real.</span>
+                    </div>
+                )}
+
+                {downloadError && (
+                    <div className="bg-rose-500/20 border-b border-rose-500/40 px-4 py-2 text-xs font-mono text-rose-300 flex items-center gap-2">
+                        <AlertCircle size={14} className="flex-shrink-0" />
+                        <span>{downloadError}</span>
+                    </div>
+                )}
+
                 {/* Printable Report Canvas */}
-                <div className="p-6 overflow-x-auto">
+                <div className="p-4 sm:p-6 overflow-x-auto">
                     <div
                         ref={reportRef}
                         id="tactical-report-card"
-                        className="w-[580px] mx-auto bg-[#030305] p-6 rounded-lg border border-amber-500/40 text-neutral-200 font-sans relative overflow-hidden"
-                        style={{ minHeight: '750px' }}
+                        className="w-[580px] mx-auto bg-[#030305] p-6 rounded-xl border border-amber-500/40 text-neutral-200 font-sans relative overflow-hidden"
+                        style={{ minHeight: '750px', backgroundColor: '#030305' }}
                     >
                         {/* Tactical Background Grid Effect */}
                         <div
@@ -128,7 +180,7 @@ export const TacticalReportModal: React.FC<Props> = ({
                                     EXPEDIENTE: <span className="text-amber-400">{userName.toUpperCase()}</span>
                                 </h2>
                                 <div className="text-xs text-neutral-400 font-mono mt-0.5">
-                                    FECHA AUDITORÍA: {reportDate}
+                                    FECHA AUDITORÍA: {reportDate} {isDemo && '(DEMO)'}
                                 </div>
                             </div>
                             <div className="text-right font-mono">
@@ -136,7 +188,7 @@ export const TacticalReportModal: React.FC<Props> = ({
                                     {diagnosis.statusText}
                                 </div>
                                 <div className="text-[11px] text-neutral-400 mt-1">
-                                    ESTADO: {latestRecord.metadata?.condition || 'Entrenamiento'}
+                                    ESTADO: {record.metadata?.condition || 'Entrenamiento'}
                                 </div>
                             </div>
                         </div>
