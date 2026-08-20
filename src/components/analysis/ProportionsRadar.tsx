@@ -67,7 +67,7 @@ export const ProportionsRadar: React.FC<Props> = ({ measurements }) => {
             </div>
 
             {/* Grid with Radar Chart and Triad Details */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid-2col">
                 {/* Radar Chart */}
                 <div className="card glass p-6 flex flex-col items-center justify-center min-h-[340px] rounded-2xl border border-white/10">
                     <div className="w-full flex items-center justify-between mb-3">

@@ -1,7 +1,22 @@
+import { useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { Plus, History, Activity, LogOut, User, LayoutGrid, Target, Calculator, Dna, Settings } from 'lucide-react'
+import {
+    Plus,
+    History,
+    Activity,
+    LogOut,
+    User,
+    LayoutGrid,
+    Target,
+    Calculator,
+    Dna,
+    Settings,
+    MoreHorizontal,
+    X,
+    Sparkles
+} from 'lucide-react'
 import { Tooltip } from './Tooltip'
 import { ToastProvider } from './ui/ToastProvider'
 import { useAuth } from '../hooks/useAuth'
@@ -16,6 +31,7 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const location = useLocation()
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const activeView = location.pathname.slice(1) || 'dashboard'
 
     const { user: authUser, signOut } = useAuth()
@@ -27,6 +43,7 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
     const handleLogOut = async () => {
         await signOut()
         setIsGuest(false)
+        setMobileMenuOpen(false)
         navigate('/')
     }
 
@@ -41,11 +58,19 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
         { path: 'settings', icon: Settings, label: t('common.menu.settings'), tooltip: t('common.tooltips.settings') },
     ]
 
+    const isSecondaryViewActive = ['history', 'calculator', 'goals', 'settings'].includes(activeView);
+
+    const handleNavigateMobile = (path: string) => {
+        setMobileMenuOpen(false)
+        navigate(path)
+    }
+
     return (
         <ToastProvider>
             <div className="app-container">
+                {/* Mobile Top Header */}
                 <header className="mobile-header glass">
-                    <div className="logo-mobile">
+                    <div className="logo-mobile" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
                         <Activity color="var(--primary-color)" size={24} />
                         <span className="logo-text">HYPERTROPHY</span>
                     </div>
@@ -61,12 +86,17 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                                 onClick={() => updateProfile({ sex: 'female' })}
                             >F</button>
                         </div>
-                        <div className={`user-avatar-mobile ${userSex}`}>
+                        <div
+                            className={`user-avatar-mobile ${userSex}`}
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <User size={18} />
                         </div>
                     </div>
                 </header>
 
+                {/* Desktop Sidebar */}
                 <nav className="sidebar glass">
                     <div className="logo">
                         <Activity color="var(--primary-color)" size={32} />
@@ -115,6 +145,7 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                     </div>
                 </nav>
 
+                {/* Content Area */}
                 <main className="content">
                     <AnimatePresence mode="wait">
                         <motion.div
@@ -130,23 +161,140 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                     </AnimatePresence>
                 </main>
 
+                {/* Mobile Bottom Navigation (Segmented 5-Key Bar) */}
                 <nav className="mobile-nav glass">
-                    {navigationItems.map(item => (
-                        <button
-                            key={item.path}
-                            className={activeView === item.path ? 'active' : ''}
-                            onClick={() => navigate(item.path)}
-                        >
-                            <item.icon size={22} />
-                            <span>{item.label === 'Nueva Medida' ? 'Nuevo' : item.label}</span>
-                        </button>
-                    ))}
-                    <button className="btn-logout-mobile" onClick={handleLogOut}>
-                        <LogOut size={22} />
-                        <span>{t('common.logout')}</span>
+                    <button
+                        className={activeView === 'dashboard' ? 'active' : ''}
+                        onClick={() => handleNavigateMobile('dashboard')}
+                    >
+                        <LayoutGrid size={20} />
+                        <span>Inicio</span>
+                    </button>
+
+                    <button
+                        className={activeView === 'analysis' ? 'active' : ''}
+                        onClick={() => handleNavigateMobile('analysis')}
+                    >
+                        <Activity size={20} />
+                        <span>Análisis</span>
+                    </button>
+
+                    {/* Central Highlighted Button */}
+                    <button
+                        className={`mobile-center-btn ${activeView === 'new-entry' ? 'active' : ''}`}
+                        onClick={() => handleNavigateMobile('new-entry')}
+                    >
+                        <div className="center-btn-bubble">
+                            <Plus size={22} />
+                        </div>
+                        <span>Medir</span>
+                    </button>
+
+                    <button
+                        className={activeView === 'potential' ? 'active' : ''}
+                        onClick={() => handleNavigateMobile('potential')}
+                    >
+                        <Dna size={20} />
+                        <span>Genética</span>
+                    </button>
+
+                    <button
+                        className={mobileMenuOpen || isSecondaryViewActive ? 'active' : ''}
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    >
+                        <MoreHorizontal size={20} />
+                        <span>Más</span>
                     </button>
                 </nav>
+
+                {/* Mobile "More" Drawer Modal */}
+                <AnimatePresence>
+                    {mobileMenuOpen && (
+                        <>
+                            {/* Backdrop */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="mobile-drawer-backdrop"
+                            />
+
+                            {/* Drawer Card */}
+                            <motion.div
+                                initial={{ y: '100%' }}
+                                animate={{ y: 0 }}
+                                exit={{ y: '100%' }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                className="mobile-drawer-sheet glass"
+                            >
+                                <div className="drawer-header">
+                                    <div className="drawer-user-info">
+                                        <div className={`user-avatar ${userSex}`}>
+                                            <User size={18} />
+                                        </div>
+                                        <div>
+                                            <div className="drawer-user-name">{userName}</div>
+                                            <div className="drawer-user-status">
+                                                <Sparkles size={12} className="inline mr-1 text-amber-400" />
+                                                {authUser ? 'Sincronizado' : 'Modo Local (Invitado)'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="drawer-close-btn"
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
+
+                                <div className="drawer-menu-grid">
+                                    <button
+                                        className={`drawer-menu-item ${activeView === 'history' ? 'active' : ''}`}
+                                        onClick={() => handleNavigateMobile('history')}
+                                    >
+                                        <History size={20} className="text-amber-400" />
+                                        <span>{t('common.menu.history')}</span>
+                                    </button>
+
+                                    <button
+                                        className={`drawer-menu-item ${activeView === 'calculator' ? 'active' : ''}`}
+                                        onClick={() => handleNavigateMobile('calculator')}
+                                    >
+                                        <Calculator size={20} className="text-amber-400" />
+                                        <span>{t('common.menu.metabolism')}</span>
+                                    </button>
+
+                                    <button
+                                        className={`drawer-menu-item ${activeView === 'goals' ? 'active' : ''}`}
+                                        onClick={() => handleNavigateMobile('goals')}
+                                    >
+                                        <Target size={20} className="text-amber-400" />
+                                        <span>{t('common.menu.goals')}</span>
+                                    </button>
+
+                                    <button
+                                        className={`drawer-menu-item ${activeView === 'settings' ? 'active' : ''}`}
+                                        onClick={() => handleNavigateMobile('settings')}
+                                    >
+                                        <Settings size={20} className="text-amber-400" />
+                                        <span>{t('common.menu.settings')}</span>
+                                    </button>
+                                </div>
+
+                                <div className="drawer-footer">
+                                    <button className="drawer-logout-btn" onClick={handleLogOut}>
+                                        <LogOut size={18} />
+                                        <span>{t('common.logout')}</span>
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
             </div>
+
             <style>{`
                 .app-container {
                     display: flex;
@@ -165,7 +313,8 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                     justify-content: space-between;
                     align-items: center;
                     border-bottom: 1px solid var(--border-color);
-                    background: rgba(3, 3, 5, 0.8);
+                    background: rgba(8, 9, 13, 0.85);
+                    backdrop-filter: blur(16px);
                 }
 
                 .logo-mobile {
@@ -175,48 +324,50 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                 }
 
                 .logo-text {
-                    font-size: 0.8rem;
+                    font-size: 0.85rem;
                     font-weight: 800;
                     letter-spacing: 0.05em;
+                    color: #ffffff;
                 }
 
                 .mobile-header-actions {
                     display: flex;
                     align-items: center;
-                    gap: 1rem;
+                    gap: 0.75rem;
                 }
 
                 .gender-toggle-mobile {
                     display: flex;
                     background: rgba(255, 255, 255, 0.05);
                     padding: 2px;
-                    border-radius: 6px;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 8px;
+                    border: 1px solid rgba(255, 255, 255, 0.08);
                 }
 
                 .gender-toggle-mobile button {
                     width: 28px;
                     height: 24px;
                     font-size: 0.7rem;
+                    font-weight: 700;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     background: none;
                     border: none;
                     color: var(--text-secondary);
-                    border-radius: 4px;
+                    border-radius: 6px;
                 }
 
                 .gender-toggle-mobile button.active {
-                    background: var(--primary-color);
-                    color: black;
+                    background: var(--primary-gradient);
+                    color: #08090d;
                 }
 
                 .user-avatar-mobile {
-                    width: 32px;
-                    height: 32px;
-                    background: var(--surface-hover);
-                    border-radius: 8px;
+                    width: 34px;
+                    height: 34px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 10px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -229,53 +380,172 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                     border-color: rgba(236, 72, 153, 0.4);
                 }
 
+                /* Mobile Bottom Nav (Clean 5-Item Segmented Bar) */
                 .mobile-nav {
                     display: none;
                     position: fixed;
                     bottom: 0;
                     left: 0;
                     width: 100%;
-                    padding: 0.5rem;
+                    padding: 0.4rem 0.75rem calc(0.4rem + env(safe-area-inset-bottom, 0px));
                     z-index: 100;
                     border-top: 1px solid var(--border-color);
-                    background: rgba(3, 3, 5, 0.95);
+                    background: rgba(8, 9, 13, 0.92);
                     backdrop-filter: blur(20px);
-                    
-                    overflow-x: auto;
-                    white-space: nowrap;
-                    justify-content: flex-start;
-                    gap: 0.5rem;
-                    
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                }
-                
-                .mobile-nav::-webkit-scrollbar {
-                    display: none;
+                    -webkit-backdrop-filter: blur(20px);
+                    justify-content: space-around;
+                    align-items: center;
+                    touch-action: manipulation;
                 }
 
                 .mobile-nav button {
-                    flex: 0 0 auto; /* Don't shrink */
+                    flex: 1;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 4px;
+                    justify-content: center;
+                    gap: 3px;
                     background: none;
                     border: none;
                     color: var(--text-secondary);
                     font-size: 0.65rem;
-                    padding: 0.5rem;
-                    border-radius: 8px;
-                    min-width: 60px;
+                    font-weight: 600;
+                    font-family: var(--font-mono);
+                    padding: 0.4rem 0.2rem;
+                    border-radius: 10px;
+                    transition: var(--transition-smooth);
+                    user-select: none;
                 }
 
                 .mobile-nav button.active {
-                    color: var(--primary-color);
-                    background: rgba(245, 158, 11, 0.1);
+                    color: #fbbf24;
                 }
-                
-                .btn-logout-mobile {
-                    color: var(--danger-color) !important;
+
+                .mobile-center-btn {
+                    position: relative;
+                    margin-top: -16px;
+                }
+
+                .center-btn-bubble {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    background: var(--primary-gradient);
+                    color: #08090d;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 4px 15px var(--primary-glow);
+                    transition: transform 0.2s ease;
+                }
+
+                .mobile-center-btn:active .center-btn-bubble {
+                    transform: scale(0.92);
+                }
+
+                /* Mobile Drawer Sheet */
+                .mobile-drawer-backdrop {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(0, 0, 0, 0.7);
+                    backdrop-filter: blur(4px);
+                    z-index: 150;
+                }
+
+                .mobile-drawer-sheet {
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    padding: 1.5rem 1.25rem calc(2rem + env(safe-area-inset-bottom, 0px));
+                    z-index: 160;
+                    border-top: 1px solid rgba(245, 158, 11, 0.3);
+                    border-radius: 24px 24px 0 0;
+                    background: rgba(13, 16, 25, 0.98);
+                    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+                }
+
+                .drawer-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1.25rem;
+                    padding-bottom: 1rem;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                }
+
+                .drawer-user-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                }
+
+                .drawer-user-name {
+                    font-weight: 700;
+                    font-size: 1rem;
+                    color: #ffffff;
+                }
+
+                .drawer-user-status {
+                    font-size: 0.75rem;
+                    color: var(--text-secondary);
+                    font-family: var(--font-mono);
+                }
+
+                .drawer-close-btn {
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    color: var(--text-secondary);
+                    padding: 6px;
+                    border-radius: 50%;
+                }
+
+                .drawer-menu-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 0.75rem;
+                    margin-bottom: 1.25rem;
+                }
+
+                .drawer-menu-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    padding: 0.9rem 1rem;
+                    background: rgba(255, 255, 255, 0.03);
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    border-radius: 14px;
+                    color: #ffffff;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    text-align: left;
+                    transition: var(--transition-smooth);
+                }
+
+                .drawer-menu-item:active, .drawer-menu-item.active {
+                    background: rgba(245, 158, 11, 0.15);
+                    border-color: #f59e0b;
+                    color: #fbbf24;
+                }
+
+                .drawer-footer {
+                    padding-top: 0.75rem;
+                    border-top: 1px solid rgba(255, 255, 255, 0.06);
+                }
+
+                .drawer-logout-btn {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    padding: 0.8rem;
+                    background: rgba(239, 68, 68, 0.1);
+                    border: 1px solid rgba(239, 68, 68, 0.25);
+                    border-radius: 12px;
+                    color: #fb7185;
+                    font-weight: 700;
+                    font-size: 0.85rem;
                 }
 
                 .sidebar {
@@ -447,9 +717,9 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                         display: flex;
                     }
                     .content {
-                        padding: 1rem;
+                        padding: 1rem 0.85rem;
                         padding-top: 75px;
-                        padding-bottom: 80px;
+                        padding-bottom: calc(85px + env(safe-area-inset-bottom, 0px));
                     }
                 }
             `}</style>
