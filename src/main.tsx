@@ -7,8 +7,9 @@ import App from './App.tsx'
 
 import { ProfileProvider } from './context/ProfileContext'
 
-// React Router basename MUST NOT end with a trailing slash
-const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+// Dynamically support both subfolder (/hypertrophyracker) and root subdomain (hypertrophyracker.alexismartyniuk.com.ar)
+const isSubfolder = typeof window !== 'undefined' && window.location.pathname.startsWith('/hypertrophyracker');
+const basename = isSubfolder ? '/hypertrophyracker' : undefined;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
