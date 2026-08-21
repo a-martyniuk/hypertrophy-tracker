@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Target, HelpCircle, Sparkles, TrendingUp, Scale, Award, Dna } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Target, HelpCircle, Sparkles, TrendingUp, Award, Dna } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Tooltip as AppTooltip } from './Tooltip';
 import type { BodyMeasurements, SkeletalFrame } from '../types/measurements';
 import {
   calculateSkeletalPotential,
   calculateIEO,
-  calculateFFMI,
   calculateBerkhanLimit,
   calculateHelmsGainRates
 } from '../utils/skeletal';
@@ -19,6 +19,9 @@ interface Props {
 }
 
 export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSave, sex = 'male' }: Props) => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+
   const [height, setHeight] = useState<number>(() => {
     const saved = localStorage.getItem('skeletal_height');
     if (saved) return parseFloat(saved);
@@ -66,15 +69,12 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
     localStorage.setItem('skeletal_height', height.toString());
   }, [height]);
 
-  const { t } = useTranslation();
-
   useEffect(() => {
     localStorage.setItem('skeletal_frame_draft', JSON.stringify(frame));
   }, [frame]);
 
   const potential = calculateSkeletalPotential(frame.wrist, frame.ankle, height, sex);
   const ieo = calculateIEO(frame.wrist, frame.ankle, sex);
-  const ffmi = calculateFFMI(weight, height, bodyFat);
   const berkhan = calculateBerkhanLimit(height, sex, bodyFat);
   const helms = calculateHelmsGainRates(weight);
 
@@ -92,34 +92,33 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
 
   return (
     <div className="skeletal-frame-view animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-      {/* Header */}
+      {/* Header with Direct SPA Navigation to Analysis */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', paddingBottom: '0.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--primary-color)' }}>
             <Dna size={24} />
             <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>{t('genetics.title')}</h2>
           </div>
-          <a
-            href="/analysis"
+          <button
+            onClick={() => navigate('/analysis')}
             className="btn-secondary !text-xs !py-1.5 !px-3 flex items-center gap-1.5 font-mono text-amber-400 border-amber-500/30 hover:border-amber-400"
-            style={{ textDecoration: 'none' }}
           >
             <Sparkles size={14} />
             <span>Ver Auditoría Real en Análisis &rarr;</span>
-          </a>
+          </button>
         </div>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
-          Laboratorio de proyección y límites fisiológicos teóricos: Simulación de estructura ósea (Casey Butt), techo magro de competición (Martin Berkhan) y tasas de ganancia mensual (Eric Helms).
+          Laboratorio de simulación y modelos de potencial fisiológico: Estructura ósea (Casey Butt), techo magro de competición (Martin Berkhan) y tasas de ganancia mensual (Eric Helms).
         </p>
       </div>
 
-      {/* Grid 1: Casey Butt Inputs & Potential Limits */}
+      {/* Grid 1: Simulation Inputs & Casey Butt Potential Projection */}
       <div className="frame-layout">
-        {/* Left Inputs Column */}
+        {/* Left Inputs Simulation Column */}
         <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
             <h3 style={{ fontSize: '0.8rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--primary-color)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span>{t('genetics.base_measurements')}</span>
+              <span>{t('genetics.base_measurements')} (Simulador)</span>
               <AppTooltip content={t('genetics.base_measurements_tooltip')} position="right">
                 <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
               </AppTooltip>
@@ -205,120 +204,43 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
           </div>
         </div>
 
-        {/* Right Potential Limits Display */}
+        {/* Right Potential Limits Table */}
         <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
             <h3 style={{ fontSize: '0.85rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <Target size={18} style={{ color: 'var(--primary-color)' }} />
-              <span>Límite Genético Estimado (Modelo Casey Butt)</span>
+              <span>Proyección de Perímetros Máximos (Casey Butt)</span>
             </h3>
             <span className="badge badge-amber font-mono text-[11px]">@ {bodyFat}% Grasa</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontFamily: 'var(--font-mono)' }}>
             {[
-              { key: 'chest', label: t('common.form.chest'), current: currentMeasurements?.pecho, max: potential.chest },
-              { key: 'arm', label: t('common.form.arm'), current: currentMeasurements?.arm ? (currentMeasurements.arm.left + currentMeasurements.arm.right) / 2 : undefined, max: potential.biceps },
-              { key: 'forearm', label: t('common.form.forearm'), current: currentMeasurements?.forearm ? (currentMeasurements.forearm.left + currentMeasurements.forearm.right) / 2 : undefined, max: potential.forearms },
-              { key: 'neck', label: t('common.form.neck'), current: currentMeasurements?.neck, max: potential.neck },
-              { key: 'thigh', label: t('common.form.thigh'), current: currentMeasurements?.thigh ? (currentMeasurements.thigh.left + currentMeasurements.thigh.right) / 2 : undefined, max: potential.thighs },
-              { key: 'calf', label: t('common.form.calf'), current: currentMeasurements?.calf ? (currentMeasurements.calf.left + currentMeasurements.calf.right) / 2 : undefined, max: potential.calves },
-            ].map(({ key, label, current, max }) => {
-              const progress = current && max ? Math.min(100, Math.round((current / max) * 100)) : 0;
-              return (
-                <div key={key} style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '12px', padding: '0.85rem 1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
-                    <span style={{ fontWeight: 700, color: '#ffffff' }}>{label}</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                      {current ? (
-                        <span style={{ color: 'var(--text-secondary)' }}>Actual: <strong style={{ color: '#ffffff' }}>{current} cm</strong></span>
-                      ) : null}
-                      <span style={{ color: 'var(--primary-color)', fontWeight: 800 }}>Máx {max} cm</span>
-                    </div>
-                  </div>
-                  <div style={{ width: '100%', height: '8px', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '999px', overflow: 'hidden', padding: '1px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                    <div
-                      style={{
-                        height: '100%',
-                        borderRadius: '999px',
-                        background: 'var(--primary-gradient)',
-                        width: `${progress}%`,
-                        transition: 'width 0.5s ease'
-                      }}
-                    />
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
-                    <span>Progreso: <strong style={{ color: '#fbbf24' }}>{progress}%</strong></span>
-                  </div>
+              { label: t('common.form.chest'), max: potential.chest },
+              { label: t('common.form.arm'), max: potential.biceps },
+              { label: t('common.form.forearm'), max: potential.forearms },
+              { label: t('common.form.neck'), max: potential.neck },
+              { label: t('common.form.thigh'), max: potential.thighs },
+              { label: t('common.form.calf'), max: potential.calves },
+            ].map(({ label, max }) => (
+              <div key={label} style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '12px', padding: '0.85rem 1rem' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{label}</div>
+                <div style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--primary-color)', marginTop: '2px' }}>
+                  {max} <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>cm</span>
                 </div>
-              );
-            })}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ padding: '0.85rem 1rem', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.25)', fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.45 }}>
+            <strong style={{ color: '#fbbf24', display: 'block', marginBottom: '2px' }}>Fórmula de Estructura Ósea:</strong>
+            Los perímetros máximos se recalculan en tiempo real según el grosor de tus articulaciones de muñeca ({frame.wrist} cm) y tobillo ({frame.ankle} cm).
           </div>
         </div>
       </div>
 
-      {/* Grid 2: FFMI & Berkhan Models */}
+      {/* Grid 2: Martin Berkhan Model & Helms Gain Rates */}
       <div className="grid-2col">
-        {/* FFMI Normalizado Card */}
-        <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
-            <h3 style={{ fontSize: '0.85rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <Scale size={16} style={{ color: 'var(--primary-color)' }} />
-              <span>FFMI Normalizado (Fat-Free Mass Index)</span>
-            </h3>
-            <span className="badge badge-amber font-mono text-[10px]">Kouri et al.</span>
-          </div>
-
-          {ffmi ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontFamily: 'var(--font-mono)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', padding: '1rem', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                <div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>FFMI NORMALIZADO</div>
-                  <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fbbf24', marginTop: '0.2rem' }}>{ffmi.normalizedFFMI}</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>FFMI Crudo: {ffmi.rawFFMI}</div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>MASA MAGRA PURA</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ffffff', marginTop: '0.2rem' }}>{ffmi.leanMassKg} kg</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Grasa: {ffmi.fatMassKg} kg ({bodyFat}%)</div>
-                </div>
-              </div>
-
-              {/* FFMI Natural Scale */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontFamily: 'var(--font-main)' }}>
-                  <span>Escala Fisiológica Natural</span>
-                  <span style={{ color: '#fbbf24', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
-                    {ffmi.normalizedFFMI < 20 ? 'Promedio / Recreacional' :
-                     ffmi.normalizedFFMI < 22 ? 'Atlético Entrenado' :
-                     ffmi.normalizedFFMI < 23 ? 'Avanzado / Competitivo' :
-                     ffmi.normalizedFFMI < 25 ? 'Límite Natural Superior' : 'Excepcional / Suprafisiológico'}
-                  </span>
-                </div>
-                <div style={{ width: '100%', height: '10px', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '999px', overflow: 'hidden', padding: '1px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                  <div
-                    style={{
-                      height: '100%',
-                      borderRadius: '999px',
-                      background: 'linear-gradient(90deg, #38bdf8 0%, #fbbf24 60%, #ef4444 100%)',
-                      width: `${Math.min(100, Math.max(5, ffmi.scorePercent))}%`,
-                      transition: 'all 0.5s ease'
-                    }}
-                  />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
-                  <span>15.0</span>
-                  <span>20.0 (Atlético)</span>
-                  <span>22.0</span>
-                  <span>25.0 (Techo Natural)</span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Ingresa peso, altura y grasa para calcular FFMI.</p>
-          )}
-        </div>
-
         {/* Martin Berkhan Model Card */}
         <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontFamily: 'var(--font-mono)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
@@ -330,7 +252,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-main)', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-main)', lineHeight: 1.5, margin: 0 }}>
               Proyección de peso corporal máximo alcanzable por un atleta natural en estado magro de competición (~5% BF) y a tu % de grasa actual.
             </p>
 
@@ -352,10 +274,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Grid 3: Eric Helms Gain Rates & IEO */}
-      <div className="grid-2col">
         {/* Eric Helms / Lyle McDonald Rates */}
         <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontFamily: 'var(--font-mono)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
@@ -365,7 +284,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
             </h3>
           </div>
 
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-main)', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-main)', lineHeight: 1.5, margin: 0 }}>
             Tasa de aumento mensual de masa muscular limpia esperable según tu nivel de experiencia:
           </p>
 
@@ -377,7 +296,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontWeight: 800, color: '#ffffff' }}>+{helms.beginner.minKgMonth} a {helms.beginner.maxKgMonth} kg/mes</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>~{helms.beginner.minGramsWeek}-{helms.beginner.maxGramsWeek} g/semana</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>~{helms.beginner.minGramsWeek}-{helms.beginner.maxGramsWeek} g/sem</div>
               </div>
             </div>
 
@@ -388,7 +307,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontWeight: 800, color: '#ffffff' }}>+{helms.intermediate.minKgMonth} a {helms.intermediate.maxKgMonth} kg/mes</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>~{helms.intermediate.minGramsWeek}-{helms.intermediate.maxGramsWeek} g/semana</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>~{helms.intermediate.minGramsWeek}-{helms.intermediate.maxGramsWeek} g/sem</div>
               </div>
             </div>
 
@@ -399,63 +318,63 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontWeight: 800, color: '#ffffff' }}>+{helms.advanced.minKgMonth} a {helms.advanced.maxKgMonth} kg/mes</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>~{helms.advanced.minGramsWeek}-{helms.advanced.maxGramsWeek} g/semana</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>~{helms.advanced.minGramsWeek}-{helms.advanced.maxGramsWeek} g/sem</div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* IEO Card */}
-        <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
-            <h3 style={{ fontSize: '0.85rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <Sparkles size={16} style={{ color: 'var(--primary-color)' }} />
-              <span>{t('genetics.ieo.title')}</span>
-            </h3>
+      {/* Grid 3: IEO Complexion Index */}
+      <div className="card glass" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
+          <h3 style={{ fontSize: '0.85rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Sparkles size={16} style={{ color: 'var(--primary-color)' }} />
+            <span>{t('genetics.ieo.title')} (Índice de Estructura Ósea)</span>
+          </h3>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div style={{ padding: '1rem', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)', fontFamily: 'var(--font-mono)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+              <span style={{ fontSize: '2rem', fontWeight: 900, color: '#fbbf24' }}>{ieo.value}</span>
+              <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--text-secondary)' }}>{t(`genetics.ieo.${ieo.label}`)}</span>
+            </div>
+            {ieo.isAdvantage && (
+              <span className="badge badge-amber text-[10px]">
+                ✨ {t('genetics.ieo.advantage')}
+              </span>
+            )}
+            <p style={{ fontFamily: 'var(--font-main)', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginTop: '0.25rem', margin: 0 }}>
+              {t('genetics.ieo.description')}
+            </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div style={{ padding: '1rem', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)', fontFamily: 'var(--font-mono)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                <span style={{ fontSize: '2rem', fontWeight: 900, color: '#fbbf24' }}>{ieo.value}</span>
-                <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--text-secondary)' }}>{t(`genetics.ieo.${ieo.label}`)}</span>
-              </div>
-              {ieo.isAdvantage && (
-                <span className="badge badge-amber text-[10px]">
-                  ✨ {t('genetics.ieo.advantage')}
-                </span>
-              )}
-              <p style={{ fontFamily: 'var(--font-main)', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginTop: '0.25rem' }}>
-                {t('genetics.ieo.description')}
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontFamily: 'var(--font-mono)' }}>
-              {IEO_CATEGORIES.map((cat, idx) => {
-                const isActive = ieo.rawValue >= cat.min && ieo.rawValue < cat.max;
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '0.6rem 0.8rem',
-                      borderRadius: '8px',
-                      fontSize: '0.75rem',
-                      background: isActive ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.02)',
-                      border: isActive ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid rgba(255, 255, 255, 0.04)',
-                      color: isActive ? '#fbbf24' : 'var(--text-secondary)',
-                      fontWeight: isActive ? 700 : 500
-                    }}
-                  >
-                    <span>{cat.range}</span>
-                    <span>{cat.label}</span>
-                    {cat.highlight && isActive && <span>⭐</span>}
-                  </div>
-                );
-              })}
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontFamily: 'var(--font-mono)' }}>
+            {IEO_CATEGORIES.map((cat, idx) => {
+              const isActive = ieo.rawValue >= cat.min && ieo.rawValue < cat.max;
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '0.6rem 0.8rem',
+                    borderRadius: '8px',
+                    fontSize: '0.75rem',
+                    background: isActive ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.02)',
+                    border: isActive ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid rgba(255, 255, 255, 0.04)',
+                    color: isActive ? '#fbbf24' : 'var(--text-secondary)',
+                    fontWeight: isActive ? 700 : 500
+                  }}
+                >
+                  <span>{cat.range}</span>
+                  <span>{cat.label}</span>
+                  {cat.highlight && isActive && <span>⭐</span>}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

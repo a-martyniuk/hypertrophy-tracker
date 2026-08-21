@@ -5,7 +5,7 @@ import {
     YAxis
 } from 'recharts';
 import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
 import { useAnalysisData } from '../hooks/useAnalysisData';
@@ -26,6 +26,7 @@ interface Props {
 
 export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const muscleId = searchParams.get('muscle');
     const [activeTab, setActiveTab] = useState<'benchmarks' | 'ratios' | 'history'>('benchmarks');
@@ -224,13 +225,13 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                         <TrendingUp size={14} />
                         <span>Tendencias</span>
                     </button>
-                    <a
-                        href="/potential"
+                    <button
+                        onClick={() => navigate('/potential')}
                         className="analysis-tab-btn"
-                        style={{ color: '#fbbf24', textDecoration: 'none', borderLeft: '1px solid rgba(255, 255, 255, 0.1)', paddingLeft: '0.75rem' }}
+                        style={{ color: '#fbbf24', borderLeft: '1px solid rgba(255, 255, 255, 0.1)', paddingLeft: '0.75rem' }}
                     >
                         <span>🧬 Simulador Genético &rarr;</span>
-                    </a>
+                    </button>
                 </div>
             </div>
 
