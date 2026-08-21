@@ -195,15 +195,22 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
 
     return (
         <div className="goals-view animate-fade">
-            <header className="view-header glass">
-                <div className="header-info">
-                    <h2>{t('common.goals.title')}</h2>
-                    <p className="subtitle">{t('common.goals.subtitle')}</p>
+            {/* Unified Page Header */}
+            <div className="view-header" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', paddingBottom: '0.75rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--primary-color)' }}>
+                        <Target size={24} />
+                        <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>{t('common.goals.title')}</h2>
+                    </div>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
+                        {t('common.goals.subtitle')}
+                    </p>
                 </div>
                 <button className="btn-primary" onClick={() => setIsAdding(!isAdding)}>
-                    <Plus size={18} /> {isAdding ? t('common.goals.cancel') : t('common.goals.new_goal')}
+                    <Plus size={18} />
+                    {isAdding ? t('common.goals.cancel') : t('common.goals.add_goal')}
                 </button>
-            </header>
+            </div>
 
             {/* Smart Suggestions */}
             {suggestions.length > 0 && !isAdding && (

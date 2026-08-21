@@ -157,7 +157,21 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
     }
 
     return (
-        <div className="calculator-container animate-fade">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', maxWidth: '1200px', margin: '0 auto', width: '100%' }} className="animate-fade">
+            {/* Unified Page Header */}
+            <div className="view-header" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', paddingBottom: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--primary-color)' }}>
+                        <Flame size={24} />
+                        <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>{t('common.metabolism.title')}</h2>
+                    </div>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
+                        Cálculo de Tasa Metabólica Basal (BMR), Gasto Energético Total Diario (TDEE) y reparto calórico adaptativo.
+                    </p>
+                </div>
+            </div>
+
+            <div className="calculator-container">
             <div className="input-section">
                 <h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Scale size={24} color="var(--primary-color)" /> {t('common.metabolism.physical_stats')}
@@ -488,6 +502,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
           background: var(--surface-hover);
         }
       `}</style>
+        </div>
         </div>
     )
 }

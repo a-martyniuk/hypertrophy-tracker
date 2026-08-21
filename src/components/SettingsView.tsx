@@ -106,11 +106,16 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
     };
 
     return (
-        <div className="settings-view animate-fade-in">
-            <div className="view-header">
-                <div className="title-group">
-                    <Database className="text-primary" size={24} />
-                    <h2>{t('settings.title')}</h2>
+        <div className="settings-view animate-fade">
+            <div className="view-header" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', paddingBottom: '0.75rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--primary-color)' }}>
+                        <Database size={24} />
+                        <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>{t('settings.title')}</h2>
+                    </div>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
+                        Gestión de copias de seguridad, exportación/importación de telemetría y configuración regional.
+                    </p>
                 </div>
             </div>
 

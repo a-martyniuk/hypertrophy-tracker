@@ -147,13 +147,19 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
         ))}
       </svg>
 
-      <header className="form-header glass">
-        <div className="header-left">
-          <h2>{t('common.form.title')}</h2>
-          <p className="subtitle">{t('common.form.subtitle')}</p>
+      {/* Unified Page Header */}
+      <div className="view-header" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', paddingBottom: '0.75rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--primary-color)' }}>
+            <Activity size={24} />
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>{t('common.form.title')}</h2>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>{t('common.form.subtitle')}</p>
         </div>
-        <input type="date" className="date-input" value={date} onChange={(e) => setDate(e.target.value)} />
-      </header>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <input type="date" className="date-input" value={date} onChange={(e) => setDate(e.target.value)} />
+        </div>
+      </div>
 
       <div className="form-layout-editor">
         <div className="editor-left">

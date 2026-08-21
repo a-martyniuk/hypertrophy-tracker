@@ -1,7 +1,7 @@
 import type { MeasurementRecord, MeasurementCondition } from '../types/measurements';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Calendar, ChevronRight, Trash2, Moon, TestTube, Zap, Coffee } from 'lucide-react';
+import { Calendar, ChevronRight, Trash2, Moon, TestTube, Zap, Coffee, Scale, Activity } from 'lucide-react';
 
 interface Props {
   records: MeasurementRecord[];
@@ -23,41 +23,86 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
 
   if (records.length === 0) {
     return (
-      <div className="empty-history animate-fade">
-        <p>{t('common.history.empty')}</p>
+      <div className="history-view animate-fade">
+        <div className="view-header">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--primary-color)' }}>
+              <Calendar size={24} />
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>{t('common.history.title')}</h2>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
+              Registro cronológico y trazabilidad de todas tus auditorías antropométricas.
+            </p>
+          </div>
+        </div>
+
+        <div className="empty-history">
+          <Activity size={40} style={{ color: 'var(--primary-color)', margin: '0 auto 1rem', opacity: 0.6 }} />
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)', marginBottom: '0.5rem' }}>
+            {t('common.history.empty')}
+          </h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            Registra tu primera medición en "Nueva Medida" para comenzar tu historial.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="history-view animate-fade">
-      <header className="view-header">
-        <h2>{t('common.history.title')}</h2>
+      <div className="view-header">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--primary-color)' }}>
+            <Calendar size={24} />
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>{t('common.history.title')}</h2>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
+            Registro cronológico y trazabilidad de todas tus auditorías antropométricas.
+          </p>
+        </div>
         <span className="record-count">{records.length} {t('common.history.records_count')}</span>
-      </header>
+      </div>
 
       <div className="records-list">
         {records.map((record) => (
-          <div key={record.id} className="record-card glass" onClick={() => onSelect(record)}>
+          <div key={record.id} className="record-card" onClick={() => onSelect(record)}>
             <div className="record-info">
               <div className="record-date">
                 <Calendar size={16} />
                 <span>{new Date(record.date).toLocaleDateString()}</span>
               </div>
-              <p className="record-summary">
-                {t('common.history.weight')}: <span className="highlighted">{record.measurements.weight || '--'} kg</span> |
-                {t('common.history.waist')}: <span className="highlighted">{record.measurements.waist} cm</span>
-              </p>
+
+              <div className="record-metrics-row">
+                <span className="record-metric-chip">
+                  <Scale size={13} style={{ color: 'var(--primary-color)' }} />
+                  <span>{t('common.history.weight')}: <strong>{record.measurements.weight || '--'} kg</strong></span>
+                </span>
+                <span className="record-metric-chip">
+                  <span>{t('common.history.waist')}: <strong>{record.measurements.waist || '--'} cm</strong></span>
+                </span>
+                {record.measurements.pecho && (
+                  <span className="record-metric-chip">
+                    <span>Pecho: <strong>{record.measurements.pecho} cm</strong></span>
+                  </span>
+                )}
+                {record.measurements.arm?.right && (
+                  <span className="record-metric-chip">
+                    <span>Brazo: <strong>{record.measurements.arm.right} cm</strong></span>
+                  </span>
+                )}
+              </div>
+
               <div className="record-tags">
                 {record.metadata?.condition && CONDITION_MAP[record.metadata.condition] && (
-                  <span className="tag" style={{ color: CONDITION_MAP[record.metadata.condition].color, borderColor: CONDITION_MAP[record.metadata.condition].color }}>
+                  <span className="tag" style={{ color: CONDITION_MAP[record.metadata.condition].color, borderColor: `${CONDITION_MAP[record.metadata.condition].color}50` }}>
                     {CONDITION_MAP[record.metadata.condition].icon}
                     {CONDITION_MAP[record.metadata.condition].label}
                   </span>
                 )}
                 {record.metadata?.sleepHours && (
                   <span className="tag sleep">
-                    <Moon size={14} />
+                    <Moon size={13} />
                     {record.metadata.sleepHours}h {t('common.history.sleep')}
                   </span>
                 )}
@@ -66,8 +111,9 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
 
             <div className="record-actions">
               <button
-                className={`btn-icon delete ${isDeleting === record.id ? 'loading' : ''}`}
+                className={`btn-icon-del ${isDeleting === record.id ? 'loading' : ''}`}
                 disabled={!!isDeleting}
+                title="Eliminar Registro"
                 onClick={async (e) => {
                   e.stopPropagation();
                   if (!window.confirm(t('common.history.confirm_delete'))) return;
@@ -89,159 +135,11 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
               >
                 {isDeleting === record.id ? <div className="spinner-mini" /> : <Trash2 size={18} />}
               </button>
-              <ChevronRight size={20} className="arrow" />
+              <ChevronRight size={20} className="arrow" style={{ color: 'var(--text-muted)' }} />
             </div>
           </div>
         ))}
       </div>
-
-      <style>{`
-        .history-view {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-          max-width: 1200px;
-          margin: 0 auto;
-          width: 100%;
-        }
-        .view-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .record-count {
-          color: var(--text-secondary);
-          font-size: 0.9rem;
-          background: var(--surface-hover);
-          padding: 0.25rem 0.75rem;
-          border-radius: 20px;
-        }
-        .empty-history {
-          text-align: center;
-          padding: 4rem 2rem;
-          background: var(--surface-color);
-          border-radius: 16px;
-          border: 1px dashed var(--border-color);
-          color: var(--text-secondary);
-        }
-        .records-list {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-        .record-card {
-          padding: 1.25rem;
-          border-radius: 16px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          cursor: pointer;
-          transition: var(--transition-smooth);
-        }
-        .record-card:hover {
-          background: var(--primary-glow);
-          border-color: var(--primary-color);
-        }
-        .record-info {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-        .record-date {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          color: var(--primary-color);
-          font-weight: 600;
-        }
-        .record-summary {
-          color: var(--text-secondary);
-          font-size: 0.9rem;
-        }
-        .highlighted {
-          color: var(--text-primary);
-          font-weight: 500;
-        }
-        .record-tags {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.25rem;
-        }
-        .tag {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.03);
-            color: var(--text-secondary);
-        }
-        .tag.sleep {
-            color: #c084fc;
-            border-color: rgba(192, 132, 252, 0.3);
-        }
-        .record-actions {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-        .btn-icon {
-          background: transparent;
-          border: none;
-          color: var(--text-secondary);
-          padding: 0.5rem;
-          border-radius: 8px;
-          transition: var(--transition-smooth);
-        }
-        .btn-icon.delete:hover {
-          color: var(--danger-color);
-          background: rgba(239, 68, 68, 0.1);
-        }
-        .arrow {
-          color: var(--text-secondary);
-          transition: transform 0.3s ease;
-        }
-        .record-card:hover .arrow {
-          transform: translateX(5px);
-          color: var(--primary-color);
-        }
-        .spinner-mini {
-          width: 18px;
-          height: 18px;
-          border: 2px solid rgba(255,255,255,0.3);
-          border-radius: 50%;
-          border-top-color: var(--danger-color);
-          animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-          .history-view {
-            padding: 0 1rem;
-          }
-          .view-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-          }
-          .record-count {
-            align-self: flex-start;
-          }
-          .record-card {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-          }
-          .record-actions {
-            width: 100%;
-            justify-content: flex-end;
-          }
-        }
-      `}</style>
     </div>
   );
 };
