@@ -48,7 +48,10 @@ export class ErrorBoundary extends Component<Props, State> {
                         </button>
                         <button
                             className="hud-btn secondary"
-                            onClick={() => window.location.href = '/'}
+                            onClick={() => {
+                                window.location.hash = '#/dashboard';
+                                window.location.reload();
+                            }}
                         >
                             <Home size={16} /> Ir al Inicio
                         </button>
