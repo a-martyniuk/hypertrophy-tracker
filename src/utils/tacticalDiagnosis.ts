@@ -1,11 +1,18 @@
 import type { MeasurementRecord } from '../types/measurements';
 
+export interface TacticalMetricItem {
+    label: string;
+    value: string;
+    trend?: 'up' | 'down' | 'neutral';
+}
+
 export interface TacticalDiagnosis {
     headline: string;
     statusBadge: 'HYPERTROPHY_PEAK' | 'CLEAN_RECOMP' | 'SURPLUS_GROWTH' | 'LEAN_CUT' | 'STABLE' | 'FIRST_RECORD';
     statusText: string;
     summary: string;
     highlights: string[];
+    metrics: TacticalMetricItem[];
     actionableAdvice: string;
     vTaperDeltaPercent?: number;
     leanMassDeltaKg?: number;
@@ -22,6 +29,7 @@ export const generateTacticalDiagnosis = (
             statusText: 'MODO OBSERVACIÓN',
             summary: 'Registra tu primera medición antropométrica para calibrar los algoritmos de diagnóstico.',
             highlights: ['Esperando telemetría inicial.'],
+            metrics: [],
             actionableAdvice: 'Ingresa al formulario y completa las medidas base.'
         };
     }
@@ -38,9 +46,15 @@ export const generateTacticalDiagnosis = (
             statusText: 'CALIBRACIÓN INICIAL',
             summary: `Vector biométrico inicial registrado con éxito. Ratio V-Taper de referencia establecido en ${vRatio}.`,
             highlights: [
-                `Peso de referencia: ${m.weight} kg`,
-                `Estructura superior: Pecho ${m.pecho || '-'} cm / Espalda ${m.back || '-'} cm`,
-                `Perímetro de cintura base: ${m.waist || '-'} cm`
+                `Peso: ${m.weight} kg`,
+                `Pecho: ${m.pecho || '-'} cm / Espalda: ${m.back || '-'} cm`,
+                `Cintura: ${m.waist || '-'} cm`
+            ],
+            metrics: [
+                { label: 'Peso de Referencia', value: `${m.weight} kg` },
+                { label: 'Torso Superior', value: `Pecho ${m.pecho || '-'} / Espalda ${m.back || '-'} cm` },
+                { label: 'Cintura Base', value: `${m.waist || '-'} cm` },
+                { label: 'Ratio V-Taper Base', value: `${vRatio}x` }
             ],
             actionableAdvice: 'Mantén tu plan de entrenamiento y nutrición durante 2 a 4 semanas antes de registrar la siguiente auditoría.'
         };
@@ -83,12 +97,63 @@ export const generateTacticalDiagnosis = (
     }
 
     const highlights: string[] = [];
+    const metrics: TacticalMetricItem[] = [];
 
-    if (chestDiff !== 0) highlights.push(`Pecho: ${chestDiff > 0 ? '+' : ''}${chestDiff.toFixed(1)} cm`);
-    if (backDiff !== 0) highlights.push(`Espalda: ${backDiff > 0 ? '+' : ''}${backDiff.toFixed(1)} cm`);
-    if (armDiff !== 0) highlights.push(`Brazos: ${armDiff > 0 ? '+' : ''}${armDiff.toFixed(1)} cm`);
-    if (waistDiff !== 0) highlights.push(`Cintura: ${waistDiff > 0 ? '+' : ''}${waistDiff.toFixed(1)} cm`);
-    if (thighDiff !== 0) highlights.push(`Muslos: ${thighDiff > 0 ? '+' : ''}${thighDiff.toFixed(1)} cm`);
+    if (weightDiff !== 0) {
+        metrics.push({
+            label: 'Peso Corporal',
+            value: `${weightDiff > 0 ? '+' : ''}${weightDiff.toFixed(1)} kg`,
+            trend: weightDiff > 0 ? 'up' : 'down'
+        });
+    }
+    if (chestDiff !== 0) {
+        highlights.push(`Pecho: ${chestDiff > 0 ? '+' : ''}${chestDiff.toFixed(1)} cm`);
+        metrics.push({
+            label: 'Pecho / Torso',
+            value: `${chestDiff > 0 ? '+' : ''}${chestDiff.toFixed(1)} cm`,
+            trend: chestDiff > 0 ? 'up' : 'down'
+        });
+    }
+    if (backDiff !== 0) {
+        highlights.push(`Espalda: ${backDiff > 0 ? '+' : ''}${backDiff.toFixed(1)} cm`);
+        metrics.push({
+            label: 'Espalda / Dorsal',
+            value: `${backDiff > 0 ? '+' : ''}${backDiff.toFixed(1)} cm`,
+            trend: backDiff > 0 ? 'up' : 'down'
+        });
+    }
+    if (armDiff !== 0) {
+        highlights.push(`Brazos: ${armDiff > 0 ? '+' : ''}${armDiff.toFixed(1)} cm`);
+        metrics.push({
+            label: 'Bíceps / Tríceps',
+            value: `${armDiff > 0 ? '+' : ''}${armDiff.toFixed(1)} cm`,
+            trend: armDiff > 0 ? 'up' : 'down'
+        });
+    }
+    if (waistDiff !== 0) {
+        highlights.push(`Cintura: ${waistDiff > 0 ? '+' : ''}${waistDiff.toFixed(1)} cm`);
+        metrics.push({
+            label: 'Perímetro Cintura',
+            value: `${waistDiff > 0 ? '+' : ''}${waistDiff.toFixed(1)} cm`,
+            trend: waistDiff < 0 ? 'down' : 'up'
+        });
+    }
+    if (thighDiff !== 0) {
+        highlights.push(`Muslos: ${thighDiff > 0 ? '+' : ''}${thighDiff.toFixed(1)} cm`);
+        metrics.push({
+            label: 'Muslos / Cuádriceps',
+            value: `${thighDiff > 0 ? '+' : ''}${thighDiff.toFixed(1)} cm`,
+            trend: thighDiff > 0 ? 'up' : 'down'
+        });
+    }
+
+    if (vTaperDelta !== 0) {
+        metrics.push({
+            label: 'Evolución V-Taper',
+            value: `${vTaperDelta > 0 ? '+' : ''}${vTaperDelta}%`,
+            trend: vTaperDelta > 0 ? 'up' : 'down'
+        });
+    }
 
     // Diagnosis Logic
     if (chestDiff >= 0.5 && armDiff >= 0.3 && waistDiff <= 0.2) {
@@ -98,6 +163,7 @@ export const generateTacticalDiagnosis = (
             statusText: 'HIPERTROFIA MAGRA',
             summary: `Vector de crecimiento limpio: Incremento muscular significativo en torso (+${chestDiff.toFixed(1)} cm) y brazos (+${armDiff.toFixed(1)} cm) con cintura controlada (${waistDiff <= 0 ? 'reducción/estable' : `+${waistDiff} cm`}).`,
             highlights,
+            metrics,
             vTaperDeltaPercent: vTaperDelta,
             leanMassDeltaKg,
             actionableAdvice: 'Tu balance calórico actual y estímulo mecánico son óptimos. Mantén el volumen de entrenamiento sin alterar el superávit.'
@@ -112,6 +178,7 @@ export const generateTacticalDiagnosis = (
                 statusText: 'VOLUMEN ALTO',
                 summary: `Ganancia muscular detectada pero acompañada de un aumento en el perímetro abdominal (+${waistDiff.toFixed(1)} cm).`,
                 highlights,
+                metrics,
                 vTaperDeltaPercent: vTaperDelta,
                 leanMassDeltaKg,
                 actionableAdvice: 'Considera reducir ligeramente las calorías en días de descanso (-150 a -250 kcal) para priorizar partición de nutrientes magros.'
@@ -124,6 +191,7 @@ export const generateTacticalDiagnosis = (
             statusText: 'CRECIMIENTO POSITIVO',
             summary: `Desarrollo sostenido en grupos clave. V-Taper evolucionando favorablemente (${vTaperDelta > 0 ? `+${vTaperDelta}%` : 'estable'}).`,
             highlights,
+            metrics,
             vTaperDeltaPercent: vTaperDelta,
             leanMassDeltaKg,
             actionableAdvice: 'Asegura 1.8 a 2.2 g de proteína por kg y optimiza la sobrecarga progresiva en los levantamientos principales.'
@@ -137,6 +205,7 @@ export const generateTacticalDiagnosis = (
             statusText: 'CORTE DE GRASA',
             summary: `Reducción exitosa de cintura (${waistDiff.toFixed(1)} cm) preservando perímetros en brazos y torso.`,
             highlights,
+            metrics,
             vTaperDeltaPercent: vTaperDelta,
             leanMassDeltaKg,
             actionableAdvice: 'Excelente retención de masa magra durante la fase de corte. Mantén alta la intensidad de entrenamiento.'
@@ -148,9 +217,10 @@ export const generateTacticalDiagnosis = (
         statusBadge: 'STABLE',
         statusText: 'MANTENIMIENTO',
         summary: 'Perímetros estables sin fluctuaciones significativas entre ciclos de registro.',
-        highlights: highlights.length > 0 ? highlights : ['Variaciones dentro del margen de error (±0.3 cm)'],
+        highlights,
+        metrics,
         vTaperDeltaPercent: vTaperDelta,
         leanMassDeltaKg,
-        actionableAdvice: 'Si buscas hipertrofia, evalúa aumentar 150-200 kcal diarias o sumar 2-3 series efectivas por grupo muscular.'
+        actionableAdvice: 'Si buscas hipertrofia, aumenta gradualmente el volumen efectivo semanal (1-2 series por grupo objetivo).'
     };
 };
