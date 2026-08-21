@@ -8,6 +8,7 @@ interface Props {
     isOpen: boolean;
     onClose: () => void;
     latestRecord?: MeasurementRecord;
+    records?: MeasurementRecord[];
     userName?: string;
     sex?: 'male' | 'female';
 }
@@ -16,6 +17,7 @@ export const ShareReportModal: React.FC<Props> = ({
     isOpen,
     onClose,
     latestRecord,
+    records = [],
     userName = 'Atleta',
     sex = 'male'
 }) => {
@@ -26,7 +28,7 @@ export const ShareReportModal: React.FC<Props> = ({
     useEffect(() => {
         if (!isOpen || !latestRecord) return;
 
-        const encoded = encodeAthleteData(userName, latestRecord, sex);
+        const encoded = encodeAthleteData(userName, latestRecord, sex, records);
         // Build base URL cleanly from current browser origin and pathname
         const origin = window.location.origin;
         let pathname = window.location.pathname;

@@ -218,6 +218,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                 isOpen={shareModalOpen}
                 onClose={() => setShareModalOpen(false)}
                 latestRecord={latestRecord}
+                records={records}
                 userName={userName}
                 sex={sex}
             />
