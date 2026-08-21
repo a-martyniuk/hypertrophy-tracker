@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus, HelpCircle, TrendingUp, TrendingDown, Minus, FileText } from 'lucide-react';
+import { Plus, HelpCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 import { Skeleton } from './ui/Skeleton';
 import { VolumeHeatmap } from './VolumeHeatmap';
@@ -76,13 +76,6 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                     <p>{t('dashboard.subtitle')}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setReportModalOpen(true)}
-                        className="btn-secondary flex items-center gap-1.5 font-mono text-xs text-amber-400 border-amber-500/30 hover:border-amber-400"
-                    >
-                        <FileText size={16} />
-                        <span>FICHA TÁCTICA HD</span>
-                    </button>
                     <HudButton onClick={() => navigate('/new-entry')} icon={<Plus size={18} />}>
                         {t('dashboard.register_measurements')}
                     </HudButton>
