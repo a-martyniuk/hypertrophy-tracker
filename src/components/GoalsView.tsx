@@ -208,7 +208,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                 </div>
                 <button className="btn-primary" onClick={() => setIsAdding(!isAdding)}>
                     <Plus size={18} />
-                    {isAdding ? t('common.goals.cancel') : t('common.goals.add_goal')}
+                    {isAdding ? t('common.goals.cancel') : t('common.goals.new_goal')}
                 </button>
             </div>
 

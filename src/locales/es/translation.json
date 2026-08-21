@@ -137,6 +137,7 @@
             }
         },
         "metabolism": {
+            "title": "Calculadora de Metabolismo & TDEE",
             "physical_stats": "Datos Físicos",
             "age": "Edad",
             "weight": "Peso (kg)",
