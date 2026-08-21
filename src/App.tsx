@@ -19,7 +19,21 @@ import { Activity } from 'lucide-react'
 import { ErrorBoundary } from './components/ui/ErrorBoundary'
 
 function App() {
-  const [isGuest, setIsGuest] = useState(false)
+  const [isGuest, setIsGuestState] = useState(() => {
+    return typeof window !== 'undefined' && localStorage.getItem('hypertrophy_is_guest') === 'true'
+  })
+
+  const setIsGuest = (val: boolean) => {
+    if (typeof window !== 'undefined') {
+      if (val) {
+        localStorage.setItem('hypertrophy_is_guest', 'true')
+      } else {
+        localStorage.removeItem('hypertrophy_is_guest')
+      }
+    }
+    setIsGuestState(val)
+  }
+
   const [editingRecord, setEditingRecord] = useState<MeasurementRecord | null>(null)
   const navigate = useNavigate()
 
@@ -35,7 +49,9 @@ function App() {
 
   // Ensure Guest Mode is disabled if we have a real user
   useEffect(() => {
-    if (authUser) setIsGuest(false)
+    if (authUser) {
+      setIsGuest(false)
+    }
   }, [authUser])
 
   const { profile, updateProfile } = useProfile()
