@@ -27,15 +27,23 @@ export const ShareReportModal: React.FC<Props> = ({
         if (!isOpen || !latestRecord) return;
 
         const encoded = encodeAthleteData(userName, latestRecord, sex);
+        // Build base URL cleanly from current browser origin and pathname
         const origin = window.location.origin;
-        const url = `${origin}/hypertrophyracker/#/share?data=${encoded}`;
+        let pathname = window.location.pathname;
+        if (!pathname.endsWith('/')) {
+            pathname += '/';
+        }
+        
+        // Construct canonical hash route for the public share page
+        const url = `${origin}${pathname}#/share?data=${encoded}`;
         setShareUrl(url);
 
         QRCode.toDataURL(url, {
-            width: 256,
+            width: 240,
             margin: 2,
+            errorCorrectionLevel: 'M',
             color: {
-                dark: '#030305',
+                dark: '#0f172a',
                 light: '#ffffff'
             }
         })
@@ -117,10 +125,10 @@ export const ShareReportModal: React.FC<Props> = ({
                 {/* QR Code Container */}
                 {qrUrl ? (
                     <div style={{
-                        padding: '0.75rem',
+                        padding: '0.85rem',
                         background: '#ffffff',
                         borderRadius: '16px',
-                        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.4)',
+                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 158, 11, 0.2)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center'
@@ -155,7 +163,8 @@ export const ShareReportModal: React.FC<Props> = ({
                             color: '#cbd5e1',
                             fontSize: '0.75rem',
                             fontFamily: 'var(--font-mono)',
-                            outline: 'none'
+                            outline: 'none',
+                            textOverflow: 'ellipsis'
                         }}
                     />
                     <button
