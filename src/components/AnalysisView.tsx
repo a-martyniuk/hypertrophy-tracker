@@ -122,36 +122,36 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
         }
 
         return (
-            <div className="analysis-view animate-fade space-y-6">
+            <div className="analysis-view animate-fade">
                 <button className="back-link" onClick={() => setSearchParams({})}>
                     <ArrowLeft size={16} /> {t('analysis.back_to_panel')}
                 </button>
 
-                <div className="muscle-header glass p-6 rounded-2xl border border-amber-500/30">
-                    <div className="header-content">
-                        <h2>{t('analysis.title', { muscle: muscleLabel })}</h2>
-                        <div className="highlight-val font-mono text-3xl font-black text-amber-400">{currentVal} cm</div>
+                <div className="card glass p-6 rounded-2xl border border-amber-500/30" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>{t('analysis.title', { muscle: muscleLabel })}</h2>
+                        <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--primary-color)', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>{currentVal} cm</div>
                     </div>
                     {goal && (
-                        <div className="goal-badge bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1.5 rounded-xl font-mono text-xs flex items-center gap-2">
+                        <div style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#fbbf24', padding: '6px 12px', borderRadius: '10px', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <Target size={16} /> {t('analysis.meta_label', { value: goal.targetValue })}
                         </div>
                     )}
                 </div>
 
-                <div className="stats-mini-grid grid grid-cols-2 gap-4">
-                    <div className="stat-card glass p-5 rounded-2xl border border-white/10">
-                        <label className="text-xs text-neutral-400">{t('analysis.total_growth')}</label>
-                        <div className={`text-2xl font-bold font-mono mt-1 ${totalGrowth >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                <div className="physique-split-grid">
+                    <div className="physique-split-box">
+                        <label style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{t('analysis.total_growth')}</label>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', marginTop: '4px', color: totalGrowth >= 0 ? '#34d399' : '#f43f5e' }}>
                             {totalGrowth > 0 ? '+' : ''}{totalGrowth.toFixed(1)} cm
                         </div>
                     </div>
-                    <div className="stat-card glass p-5 rounded-2xl border border-white/10">
-                        <label className="text-xs text-neutral-400">{t('analysis.projection_meta')}</label>
-                        <div className="text-2xl font-bold font-mono text-amber-400 mt-1">
+                    <div className="physique-split-box">
+                        <label style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{t('analysis.projection_meta')}</label>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', marginTop: '4px', color: 'var(--primary-color)' }}>
                             {projectedDateText}
                         </div>
-                        <div className="text-xs text-neutral-400 mt-1">{projectionMsg}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>{projectionMsg}</div>
                     </div>
                 </div>
 
@@ -174,13 +174,13 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
     // --- EMPTY STATE FALLBACK ---
     if (!latestRecord || !comprehensiveAnalysis) {
         return (
-            <div className="analysis-view animate-fade space-y-6">
-                <div className="card glass p-10 text-center rounded-3xl border border-amber-500/30">
-                    <BarChart3 className="mx-auto text-amber-400 mb-3 opacity-80" size={48} />
-                    <h3 className="text-xl font-bold text-white font-mono mb-2">
+            <div className="analysis-view animate-fade">
+                <div className="card glass p-10 text-center rounded-3xl border border-amber-500/30" style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
+                    <BarChart3 style={{ margin: '0 auto 1rem', color: 'var(--primary-color)', opacity: 0.8 }} size={48} />
+                    <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)', marginBottom: '0.5rem' }}>
                         Sin Datos de Análisis Suficientes
                     </h3>
-                    <p className="text-sm text-neutral-400 max-w-md mx-auto mb-6">
+                    <p style={{ fontSize: '0.85rem', color: '#94a3b8', maxWidth: '480px', margin: '0 auto 1.5rem' }}>
                         Registra tu primera medición antropométrica en "Nueva Medida" para calibrar tus benchmarks corporales, niveles de hipertrofia y ratios clásicos.
                     </p>
                 </div>
@@ -189,49 +189,37 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
     }
 
     return (
-        <div className="analysis-view animate-fade space-y-8">
+        <div className="analysis-view animate-fade">
             {/* Top Navigation / Section Switcher */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-                <div>
-                    <h1 className="text-2xl font-black text-white font-mono flex items-center gap-2">
-                        <BarChart3 className="text-amber-400" size={24} />
+            <div className="analysis-nav-header">
+                <div className="analysis-title-group">
+                    <h1>
+                        <BarChart3 style={{ color: 'var(--primary-color)' }} size={24} />
                         <span>ANÁLISIS BIOMÉTRICO & BENCHMARKS</span>
                     </h1>
-                    <p className="text-xs text-neutral-400 mt-0.5">
+                    <p>
                         Evaluación anatómica contra modelos de Steve Reeves, Casey Butt y proporciones áureas.
                     </p>
                 </div>
 
-                <div className="flex items-center gap-2 bg-neutral-950/80 p-1.5 rounded-2xl border border-white/10 font-mono text-xs">
+                <div className="analysis-tabs">
                     <button
                         onClick={() => setActiveTab('benchmarks')}
-                        className={`px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 font-bold ${
-                            activeTab === 'benchmarks'
-                                ? 'bg-amber-500 text-black shadow-md'
-                                : 'text-neutral-400 hover:text-white'
-                        }`}
+                        className={`analysis-tab-btn ${activeTab === 'benchmarks' ? 'active' : ''}`}
                     >
                         <Scale size={14} />
                         <span>Niveles & Benchmarks</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('ratios')}
-                        className={`px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 font-bold ${
-                            activeTab === 'ratios'
-                                ? 'bg-amber-500 text-black shadow-md'
-                                : 'text-neutral-400 hover:text-white'
-                        }`}
+                        className={`analysis-tab-btn ${activeTab === 'ratios' ? 'active' : ''}`}
                     >
                         <Sparkles size={14} />
                         <span>Ratios & Simetría</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('history')}
-                        className={`px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 font-bold ${
-                            activeTab === 'history'
-                                ? 'bg-amber-500 text-black shadow-md'
-                                : 'text-neutral-400 hover:text-white'
-                        }`}
+                        className={`analysis-tab-btn ${activeTab === 'history' ? 'active' : ''}`}
                     >
                         <TrendingUp size={14} />
                         <span>Tendencias</span>
@@ -256,23 +244,20 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
 
             {/* TAB 1: BENCHMARKS & PROGRESS TOWARDS GENETIC LIMIT */}
             {activeTab === 'benchmarks' && (
-                <section className="space-y-6 animate-fade">
-                    <div>
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-bold text-white font-mono flex items-center gap-2">
-                                <Scale className="text-amber-400" size={18} />
+                <section style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+                                <Scale style={{ color: 'var(--primary-color)' }} size={18} />
                                 <span>MATRIZ DE BENCHMARKS POR GRUPO MUSCULAR</span>
                             </h3>
-                            <span className="text-xs text-neutral-400 font-mono hidden sm:inline-block">
-                                Algoritmo Casey Butt (Estructura Ósea)
-                            </span>
+                            <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
+                                Compara cada uno de tus perímetros corporales contra las referencias estadísticas: <strong>Base &lt; Intermedio &lt; Avanzado &lt; Élite Natural</strong>.
+                            </p>
                         </div>
-                        <p className="text-xs text-neutral-400 mt-1">
-                            Compara cada uno de tus perímetros corporales contra las referencias estadísticas: <strong>Base &lt; Intermedio &lt; Avanzado &lt; Élite Natural</strong>.
-                        </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="benchmarks-grid">
                         {comprehensiveAnalysis.muscleBenchmarks.map((bm) => (
                             <BenchmarkCard
                                 key={bm.key}
@@ -286,25 +271,25 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
 
             {/* TAB 2: RATIOS BIOMECÁNICOS Y CÁNONES CLÁSICOS */}
             {activeTab === 'ratios' && (
-                <section className="space-y-6 animate-fade">
+                <section style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     <div>
-                        <h3 className="text-lg font-bold text-white font-mono flex items-center gap-2">
-                            <Sparkles className="text-amber-400" size={18} />
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+                            <Sparkles style={{ color: 'var(--primary-color)' }} size={18} />
                             <span>AUDITORÍA DE RATIOS CLÁSICOS Y ESTÉTICOS</span>
                         </h3>
-                        <p className="text-xs text-neutral-400 mt-1">
+                        <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
                             Escalas de proporción para evaluar la conicidad del torso (V-Taper), armonía entre extremidades y salud metabólica.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="ratios-grid">
                         {comprehensiveAnalysis.ratioBenchmarks.map((ratio) => (
                             <RatioBenchmarkCard key={ratio.id} benchmark={ratio} />
                         ))}
                     </div>
 
                     {/* Radar Chart de Simetría */}
-                    <div className="pt-4">
+                    <div style={{ paddingTop: '1rem' }}>
                         <ProportionsRadar measurements={latestRecord?.measurements} />
                     </div>
                 </section>
@@ -312,14 +297,14 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
 
             {/* TAB 3: TENDENCIAS Y EVOLUCIÓN HISTÓRICA */}
             {activeTab === 'history' && (
-                <section className="space-y-6 animate-fade">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <section style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
                         <div>
-                            <h3 className="text-lg font-bold text-white font-mono flex items-center gap-2">
-                                <TrendingUp className="text-amber-400" size={18} />
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+                                <TrendingUp style={{ color: 'var(--primary-color)' }} size={18} />
                                 <span>EVOLUCIÓN TEMPORAL DE TELEMETRÍA</span>
                             </h3>
-                            <p className="text-xs text-neutral-400 mt-0.5">
+                            <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
                                 Seguimiento longitudinal de peso corporal, extremidades y composición.
                             </p>
                         </div>

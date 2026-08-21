@@ -19,29 +19,25 @@ export const RatioBenchmarkCard: React.FC<Props> = ({ benchmark }) => {
     } = benchmark;
 
     return (
-        <div
-            className="card glass p-5 rounded-2xl border border-white/10 shadow-lg relative overflow-hidden flex flex-col justify-between"
-            style={{ background: 'rgba(15, 18, 29, 0.7)' }}
-        >
+        <div className="bm-card" style={{ cursor: 'default' }}>
             <div>
                 {/* Header: Ratio Name & Status Badge */}
-                <div className="flex items-start justify-between gap-3 mb-2">
+                <div className="bm-card-header">
                     <div>
-                        <h4 className="text-sm font-bold text-white font-mono flex items-center gap-1.5">
-                            <Sparkles size={14} className="text-amber-400 flex-shrink-0" />
+                        <div className="bm-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Sparkles size={14} style={{ color: '#fbbf24', flexShrink: 0 }} />
                             <span>{name}</span>
-                        </h4>
-                        <div className="text-[11px] text-neutral-400 mt-0.5 font-mono">
-                            {scaleDescription}
                         </div>
+                        <div className="bm-sub">{scaleDescription}</div>
                     </div>
 
                     <div
-                        className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 border flex-shrink-0"
+                        className="bm-badge"
                         style={{
                             color: statusColor,
                             backgroundColor: statusBg,
-                            borderColor: `${statusColor}40`
+                            borderColor: `${statusColor}50`,
+                            flexShrink: 0
                         }}
                     >
                         <span>{statusText}</span>
@@ -49,38 +45,43 @@ export const RatioBenchmarkCard: React.FC<Props> = ({ benchmark }) => {
                 </div>
 
                 {/* Big Metric Display */}
-                <div className="my-3 flex items-baseline gap-2">
-                    <span className="text-2xl font-black text-amber-400 font-mono">{label}</span>
+                <div style={{ margin: '0.75rem 0' }}>
+                    <span style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fbbf24', fontFamily: 'var(--font-mono)' }}>
+                        {label}
+                    </span>
                 </div>
 
                 {/* Explanation */}
-                <p className="text-xs text-neutral-300 leading-relaxed mb-4">
+                <p style={{ fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.45, marginBottom: '1rem' }}>
                     {explanation}
                 </p>
             </div>
 
             {/* Reference Tiers Scale */}
-            <div className="bg-neutral-950/60 p-3 rounded-xl border border-white/5 font-mono text-[11px]">
-                <div className="text-[10px] text-neutral-400 uppercase tracking-wider font-bold mb-2 flex items-center gap-1">
-                    <Info size={11} className="text-amber-400" />
+            <div style={{ background: 'rgba(8, 10, 16, 0.7)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)', fontFamily: 'var(--font-mono)' }}>
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 800, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Info size={11} style={{ color: '#fbbf24' }} />
                     <span>Escala de Niveles y Referencia:</span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(70px, 1fr))', gap: '6px' }}>
                     {referenceTiers.map((tier, idx) => (
                         <div
                             key={idx}
-                            className={`p-2 rounded-lg border text-center transition-all ${
-                                tier.isCurrent
-                                    ? 'bg-amber-500/20 border-amber-400 text-amber-300 font-bold shadow-sm'
-                                    : 'bg-neutral-900/40 border-white/5 text-neutral-400'
-                            }`}
+                            style={{
+                                padding: '6px 4px',
+                                borderRadius: '8px',
+                                textAlign: 'center',
+                                border: tier.isCurrent ? '1px solid #fbbf24' : '1px solid rgba(255, 255, 255, 0.05)',
+                                background: tier.isCurrent ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.02)',
+                                color: tier.isCurrent ? '#fbbf24' : '#94a3b8'
+                            }}
                         >
-                            <div className="text-[10px] truncate">{tier.label}</div>
-                            <div className="text-xs mt-0.5 text-white font-semibold">{tier.range}</div>
+                            <div style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tier.label}</div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: tier.isCurrent ? '#ffffff' : '#cbd5e1', marginTop: '2px' }}>{tier.range}</div>
                             {tier.isCurrent && (
-                                <div className="text-[9px] text-amber-400 font-bold mt-0.5 flex items-center justify-center gap-0.5">
-                                    <CheckCircle2 size={10} />
+                                <div style={{ fontSize: '0.55rem', color: '#fbbf24', fontWeight: 900, marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                                    <CheckCircle2 size={8} />
                                     <span>TU VALOR</span>
                                 </div>
                             )}
