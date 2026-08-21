@@ -26,7 +26,7 @@ export const PhysiqueOverviewHero: React.FC<Props> = ({ analysis }) => {
                         <span>Auditoría de Desarrollo Antropométrico</span>
                     </div>
                     <h2>
-                        Nivel de Desarrollo: <span style={{ color: 'var(--primary-color)', fontFamily: 'var(--font-mono)' }}>{overallLevelLabel}</span>
+                        Nivel de Desarrollo: <span style={{ color: 'var(--primary-color)' }}>{overallLevelLabel}</span>
                     </h2>
                     <p>
                         Evaluación integral comparada con los modelos antropométricos de <strong>Casey Butt</strong> (límite muscular natural por estructura ósea) y los cánones de <strong>Steve Reeves</strong>.

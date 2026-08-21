@@ -24,7 +24,7 @@ export const generateTacticalDiagnosis = (
 ): TacticalDiagnosis => {
     if (!current) {
         return {
-            headline: 'SIN DATOS SUFICIENTES',
+            headline: 'Sin Datos Suficientes',
             statusBadge: 'STABLE',
             statusText: 'MODO OBSERVACIÓN',
             summary: 'Registra tu primera medición antropométrica para calibrar los algoritmos de diagnóstico.',
@@ -41,7 +41,7 @@ export const generateTacticalDiagnosis = (
         const vRatio = waist > 0 ? (chest / waist).toFixed(2) : '1.0';
 
         return {
-            headline: 'LÍNEA BASE ESTABLECIDA',
+            headline: 'Línea Base Establecida',
             statusBadge: 'FIRST_RECORD',
             statusText: 'CALIBRACIÓN INICIAL',
             summary: `Vector biométrico inicial registrado con éxito. Ratio V-Taper de referencia establecido en ${vRatio}.`,
@@ -158,7 +158,7 @@ export const generateTacticalDiagnosis = (
     // Diagnosis Logic
     if (chestDiff >= 0.5 && armDiff >= 0.3 && waistDiff <= 0.2) {
         return {
-            headline: 'RECOMPOSICIÓN TÁCTICA ÓPTIMA',
+            headline: 'Recomposición Táctica Óptima',
             statusBadge: 'CLEAN_RECOMP',
             statusText: 'HIPERTROFIA MAGRA',
             summary: `Vector de crecimiento limpio: Incremento muscular significativo en torso (+${chestDiff.toFixed(1)} cm) y brazos (+${armDiff.toFixed(1)} cm) con cintura controlada (${waistDiff <= 0 ? 'reducción/estable' : `+${waistDiff} cm`}).`,
@@ -173,7 +173,7 @@ export const generateTacticalDiagnosis = (
     if (chestDiff > 0 || armDiff > 0 || thighDiff > 0) {
         if (waistDiff > 1.5) {
             return {
-                headline: 'CRECIMIENTO CON SUPERÁVIT ELEVADO',
+                headline: 'Crecimiento con Superávit Elevado',
                 statusBadge: 'SURPLUS_GROWTH',
                 statusText: 'VOLUMEN ALTO',
                 summary: `Ganancia muscular detectada pero acompañada de un aumento en el perímetro abdominal (+${waistDiff.toFixed(1)} cm).`,
@@ -186,7 +186,7 @@ export const generateTacticalDiagnosis = (
         }
 
         return {
-            headline: 'PULSO DE HIPERTROFIA ACTIVO',
+            headline: 'Pulso de Hipertrofia Activo',
             statusBadge: 'HYPERTROPHY_PEAK',
             statusText: 'CRECIMIENTO POSITIVO',
             summary: `Desarrollo sostenido en grupos clave. V-Taper evolucionando favorablemente (${vTaperDelta > 0 ? `+${vTaperDelta}%` : 'estable'}).`,
@@ -200,7 +200,7 @@ export const generateTacticalDiagnosis = (
 
     if (waistDiff < -0.5 && weightDiff < 0) {
         return {
-            headline: 'DEFINICIÓN Y DÉFICIT EFICIENTE',
+            headline: 'Definición y Déficit Eficiente',
             statusBadge: 'LEAN_CUT',
             statusText: 'CORTE DE GRASA',
             summary: `Reducción exitosa de cintura (${waistDiff.toFixed(1)} cm) preservando perímetros en brazos y torso.`,
@@ -213,7 +213,7 @@ export const generateTacticalDiagnosis = (
     }
 
     return {
-        headline: 'ESTADO DE CONSOLIDACIÓN Y ESTABILIDAD',
+        headline: 'Estado de Consolidación y Estabilidad',
         statusBadge: 'STABLE',
         statusText: 'MANTENIMIENTO',
         summary: 'Perímetros estables sin fluctuaciones significativas entre ciclos de registro.',

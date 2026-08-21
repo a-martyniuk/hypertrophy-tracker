@@ -196,7 +196,7 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                 <div className="analysis-title-group">
                     <h1>
                         <BarChart3 style={{ color: 'var(--primary-color)' }} size={24} />
-                        <span>ANÁLISIS BIOMÉTRICO & BENCHMARKS</span>
+                        <span>Análisis Biométrico & Benchmarks</span>
                     </h1>
                     <p>
                         Evaluación anatómica contra modelos de Steve Reeves, Casey Butt y proporciones áureas.
@@ -255,11 +255,11 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                 <section style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+                            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
                                 <Scale style={{ color: 'var(--primary-color)' }} size={18} />
-                                <span>MATRIZ DE BENCHMARKS POR GRUPO MUSCULAR</span>
+                                <span>Matriz de Benchmarks por Grupo Muscular</span>
                             </h3>
-                            <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
+                            <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '4px 0 0 0', fontFamily: 'var(--font-main)' }}>
                                 Compara cada uno de tus perímetros corporales contra las referencias estadísticas: <strong>Base &lt; Intermedio &lt; Avanzado &lt; Élite Natural</strong>.
                             </p>
                         </div>
@@ -281,11 +281,11 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
             {activeTab === 'ratios' && (
                 <section style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     <div>
-                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
                             <Sparkles style={{ color: 'var(--primary-color)' }} size={18} />
-                            <span>AUDITORÍA DE RATIOS CLÁSICOS Y ESTÉTICOS</span>
+                            <span>Auditoría de Ratios Clásicos y Estéticos</span>
                         </h3>
-                        <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
+                        <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '4px 0 0 0', fontFamily: 'var(--font-main)' }}>
                             Escalas de proporción para evaluar la conicidad del torso (V-Taper), armonía entre extremidades y salud metabólica.
                         </p>
                     </div>
@@ -308,11 +308,11 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                 <section style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
                         <div>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+                            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
                                 <TrendingUp style={{ color: 'var(--primary-color)' }} size={18} />
-                                <span>EVOLUCIÓN TEMPORAL DE TELEMETRÍA</span>
+                                <span>Evolución Temporal de Telemetría</span>
                             </h3>
-                            <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
+                            <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '4px 0 0 0', fontFamily: 'var(--font-main)' }}>
                                 Seguimiento longitudinal de peso corporal, extremidades y composición.
                             </p>
                         </div>
