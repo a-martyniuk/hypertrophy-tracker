@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/hypertrophyracker/',
+  base: './',
   plugins: [
     react(),
     VitePWA({
@@ -18,8 +18,8 @@ export default defineConfig({
         background_color: '#030305',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/hypertrophyracker/',
-        scope: '/hypertrophyracker/',
+        start_url: './',
+        scope: './',
         icons: [
           {
             src: 'pwa-icon.svg',
