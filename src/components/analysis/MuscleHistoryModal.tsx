@@ -23,33 +23,34 @@ export const MuscleHistoryModal: React.FC<Props> = ({ benchmark, records, onClos
         const m = r.measurements as any;
         let val = 0;
         if (key === 'arm' || key === 'brazo') {
-            val = Math.max(m.arm?.left || 0, m.arm?.right || 0);
+            val = Math.max(m?.arm?.left || 0, m?.arm?.right || 0);
         } else if (key === 'forearm' || key === 'antebrazo') {
-            val = Math.max(m.forearm?.left || 0, m.forearm?.right || 0);
+            val = Math.max(m?.forearm?.left || 0, m?.forearm?.right || 0);
         } else if (key === 'thigh' || key === 'muslo') {
-            val = Math.max(m.thigh?.left || 0, m.thigh?.right || 0);
+            val = Math.max(m?.thigh?.left || 0, m?.thigh?.right || 0);
         } else if (key === 'calf' || key === 'gemelo') {
-            val = Math.max(m.calf?.left || 0, m.calf?.right || 0);
+            val = Math.max(m?.calf?.left || 0, m?.calf?.right || 0);
         } else if (key === 'neck' || key === 'cuello') {
-            val = m.neck || 0;
+            val = m?.neck || 0;
         } else if (key === 'pecho' || key === 'chest') {
-            val = m.pecho || 0;
+            val = m?.pecho || 0;
         } else if (key === 'back' || key === 'espalda') {
-            val = m.back || 0;
+            val = m?.back || 0;
         } else if (key === 'waist' || key === 'cintura') {
-            val = m.waist || 0;
+            val = m?.waist || 0;
         }
 
         return {
             date: new Date(r.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
             fullDate: new Date(r.date).toLocaleDateString('es-ES'),
-            value: val > 0 ? val : null
+            value: val > 0 ? val : current
         };
-    }).filter(d => d.value !== null);
+    });
 
-    const initialVal = chartData[0]?.value || current;
-    const peakVal = Math.max(...chartData.map(d => d.value || 0), current);
-    const netChange = parseFloat((current - initialVal).toFixed(1));
+    const firstVal = chartData[0]?.value || current;
+    const latestVal = chartData[chartData.length - 1]?.value || current;
+    const peakVal = Math.max(...chartData.map(d => d.value), current);
+    const netChange = parseFloat((latestVal - firstVal).toFixed(1));
 
     return (
         <div style={{
