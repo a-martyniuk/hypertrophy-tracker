@@ -50,24 +50,26 @@ export const useMeasurements = (userId?: string | null) => {
         try {
             const isCloud = isFirebaseConfigured && userId && userId !== 'guest';
 
-            // GUEST / LOCAL MODE
-            if (!isCloud) {
-                const existing: MeasurementRecord[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-                const combined = [record, ...existing.filter((r) => r.id !== record.id)]
-                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                setRecords(combined);
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(combined));
-                return { success: true, target: 'local' };
+            // 1. Instant local optimistic update (Offline-First)
+            const localPayload = { ...record, userId: userId || 'local' };
+            const existing: MeasurementRecord[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const combined = [localPayload, ...existing.filter((r) => r.id !== record.id)]
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            setRecords(combined);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(combined));
+
+            // 2. Background Cloud Sync if connected
+            if (isCloud) {
+                try {
+                    await saveCloudRecord(record, userId!);
+                    return { success: true, target: 'cloud' };
+                } catch (cloudErr) {
+                    console.warn('[useMeasurements] Offline mode: guardado localmente, sincronizacion pendiente.', cloudErr);
+                    return { success: true, target: 'local_cached' };
+                }
             }
 
-            // CLOUD MODE (Firestore JSON)
-            await saveCloudRecord(record, userId!);
-
-            // Optimistic / Local State Update
-            setRecords(prev => [{ ...record, userId: userId! }, ...prev.filter(r => r.id !== record.id)]
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-
-            return { success: true, target: 'cloud' };
+            return { success: true, target: 'local' };
         } catch (error: unknown) {
             console.error('[useMeasurements] Error al guardar registro:', error);
             const msg = error instanceof Error ? error.message : 'Error al guardar el registro';
@@ -78,21 +80,22 @@ export const useMeasurements = (userId?: string | null) => {
     const deleteRecord = async (id: string) => {
         const isCloud = isFirebaseConfigured && userId && userId !== 'guest';
 
+        // 1. Instant local removal
+        const filtered = records.filter(r => r.id !== id);
+        setRecords(filtered);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+
         if (!isCloud) {
-            const filtered = records.filter(r => r.id !== id);
-            setRecords(filtered);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
             return { success: true };
         }
 
+        // 2. Background Cloud delete
         try {
             await deleteCloudRecord(id, userId!);
-            setRecords(prev => prev.filter(r => r.id !== id));
             return { success: true };
         } catch (err: unknown) {
-            console.error('[useMeasurements] Error al eliminar registro:', err);
-            const msg = err instanceof Error ? err.message : 'Error al eliminar el registro';
-            return { success: false, error: msg };
+            console.error('[useMeasurements] Error al eliminar registro en cloud:', err);
+            return { success: true, warning: 'Eliminado localmente, error en cloud' };
         }
     };
 

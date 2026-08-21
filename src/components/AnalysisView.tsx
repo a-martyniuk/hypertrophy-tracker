@@ -4,18 +4,21 @@ import {
     ReferenceLine,
     YAxis
 } from 'recharts';
-import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale } from 'lucide-react';
+import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale, Download } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
 import { useAnalysisData } from '../hooks/useAnalysisData';
 import { computeComprehensiveAnalysis } from '../utils/benchmarkAnalysis';
+import { generateAthletePDFReport } from '../utils/pdfReportGenerator';
 import { MeasurementChart } from './analysis/MeasurementChart';
 import { AnalysisFilter } from './analysis/AnalysisFilter';
 import { ProportionsRadar } from './analysis/ProportionsRadar';
 import { PhysiqueOverviewHero } from './analysis/PhysiqueOverviewHero';
 import { BenchmarkCard } from './analysis/BenchmarkCard';
 import { RatioBenchmarkCard } from './analysis/RatioBenchmarkCard';
+import { MuscleHistoryModal } from './analysis/MuscleHistoryModal';
+import type { MuscleBenchmark } from '../utils/benchmarkAnalysis';
 import './AnalysisView.css';
 
 interface Props {
@@ -30,6 +33,7 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
     const [searchParams, setSearchParams] = useSearchParams();
     const muscleId = searchParams.get('muscle');
     const [activeTab, setActiveTab] = useState<'benchmarks' | 'ratios' | 'history'>('benchmarks');
+    const [selectedBenchmark, setSelectedBenchmark] = useState<MuscleBenchmark | null>(null);
 
     const latestRecord = records[0];
     const comprehensiveAnalysis = computeComprehensiveAnalysis(latestRecord?.measurements, sex);
@@ -232,6 +236,14 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                     >
                         <span>🧬 Simulador Genético &rarr;</span>
                     </button>
+                    <button
+                        onClick={() => generateAthletePDFReport({ latestRecord, sex })}
+                        className="analysis-tab-btn"
+                        style={{ color: '#ffffff', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.35)', marginLeft: '0.25rem' }}
+                    >
+                        <Download size={14} style={{ color: '#fbbf24' }} />
+                        <span>Informe PDF</span>
+                    </button>
                 </div>
             </div>
 
@@ -270,7 +282,7 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                             <BenchmarkCard
                                 key={bm.key}
                                 benchmark={bm}
-                                onClick={() => setSearchParams({ muscle: bm.key })}
+                                onClick={() => setSelectedBenchmark(bm)}
                             />
                         ))}
                     </div>
@@ -368,6 +380,13 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                     </div>
                 </section>
             )}
+
+            {/* Muscle Individual History Modal */}
+            <MuscleHistoryModal
+                benchmark={selectedBenchmark}
+                records={records}
+                onClose={() => setSelectedBenchmark(null)}
+            />
         </div>
     );
 };

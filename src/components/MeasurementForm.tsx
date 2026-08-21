@@ -14,8 +14,9 @@ import { ContextSection } from './measurement/ContextSection';
 import { useToast } from './ui/ToastProvider';
 import { useMeasurementLines } from '../hooks/useMeasurementLines';
 import { MapModal } from './measurement/MapModal';
+import { BodyFatCalculatorModal } from './measurement/BodyFatCalculatorModal';
 import { Tooltip } from './Tooltip';
-import { Map as MapIcon } from 'lucide-react';
+import { Map as MapIcon, Calculator } from 'lucide-react';
 import './MeasurementForm.css';
 
 interface Props {
@@ -60,7 +61,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
     return previousRecord?.measurements || DEFAULT_MEASUREMENTS;
   })();
 
-  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<MeasurementFormValues['measurements']>({
+  const { control, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<MeasurementFormValues['measurements']>({
     // @ts-ignore - resolver types mismatch with deep nested objects sometimes, but runtime is fine
     resolver: zodResolver(measurementRecordSchema.shape.measurements),
     defaultValues
@@ -85,6 +86,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
   const lines = useMeasurementLines(containerRef as React.RefObject<HTMLElement>, measurements as unknown as BodyMeasurements, sex);
 
   const [isMapOpen, setIsMapOpen] = useState(false);
+  const [isBfCalcOpen, setIsBfCalcOpen] = useState(false);
 
   const onSubmit = async (data: MeasurementFormValues['measurements']) => {
     const record: MeasurementRecord = {
@@ -166,7 +168,34 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
           <MeasurementSection title={t('common.form.core_metrics')}>
             {renderInput('weight', t('common.form.weight'))}
             {renderInput('height', t('common.form.height'))}
-            {renderInput('bodyFat', t('common.form.body_fat'))}
+            <div style={{ position: 'relative' }}>
+              {renderInput('bodyFat', t('common.form.body_fat'))}
+              <button
+                type="button"
+                onClick={() => setIsBfCalcOpen(true)}
+                style={{
+                  marginTop: '0.35rem',
+                  width: '100%',
+                  background: 'rgba(245, 158, 11, 0.1)',
+                  border: '1px dashed rgba(245, 158, 11, 0.4)',
+                  borderRadius: '8px',
+                  color: 'var(--primary-color)',
+                  padding: '0.4rem 0.6rem',
+                  fontSize: '0.72rem',
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <Calculator size={13} />
+                <span>Calcular con Fórmula US Navy</span>
+              </button>
+            </div>
           </MeasurementSection>
 
           <MeasurementSection title={t('common.form.torso')}>
@@ -232,6 +261,20 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
           <span>{t('common.form.errors_banner')}</span>
         </div>
       )}
+
+      <BodyFatCalculatorModal
+        isOpen={isBfCalcOpen}
+        onClose={() => setIsBfCalcOpen(false)}
+        onApply={(bfVal) => {
+          setValue('bodyFat', bfVal, { shouldValidate: true, shouldDirty: true });
+        }}
+        sex={sex}
+        initialHeight={measurements.height}
+        initialWeight={measurements.weight}
+        initialNeck={measurements.neck}
+        initialWaist={measurements.waist}
+        initialHips={measurements.hips}
+      />
 
       <FormActions isSaving={isSubmitting} onCancel={onCancel} />
     </form >

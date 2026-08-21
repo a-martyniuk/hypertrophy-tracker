@@ -9,6 +9,8 @@ import { HudCard } from './ui/HudCard';
 import { HudButton } from './ui/HudButton';
 import { TacticalInsightCard } from './TacticalInsightCard';
 import { TacticalReportModal } from './TacticalReportModal';
+import { ShareReportModal } from './share/ShareReportModal';
+import { AthleteBadgesGrid } from './dashboard/AthleteBadgesGrid';
 import type { MeasurementRecord } from '../types/measurements';
 
 interface DashboardViewProps {
@@ -65,6 +67,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [reportModalOpen, setReportModalOpen] = useState(false);
+    const [shareModalOpen, setShareModalOpen] = useState(false);
     const latestRecord = records[0];
     const previousRecord = records[1];
 
@@ -87,6 +90,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                 latestRecord={latestRecord}
                 previousRecord={previousRecord}
                 onOpenReport={() => setReportModalOpen(true)}
+                onShareReport={() => setShareModalOpen(true)}
             />
 
             <div className="main-dashboard-content">
@@ -197,6 +201,9 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                 </div>
             </div>
 
+            {/* Badges & Tactical Achievements */}
+            <AthleteBadgesGrid records={records} sex={sex} />
+
             {/* Tactical Report Modal */}
             <TacticalReportModal
                 isOpen={reportModalOpen}
@@ -204,6 +211,15 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                 latestRecord={latestRecord}
                 previousRecord={previousRecord}
                 userName={userName}
+            />
+
+            {/* Coach Share Modal */}
+            <ShareReportModal
+                isOpen={shareModalOpen}
+                onClose={() => setShareModalOpen(false)}
+                latestRecord={latestRecord}
+                userName={userName}
+                sex={sex}
             />
         </div>
     );

@@ -1,14 +1,6 @@
-import { useState, useEffect } from 'react'
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { useState, useEffect, lazy, Suspense } from 'react'
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useMeasurements } from './hooks/useMeasurements'
-import { MeasurementForm } from './components/MeasurementForm'
-import { HistoryView } from './components/HistoryView'
-import { AnalysisView } from './components/AnalysisView'
-import { GoalsView } from './components/GoalsView'
-import { SkeletalFrameView } from './components/SkeletalFrameView'
-import { MetabolismCalculator } from './components/MetabolismCalculator'
-import { DashboardView } from './components/DashboardView'
-import { SettingsView } from './components/SettingsView'
 import { Layout } from './components/Layout'
 import { useGoals } from './hooks/useGoals'
 import { useAuth } from './hooks/useAuth'
@@ -17,6 +9,17 @@ import { AuthView } from './components/AuthView'
 import type { MeasurementRecord } from './types/measurements'
 import { Activity } from 'lucide-react'
 import { ErrorBoundary } from './components/ui/ErrorBoundary'
+
+// Lazy-loaded Views for ultra-fast initial bundle
+const DashboardView = lazy(() => import('./components/DashboardView').then(m => ({ default: m.DashboardView })));
+const MeasurementForm = lazy(() => import('./components/MeasurementForm').then(m => ({ default: m.MeasurementForm })));
+const HistoryView = lazy(() => import('./components/HistoryView').then(m => ({ default: m.HistoryView })));
+const AnalysisView = lazy(() => import('./components/AnalysisView').then(m => ({ default: m.AnalysisView })));
+const SkeletalFrameView = lazy(() => import('./components/SkeletalFrameView').then(m => ({ default: m.SkeletalFrameView })));
+const MetabolismCalculator = lazy(() => import('./components/MetabolismCalculator').then(m => ({ default: m.MetabolismCalculator })));
+const GoalsView = lazy(() => import('./components/GoalsView').then(m => ({ default: m.GoalsView })));
+const SettingsView = lazy(() => import('./components/SettingsView').then(m => ({ default: m.SettingsView })));
+const PublicReportView = lazy(() => import('./components/share/PublicReportView').then(m => ({ default: m.PublicReportView })));
 
 function App() {
   const [isGuest, setIsGuestState] = useState(() => {
@@ -69,6 +72,17 @@ function App() {
     return result
   }
 
+  const location = useLocation()
+
+  // Public Trainer Share View (No auth required)
+  if (location.pathname === '/share') {
+    return (
+      <Suspense fallback={<div className="loading-screen"><Activity className="animate-spin" /></div>}>
+        <PublicReportView />
+      </Suspense>
+    );
+  }
+
   // If loading auth, show spinner
   if (authLoading) return <div className="loading-screen"><Activity className="animate-spin" /></div>;
 
@@ -76,9 +90,10 @@ function App() {
   if (!authUser && !isGuest) return <AuthView onGuest={() => setIsGuest(true)} />;
 
   return (
-    <Routes>
-      <Route element={<Layout isGuest={isGuest} setIsGuest={setIsGuest} />}>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    <Suspense fallback={<div className="loading-screen"><Activity className="animate-spin" /></div>}>
+      <Routes>
+        <Route element={<Layout isGuest={isGuest} setIsGuest={setIsGuest} />}>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
         <Route path="/dashboard" element={
           <ErrorBoundary>
@@ -171,6 +186,7 @@ function App() {
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>
+    </Suspense>
   )
 }
 
