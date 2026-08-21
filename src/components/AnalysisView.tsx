@@ -224,6 +224,13 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                         <TrendingUp size={14} />
                         <span>Tendencias</span>
                     </button>
+                    <a
+                        href="/potential"
+                        className="analysis-tab-btn"
+                        style={{ color: '#fbbf24', textDecoration: 'none', borderLeft: '1px solid rgba(255, 255, 255, 0.1)', paddingLeft: '0.75rem' }}
+                    >
+                        <span>🧬 Simulador Genético &rarr;</span>
+                    </a>
                 </div>
             </div>
 

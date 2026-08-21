@@ -94,12 +94,22 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
     <div className="skeletal-frame-view animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
       {/* Header */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', paddingBottom: '0.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--primary-color)' }}>
-          <Dna size={24} />
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff' }}>{t('genetics.title')}</h2>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--primary-color)' }}>
+            <Dna size={24} />
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>{t('genetics.title')}</h2>
+          </div>
+          <a
+            href="/analysis"
+            className="btn-secondary !text-xs !py-1.5 !px-3 flex items-center gap-1.5 font-mono text-amber-400 border-amber-500/30 hover:border-amber-400"
+            style={{ textDecoration: 'none' }}
+          >
+            <Sparkles size={14} />
+            <span>Ver Auditoría Real en Análisis &rarr;</span>
+          </a>
         </div>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-          Análisis multidimensional de límites genéticos naturales: Casey Butt, FFMI Normalizado, Martin Berkhan y Eric Helms.
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
+          Laboratorio de proyección y límites fisiológicos teóricos: Simulación de estructura ósea (Casey Butt), techo magro de competición (Martin Berkhan) y tasas de ganancia mensual (Eric Helms).
         </p>
       </div>
 
