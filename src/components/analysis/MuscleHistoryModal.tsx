@@ -22,21 +22,21 @@ export const MuscleHistoryModal: React.FC<Props> = ({ benchmark, records, onClos
     const chartData = sortedRecords.map((r) => {
         const m = r.measurements as any;
         let val = 0;
-        if (key === 'brazo') {
+        if (key === 'arm' || key === 'brazo') {
             val = Math.max(m.arm?.left || 0, m.arm?.right || 0);
-        } else if (key === 'antebrazo') {
+        } else if (key === 'forearm' || key === 'antebrazo') {
             val = Math.max(m.forearm?.left || 0, m.forearm?.right || 0);
-        } else if (key === 'muslo') {
+        } else if (key === 'thigh' || key === 'muslo') {
             val = Math.max(m.thigh?.left || 0, m.thigh?.right || 0);
-        } else if (key === 'gemelo') {
+        } else if (key === 'calf' || key === 'gemelo') {
             val = Math.max(m.calf?.left || 0, m.calf?.right || 0);
-        } else if (key === 'cuello') {
+        } else if (key === 'neck' || key === 'cuello') {
             val = m.neck || 0;
-        } else if (key === 'pecho') {
+        } else if (key === 'pecho' || key === 'chest') {
             val = m.pecho || 0;
-        } else if (key === 'espalda') {
+        } else if (key === 'back' || key === 'espalda') {
             val = m.back || 0;
-        } else if (key === 'cintura') {
+        } else if (key === 'waist' || key === 'cintura') {
             val = m.waist || 0;
         }
 
