@@ -27,7 +27,7 @@ export const PublicReportView: React.FC = () => {
         return decodeAthleteData(encodedData);
     }, [encodedData]);
 
-    const records = useMemo(() => {
+    const records: MeasurementRecord[] = useMemo(() => {
         if (!athleteData) return [];
         if (athleteData.records && athleteData.records.length > 0) {
             return [...athleteData.records].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
