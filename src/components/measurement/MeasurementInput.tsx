@@ -29,7 +29,11 @@ export const MeasurementInput = ({
     onChange,
     id,
     previousValue,
-    className
+    className,
+    onFocus,
+    onBlur,
+    onMouseEnter,
+    onMouseLeave
 }: Props) => {
     // Robust check: any non-null object is treated as bilateral to prevent [object Object] rendering
     const isDouble = typeof value === 'object' && value !== null;
