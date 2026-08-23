@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@vercel/analytics": "^2.0.1",
     "firebase": "^12.18.0",
     "framer-motion": "^12.29.2",
     "html-to-image": "^1.11.13",
