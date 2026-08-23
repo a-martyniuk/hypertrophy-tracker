@@ -11,50 +11,50 @@ interface Props {
 export const DynamicSilhouette = ({ measurements, sex = 'male', onMarkerClick }: Props) => {
   const silhouetteImg = sex === 'female' ? femaleSilhouette : maleSilhouette;
 
-  // Gender-aware anchor coordinates precisely aligned with the golden HUD silhouette
+  // Gender-aware anchor coordinates precisely aligned with the golden HUD silhouette (260x550 canvas)
   const anchors = sex === 'female' ? {
-    neck: { x: 80, y: 82 },
-    back: { x: 42, y: 124 },
-    pecho: { x: 130, y: 148 },
-    armL: { x: 30, y: 172 },
-    armR: { x: 170, y: 172 },
-    waist: { x: 68, y: 218 },
-    forearmL: { x: 20, y: 224 },
-    forearmR: { x: 180, y: 224 },
-    hips: { x: 134, y: 262 },
-    wristL: { x: 12, y: 268 },
-    wristR: { x: 188, y: 268 },
-    thighL: { x: 70, y: 328 },
-    thighR: { x: 130, y: 328 },
-    calfL: { x: 70, y: 424 },
-    calfR: { x: 130, y: 424 },
-    ankleL: { x: 78, y: 490 },
-    ankleR: { x: 122, y: 490 },
+    neck: { x: 130, y: 88 },
+    back: { x: 62, y: 130 },
+    pecho: { x: 155, y: 155 },
+    armL: { x: 45, y: 180 },
+    armR: { x: 215, y: 180 },
+    waist: { x: 96, y: 225 },
+    forearmL: { x: 32, y: 235 },
+    forearmR: { x: 228, y: 235 },
+    hips: { x: 165, y: 270 },
+    wristL: { x: 20, y: 290 },
+    wristR: { x: 240, y: 290 },
+    thighL: { x: 95, y: 340 },
+    thighR: { x: 165, y: 340 },
+    calfL: { x: 95, y: 435 },
+    calfR: { x: 165, y: 435 },
+    ankleL: { x: 108, y: 500 },
+    ankleR: { x: 152, y: 500 },
   } : {
-    neck: { x: 82, y: 82 },
-    back: { x: 40, y: 124 },
-    pecho: { x: 132, y: 148 },
-    armL: { x: 30, y: 172 },
-    armR: { x: 170, y: 172 },
-    forearmL: { x: 20, y: 224 },
-    forearmR: { x: 180, y: 224 },
-    waist: { x: 68, y: 218 },
-    hips: { x: 134, y: 262 },
-    wristL: { x: 12, y: 268 },
-    wristR: { x: 188, y: 268 },
-    thighL: { x: 70, y: 328 },
-    thighR: { x: 130, y: 328 },
-    calfL: { x: 70, y: 424 },
-    calfR: { x: 130, y: 424 },
-    ankleL: { x: 78, y: 490 },
-    ankleR: { x: 122, y: 490 },
+    neck: { x: 130, y: 88 },
+    back: { x: 60, y: 130 },
+    pecho: { x: 155, y: 155 },
+    armL: { x: 45, y: 180 },
+    armR: { x: 215, y: 180 },
+    forearmL: { x: 32, y: 235 },
+    forearmR: { x: 228, y: 235 },
+    waist: { x: 95, y: 225 },
+    hips: { x: 165, y: 270 },
+    wristL: { x: 20, y: 290 },
+    wristR: { x: 240, y: 290 },
+    thighL: { x: 95, y: 340 },
+    thighR: { x: 165, y: 340 },
+    calfL: { x: 95, y: 435 },
+    calfR: { x: 165, y: 435 },
+    ankleL: { x: 108, y: 500 },
+    ankleR: { x: 152, y: 500 },
   };
 
   return (
     <div className="silhouette-container">
       <svg
         id="silhouette-svg-root"
-        viewBox="0 0 200 600"
+        viewBox="0 0 260 550"
         className="body-svg animate-fade-in silhouette-svg"
         preserveAspectRatio="xMidYMid meet"
       >
@@ -73,7 +73,7 @@ export const DynamicSilhouette = ({ measurements, sex = 'male', onMarkerClick }:
           href={silhouetteImg}
           x="0"
           y="0"
-          width="200"
+          width="260"
           height="550"
           className="silhouette-image"
           style={{ opacity: 0.95 }}
