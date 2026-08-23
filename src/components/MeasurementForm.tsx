@@ -115,6 +115,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
 
   const hasErrors = Object.keys(errors).length > 0;
   const sourceRecord = recordToEdit || previousRecord;
+  const [activeMuscle, setActiveMuscle] = useState<string | null>(null);
 
   // Helper for rendering controlled inputs
   const renderInput = (name: keyof MeasurementFormValues['measurements'], label: string) => (
@@ -131,6 +132,10 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
           previousValue={sourceRecord?.measurements[name]}
           // @ts-ignore
           className={errors[name] ? 'input-error' : ''}
+          onFocus={() => setActiveMuscle(name)}
+          onBlur={() => setActiveMuscle(null)}
+          onMouseEnter={() => setActiveMuscle(name)}
+          onMouseLeave={() => setActiveMuscle(null)}
         />
       )}
     />
@@ -139,14 +144,37 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
   return (
     <form ref={containerRef} className="measurement-form animate-fade" onSubmit={handleSubmit(onSubmit)}>
       <svg className="connector-overlay" style={{ pointerEvents: 'none' }}>
-        {lines.map(line => (
-          <g key={line.id}>
-            <line
-              x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2}
-              stroke="#f59e0b" strokeWidth="2"
-            />
-          </g>
-        ))}
+        <defs>
+          <filter id="activeLineGlow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        {lines.map(line => {
+          const isActive = activeMuscle && line.id.startsWith(`input-${activeMuscle}`);
+          return (
+            <g key={line.id}>
+              <line
+                x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2}
+                stroke={isActive ? '#38bdf8' : '#f59e0b'}
+                strokeWidth={isActive ? '3.5' : '1.8'}
+                opacity={isActive ? 1 : activeMuscle ? 0.25 : 0.75}
+                filter={isActive ? 'url(#activeLineGlow)' : undefined}
+                style={{ transition: 'all 0.25s ease' }}
+              />
+              {isActive && (
+                <circle
+                  cx={line.x2} cy={line.y2} r="5"
+                  fill="#38bdf8"
+                  filter="url(#activeLineGlow)"
+                />
+              )}
+            </g>
+          );
+        })}
       </svg>
 
       {/* Unified Page Header */}
@@ -224,6 +252,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
           <DynamicSilhouette
             measurements={measurements as unknown as BodyMeasurements}
             sex={sex}
+            activeMuscle={activeMuscle}
           />
 
           <MapModal

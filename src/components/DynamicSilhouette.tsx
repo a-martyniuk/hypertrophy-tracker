@@ -5,69 +5,75 @@ import femaleSilhouette from '../assets/silhouette_female.png';
 interface Props {
   measurements: BodyMeasurements;
   sex?: 'male' | 'female';
+  activeMuscle?: string | null;
   onMarkerClick?: (markerId: string) => void;
 }
 
-export const DynamicSilhouette = ({ measurements, sex = 'male', onMarkerClick }: Props) => {
+export const DynamicSilhouette = ({
+  measurements,
+  sex = 'male',
+  activeMuscle,
+  onMarkerClick
+}: Props) => {
   const silhouetteImg = sex === 'female' ? femaleSilhouette : maleSilhouette;
 
-  // Gender-aware anchor coordinates precisely calibrated with physical muscle contact
+  // Exact anatomical anchors calibrated directly against pixel contour data
   const anchors = sex === 'female' ? {
-    neck: { x: 130, y: 85 },
-    back: { x: 58, y: 125 },
-    pecho: { x: 155, y: 148 },
-    armL: { x: 48, y: 175 },
-    armR: { x: 212, y: 175 },
-    waist: { x: 96, y: 220 },
-    forearmL: { x: 38, y: 228 },
-    forearmR: { x: 222, y: 228 },
-    hips: { x: 165, y: 260 },
-    wristL: { x: 24, y: 275 },
-    wristR: { x: 236, y: 275 },
-    thighL: { x: 100, y: 310 },
-    thighR: { x: 160, y: 310 },
-    calfL: { x: 96, y: 405 },
-    calfR: { x: 164, y: 405 },
-    ankleL: { x: 108, y: 475 },
-    ankleR: { x: 152, y: 475 },
+    neck: { x: 130, y: 82 },
+    back: { x: 60, y: 125 },
+    pecho: { x: 150, y: 148 },
+    armL: { x: 63, y: 178 },
+    armR: { x: 197, y: 178 },
+    waist: { x: 130, y: 240 },
+    forearmL: { x: 42, y: 228 },
+    forearmR: { x: 218, y: 228 },
+    hips: { x: 150, y: 280 },
+    wristL: { x: 26, y: 280 },
+    wristR: { x: 234, y: 280 },
+    thighL: { x: 98, y: 335 },
+    thighR: { x: 162, y: 335 },
+    calfL: { x: 96, y: 415 },
+    calfR: { x: 164, y: 415 },
+    ankleL: { x: 100, y: 485 },
+    ankleR: { x: 160, y: 485 },
   } : {
-    neck: { x: 130, y: 85 },
-    back: { x: 58, y: 125 },
-    pecho: { x: 155, y: 148 },
-    armL: { x: 48, y: 175 },
-    armR: { x: 212, y: 175 },
-    forearmL: { x: 38, y: 228 },
-    forearmR: { x: 222, y: 228 },
-    waist: { x: 96, y: 220 },
-    hips: { x: 165, y: 260 },
-    wristL: { x: 24, y: 275 },
-    wristR: { x: 236, y: 275 },
-    thighL: { x: 100, y: 310 },
-    thighR: { x: 160, y: 310 },
-    calfL: { x: 96, y: 405 },
-    calfR: { x: 164, y: 405 },
-    ankleL: { x: 108, y: 475 },
-    ankleR: { x: 152, y: 475 },
+    neck: { x: 130, y: 82 },
+    back: { x: 60, y: 125 },
+    pecho: { x: 150, y: 148 },
+    armL: { x: 63, y: 178 },
+    armR: { x: 197, y: 178 },
+    forearmL: { x: 42, y: 228 },
+    forearmR: { x: 218, y: 228 },
+    waist: { x: 130, y: 240 },
+    hips: { x: 150, y: 280 },
+    wristL: { x: 26, y: 280 },
+    wristR: { x: 234, y: 280 },
+    thighL: { x: 98, y: 335 },
+    thighR: { x: 162, y: 335 },
+    calfL: { x: 96, y: 415 },
+    calfR: { x: 164, y: 415 },
+    ankleL: { x: 100, y: 485 },
+    ankleR: { x: 160, y: 485 },
   };
 
-  // Anthropometric tape measure guideline bands (Bandas de colocación de cinta métrica)
+  // Anthropometric tape measure guideline bands perfectly bounded by body silhouette edges
   const tapeBands = [
-    { id: 'neck', y: 85, x1: 114, x2: 146, label: 'CUELLO' },
-    { id: 'pecho', y: 148, x1: 76, x2: 184, label: 'PECHO' },
-    { id: 'armL', y: 175, x1: 34, x2: 62, label: 'BRAZO_IZQ' },
-    { id: 'armR', y: 175, x1: 198, x2: 226, label: 'BRAZO_DER' },
-    { id: 'waist', y: 220, x1: 92, x2: 168, label: 'CINTURA' },
-    { id: 'forearmL', y: 228, x1: 26, x2: 50, label: 'ANTEBRAZO_IZQ' },
-    { id: 'forearmR', y: 228, x1: 210, x2: 234, label: 'ANTEBRAZO_DER' },
-    { id: 'hips', y: 260, x1: 82, x2: 178, label: 'CADERA' },
-    { id: 'wristL', y: 275, x1: 16, x2: 32, label: 'MUÑECA_IZQ' },
-    { id: 'wristR', y: 275, x1: 228, x2: 244, label: 'MUÑECA_DER' },
-    { id: 'thighL', y: 310, x1: 76, x2: 124, label: 'MUSLO_IZQ' },
-    { id: 'thighR', y: 310, x1: 136, x2: 184, label: 'MUSLO_DER' },
-    { id: 'calfL', y: 405, x1: 74, x2: 118, label: 'GEMELO_IZQ' },
-    { id: 'calfR', y: 405, x1: 142, x2: 186, label: 'GEMELO_DER' },
-    { id: 'ankleL', y: 475, x1: 94, x2: 122, label: 'TOBILLO_IZQ' },
-    { id: 'ankleR', y: 475, x1: 138, x2: 166, label: 'TOBILLO_DER' },
+    { id: 'neck', y: 82, x1: 110, x2: 150, muscle: 'neck' },
+    { id: 'pecho', y: 148, x1: 76, x2: 184, muscle: 'pecho' },
+    { id: 'armL', y: 178, x1: 42, x2: 84, muscle: 'arm' },
+    { id: 'armR', y: 178, x1: 176, x2: 218, muscle: 'arm' },
+    { id: 'waist', y: 240, x1: 98, x2: 162, muscle: 'waist' },
+    { id: 'forearmL', y: 228, x1: 26, x2: 58, muscle: 'forearm' },
+    { id: 'forearmR', y: 228, x1: 202, x2: 234, muscle: 'forearm' },
+    { id: 'hips', y: 280, x1: 84, x2: 176, muscle: 'hips' },
+    { id: 'wristL', y: 280, x1: 14, x2: 38, muscle: 'wrist' },
+    { id: 'wristR', y: 280, x1: 222, x2: 246, muscle: 'wrist' },
+    { id: 'thighL', y: 335, x1: 74, x2: 122, muscle: 'thigh' },
+    { id: 'thighR', y: 335, x1: 138, x2: 186, muscle: 'thigh' },
+    { id: 'calfL', y: 415, x1: 72, x2: 120, muscle: 'calf' },
+    { id: 'calfR', y: 415, x1: 140, x2: 188, muscle: 'calf' },
+    { id: 'ankleL', y: 485, x1: 84, x2: 116, muscle: 'ankle' },
+    { id: 'ankleR', y: 485, x1: 144, x2: 176, muscle: 'ankle' },
   ];
 
   return (
@@ -93,6 +99,13 @@ export const DynamicSilhouette = ({ measurements, sex = 'male', onMarkerClick }:
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
+          <filter id="activeTapeGlow">
+            <feGaussianBlur stdDeviation="2.5" result="activeGlow" />
+            <feMerge>
+              <feMergeNode in="activeGlow" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
 
         {/* Anatomical Silhouette Graphic */}
@@ -108,35 +121,45 @@ export const DynamicSilhouette = ({ measurements, sex = 'male', onMarkerClick }:
 
         {/* Anthropometric Tape Measure Guidelines (Bandas Flotantes de Cinta Métrica) */}
         <g className="hud-tape-bands">
-          {tapeBands.map((band) => (
-            <g key={band.id} className="tape-band-group">
-              {/* Dashed Golden Tape Line */}
-              <line
-                x1={band.x1}
-                y1={band.y}
-                x2={band.x2}
-                y2={band.y}
-                className="tape-line"
-                filter="url(#tapeGlow)"
-              />
-              {/* Left End Caliper Tick */}
-              <line
-                x1={band.x1}
-                y1={band.y - 3}
-                x2={band.x1}
-                y2={band.y + 3}
-                className="tape-tick"
-              />
-              {/* Right End Caliper Tick */}
-              <line
-                x1={band.x2}
-                y1={band.y - 3}
-                x2={band.x2}
-                y2={band.y + 3}
-                className="tape-tick"
-              />
-            </g>
-          ))}
+          {tapeBands.map((band) => {
+            const isActive = activeMuscle === band.muscle;
+            return (
+              <g key={band.id} className={`tape-band-group ${isActive ? 'active' : ''}`}>
+                {/* Dashed Tape Guideline */}
+                <line
+                  x1={band.x1}
+                  y1={band.y}
+                  x2={band.x2}
+                  y2={band.y}
+                  className={`tape-line ${isActive ? 'active' : ''}`}
+                  stroke={isActive ? '#38bdf8' : '#f59e0b'}
+                  strokeWidth={isActive ? '2.5' : '1.5'}
+                  strokeDasharray={isActive ? '5 2' : '4 2'}
+                  filter={isActive ? 'url(#activeTapeGlow)' : 'url(#tapeGlow)'}
+                />
+                {/* Left End Caliper Tick */}
+                <line
+                  x1={band.x1}
+                  y1={band.y - (isActive ? 4 : 3)}
+                  x2={band.x1}
+                  y2={band.y + (isActive ? 4 : 3)}
+                  className={`tape-tick ${isActive ? 'active' : ''}`}
+                  stroke={isActive ? '#38bdf8' : '#fbbf24'}
+                  strokeWidth={isActive ? '2' : '1.5'}
+                />
+                {/* Right End Caliper Tick */}
+                <line
+                  x1={band.x2}
+                  y1={band.y - (isActive ? 4 : 3)}
+                  x2={band.x2}
+                  y2={band.y + (isActive ? 4 : 3)}
+                  className={`tape-tick ${isActive ? 'active' : ''}`}
+                  stroke={isActive ? '#38bdf8' : '#fbbf24'}
+                  strokeWidth={isActive ? '2' : '1.5'}
+                />
+              </g>
+            );
+          })}
         </g>
 
         {/* Interactive Junction Markers */}
@@ -161,17 +184,23 @@ export const DynamicSilhouette = ({ measurements, sex = 'male', onMarkerClick }:
               .replace('waist', 'waist')
               .replace('hips', 'hips');
 
+            const baseKey = key.replace(/[LR]$/, '');
+            const isActive = activeMuscle && (activeMuscle === baseKey || (baseKey === 'arm' && activeMuscle === 'arm') || (baseKey === 'forearm' && activeMuscle === 'forearm') || (baseKey === 'wrist' && activeMuscle === 'wrist') || (baseKey === 'thigh' && activeMuscle === 'thigh') || (baseKey === 'calf' && activeMuscle === 'calf') || (baseKey === 'ankle' && activeMuscle === 'ankle'));
+
             return (
               <rect
                 key={key}
                 id={`junction-${junctionId}`}
-                x={pos.x - 2}
-                y={pos.y - 2}
-                width="4"
-                height="4"
-                className="hotspot"
+                x={pos.x - (isActive ? 3 : 2)}
+                y={pos.y - (isActive ? 3 : 2)}
+                width={isActive ? 6 : 4}
+                height={isActive ? 6 : 4}
+                className={`hotspot ${isActive ? 'active' : ''}`}
+                fill={isActive ? '#38bdf8' : '#f59e0b'}
+                stroke={isActive ? '#ffffff' : '#f59e0b'}
+                strokeWidth={isActive ? 1 : 0.5}
                 onClick={() => onMarkerClick?.(key)}
-                filter="url(#glow)"
+                filter={isActive ? 'url(#activeTapeGlow)' : 'url(#glow)'}
               >
                 <title>{key.toUpperCase()}</title>
               </rect>
@@ -207,36 +236,39 @@ export const DynamicSilhouette = ({ measurements, sex = 'male', onMarkerClick }:
           max-height: 550px;
         }
         .tape-line {
-          stroke: #f59e0b;
-          stroke-width: 1.5px;
-          stroke-dasharray: 4 2;
           stroke-linecap: round;
           opacity: 0.75;
-          transition: all 0.3s ease;
+          transition: all 0.25s ease;
+        }
+        .tape-line.active {
+          opacity: 1;
+          filter: drop-shadow(0 0 8px #38bdf8);
         }
         .tape-tick {
-          stroke: #fbbf24;
-          stroke-width: 1.5px;
-          opacity: 0.9;
+          transition: all 0.25s ease;
+        }
+        .tape-tick.active {
+          opacity: 1;
+          filter: drop-shadow(0 0 6px #38bdf8);
         }
         .tape-band-group:hover .tape-line {
-          stroke: #ffffff;
+          stroke: #38bdf8;
           opacity: 1;
-          stroke-width: 2px;
-          filter: drop-shadow(0 0 6px #f59e0b);
+          stroke-width: 2.2px;
+          filter: drop-shadow(0 0 8px #38bdf8);
         }
         .hotspot {
-          fill: #f59e0b;
-          fill-opacity: 0.4;
-          stroke: #f59e0b;
-          stroke-width: 0.5;
+          fill-opacity: 0.5;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.25s ease;
+        }
+        .hotspot.active {
+          fill-opacity: 1;
+          filter: drop-shadow(0 0 10px #38bdf8);
         }
         .hotspot:hover {
           fill-opacity: 0.9;
-          r: 6;
-          filter: drop-shadow(0 0 8px #f59e0b);
+          filter: drop-shadow(0 0 8px #38bdf8);
         }
         .asymmetry-alerts {
           position: absolute;

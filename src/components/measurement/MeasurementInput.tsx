@@ -8,6 +8,10 @@ interface Props {
     id?: string;
     previousValue?: number | BilateralMeasurement;
     className?: string;
+    onFocus?: () => void;
+    onBlur?: () => void;
+    onMouseEnter?: () => void;
+    onMouseLeave?: () => void;
 }
 
 const TrendIndicator = ({ current, previous }: { current: number; previous?: number }) => {
@@ -34,7 +38,12 @@ export const MeasurementInput = ({
         const val = value as BilateralMeasurement;
         const prev = previousValue as BilateralMeasurement | undefined;
         return (
-            <div className={`hud-input-group-double ${className || ''}`} id={id}>
+            <div
+                className={`hud-input-group-double ${className || ''}`}
+                id={id}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+            >
                 <div className="hud-label-row">
                     <label>{label}</label>
                     <div className="trends">
@@ -50,6 +59,8 @@ export const MeasurementInput = ({
                         min="0"
                         value={val.left || ''}
                         onChange={(e) => onChange({ ...val, left: parseFloat(e.target.value) || 0 })}
+                        onFocus={onFocus}
+                        onBlur={onBlur}
                     />
                     <input
                         type="number"
@@ -58,6 +69,8 @@ export const MeasurementInput = ({
                         min="0"
                         value={val.right || ''}
                         onChange={(e) => onChange({ ...val, right: parseFloat(e.target.value) || 0 })}
+                        onFocus={onFocus}
+                        onBlur={onBlur}
                     />
                 </div>
             </div>
@@ -65,7 +78,12 @@ export const MeasurementInput = ({
     }
 
     return (
-        <div className={`hud-input-group ${className || ''}`} id={id}>
+        <div
+            className={`hud-input-group ${className || ''}`}
+            id={id}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+        >
             <div className="hud-label-row">
                 <label>{label}</label>
                 <TrendIndicator current={value as number} previous={previousValue as number} />
@@ -75,6 +93,8 @@ export const MeasurementInput = ({
                 min="0"
                 value={(value as number) || ''}
                 onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+                onFocus={onFocus}
+                onBlur={onBlur}
             />
         </div>
     );
