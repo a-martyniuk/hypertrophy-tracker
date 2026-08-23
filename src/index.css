@@ -54,7 +54,6 @@ body {
   line-height: 1.5;
   overflow-x: hidden;
   position: relative;
-  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
 }
 

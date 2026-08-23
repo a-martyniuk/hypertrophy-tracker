@@ -47,6 +47,13 @@
     border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(12px);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.analysis-tabs::-webkit-scrollbar {
+    display: none;
 }
 
 .analysis-tab-btn {
@@ -64,6 +71,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .analysis-tab-btn:hover {
@@ -260,8 +268,9 @@
 
 .bm-card:hover {
     border-color: rgba(245, 158, 11, 0.4);
+    background: rgba(19, 24, 38, 0.95);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(245, 158, 11, 0.1);
 }
 
 .bm-card-header {
@@ -377,18 +386,97 @@
     font-family: var(--font-mono);
 }
 
-/* Responsive Media Queries */
-@media (max-width: 850px) {
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1.25rem;
+}
+
+/* Responsive Media Queries (Mobile & Small Tablets) */
+@media (max-width: 768px) {
+    .analysis-view {
+        gap: 1.25rem;
+    }
+
+    .analysis-nav-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        padding-bottom: 1rem;
+    }
+
+    .analysis-title-group h1 {
+        font-size: 1.35rem;
+    }
+
+    .analysis-title-group p {
+        font-size: 0.78rem;
+    }
+
+    .analysis-tabs {
+        width: 100%;
+        padding: 4px;
+        border-radius: 12px;
+    }
+
+    .analysis-tab-btn {
+        padding: 0.45rem 0.75rem;
+        font-size: 0.72rem;
+    }
+
+    .physique-hero-card {
+        padding: 1.15rem;
+        border-radius: 16px;
+        gap: 1rem;
+    }
+
     .physique-hero-top {
         flex-direction: column;
         align-items: stretch;
+        gap: 0.85rem;
+    }
+
+    .physique-hero-title h2 {
+        font-size: 1.25rem;
+    }
+
+    .physique-hero-metrics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.65rem 0.75rem;
+    }
+
+    .metric-block.bordered {
+        padding-right: 0.5rem;
+    }
+
+    .metric-block .metric-num {
+        font-size: 1.25rem;
     }
 
     .physique-split-grid {
         grid-template-columns: 1fr;
+        gap: 0.75rem;
     }
 
-    .benchmarks-grid, .ratios-grid {
+    .benchmarks-grid, 
+    .ratios-grid,
+    .charts-grid {
         grid-template-columns: 1fr;
+        gap: 0.85rem;
+    }
+
+    .bm-card {
+        padding: 1rem;
+    }
+
+    .bm-num {
+        font-size: 1.45rem;
+    }
+
+    .tier-labels {
+        font-size: 0.6rem;
     }
 }
