@@ -20,6 +20,7 @@ const MetabolismCalculator = lazy(() => import('./components/MetabolismCalculato
 const GoalsView = lazy(() => import('./components/GoalsView').then(m => ({ default: m.GoalsView })));
 const SettingsView = lazy(() => import('./components/SettingsView').then(m => ({ default: m.SettingsView })));
 const PublicReportView = lazy(() => import('./components/share/PublicReportView').then(m => ({ default: m.PublicReportView })));
+import { ScrollToTop } from './components/ScrollToTop'
 
 function App() {
   const [isGuest, setIsGuestState] = useState(() => {
@@ -91,6 +92,7 @@ function App() {
 
   return (
     <Suspense fallback={<div className="loading-screen"><Activity className="animate-spin" /></div>}>
+      <ScrollToTop />
       <Routes>
         <Route element={<Layout isGuest={isGuest} setIsGuest={setIsGuest} />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

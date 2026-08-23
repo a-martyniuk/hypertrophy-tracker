@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -60,9 +60,20 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
 
     const isSecondaryViewActive = ['history', 'calculator', 'goals', 'settings'].includes(activeView);
 
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+        document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+        document.body.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+        const contentEl = document.querySelector('.content');
+        if (contentEl) {
+            contentEl.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+        }
+    }, [location.pathname]);
+
     const handleNavigateMobile = (path: string) => {
         setMobileMenuOpen(false)
         navigate(path)
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
     }
 
     return (
