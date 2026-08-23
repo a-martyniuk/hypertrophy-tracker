@@ -2,8 +2,8 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/hypertrophyracker/assets/(.*)",
-      "destination": "/assets/$1"
+      "source": "/hypertrophyracker/assets/:match*",
+      "destination": "/assets/:match*"
     },
     {
       "source": "/hypertrophyracker/pwa-icon.svg",
@@ -22,11 +22,11 @@
       "destination": "/sw.js"
     },
     {
-      "source": "/hypertrophyracker/workbox-(.*)",
-      "destination": "/workbox-$1"
+      "source": "/hypertrophyracker/workbox-:match*",
+      "destination": "/workbox-:match*"
     },
     {
-      "source": "/hypertrophyracker/(.*)",
+      "source": "/hypertrophyracker/:match*",
       "destination": "/index.html"
     },
     {
@@ -34,8 +34,8 @@
       "destination": "/index.html"
     },
     {
-      "source": "/assets/(.*)",
-      "destination": "/assets/$1"
+      "source": "/assets/:match*",
+      "destination": "/assets/:match*"
     },
     {
       "source": "/(.*)",
