@@ -4,6 +4,7 @@ import type { BodyMeasurements, BilateralMeasurement } from '../types/measuremen
 import maleSilhouette from '../assets/clean_red_silhouette.png';
 import femaleSilhouette from '../assets/silhouette_female.png';
 import { Sparkles, ArrowRight } from 'lucide-react';
+import { MALE_MUSCLE_PATHS, FEMALE_MUSCLE_PATHS } from '../utils/muscleContours';
 import './VolumeHeatmap.css';
 
 interface Props {
@@ -32,6 +33,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
   const [pinnedZone, setPinnedZone] = useState<any | null>(null);
 
   const silhouetteImg = sex === 'female' ? femaleSilhouette : maleSilhouette;
+  const musclePaths = sex === 'female' ? FEMALE_MUSCLE_PATHS : MALE_MUSCLE_PATHS;
 
   // Growth status calculation
   const getGrowthStats = (current: number, reference: number) => {
@@ -108,7 +110,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         current: getVal(currentMeasurements?.neck),
         reference: getVal(referenceMeasurements?.neck),
         band: { x1: 104, x2: 156, y: 82 },
-        polygon: "M 100,66 L 100,74 L 95,82 L 90,98 L 170,98 L 170,86 L 155,82 L 148,74 L 160,66 Z",
+        polygon: musclePaths['neck'],
         chipPos: { side: 'left', y: 82 }
       },
       {
@@ -117,7 +119,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         current: getVal(currentMeasurements?.pecho),
         reference: getVal(referenceMeasurements?.pecho),
         band: { x1: 60, x2: 200, y: 148 },
-        polygon: "M 65,98 L 65,154 L 195,154 L 195,98 Z",
+        polygon: musclePaths['pecho'],
         chipPos: { side: 'left', y: 148 }
       },
       {
@@ -126,7 +128,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         current: getVal(currentMeasurements?.arm, 'left'),
         reference: getVal(referenceMeasurements?.arm, 'left'),
         band: { x1: 48, x2: 80, y: 175 },
-        polygon: "M 35,110 L 28,145 L 20,175 L 55,175 L 65,110 Z",
+        polygon: musclePaths['arm-left'],
         chipPos: { side: 'left', y: 175 }
       },
       {
@@ -135,7 +137,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         current: getVal(currentMeasurements?.arm, 'right'),
         reference: getVal(referenceMeasurements?.arm, 'right'),
         band: { x1: 180, x2: 212, y: 175 },
-        polygon: "M 195,110 L 205,175 L 240,175 L 232,145 L 225,110 Z",
+        polygon: musclePaths['arm-right'],
         chipPos: { side: 'right', y: 175 }
       },
       {
@@ -144,7 +146,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         current: getVal(currentMeasurements?.forearm, 'left'),
         reference: getVal(referenceMeasurements?.forearm, 'left'),
         band: { x1: 34, x2: 64, y: 212 },
-        polygon: "M 20,175 L 10,212 L 40,212 L 55,175 Z",
+        polygon: musclePaths['forearm-left'],
         chipPos: { side: 'left', y: 212 }
       },
       {
@@ -153,7 +155,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         current: getVal(currentMeasurements?.forearm, 'right'),
         reference: getVal(referenceMeasurements?.forearm, 'right'),
         band: { x1: 196, x2: 226, y: 212 },
-        polygon: "M 205,175 L 220,212 L 250,212 L 240,175 Z",
+        polygon: musclePaths['forearm-right'],
         chipPos: { side: 'right', y: 212 }
       },
       {
@@ -162,7 +164,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         current: getVal(currentMeasurements?.waist),
         reference: getVal(referenceMeasurements?.waist),
         band: { x1: 88, x2: 172, y: 240 },
-        polygon: "M 78,154 L 78,240 L 182,240 L 182,154 Z",
+        polygon: musclePaths['waist'],
         chipPos: { side: 'left', y: 240 }
       },
       {
@@ -171,7 +173,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         current: getVal(currentMeasurements?.hips),
         reference: getVal(referenceMeasurements?.hips),
         band: { x1: 72, x2: 188, y: 280 },
-        polygon: "M 74,240 L 68,285 L 192,285 L 186,240 Z",
+        polygon: musclePaths['hips'],
         chipPos: { side: 'right', y: 280 }
       },
       {
@@ -180,7 +182,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         current: getVal(currentMeasurements?.thigh, 'left'),
         reference: getVal(referenceMeasurements?.thigh, 'left'),
         band: { x1: 74, x2: 120, y: 308 },
-        polygon: "M 68,285 L 62,357 L 122,357 L 128,285 Z",
+        polygon: musclePaths['thigh-left'],
         chipPos: { side: 'left', y: 308 }
       },
       {
@@ -189,7 +191,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         current: getVal(currentMeasurements?.thigh, 'right'),
         reference: getVal(referenceMeasurements?.thigh, 'right'),
         band: { x1: 140, x2: 186, y: 308 },
-        polygon: "M 132,285 L 138,357 L 198,357 L 192,285 Z",
+        polygon: musclePaths['thigh-right'],
         chipPos: { side: 'right', y: 308 }
       },
       {
@@ -198,7 +200,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         current: getVal(currentMeasurements?.calf, 'left'),
         reference: getVal(referenceMeasurements?.calf, 'left'),
         band: { x1: 78, x2: 114, y: 415 },
-        polygon: "M 62,357 L 72,467 L 110,467 L 122,357 Z",
+        polygon: musclePaths['calf-left'],
         chipPos: { side: 'left', y: 415 }
       },
       {
@@ -207,14 +209,14 @@ export const VolumeHeatmap: React.FC<Props> = ({
         current: getVal(currentMeasurements?.calf, 'right'),
         reference: getVal(referenceMeasurements?.calf, 'right'),
         band: { x1: 146, x2: 182, y: 415 },
-        polygon: "M 138,357 L 150,467 L 188,467 L 198,357 Z",
+        polygon: musclePaths['calf-right'],
         chipPos: { side: 'right', y: 415 }
       }
     ].map(z => ({
       ...z,
       stats: getGrowthStats(z.current, z.reference)
     }));
-  }, [currentMeasurements, referenceMeasurements, sex, t]);
+  }, [currentMeasurements, referenceMeasurements, sex, t, musclePaths]);
 
   const activeZone = pinnedZone || hoveredZone;
 
