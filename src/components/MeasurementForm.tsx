@@ -15,6 +15,7 @@ import { useToast } from './ui/ToastProvider';
 import { useMeasurementLines } from '../hooks/useMeasurementLines';
 import { MapModal } from './measurement/MapModal';
 import { BodyFatCalculatorModal } from './measurement/BodyFatCalculatorModal';
+import { MobileTapMeasure } from './measurement/MobileTapMeasure';
 import { Tooltip } from './Tooltip';
 import { Map as MapIcon, Calculator } from 'lucide-react';
 import './MeasurementForm.css';
@@ -38,6 +39,15 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
   const { user } = useAuth();
   const { addToast } = useToast();
   const containerRef = useRef<HTMLFormElement>(null);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1000);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1000);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Initialize default date
   const defaultDate = (() => {
@@ -143,139 +153,157 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
 
   return (
     <form ref={containerRef} className="measurement-form animate-fade" onSubmit={handleSubmit(onSubmit)}>
-      <svg className="connector-overlay" style={{ pointerEvents: 'none' }}>
-        <defs>
-          <filter id="activeLineGlow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-        {lines.map(line => {
-          const isActive = activeMuscle && line.id.startsWith(`input-${activeMuscle}`);
-          return (
-            <g key={line.id}>
-              <line
-                x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2}
-                stroke={isActive ? '#38bdf8' : '#f59e0b'}
-                strokeWidth={isActive ? '3.5' : '1.8'}
-                opacity={isActive ? 1 : activeMuscle ? 0.25 : 0.75}
-                filter={isActive ? 'url(#activeLineGlow)' : undefined}
-                style={{ transition: 'all 0.25s ease' }}
-              />
-              {isActive && (
-                <circle
-                  cx={line.x2} cy={line.y2} r="5"
-                  fill="#38bdf8"
-                  filter="url(#activeLineGlow)"
-                />
-              )}
-            </g>
-          );
-        })}
-      </svg>
+      {isMobile ? (
+        <MobileTapMeasure
+          measurements={measurements as unknown as BodyMeasurements}
+          activeMuscle={activeMuscle || 'pecho'}
+          setActiveMuscle={(m) => setActiveMuscle(m)}
+          setValue={setValue}
+          previousRecord={previousRecord}
+          sex={sex}
+          onOpenMap={() => setIsMapOpen(true)}
+          onOpenBfCalc={() => setIsBfCalcOpen(true)}
+          date={date}
+          setDate={setDate}
+          errors={errors}
+        />
+      ) : (
+        <>
+          <svg className="connector-overlay" style={{ pointerEvents: 'none' }}>
+            <defs>
+              <filter id="activeLineGlow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                <feMerge>
+                  <feMergeNode in="coloredBlur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            {lines.map(line => {
+              const isActive = activeMuscle && line.id.startsWith(`input-${activeMuscle}`);
+              return (
+                <g key={line.id}>
+                  <line
+                    x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2}
+                    stroke={isActive ? '#38bdf8' : '#f59e0b'}
+                    strokeWidth={isActive ? '3.5' : '1.8'}
+                    opacity={isActive ? 1 : activeMuscle ? 0.25 : 0.75}
+                    filter={isActive ? 'url(#activeLineGlow)' : undefined}
+                    style={{ transition: 'all 0.25s ease' }}
+                  />
+                  {isActive && (
+                    <circle
+                      cx={line.x2} cy={line.y2} r="5"
+                      fill="#38bdf8"
+                      filter="url(#activeLineGlow)"
+                    />
+                  )}
+                </g>
+              );
+            })}
+          </svg>
 
-      {/* Unified Page Header */}
-      <div className="view-header" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', paddingBottom: '0.75rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--primary-color)' }}>
-            <Activity size={24} />
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>{t('common.form.title')}</h2>
-          </div>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>{t('common.form.subtitle')}</p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <input type="date" className="date-input" value={date} onChange={(e) => setDate(e.target.value)} />
-        </div>
-      </div>
-
-      <div className="form-layout-editor">
-        <div className="editor-left">
-          <MeasurementSection title={t('common.form.core_metrics')}>
-            {renderInput('weight', t('common.form.weight'))}
-            {renderInput('height', t('common.form.height'))}
-            <div style={{ position: 'relative' }}>
-              {renderInput('bodyFat', t('common.form.body_fat'))}
-              <button
-                type="button"
-                onClick={() => setIsBfCalcOpen(true)}
-                style={{
-                  marginTop: '0.35rem',
-                  width: '100%',
-                  background: 'rgba(245, 158, 11, 0.1)',
-                  border: '1px dashed rgba(245, 158, 11, 0.4)',
-                  borderRadius: '8px',
-                  color: 'var(--primary-color)',
-                  padding: '0.4rem 0.6rem',
-                  fontSize: '0.72rem',
-                  fontFamily: 'var(--font-mono)',
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.4rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <Calculator size={13} />
-                <span>Calcular con Fórmula US Navy</span>
-              </button>
+          {/* Unified Page Header */}
+          <div className="view-header" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', paddingBottom: '0.75rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--primary-color)' }}>
+                <Activity size={24} />
+                <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>{t('common.form.title')}</h2>
+              </div>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>{t('common.form.subtitle')}</p>
             </div>
-          </MeasurementSection>
-
-          <MeasurementSection title={t('common.form.torso')}>
-            {renderInput('neck', t('common.form.neck'))}
-            {renderInput('back', t('common.form.back'))}
-            {renderInput('pecho', t('common.form.chest'))}
-            {renderInput('waist', t('common.form.waist'))}
-            {renderInput('hips', t('common.form.hips'))}
-          </MeasurementSection>
-        </div>
-
-        <div className="editor-center glass">
-          <div className="map-link-container">
-            <Tooltip content={t('common.form.muscle_map.tooltip')} position="bottom">
-              <button
-                type="button"
-                className="btn-map-link"
-                onClick={() => setIsMapOpen(true)}
-              >
-                <MapIcon size={16} />
-                <span>{t('common.form.muscle_map.label')}</span>
-              </button>
-            </Tooltip>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <input type="date" className="date-input" value={date} onChange={(e) => setDate(e.target.value)} />
+            </div>
           </div>
 
-          <DynamicSilhouette
-            measurements={measurements as unknown as BodyMeasurements}
-            sex={sex}
-            activeMuscle={activeMuscle}
-          />
+          <div className="form-layout-editor">
+            <div className="editor-left">
+              <MeasurementSection title={t('common.form.core_metrics')}>
+                {renderInput('weight', t('common.form.weight'))}
+                {renderInput('height', t('common.form.height'))}
+                <div style={{ position: 'relative' }}>
+                  {renderInput('bodyFat', t('common.form.body_fat'))}
+                  <button
+                    type="button"
+                    onClick={() => setIsBfCalcOpen(true)}
+                    style={{
+                      marginTop: '0.35rem',
+                      width: '100%',
+                      background: 'rgba(245, 158, 11, 0.1)',
+                      border: '1px dashed rgba(245, 158, 11, 0.4)',
+                      borderRadius: '8px',
+                      color: 'var(--primary-color)',
+                      padding: '0.4rem 0.6rem',
+                      fontSize: '0.72rem',
+                      fontFamily: 'var(--font-mono)',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <Calculator size={13} />
+                    <span>Calcular con Fórmula US Navy</span>
+                  </button>
+                </div>
+              </MeasurementSection>
 
-          <MapModal
-            isOpen={isMapOpen}
-            onClose={() => setIsMapOpen(false)}
-            title={t('common.form.muscle_map.label')}
-          />
-        </div>
+              <MeasurementSection title={t('common.form.torso')}>
+                {renderInput('neck', t('common.form.neck'))}
+                {renderInput('back', t('common.form.back'))}
+                {renderInput('pecho', t('common.form.chest'))}
+                {renderInput('waist', t('common.form.waist'))}
+                {renderInput('hips', t('common.form.hips'))}
+              </MeasurementSection>
+            </div>
 
-        <div className="editor-right">
-          <MeasurementSection title={t('common.form.upper_limbs')}>
-            {renderInput('arm', t('common.form.arm'))}
-            {renderInput('forearm', t('common.form.forearm'))}
-            {renderInput('wrist', t('common.form.wrist'))}
-          </MeasurementSection>
+            <div className="editor-center glass">
+              <div className="map-link-container">
+                <Tooltip content={t('common.form.muscle_map.tooltip')} position="bottom">
+                  <button
+                    type="button"
+                    className="btn-map-link"
+                    onClick={() => setIsMapOpen(true)}
+                  >
+                    <MapIcon size={16} />
+                    <span>{t('common.form.muscle_map.label')}</span>
+                  </button>
+                </Tooltip>
+              </div>
 
-          <MeasurementSection title={t('common.form.lower_limbs')}>
-            {renderInput('thigh', t('common.form.thigh'))}
-            {renderInput('calf', t('common.form.calf'))}
-            {renderInput('ankle', t('common.form.ankle'))}
-          </MeasurementSection>
-        </div>
-      </div>
+              <DynamicSilhouette
+                measurements={measurements as unknown as BodyMeasurements}
+                sex={sex}
+                activeMuscle={activeMuscle}
+              />
+
+              <MapModal
+                isOpen={isMapOpen}
+                onClose={() => setIsMapOpen(false)}
+                title={t('common.form.muscle_map.label')}
+              />
+            </div>
+
+            <div className="editor-right">
+              <MeasurementSection title={t('common.form.upper_limbs')}>
+                {renderInput('arm', t('common.form.arm'))}
+                {renderInput('forearm', t('common.form.forearm'))}
+                {renderInput('wrist', t('common.form.wrist'))}
+              </MeasurementSection>
+
+              <MeasurementSection title={t('common.form.lower_limbs')}>
+                {renderInput('thigh', t('common.form.thigh'))}
+                {renderInput('calf', t('common.form.calf'))}
+                {renderInput('ankle', t('common.form.ankle'))}
+              </MeasurementSection>
+            </div>
+          </div>
+        </>
+      )}
 
       <ContextSection
         metadata={metadata}

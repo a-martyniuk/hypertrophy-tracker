@@ -125,7 +125,22 @@ export const DynamicSilhouette = ({
           {tapeBands.map((band) => {
             const isActive = activeMuscle === band.muscle;
             return (
-              <g key={band.id} className={`tape-band-group ${isActive ? 'active' : ''}`}>
+              <g 
+                key={band.id} 
+                className={`tape-band-group ${isActive ? 'active' : ''}`}
+                onClick={() => onMarkerClick?.(band.muscle)}
+                style={{ cursor: 'pointer' }}
+              >
+                {/* Invisible large touch target for mobile fingertips */}
+                <line
+                  x1={band.x1 - 15}
+                  y1={band.y}
+                  x2={band.x2 + 15}
+                  y2={band.y}
+                  stroke="transparent"
+                  strokeWidth="28"
+                  style={{ cursor: 'pointer' }}
+                />
                 {/* Dashed Tape Guideline */}
                 <line
                   x1={band.x1}
