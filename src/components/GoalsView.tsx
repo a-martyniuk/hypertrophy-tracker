@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Target, Plus, Trash2, TrendingUp, ChevronRight, Sparkles, Calendar, ArrowRight } from 'lucide-react';
+import { Target, Plus, Trash2, TrendingUp, ChevronRight, Sparkles, Calendar, ArrowRight, Clock } from 'lucide-react';
 import type { GrowthGoal, MeasurementRecord, UserProfile } from '../types/measurements';
 import { calculateSkeletalPotential } from '../utils/skeletal';
+import { predictGoalTimeline } from '../utils/goalPredictor';
 
 interface Props {
     goals: GrowthGoal[];
@@ -16,7 +17,7 @@ interface Props {
 
 import './GoalsView.css';
 
-export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profile, records = [], onRefresh }: Props) => {
+export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profile, records: _records = [], onRefresh }: Props) => {
     const { t } = useTranslation();
 
     // Refresh data on mount to ensure we aren't seeing stale empty state
@@ -27,25 +28,12 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
     const [isAdding, setIsAdding] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
-    // ... state ...
-
-    // ... methods ...
-
-    // Removed duplicate handleSubmit
-
     const [newGoal, setNewGoal] = useState({
         measurementType: 'weight' as GrowthGoal['measurementType'],
         targetValue: 0,
         targetDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default 3 months
         status: 'active' as const
     });
-
-    // ... (rest of the code)
-
-    // In the JSX:
-    // <button type="submit" className="btn-primary" disabled={submitting}>
-    //   {submitting ? 'Guardando...' : 'Guardar Objetivo'}
-    // </button>
 
     const measurementLabels: Record<string, string> = {
         weight: t('common.goals.labels.weight'),
@@ -66,8 +54,6 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
     const suggestions = useMemo(() => {
         if (!profile?.baseline) return [];
 
-        // Calculate potential based on skeletal frame
-        // Assuming height 177 if missing (avg)
         const height = (latestRecord?.measurements.height) || 177;
         const potential = calculateSkeletalPotential(
             profile.baseline.wrist,
@@ -106,45 +92,6 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
             return measurements[base]?.[side] || 0;
         }
         return measurements[type] || 0;
-    };
-
-    const calculateTimeEstimate = (goal: GrowthGoal, current: number) => {
-        // Find historical rate of change per week
-        // Simply: (Current - Oldest) / weeks
-        if (records.length < 2) return null;
-
-        const type = goal.measurementType;
-        const getValue = (r: MeasurementRecord) => {
-            const m = r.measurements as any;
-            if (type.includes('.')) {
-                const [b, s] = type.split('.');
-                return m[b]?.[s];
-            }
-            return m[type];
-        };
-
-        const oldest = records[records.length - 1];
-        const oldestVal = getValue(oldest);
-
-        if (!oldestVal) return null;
-
-        const weeksDiff = (new Date(latestRecord!.date).getTime() - new Date(oldest.date).getTime()) / (1000 * 60 * 60 * 24 * 7);
-        if (weeksDiff < 1) return null;
-
-        const growth = current - oldestVal;
-        const ratePerWeek = growth / weeksDiff;
-
-        if (Math.abs(ratePerWeek) < 0.01) return null; // Stagnant
-
-        const remaining = goal.targetValue - current;
-
-        // Check if moving in right direction
-        if ((remaining > 0 && ratePerWeek < 0) || (remaining < 0 && ratePerWeek > 0)) {
-            return { weeks: 0, impossible: true };
-        }
-
-        const weeksToGoal = Math.abs(remaining / ratePerWeek);
-        return { weeks: Math.round(weeksToGoal), rate: ratePerWeek };
     };
 
     const calculateProgress = (goal: GrowthGoal) => {
@@ -280,7 +227,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                     goals.map(goal => {
                         const progress = calculateProgress(goal);
                         const current = getLatestValue(goal.measurementType);
-                        const estimate = calculateTimeEstimate(goal, current);
+                        const prediction = predictGoalTimeline(goal, latestRecord, profile);
 
                         return (
                             <div key={goal.id} className="goal-card glass">
@@ -303,23 +250,43 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                                 <div className="goal-stats">
                                     <div className="stat">
                                         <label>{t('common.goals.current')}</label>
-                                        <div className="val">{current}</div>
+                                        <div className="val">{current} {prediction.unit}</div>
                                     </div>
                                     <ChevronRight className="arrow" size={14} />
                                     <div className="stat">
                                         <label>{t('common.goals.target')}</label>
-                                        <div className="val highlight">{goal.targetValue}</div>
+                                        <div className="val highlight">{goal.targetValue} {prediction.unit}</div>
                                     </div>
                                 </div>
 
-                                <div className="progress-section">
-                                    {estimate && (
-                                        <div className="estimate-tag">
-                                            {estimate.impossible
-                                                ? t('common.goals.opposite_trend')
-                                                : t('common.goals.estimate_weeks', { weeks: estimate.weeks })}
+                                {/* Time-to-Goal Scientific Prediction Engine Widget */}
+                                <div className="time-to-goal-widget glass-darker">
+                                    <div className="ttg-top-row">
+                                        <div className="ttg-date-group">
+                                            <Clock size={13} className="text-amber-400" />
+                                            <span className="ttg-date-lbl">Llegada Proyectada:</span>
+                                            <strong className="ttg-date-val">{prediction.projectedDateFormatted}</strong>
+                                        </div>
+                                        <span 
+                                            className="ttg-feasibility-badge"
+                                            style={{ color: prediction.feasibilityColor, backgroundColor: prediction.feasibilityBg }}
+                                        >
+                                            {prediction.feasibilityLabel}
+                                        </span>
+                                    </div>
+
+                                    {prediction.delta > 0 && (
+                                        <div className="ttg-stats-bar">
+                                            <span>Faltan: <strong>{prediction.delta} {prediction.unit}</strong></span>
+                                            <span>Tiempo est.: <strong>~{prediction.estimatedMonths} meses ({prediction.estimatedWeeks} sem)</strong></span>
+                                            <span>Ritmo: <strong>{prediction.monthlyRate} {prediction.unit}/mes</strong></span>
                                         </div>
                                     )}
+
+                                    <p className="ttg-coaching-tip">{prediction.coachingTip}</p>
+                                </div>
+
+                                <div className="progress-section">
                                     <div className="progress-header">
                                         <span>{t('common.goals.proximity')}</span>
                                         <span>{progress}%</span>

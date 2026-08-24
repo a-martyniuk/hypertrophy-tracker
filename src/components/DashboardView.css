@@ -19,6 +19,30 @@
     font-size: 0.9rem;
 }
 
+.trophy-header-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    border-radius: 12px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #fbbf24;
+    font-size: 0.82rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.1);
+}
+
+.trophy-header-btn:hover {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: #fbbf24;
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
+    transform: translateY(-1px);
+}
+
 .main-dashboard-content {
     display: grid;
     grid-template-columns: 1fr 340px;

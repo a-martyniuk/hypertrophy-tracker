@@ -4,12 +4,13 @@ import {
     ReferenceLine,
     YAxis
 } from 'recharts';
-import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale, Download } from 'lucide-react';
+import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale, Download, Dumbbell } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
 import { useAnalysisData } from '../hooks/useAnalysisData';
 import { computeComprehensiveAnalysis } from '../utils/benchmarkAnalysis';
+import { generateTrainingPrescriptions } from '../utils/trainingPrescription';
 import { generateAthletePDFReport } from '../utils/pdfReportGenerator';
 import { MeasurementChart } from './analysis/MeasurementChart';
 import { AnalysisFilter } from './analysis/AnalysisFilter';
@@ -18,6 +19,7 @@ import { PhysiqueOverviewHero } from './analysis/PhysiqueOverviewHero';
 import { BenchmarkCard } from './analysis/BenchmarkCard';
 import { RatioBenchmarkCard } from './analysis/RatioBenchmarkCard';
 import { MuscleHistoryModal } from './analysis/MuscleHistoryModal';
+import { TrainingPrescriptionCard } from './analysis/TrainingPrescriptionCard';
 import type { MuscleBenchmark } from '../utils/benchmarkAnalysis';
 import './AnalysisView.css';
 
@@ -32,11 +34,12 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const muscleId = searchParams.get('muscle');
-    const [activeTab, setActiveTab] = useState<'benchmarks' | 'ratios' | 'history'>('benchmarks');
+    const [activeTab, setActiveTab] = useState<'prescription' | 'benchmarks' | 'ratios' | 'history'>('prescription');
     const [selectedBenchmark, setSelectedBenchmark] = useState<MuscleBenchmark | null>(null);
 
     const latestRecord = records[0];
     const comprehensiveAnalysis = computeComprehensiveAnalysis(latestRecord?.measurements, sex);
+    const prescriptionData = generateTrainingPrescriptions(latestRecord?.measurements, sex);
 
     // Helper map for muscle detail
     const getMuscleLabel = (id: string) => {
@@ -209,6 +212,13 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
 
                 <div className="analysis-tabs">
                     <button
+                        onClick={() => setActiveTab('prescription')}
+                        className={`analysis-tab-btn ${activeTab === 'prescription' ? 'active' : ''}`}
+                    >
+                        <Dumbbell size={14} />
+                        <span>Prescripción & Coaching</span>
+                    </button>
+                    <button
                         onClick={() => setActiveTab('benchmarks')}
                         className={`analysis-tab-btn ${activeTab === 'benchmarks' ? 'active' : ''}`}
                     >
@@ -260,6 +270,13 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                         </div>
                     ))}
                 </div>
+            )}
+
+            {/* TAB 0: TACTICAL TRAINING & VOLUME PRESCRIPTION */}
+            {activeTab === 'prescription' && (
+                <section style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <TrainingPrescriptionCard prescriptionData={prescriptionData} />
+                </section>
             )}
 
             {/* TAB 1: BENCHMARKS & PROGRESS TOWARDS GENETIC LIMIT */}

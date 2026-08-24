@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus, HelpCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Plus, HelpCircle, TrendingUp, TrendingDown, Minus, Trophy, Sparkles } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 import { Skeleton } from './ui/Skeleton';
 import { VolumeHeatmap } from './VolumeHeatmap';
@@ -11,6 +11,9 @@ import { TacticalInsightCard } from './TacticalInsightCard';
 import { TacticalReportModal } from './TacticalReportModal';
 import { ShareReportModal } from './share/ShareReportModal';
 import { AthleteBadgesGrid } from './dashboard/AthleteBadgesGrid';
+import { HarmonyRadarChart } from './dashboard/HarmonyRadarChart';
+import { TrophyRoomModal } from './achievements/TrophyRoomModal';
+import { evaluateAthleteBadges } from '../utils/athleteBadges';
 import type { MeasurementRecord } from '../types/measurements';
 
 interface DashboardViewProps {
@@ -68,8 +71,12 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
     const navigate = useNavigate();
     const [reportModalOpen, setReportModalOpen] = useState(false);
     const [shareModalOpen, setShareModalOpen] = useState(false);
+    const [trophyModalOpen, setTrophyModalOpen] = useState(false);
     const latestRecord = records[0];
     const previousRecord = records[1];
+
+    const badges = evaluateAthleteBadges(records, sex);
+    const unlockedCount = badges.filter((b) => b.isUnlocked).length;
 
     return (
         <div className="dashboard-grid animate-fade space-y-6">
@@ -79,6 +86,15 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                     <p>{t('dashboard.subtitle')}</p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <button
+                        type="button"
+                        className="trophy-header-btn glass"
+                        onClick={() => setTrophyModalOpen(true)}
+                    >
+                        <Trophy size={16} className="text-amber-400" />
+                        <span>{unlockedCount} / {badges.length} Trofeos</span>
+                        <Sparkles size={12} className="text-amber-400" />
+                    </button>
                     <HudButton onClick={() => navigate('/new-entry')} icon={<Plus size={18} />}>
                         {t('dashboard.register_measurements')}
                     </HudButton>
@@ -137,6 +153,12 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                 </div>
 
                 <div className="right-column">
+                    {/* Harmony Radar Chart (360° Biometrics) */}
+                    <HarmonyRadarChart
+                        currentMeasurements={latestRecord?.measurements}
+                        sex={sex}
+                    />
+
                     <HudCard title={t('dashboard.latest_values')} className="latest-values-card">
                         <div className="values-list">
                             {loading ? (
@@ -220,6 +242,14 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                 latestRecord={latestRecord}
                 records={records}
                 userName={userName}
+                sex={sex}
+            />
+
+            {/* Full Trophy Room & Hall of Fame Modal */}
+            <TrophyRoomModal
+                isOpen={trophyModalOpen}
+                onClose={() => setTrophyModalOpen(false)}
+                records={records}
                 sex={sex}
             />
         </div>
