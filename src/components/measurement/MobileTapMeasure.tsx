@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { DynamicSilhouette } from '../DynamicSilhouette';
 import { MUSCLE_METADATA, MEASUREMENT_KEYS } from '../../utils/muscleMetadata';
 import type { BodyMeasurements, MeasurementRecord } from '../../types/measurements';
