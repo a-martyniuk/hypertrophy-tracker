@@ -1,0 +1,176 @@
+.volume-heatmap-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.volume-stage-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 420px;
+}
+
+.volume-hud-svg {
+  width: 100%;
+  height: auto;
+  max-height: 430px;
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.7));
+}
+
+.base-silhouette-image {
+  opacity: 0.95;
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.15));
+}
+
+.muscle-polygon-heat {
+  transition: all 0.3s ease;
+}
+
+.muscle-polygon-heat:hover {
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
+}
+
+.hud-band-group {
+  transition: all 0.2s ease;
+}
+
+.hud-band-group.hovered line {
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+/* Floating Tactical Tooltip Popover */
+.hud-zone-tooltip {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 20px);
+  max-width: 290px;
+  background: rgba(14, 18, 30, 0.96);
+  border: 1.5px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(245, 158, 11, 0.15);
+  border-radius: 16px;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 20;
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+}
+
+.tooltip-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tooltip-title {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.tooltip-badge {
+  font-size: 0.6rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid;
+}
+
+.tooltip-values-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.4rem 0.5rem;
+  border-radius: 10px;
+}
+
+.val-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.val-lbl {
+  font-size: 0.58rem;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.val-num {
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.val-num.text-muted {
+  color: #94a3b8;
+}
+
+.val-delta {
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  font-weight: 900;
+}
+
+.tooltip-action-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #38bdf8;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.35rem;
+}
+
+/* Legend Strip */
+.heatmap-legend-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.5rem 0.85rem;
+  background: rgba(18, 22, 34, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  margin-top: 0.5rem;
+  backdrop-filter: blur(8px);
+}
+
+.legend-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  color: #cbd5e1;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
