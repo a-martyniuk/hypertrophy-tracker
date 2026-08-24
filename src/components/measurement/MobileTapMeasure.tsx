@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { DynamicSilhouette } from '../DynamicSilhouette';
 import { MUSCLE_METADATA, MEASUREMENT_KEYS } from '../../utils/muscleMetadata';
 import type { BodyMeasurements, MeasurementRecord } from '../../types/measurements';
@@ -11,7 +11,10 @@ import {
   Ruler, 
   Percent,
   CheckCircle2,
-  HelpCircle
+  Sparkles,
+  ArrowRight,
+  Plus,
+  Minus
 } from 'lucide-react';
 import './MobileTapMeasure.css';
 
@@ -42,11 +45,21 @@ export const MobileTapMeasure: React.FC<Props> = ({
   setDate,
 }) => {
   const [showCoreModal, setShowCoreModal] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // List of anatomical muscles for navigation
   const muscleKeys = MEASUREMENT_KEYS.filter(k => !['weight', 'height', 'bodyFat'].includes(k));
   const currentIndex = muscleKeys.indexOf(activeMuscle);
   const currentMetadata = MUSCLE_METADATA[activeMuscle] || MUSCLE_METADATA['pecho'];
+  const nextMuscleKey = currentIndex < muscleKeys.length - 1 ? muscleKeys[currentIndex + 1] : muscleKeys[0];
+  const nextMetadata = MUSCLE_METADATA[nextMuscleKey];
+
+  // Auto focus input when active muscle changes
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [activeMuscle]);
 
   const handlePrev = () => {
     if (currentIndex <= 0) {
@@ -85,9 +98,16 @@ export const MobileTapMeasure: React.FC<Props> = ({
     return (val || 0) > 0;
   }).length;
 
+  // Adjust single value by delta
+  const adjustSingleVal = (delta: number) => {
+    const cur = (measurements as any)[activeMuscle] || 0;
+    const newVal = Math.max(0, parseFloat((cur + delta).toFixed(1)));
+    setValue(activeMuscle, newVal, { shouldDirty: true, shouldValidate: true });
+  };
+
   return (
     <div className="mobile-tap-measure-container">
-      {/* Top Floating Control Bar */}
+      {/* Top Header Controls */}
       <div className="mobile-top-bar glass">
         <div className="top-meta-row">
           <input
@@ -102,7 +122,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
             onClick={onOpenMap}
           >
             <MapIcon size={14} />
-            <span>Guía</span>
+            <span>Guía Anatómica</span>
           </button>
         </div>
 
@@ -145,16 +165,12 @@ export const MobileTapMeasure: React.FC<Props> = ({
             className="progress-bar-fill" 
             style={{ width: `${(measuredCount / muscleKeys.length) * 100}%` }}
           />
-          <span className="progress-text">{measuredCount} / {muscleKeys.length} grupos medidos</span>
+          <span className="progress-text">{measuredCount} de {muscleKeys.length} grupos medidos</span>
         </div>
       </div>
 
-      {/* Center Interactive Silhouette Stage */}
+      {/* Center Silhouette Stage */}
       <div className="mobile-silhouette-stage">
-        <div className="stage-instruction-bubble animate-pulse-subtle">
-          <span>👆 Toca un músculo en la silueta para medirlo</span>
-        </div>
-
         <div className="mobile-silhouette-wrapper">
           <DynamicSilhouette
             measurements={measurements}
@@ -168,115 +184,134 @@ export const MobileTapMeasure: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Floating Bottom Sheet HUD */}
-      <div className="mobile-bottom-sheet glass animate-slide-up">
-        {/* Muscle Header & ISAK Tip */}
-        <div className="sheet-header">
-          <div className="sheet-title-col">
-            <div className="sheet-badge-row">
-              <span className="sheet-category-badge">{currentMetadata.categoryLabel}</span>
-              {((measurements as any)[activeMuscle] > 0 || ((measurements as any)[activeMuscle]?.left > 0)) && (
-                <span className="sheet-recorded-badge">
+      {/* Directly Integrated Active Measurement Card */}
+      <div className="active-measurement-hero-card glass animate-scale-up">
+        {/* Card Header & Muscle Navigation */}
+        <div className="hero-card-header">
+          <div className="hero-title-group">
+            <div className="hero-badge-row">
+              <span className="hero-category-tag">{currentMetadata.categoryLabel}</span>
+              {((measurements as any)[activeMuscle] > 0 || ((measurements as any)[activeMuscle]?.left > 0)) ? (
+                <span className="hero-status-tag recorded">
                   <CheckCircle2 size={12} /> Registrado
+                </span>
+              ) : (
+                <span className="hero-status-tag pending">
+                  <Sparkles size={12} /> Toca para medir
                 </span>
               )}
             </div>
-            <h3 className="sheet-muscle-title">{currentMetadata.name}</h3>
+            <h3 className="hero-muscle-title">{currentMetadata.name}</h3>
           </div>
 
-          <div className="sheet-nav-controls">
-            <button type="button" className="btn-sheet-nav" onClick={handlePrev} title="Anterior">
+          <div className="hero-nav-buttons">
+            <button type="button" className="btn-hero-nav" onClick={handlePrev} title="Anterior">
               <ChevronLeft size={20} />
             </button>
-            <span className="sheet-index-indicator">
-              {currentIndex + 1}/{muscleKeys.length}
-            </span>
-            <button type="button" className="btn-sheet-nav" onClick={handleNext} title="Siguiente">
+            <span className="hero-step-text">{currentIndex + 1}/{muscleKeys.length}</span>
+            <button type="button" className="btn-hero-nav" onClick={handleNext} title="Siguiente">
               <ChevronRight size={20} />
             </button>
           </div>
         </div>
 
-        <p className="sheet-instruction-tip">
-          <HelpCircle size={13} className="tip-icon" />
-          <span>{currentMetadata.instruction}</span>
-        </p>
+        {/* ISAK Measurement Protocol Tip */}
+        <div className="hero-protocol-tip">
+          <span>📏 {currentMetadata.instruction}</span>
+        </div>
 
-        {/* Dynamic Measurement Inputs */}
-        <div className="sheet-input-stage">
+        {/* Big Touch-First Input Stage */}
+        <div className="hero-input-stage">
           {currentMetadata.isBilateral ? (
-            <div className="bilateral-sheet-inputs">
+            <div className="hero-bilateral-inputs">
               {/* Left Side */}
-              <div className="side-input-box">
-                <div className="side-label-row">
-                  <span className="side-tag">IZQUIERDO</span>
-                  {prevVal?.left > 0 && (
-                    <span className="side-prev">Ant: {prevVal.left}cm</span>
-                  )}
+              <div className="hero-side-card">
+                <div className="hero-side-header">
+                  <span className="hero-side-tag">IZQUIERDO</span>
+                  {prevVal?.left > 0 && <span className="hero-prev-text">Ant: {prevVal.left}cm</span>}
                 </div>
-                <div className="side-input-wrapper">
+                <div className="hero-side-row">
                   <input
+                    ref={inputRef}
                     type="number"
                     step="0.1"
                     min="0"
                     placeholder="0.0"
-                    className="sheet-number-input"
+                    className="hero-number-input"
                     value={(measurements as any)[activeMuscle]?.left || ''}
                     onChange={(e) => {
                       const cur = (measurements as any)[activeMuscle] || { left: 0, right: 0 };
                       setValue(activeMuscle, { ...cur, left: parseFloat(e.target.value) || 0 }, { shouldDirty: true, shouldValidate: true });
                     }}
                   />
-                  <span className="sheet-unit">cm</span>
+                  <span className="hero-unit-tag">cm</span>
                 </div>
               </div>
 
               {/* Right Side */}
-              <div className="side-input-box">
-                <div className="side-label-row">
-                  <span className="side-tag">DERECHO</span>
-                  {prevVal?.right > 0 && (
-                    <span className="side-prev">Ant: {prevVal.right}cm</span>
-                  )}
+              <div className="hero-side-card">
+                <div className="hero-side-header">
+                  <span className="hero-side-tag">DERECHO</span>
+                  {prevVal?.right > 0 && <span className="hero-prev-text">Ant: {prevVal.right}cm</span>}
                 </div>
-                <div className="side-input-wrapper">
+                <div className="hero-side-row">
                   <input
                     type="number"
                     step="0.1"
                     min="0"
                     placeholder="0.0"
-                    className="sheet-number-input"
+                    className="hero-number-input"
                     value={(measurements as any)[activeMuscle]?.right || ''}
                     onChange={(e) => {
                       const cur = (measurements as any)[activeMuscle] || { left: 0, right: 0 };
                       setValue(activeMuscle, { ...cur, right: parseFloat(e.target.value) || 0 }, { shouldDirty: true, shouldValidate: true });
                     }}
                   />
-                  <span className="sheet-unit">cm</span>
+                  <span className="hero-unit-tag">cm</span>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="single-sheet-input-box">
-              <div className="single-input-wrapper">
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  placeholder="0.0"
-                  className="sheet-number-input single"
-                  value={(measurements as any)[activeMuscle] || ''}
-                  onChange={(e) => {
-                    setValue(activeMuscle, parseFloat(e.target.value) || 0, { shouldDirty: true, shouldValidate: true });
-                  }}
-                />
-                <span className="sheet-unit single">{currentMetadata.unit}</span>
+            <div className="hero-single-input-card">
+              <div className="hero-stepper-row">
+                <button
+                  type="button"
+                  className="btn-stepper minus"
+                  onClick={() => adjustSingleVal(-0.5)}
+                >
+                  <Minus size={18} />
+                </button>
+
+                <div className="hero-single-input-wrapper">
+                  <input
+                    ref={inputRef}
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    placeholder="0.0"
+                    className="hero-number-input single"
+                    value={(measurements as any)[activeMuscle] || ''}
+                    onChange={(e) => {
+                      setValue(activeMuscle, parseFloat(e.target.value) || 0, { shouldDirty: true, shouldValidate: true });
+                    }}
+                  />
+                  <span className="hero-unit-tag single">{currentMetadata.unit}</span>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-stepper plus"
+                  onClick={() => adjustSingleVal(0.5)}
+                >
+                  <Plus size={18} />
+                </button>
               </div>
+
               {prevVal > 0 && (
-                <div className="single-prev-comparison">
-                  <span>Anterior: <strong>{prevVal} {currentMetadata.unit}</strong></span>
+                <div className="hero-prev-row">
+                  <span>Medida anterior: <strong>{prevVal} {currentMetadata.unit}</strong></span>
                   {((measurements as any)[activeMuscle] > 0) && (
-                    <span className={`diff-pill ${((measurements as any)[activeMuscle] - prevVal) >= 0 ? 'up' : 'down'}`}>
+                    <span className={`hero-delta-badge ${((measurements as any)[activeMuscle] - prevVal) >= 0 ? 'up' : 'down'}`}>
                       {((measurements as any)[activeMuscle] - prevVal) >= 0 ? '▲ +' : '▼ '}
                       {Math.abs((measurements as any)[activeMuscle] - prevVal).toFixed(1)} {currentMetadata.unit}
                     </span>
@@ -286,6 +321,16 @@ export const MobileTapMeasure: React.FC<Props> = ({
             </div>
           )}
         </div>
+
+        {/* Fast Step Action Button */}
+        <button
+          type="button"
+          className="btn-hero-next"
+          onClick={handleNext}
+        >
+          <span>Siguiente: {nextMetadata.name}</span>
+          <ArrowRight size={18} />
+        </button>
       </div>
 
       {/* Core Metrics Modal Dialog */}
