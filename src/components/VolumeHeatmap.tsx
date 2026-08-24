@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { BodyMeasurements, BilateralMeasurement } from '../types/measurements';
 import maleSilhouette from '../assets/clean_red_silhouette.png';
 import femaleSilhouette from '../assets/silhouette_female.png';
-import { TrendingUp, TrendingDown, Minus, Sparkles, ArrowRight, Activity } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import './VolumeHeatmap.css';
 
 interface Props {
