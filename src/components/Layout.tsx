@@ -708,10 +708,11 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
 
                 .content {
                     flex: 1;
-                    padding: 2rem 3rem;
-                    max-width: 1200px;
-                    margin: 0 auto;
+                    padding: 2rem 2.5rem;
+                    max-width: 1440px;
+                    margin: 0;
                     width: 100%;
+                    min-width: 0;
                 }
 
                 @media (max-width: 768px) {
