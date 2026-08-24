@@ -63,7 +63,7 @@ export const DynamicSilhouette = ({
     { id: 'pecho', y: 148, x1: 76, x2: 184, muscle: 'pecho' },
     { id: 'armL', y: 175, x1: 48, x2: 80, muscle: 'arm' },
     { id: 'armR', y: 175, x1: 180, x2: 212, muscle: 'arm' },
-    { id: 'waist', y: 240, x1: 98, x2: 162, muscle: 'waist' },
+    { id: 'waist', y: 240, x1: 88, x2: 172, muscle: 'waist' },
     { id: 'forearmL', y: 212, x1: 29, x2: 69, muscle: 'forearm' },
     { id: 'forearmR', y: 212, x1: 191, x2: 231, muscle: 'forearm' },
     { id: 'hips', y: 280, x1: 84, x2: 176, muscle: 'hips' },
