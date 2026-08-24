@@ -42,7 +42,6 @@ export const MobileTapMeasure: React.FC<Props> = ({
   date,
   setDate,
 }) => {
-  const { t } = useTranslation();
   const [showCoreModal, setShowCoreModal] = useState(false);
 
   // List of anatomical muscles for navigation
@@ -74,13 +73,17 @@ export const MobileTapMeasure: React.FC<Props> = ({
 
   const prevVal = getPrevValue(activeMuscle);
 
+  const weightVal = measurements?.weight || 0;
+  const heightVal = measurements?.height || 0;
+  const bodyFatVal = measurements?.bodyFat || 0;
+
   // Calculate measured count
   const measuredCount = muscleKeys.filter(k => {
-    const val = (measurements as any)[k];
+    const val = (measurements as any)?.[k];
     if (typeof val === 'object' && val !== null) {
-      return (val.left > 0 || val.right > 0);
+      return ((val.left || 0) > 0 || (val.right || 0) > 0);
     }
-    return val > 0;
+    return (val || 0) > 0;
   }).length;
 
   return (
@@ -108,32 +111,32 @@ export const MobileTapMeasure: React.FC<Props> = ({
         <div className="core-pills-row">
           <button
             type="button"
-            className={`core-pill ${(measurements.weight > 0) ? 'filled' : ''}`}
+            className={`core-pill ${weightVal > 0 ? 'filled' : ''}`}
             onClick={() => setShowCoreModal(true)}
           >
             <Scale size={13} className="pill-icon" />
             <span className="pill-label">Peso:</span>
-            <span className="pill-val">{measurements.weight > 0 ? `${measurements.weight}kg` : '--'}</span>
+            <span className="pill-val">{weightVal > 0 ? `${weightVal}kg` : '--'}</span>
           </button>
 
           <button
             type="button"
-            className={`core-pill ${(measurements.height > 0) ? 'filled' : ''}`}
+            className={`core-pill ${heightVal > 0 ? 'filled' : ''}`}
             onClick={() => setShowCoreModal(true)}
           >
             <Ruler size={13} className="pill-icon" />
             <span className="pill-label">Alt:</span>
-            <span className="pill-val">{measurements.height > 0 ? `${measurements.height}cm` : '--'}</span>
+            <span className="pill-val">{heightVal > 0 ? `${heightVal}cm` : '--'}</span>
           </button>
 
           <button
             type="button"
-            className={`core-pill ${(measurements.bodyFat > 0) ? 'filled' : ''}`}
+            className={`core-pill ${bodyFatVal > 0 ? 'filled' : ''}`}
             onClick={() => setShowCoreModal(true)}
           >
             <Percent size={13} className="pill-icon" />
             <span className="pill-label">Grasa:</span>
-            <span className="pill-val">{measurements.bodyFat > 0 ? `${measurements.bodyFat}%` : '--'}</span>
+            <span className="pill-val">{bodyFatVal > 0 ? `${bodyFatVal}%` : '--'}</span>
           </button>
         </div>
 
