@@ -214,27 +214,159 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSa
             <span className="badge badge-amber font-mono text-[11px]">@ {bodyFat}% Grasa</span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontFamily: 'var(--font-mono)' }}>
-            {[
-              { label: t('common.form.chest'), max: potential.chest },
-              { label: t('common.form.arm'), max: potential.biceps },
-              { label: t('common.form.forearm'), max: potential.forearms },
-              { label: t('common.form.neck'), max: potential.neck },
-              { label: t('common.form.thigh'), max: potential.thighs },
-              { label: t('common.form.calf'), max: potential.calves },
-            ].map(({ label, max }) => (
-              <div key={label} style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '12px', padding: '0.85rem 1rem' }}>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{label}</div>
-                <div style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--primary-color)', marginTop: '2px' }}>
-                  {max} <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>cm</span>
-                </div>
-              </div>
-            ))}
+          {/* Educational Callout Banner */}
+          <div style={{
+            padding: '0.75rem 0.9rem',
+            borderRadius: '12px',
+            background: 'rgba(56, 189, 248, 0.08)',
+            border: '1px solid rgba(56, 189, 248, 0.25)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.25rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#38bdf8', fontWeight: 800, fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>
+              <HelpCircle size={14} />
+              <span>¿CÓMO INTERPRETAR ESTA PROYECCIÓN?</span>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.73rem', color: '#cbd5e1', lineHeight: 1.4 }}>
+              Este es el <strong>techo genético 100% natural</strong> que puede alcanzar tu musculatura según el grosor de tus huesos de muñeca (<strong style={{ color: '#fbbf24' }}>{frame.wrist} cm</strong>) y tobillo (<strong style={{ color: '#fbbf24' }}>{frame.ankle} cm</strong>).
+            </p>
           </div>
 
-          <div style={{ padding: '0.85rem 1rem', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.25)', fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.45 }}>
-            <strong style={{ color: '#fbbf24', display: 'block', marginBottom: '2px' }}>Fórmula de Estructura Ósea:</strong>
-            Los perímetros máximos se recalculan en tiempo real según el grosor de tus articulaciones de muñeca ({frame.wrist} cm) y tobillo ({frame.ankle} cm).
+          {/* Muscle Projections Comparison Cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.75rem', fontFamily: 'var(--font-mono)' }}>
+            {(() => {
+              const getActual = (val: number | { left: number; right: number } | undefined) => {
+                if (!val) return 0;
+                if (typeof val === 'object') {
+                  return Math.max(val.left || 0, val.right || 0);
+                }
+                return val || 0;
+              };
+
+              const items = [
+                { id: 'chest', label: t('common.form.chest'), max: potential.chest, actual: currentMeasurements ? getActual(currentMeasurements.pecho) : 0 },
+                { id: 'arm', label: t('common.form.arm'), max: potential.biceps, actual: currentMeasurements ? getActual(currentMeasurements.arm) : 0 },
+                { id: 'forearm', label: t('common.form.forearm'), max: potential.forearms, actual: currentMeasurements ? getActual(currentMeasurements.forearm) : 0 },
+                { id: 'neck', label: t('common.form.neck'), max: potential.neck, actual: currentMeasurements ? getActual(currentMeasurements.neck) : 0 },
+                { id: 'thigh', label: t('common.form.thigh'), max: potential.thighs, actual: currentMeasurements ? getActual(currentMeasurements.thigh) : 0 },
+                { id: 'calf', label: t('common.form.calf'), max: potential.calves, actual: currentMeasurements ? getActual(currentMeasurements.calf) : 0 },
+              ];
+
+              return items.map(({ label, max, actual }) => {
+                const pct = actual > 0 ? Math.min(100, Math.round((actual / max) * 100)) : 0;
+                const remaining = actual > 0 ? Math.max(0, parseFloat((max - actual).toFixed(1))) : 0;
+
+                let badgeColor = '#64748b';
+                let badgeBg = 'rgba(255, 255, 255, 0.05)';
+                let badgeText = 'Límite Estimado';
+
+                if (pct >= 95) {
+                  badgeColor = '#fbbf24';
+                  badgeBg = 'rgba(245, 158, 11, 0.15)';
+                  badgeText = `${pct}% Élite Natural`;
+                } else if (pct >= 90) {
+                  badgeColor = '#10b981';
+                  badgeBg = 'rgba(16, 185, 129, 0.15)';
+                  badgeText = `${pct}% Avanzado`;
+                } else if (pct >= 80) {
+                  badgeColor = '#38bdf8';
+                  badgeBg = 'rgba(56, 189, 248, 0.15)';
+                  badgeText = `${pct}% Intermedio`;
+                } else if (pct > 0) {
+                  badgeColor = '#94a3b8';
+                  badgeBg = 'rgba(148, 163, 184, 0.12)';
+                  badgeText = `${pct}% Base`;
+                }
+
+                return (
+                  <div
+                    key={label}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      border: '1px solid rgba(255, 255, 255, 0.07)',
+                      borderRadius: '14px',
+                      padding: '0.85rem 1rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    {/* Header: Name + Badge */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase' }}>
+                        {label}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: '0.65rem',
+                          fontWeight: 800,
+                          color: badgeColor,
+                          background: badgeBg,
+                          padding: '2px 7px',
+                          borderRadius: '999px',
+                          border: `1px solid ${badgeColor}35`
+                        }}
+                      >
+                        {badgeText}
+                      </span>
+                    </div>
+
+                    {/* Values Row: Actual vs Max */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', alignItems: 'baseline' }}>
+                      <div>
+                        <div style={{ fontSize: '0.62rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Tu Medida</div>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 900, color: actual > 0 ? '#ffffff' : '#64748b' }}>
+                          {actual > 0 ? actual : '--'} <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>cm</span>
+                        </div>
+                      </div>
+
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '0.62rem', color: '#fbbf24', textTransform: 'uppercase', fontWeight: 700 }}>Techo Máximo</div>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--primary-color)' }}>
+                          {max} <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>cm</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    {actual > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.2rem' }}>
+                        <div style={{ position: 'relative', width: '100%', height: '6px', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '999px', overflow: 'hidden' }}>
+                          <div
+                            style={{
+                              position: 'absolute',
+                              left: 0,
+                              top: 0,
+                              height: '100%',
+                              width: `${pct}%`,
+                              background: pct >= 95
+                                ? 'linear-gradient(90deg, #f59e0b, #fbbf24)'
+                                : pct >= 90
+                                ? 'linear-gradient(90deg, #38bdf8, #10b981)'
+                                : 'linear-gradient(90deg, #64748b, #38bdf8)',
+                              borderRadius: '999px',
+                              boxShadow: '0 0 8px rgba(56, 189, 248, 0.3)'
+                            }}
+                          />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.62rem', color: 'var(--text-secondary)' }}>
+                          <span>Margen de crecimiento:</span>
+                          <span style={{ color: remaining === 0 ? '#10b981' : '#38bdf8', fontWeight: 700 }}>
+                            {remaining > 0 ? `+${remaining} cm por ganar` : '¡Máximo Alcanzado! 🎉'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              });
+            })()}
+          </div>
+
+          <div style={{ padding: '0.75rem 1rem', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.06)', border: '1px solid rgba(245, 158, 11, 0.2)', fontSize: '0.73rem', color: '#cbd5e1', lineHeight: 1.4 }}>
+            <strong style={{ color: '#fbbf24', display: 'block', marginBottom: '2px' }}>Fórmula Dinámica en Tiempo Real:</strong>
+            Al modificar tus medidas óseas o el % de grasa en el simulador de la izquierda, tus perímetros máximos se recalculan al instante.
           </div>
         </div>
       </div>
