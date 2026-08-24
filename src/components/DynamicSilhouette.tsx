@@ -59,6 +59,7 @@ export const DynamicSilhouette = ({
   // Anthropometric tape measure guideline bands perfectly bounded by body silhouette edges
   const tapeBands = [
     { id: 'neck', y: 82, x1: 110, x2: 150, muscle: 'neck' },
+    { id: 'back', y: 125, x1: 51, x2: 208, muscle: 'back' },
     { id: 'pecho', y: 148, x1: 76, x2: 184, muscle: 'pecho' },
     { id: 'armL', y: 175, x1: 42, x2: 92, muscle: 'arm' },
     { id: 'armR', y: 175, x1: 166, x2: 216, muscle: 'arm' },
