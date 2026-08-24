@@ -343,58 +343,62 @@ export const VolumeHeatmap: React.FC<Props> = ({
             })}
           </g>
         </svg>
+      </div>
 
-        {/* Floating Tactical Tooltip Popover */}
-        {activeZone && (
-          <div 
-            className="hud-zone-tooltip glass animate-scale-up"
-            onClick={() => onMarkerClick?.(activeZone.id)}
-          >
-            <div className="tooltip-top-row">
-              <div className="tooltip-title">
-                <Sparkles size={13} style={{ color: activeZone.stats.color }} />
-                <span>{activeZone.name}</span>
-              </div>
-              <span
-                className="tooltip-badge"
-                style={{
-                  color: activeZone.stats.color,
-                  backgroundColor: activeZone.stats.bgGlow,
-                  borderColor: `${activeZone.stats.color}50`
-                }}
+      {/* Interactive Muscle Detail Card (Below SVG, never overlapping or blocking mouse events!) */}
+      {activeZone ? (
+        <div 
+          className="hud-zone-tooltip glass animate-scale-up"
+          onClick={() => onMarkerClick?.(activeZone.id)}
+        >
+          <div className="tooltip-top-row">
+            <div className="tooltip-title">
+              <Sparkles size={13} style={{ color: activeZone.stats.color }} />
+              <span>{activeZone.name}</span>
+            </div>
+            <span
+              className="tooltip-badge"
+              style={{
+                color: activeZone.stats.color,
+                backgroundColor: activeZone.stats.bgGlow,
+                borderColor: `${activeZone.stats.color}50`
+              }}
+            >
+              {activeZone.stats.statusLabel}
+            </span>
+          </div>
+
+          <div className="tooltip-values-row">
+            <div className="val-block">
+              <span className="val-lbl">Actual</span>
+              <span className="val-num">{activeZone.current > 0 ? `${activeZone.current} cm` : '--'}</span>
+            </div>
+            <div className="val-block">
+              <span className="val-lbl">Anterior</span>
+              <span className="val-num text-muted">{activeZone.reference > 0 ? `${activeZone.reference} cm` : '--'}</span>
+            </div>
+            <div className="val-block">
+              <span className="val-lbl">Variación</span>
+              <span 
+                className="val-delta"
+                style={{ color: activeZone.stats.color }}
               >
-                {activeZone.stats.statusLabel}
+                {activeZone.stats.delta > 0 ? `▲ +${activeZone.stats.delta}` : activeZone.stats.delta < 0 ? `▼ ${activeZone.stats.delta}` : '='} cm
+                <small style={{ fontSize: '0.65rem', marginLeft: '3px' }}>({activeZone.stats.pctChange > 0 ? `+${activeZone.stats.pctChange}` : activeZone.stats.pctChange}%)</small>
               </span>
             </div>
-
-            <div className="tooltip-values-row">
-              <div className="val-block">
-                <span className="val-lbl">Actual</span>
-                <span className="val-num">{activeZone.current > 0 ? `${activeZone.current} cm` : '--'}</span>
-              </div>
-              <div className="val-block">
-                <span className="val-lbl">Anterior</span>
-                <span className="val-num text-muted">{activeZone.reference > 0 ? `${activeZone.reference} cm` : '--'}</span>
-              </div>
-              <div className="val-block">
-                <span className="val-lbl">Variación</span>
-                <span 
-                  className="val-delta"
-                  style={{ color: activeZone.stats.color }}
-                >
-                  {activeZone.stats.delta > 0 ? `▲ +${activeZone.stats.delta}` : activeZone.stats.delta < 0 ? `▼ ${activeZone.stats.delta}` : '='} cm
-                  <small style={{ fontSize: '0.65rem', marginLeft: '3px' }}>({activeZone.stats.pctChange > 0 ? `+${activeZone.stats.pctChange}` : activeZone.stats.pctChange}%)</small>
-                </span>
-              </div>
-            </div>
-
-            <div className="tooltip-action-hint">
-              <span>Toca para ver auditoría y benchmark</span>
-              <ArrowRight size={12} />
-            </div>
           </div>
-        )}
-      </div>
+
+          <div className="tooltip-action-hint">
+            <span>Toca para ver auditoría y benchmark</span>
+            <ArrowRight size={12} />
+          </div>
+        </div>
+      ) : (
+        <div className="hud-zone-placeholder">
+          <span>Pasa el cursor o toca un grupo muscular para ver su evolución</span>
+        </div>
+      )}
 
       {/* Modern Heatmap Legend Strip */}
       <div className="heatmap-legend-strip glass">
