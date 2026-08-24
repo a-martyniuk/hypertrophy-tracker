@@ -264,18 +264,19 @@ export const VolumeHeatmap: React.FC<Props> = ({
                 <path
                   key={`heat-${zone.id}`}
                   d={zone.polygon}
-                  fill={zone.stats.bgGlow}
-                  stroke={isHovered ? zone.stats.color : 'transparent'}
-                  strokeWidth={isHovered ? 2 : 0}
+                  fill={isHovered ? zone.stats.glowColor : zone.stats.bgGlow}
+                  stroke={zone.stats.color}
+                  strokeWidth={isHovered ? 2.5 : 1}
+                  strokeOpacity={isHovered ? 1 : 0.35}
                   filter={isHovered ? 'url(#hudHeatGlow)' : undefined}
-                  className="muscle-polygon-heat"
+                  className={`muscle-polygon-heat ${isHovered ? 'active' : ''}`}
                   onMouseEnter={() => setHoveredZone(zone)}
                   onMouseLeave={() => setHoveredZone(null)}
                   onClick={() => {
-                    setPinnedZone(zone);
+                    setPinnedZone(activeZone?.id === zone.id ? null : zone);
                     onMarkerClick?.(zone.id);
                   }}
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', transition: 'all 0.25s ease' }}
                 />
               );
             })}
