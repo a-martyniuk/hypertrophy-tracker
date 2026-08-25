@@ -209,6 +209,7 @@ export const AthleteComparisonCard: React.FC<Props> = ({
 
     const goldenPresets = CANONICAL_PRESETS.filter((p) => p.category === 'golden');
     const massPresets = CANONICAL_PRESETS.filter((p) => p.category === 'mass');
+    const hollywoodPresets = CANONICAL_PRESETS.filter((p) => p.category === 'hollywood');
     const leanPresets = CANONICAL_PRESETS.filter((p) => p.category === 'lean');
     const modernPresets = CANONICAL_PRESETS.filter((p) => p.category === 'modern');
     const femalePresets = CANONICAL_PRESETS.filter((p) => p.category === 'female');
@@ -313,6 +314,15 @@ export const AthleteComparisonCard: React.FC<Props> = ({
                                     ))}
                                 </optgroup>
                             )}
+                            {hollywoodPresets.length > 0 && (
+                                <optgroup label={`🎬 Íconos del Cine & Celebridades (${hollywoodPresets.length})`}>
+                                    {hollywoodPresets.map((p) => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.name} ({p.height} cm · {p.weight} kg · {p.age} años)
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            )}
                             {leanPresets.length > 0 && (
                                 <optgroup label={`⚡ Definición & Calistenia Funcional (${leanPresets.length})`}>
                                     {leanPresets.map((p) => (
@@ -332,7 +342,7 @@ export const AthleteComparisonCard: React.FC<Props> = ({
                                 </optgroup>
                             )}
                             {femalePresets.length > 0 && (
-                                <optgroup label={`👑 Culturismo & Fisonomía Femenina (${femalePresets.length})`}>
+                                <optgroup label={`👑 Heroínas del Cine & Fitness Femenino (${femalePresets.length})`}>
                                     {femalePresets.map((p) => (
                                         <option key={p.id} value={p.id}>
                                             {p.name} ({p.height} cm · {p.weight} kg · {p.age} años)
@@ -434,7 +444,9 @@ export const AthleteComparisonCard: React.FC<Props> = ({
                             ) : profileB.id.startsWith('past_') ? (
                                 'Histórico Propio'
                             ) : profileB.category === 'female' ? (
-                                '👑 Canon Femenino'
+                                '👑 Heroína / Femenino'
+                            ) : profileB.category === 'hollywood' ? (
+                                '🎬 Ícono de Hollywood'
                             ) : profileB.category === 'lean' ? (
                                 '⚡ Definición & Calistenia'
                             ) : profileB.category === 'modern' ? (

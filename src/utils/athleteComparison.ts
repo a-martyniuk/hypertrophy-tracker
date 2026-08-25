@@ -7,7 +7,7 @@ export interface ComparisonProfile {
     name: string;
     title: string;
     era?: string;
-    category?: 'golden' | 'mass' | 'lean' | 'modern' | 'female' | 'community';
+    category?: 'golden' | 'mass' | 'hollywood' | 'lean' | 'modern' | 'female' | 'community';
     sex: 'male' | 'female';
     age?: number;
     height?: number;
@@ -362,7 +362,177 @@ export const CANONICAL_PRESETS: ComparisonProfile[] = [
         }
     },
 
-    // 3. DEFINICIÓN & CALISTENIA FUNCIONAL (Lean & Athletic)
+    // 3. ÍCONOS DEL CINE & CELEBRIDADES (Hollywood Action Heroes)
+    {
+        id: 'sylvester_stallone_1985',
+        name: 'Sylvester Stallone',
+        title: 'Rambo II / Rocky IV — Definición & Vascularización (1985)',
+        era: 'Hollywood 1985',
+        category: 'hollywood',
+        sex: 'male',
+        age: 39,
+        height: 177,
+        weight: 79.0,
+        bodyFat: 4.5,
+        measurements: {
+            height: 177,
+            weight: 79.0,
+            bodyFat: 4.5,
+            neck: 40.5,
+            pecho: 112.0,
+            back: 110.0,
+            waist: 71.0,
+            hips: 90.0,
+            arm: { left: 43.0, right: 43.0 },
+            forearm: { left: 34.5, right: 34.5 },
+            thigh: { left: 61.0, right: 61.0 },
+            calf: { left: 39.5, right: 39.5 },
+            wrist: { left: 17.5, right: 17.5 },
+            ankle: { left: 22.0, right: 22.0 }
+        }
+    },
+    {
+        id: 'henry_cavill_2013',
+        name: 'Henry Cavill',
+        title: 'Superman: Man of Steel — Porte Clásico de Superhéroe (2013)',
+        era: 'Hollywood 2013',
+        category: 'hollywood',
+        sex: 'male',
+        age: 30,
+        height: 185,
+        weight: 92.0,
+        bodyFat: 8.5,
+        measurements: {
+            height: 185,
+            weight: 92.0,
+            bodyFat: 8.5,
+            neck: 43.0,
+            pecho: 124.0,
+            back: 122.0,
+            waist: 81.0,
+            hips: 98.0,
+            arm: { left: 43.0, right: 43.0 },
+            forearm: { left: 35.0, right: 35.0 },
+            thigh: { left: 66.0, right: 66.0 },
+            calf: { left: 42.0, right: 42.0 },
+            wrist: { left: 18.5, right: 18.5 },
+            ankle: { left: 23.5, right: 23.5 }
+        }
+    },
+    {
+        id: 'dwayne_johnson_2014',
+        name: 'Dwayne "The Rock" Johnson',
+        title: 'Hércules / Fast 6 — El Coloso de Hollywood (2014)',
+        era: 'Hollywood 2014',
+        category: 'hollywood',
+        sex: 'male',
+        age: 42,
+        height: 193,
+        weight: 118.0,
+        bodyFat: 8.5,
+        measurements: {
+            height: 193,
+            weight: 118.0,
+            bodyFat: 8.5,
+            neck: 48.0,
+            pecho: 135.0,
+            back: 132.0,
+            waist: 89.0,
+            hips: 108.0,
+            arm: { left: 51.0, right: 51.0 },
+            forearm: { left: 40.0, right: 40.0 },
+            thigh: { left: 74.0, right: 74.0 },
+            calf: { left: 46.0, right: 46.0 },
+            wrist: { left: 20.0, right: 20.0 },
+            ankle: { left: 26.0, right: 26.0 }
+        }
+    },
+    {
+        id: 'brad_pitt_1999',
+        name: 'Brad Pitt',
+        title: 'Fight Club (Tyler Durden) — Definición Magra & Corte (1999)',
+        era: 'Hollywood 1999',
+        category: 'hollywood',
+        sex: 'male',
+        age: 35,
+        height: 180,
+        weight: 70.0,
+        bodyFat: 5.5,
+        measurements: {
+            height: 180,
+            weight: 70.0,
+            bodyFat: 5.5,
+            neck: 38.5,
+            pecho: 102.0,
+            back: 100.0,
+            waist: 74.0,
+            hips: 88.0,
+            arm: { left: 38.0, right: 38.0 },
+            forearm: { left: 31.0, right: 31.0 },
+            thigh: { left: 56.0, right: 56.0 },
+            calf: { left: 37.5, right: 37.5 },
+            wrist: { left: 17.0, right: 17.0 },
+            ankle: { left: 21.5, right: 21.5 }
+        }
+    },
+    {
+        id: 'hugh_jackman_2013',
+        name: 'Hugh Jackman',
+        title: 'The Wolverine — Estética Madura & Vascularización (2013)',
+        era: 'Hollywood 2013',
+        category: 'hollywood',
+        sex: 'male',
+        age: 44,
+        height: 188,
+        weight: 89.0,
+        bodyFat: 6.5,
+        measurements: {
+            height: 188,
+            weight: 89.0,
+            bodyFat: 6.5,
+            neck: 42.0,
+            pecho: 117.0,
+            back: 115.0,
+            waist: 81.0,
+            hips: 96.0,
+            arm: { left: 41.0, right: 41.0 },
+            forearm: { left: 33.5, right: 33.5 },
+            thigh: { left: 63.5, right: 63.5 },
+            calf: { left: 41.0, right: 41.0 },
+            wrist: { left: 18.0, right: 18.0 },
+            ankle: { left: 23.0, right: 23.0 }
+        }
+    },
+    {
+        id: 'jcvd_1988',
+        name: 'Jean-Claude Van Damme',
+        title: 'Bloodsport / Contacto Sangriento — Flexibilidad & Atletismo (1988)',
+        era: 'Hollywood 1988',
+        category: 'hollywood',
+        sex: 'male',
+        age: 28,
+        height: 177,
+        weight: 82.0,
+        bodyFat: 7.0,
+        measurements: {
+            height: 177,
+            weight: 82.0,
+            bodyFat: 7.0,
+            neck: 42.0,
+            pecho: 117.0,
+            back: 115.0,
+            waist: 73.5,
+            hips: 92.0,
+            arm: { left: 43.0, right: 43.0 },
+            forearm: { left: 34.5, right: 34.5 },
+            thigh: { left: 63.5, right: 63.5 },
+            calf: { left: 40.5, right: 40.5 },
+            wrist: { left: 17.5, right: 17.5 },
+            ankle: { left: 22.0, right: 22.0 }
+        }
+    },
+
+    // 4. DEFINICIÓN & CALISTENIA FUNCIONAL (Lean & Athletic)
     {
         id: 'bruce_lee_1973',
         name: 'Bruce Lee',
@@ -392,7 +562,7 @@ export const CANONICAL_PRESETS: ComparisonProfile[] = [
         }
     },
 
-    // 4. ERA MODERNA (Classic Physique)
+    // 5. ERA MODERNA (Classic Physique)
     {
         id: 'chris_bumstead_2023',
         name: 'Chris Bumstead (CBum)',
@@ -422,7 +592,7 @@ export const CANONICAL_PRESETS: ComparisonProfile[] = [
         }
     },
 
-    // 5. CULTURISMO & FISONOMÍA FEMENINA (Female Canonical)
+    // 6. HEROÍNAS DEL CINE & FITNESS FEMENINO (Female Figures)
     {
         id: 'cory_everson_1985',
         name: 'Cory Everson',
@@ -449,6 +619,146 @@ export const CANONICAL_PRESETS: ComparisonProfile[] = [
             calf: { left: 38.0, right: 38.0 },
             wrist: { left: 15.5, right: 15.5 },
             ankle: { left: 20.0, right: 20.0 }
+        }
+    },
+    {
+        id: 'linda_hamilton_1991',
+        name: 'Linda Hamilton',
+        title: 'Terminator 2 (Sarah Connor) — Hombros Rocosos & Corte (1991)',
+        era: 'Hollywood 1991',
+        category: 'female',
+        sex: 'female',
+        age: 34,
+        height: 168,
+        weight: 55.0,
+        bodyFat: 9.5,
+        measurements: {
+            height: 168,
+            weight: 55.0,
+            bodyFat: 9.5,
+            neck: 32.0,
+            pecho: 86.0,
+            back: 85.0,
+            waist: 61.0,
+            hips: 86.0,
+            arm: { left: 30.5, right: 30.5 },
+            forearm: { left: 24.0, right: 24.0 },
+            thigh: { left: 51.0, right: 51.0 },
+            calf: { left: 33.0, right: 33.0 },
+            wrist: { left: 15.0, right: 15.0 },
+            ankle: { left: 19.5, right: 19.5 }
+        }
+    },
+    {
+        id: 'brooke_ence_2017',
+        name: 'Brooke Ence',
+        title: 'Wonder Woman (Amazona) / CrossFit Games — Densidad (2017)',
+        era: 'Hollywood / CrossFit 2017',
+        category: 'female',
+        sex: 'female',
+        age: 28,
+        height: 170,
+        weight: 68.0,
+        bodyFat: 11.0,
+        measurements: {
+            height: 170,
+            weight: 68.0,
+            bodyFat: 11.0,
+            neck: 34.5,
+            pecho: 94.0,
+            back: 94.0,
+            waist: 66.0,
+            hips: 94.0,
+            arm: { left: 34.5, right: 34.5 },
+            forearm: { left: 26.5, right: 26.5 },
+            thigh: { left: 58.5, right: 58.5 },
+            calf: { left: 37.0, right: 37.0 },
+            wrist: { left: 16.0, right: 16.0 },
+            ankle: { left: 21.0, right: 21.0 }
+        }
+    },
+    {
+        id: 'jessica_biel_2004',
+        name: 'Jessica Biel',
+        title: 'Blade: Trinity (Abigail Whistler) — Deltoides & Espalda (2004)',
+        era: 'Hollywood 2004',
+        category: 'female',
+        sex: 'female',
+        age: 22,
+        height: 170,
+        weight: 58.0,
+        bodyFat: 12.5,
+        measurements: {
+            height: 170,
+            weight: 58.0,
+            bodyFat: 12.5,
+            neck: 32.5,
+            pecho: 89.0,
+            back: 88.0,
+            waist: 63.5,
+            hips: 91.0,
+            arm: { left: 31.0, right: 31.0 },
+            forearm: { left: 24.5, right: 24.5 },
+            thigh: { left: 53.0, right: 53.0 },
+            calf: { left: 34.0, right: 34.0 },
+            wrist: { left: 15.5, right: 15.5 },
+            ankle: { left: 20.0, right: 20.0 }
+        }
+    },
+    {
+        id: 'gal_gadot_2017',
+        name: 'Gal Gadot',
+        title: 'Wonder Woman — Silueta Atlética de Superheroína (2017)',
+        era: 'Hollywood 2017',
+        category: 'female',
+        sex: 'female',
+        age: 32,
+        height: 178,
+        weight: 59.5,
+        bodyFat: 14.5,
+        measurements: {
+            height: 178,
+            weight: 59.5,
+            bodyFat: 14.5,
+            neck: 31.5,
+            pecho: 86.0,
+            back: 85.0,
+            waist: 61.0,
+            hips: 89.0,
+            arm: { left: 28.0, right: 28.0 },
+            forearm: { left: 23.0, right: 23.0 },
+            thigh: { left: 52.0, right: 52.0 },
+            calf: { left: 33.5, right: 33.5 },
+            wrist: { left: 15.0, right: 15.0 },
+            ankle: { left: 19.5, right: 19.5 }
+        }
+    },
+    {
+        id: 'natalie_portman_2022',
+        name: 'Natalie Portman',
+        title: 'Thor: Love and Thunder (The Mighty Thor) — Hipertrofia (2022)',
+        era: 'Hollywood 2022',
+        category: 'female',
+        sex: 'female',
+        age: 41,
+        height: 160,
+        weight: 52.5,
+        bodyFat: 12.0,
+        measurements: {
+            height: 160,
+            weight: 52.5,
+            bodyFat: 12.0,
+            neck: 31.5,
+            pecho: 85.0,
+            back: 84.0,
+            waist: 60.0,
+            hips: 86.0,
+            arm: { left: 31.0, right: 31.0 },
+            forearm: { left: 24.0, right: 24.0 },
+            thigh: { left: 50.0, right: 50.0 },
+            calf: { left: 33.0, right: 33.0 },
+            wrist: { left: 14.5, right: 14.5 },
+            ankle: { left: 19.0, right: 19.0 }
         }
     }
 ];
