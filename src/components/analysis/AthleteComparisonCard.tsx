@@ -467,7 +467,7 @@ Dictamen: ${verdict.summary}
                             <th>Métrica Antropométrica</th>
                             <th style={{ color: '#22d3ee' }}>{profileA.name}</th>
                             <th style={{ color: '#fbbf24' }}>{profileB.name}</th>
-                            <th>Diferencia ($\Delta$)</th>
+                            <th>Diferencia (Δ)</th>
                             <th>Ventaja Táctica</th>
                         </tr>
                     </thead>
@@ -533,7 +533,7 @@ const renderMetricRow = (
             <td>
                 {isNeutral ? (
                     <span className="delta-tag tie">
-                        $\Delta$ {m.diff} {m.unit}
+                        Δ {m.diff} {m.unit}
                     </span>
                 ) : (
                     <span className={`delta-tag ${isWinA ? 'win-a' : isWinB ? 'win-b' : 'tie'}`}>
