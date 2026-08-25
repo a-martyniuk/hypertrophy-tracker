@@ -201,14 +201,32 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
         <div className="analysis-view animate-fade">
             {/* Top Navigation / Section Switcher */}
             <div className="analysis-nav-header">
-                <div className="analysis-title-group">
-                    <h1>
-                        <BarChart3 style={{ color: 'var(--primary-color)' }} size={24} />
-                        <span>Análisis Biométrico & Benchmarks</span>
-                    </h1>
-                    <p>
-                        Evaluación anatómica contra modelos de Steve Reeves, Casey Butt y proporciones áureas.
-                    </p>
+                <div className="analysis-nav-top">
+                    <div className="analysis-title-group">
+                        <h1>
+                            <BarChart3 style={{ color: 'var(--primary-color)' }} size={24} />
+                            <span>Análisis Biométrico & Benchmarks</span>
+                        </h1>
+                        <p>
+                            Evaluación anatómica contra modelos de Steve Reeves, Casey Butt y proporciones áureas.
+                        </p>
+                    </div>
+
+                    <div className="analysis-header-actions">
+                        <button
+                            onClick={() => navigate('/potential')}
+                            className="analysis-action-btn action-potential"
+                        >
+                            <span>🧬 Simulador Genético &rarr;</span>
+                        </button>
+                        <button
+                            onClick={() => generateAthletePDFReport({ latestRecord, sex })}
+                            className="analysis-action-btn action-pdf"
+                        >
+                            <Download size={14} style={{ color: '#fbbf24' }} />
+                            <span>Descargar Informe PDF</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div className="analysis-tabs">
@@ -247,21 +265,6 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                     >
                         <Swords size={14} />
                         <span>Duelo & Comparativa</span>
-                    </button>
-                    <button
-                        onClick={() => navigate('/potential')}
-                        className="analysis-tab-btn"
-                        style={{ color: '#fbbf24', borderLeft: '1px solid rgba(255, 255, 255, 0.1)', paddingLeft: '0.75rem' }}
-                    >
-                        <span>🧬 Simulador Genético &rarr;</span>
-                    </button>
-                    <button
-                        onClick={() => generateAthletePDFReport({ latestRecord, sex })}
-                        className="analysis-tab-btn"
-                        style={{ color: '#ffffff', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.35)', marginLeft: '0.25rem' }}
-                    >
-                        <Download size={14} style={{ color: '#fbbf24' }} />
-                        <span>Informe PDF</span>
                     </button>
                 </div>
             </div>

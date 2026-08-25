@@ -11,12 +11,18 @@
 /* Header & Tabs Navigation */
 .analysis-nav-header {
     display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.analysis-nav-top {
+    display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding-bottom: 1.25rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .analysis-title-group h1 {
@@ -38,6 +44,51 @@
     margin: 0.25rem 0 0 0;
 }
 
+.analysis-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.analysis-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.analysis-action-btn.action-potential {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+}
+
+.analysis-action-btn.action-potential:hover {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: #fbbf24;
+    color: #ffffff;
+}
+
+.analysis-action-btn.action-pdf {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #ffffff;
+}
+
+.analysis-action-btn.action-pdf:hover {
+    background: rgba(245, 158, 11, 0.3);
+    border-color: #fbbf24;
+}
+
 .analysis-tabs {
     display: flex;
     align-items: center;
@@ -50,6 +101,8 @@
     overflow-x: auto;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
+    width: fit-content;
+    max-width: 100%;
 }
 
 .analysis-tabs::-webkit-scrollbar {
