@@ -36,11 +36,115 @@ interface Props {
     sex?: 'male' | 'female';
 }
 
-const calculateAge = (birthDate?: string): number => {
-    if (!birthDate) return 28;
-    const diff = Date.now() - new Date(birthDate).getTime();
-    const ageDate = new Date(diff);
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
+const resolveUserPhysicalStats = (
+    userProfile?: any,
+    currentRecord?: MeasurementRecord
+) => {
+    let age: number | undefined;
+
+    // 1. Check userProfile birthDate
+    if (userProfile?.birthDate) {
+        const diff = Date.now() - new Date(userProfile.birthDate).getTime();
+        const ageDate = new Date(diff);
+        const calculated = Math.abs(ageDate.getUTCFullYear() - 1970);
+        if (!isNaN(calculated) && calculated > 10 && calculated < 110) {
+            age = calculated;
+        }
+    }
+
+    // 2. Check userProfile direct age
+    if (!age && userProfile?.age && !isNaN(Number(userProfile.age))) {
+        age = Number(userProfile.age);
+    }
+
+    // 3. Check LocalStorage calculator and user settings
+    if (!age && typeof window !== 'undefined') {
+        const uId = currentRecord?.userId || userProfile?.id || 'guest';
+        const candidates = [
+            `calc_settings_${uId}_age`,
+            `calc_settings_guest_age`,
+            `calc_settings__age`,
+            `user_age`
+        ];
+        for (const key of candidates) {
+            const raw = localStorage.getItem(key);
+            if (raw) {
+                try {
+                    const parsed = JSON.parse(raw);
+                    const val = Number(parsed);
+                    if (!isNaN(val) && val >= 10 && val <= 110) {
+                        age = val;
+                        break;
+                    }
+                } catch {
+                    const val = Number(raw);
+                    if (!isNaN(val) && val >= 10 && val <= 110) {
+                        age = val;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Check metabolism_settings JSON object
+        if (!age) {
+            const metaRaw = localStorage.getItem('metabolism_settings');
+            if (metaRaw) {
+                try {
+                    const meta = JSON.parse(metaRaw);
+                    if (meta.age && !isNaN(Number(meta.age))) {
+                        age = Number(meta.age);
+                    }
+                } catch {}
+            }
+        }
+    }
+
+    if (!age || isNaN(age)) {
+        age = 30; // fallback
+    }
+
+    // Height resolution
+    let height = currentRecord?.measurements?.height;
+    if (!height || height <= 0) {
+        if (typeof window !== 'undefined') {
+            const skelH = localStorage.getItem('skeletal_height');
+            if (skelH && !isNaN(Number(skelH))) height = Number(skelH);
+            if (!height) {
+                const uId = currentRecord?.userId || userProfile?.id || 'guest';
+                const rawH = localStorage.getItem(`calc_settings_${uId}_height`) || localStorage.getItem('calc_settings_guest_height');
+                if (rawH) {
+                    try {
+                        const p = JSON.parse(rawH);
+                        if (!isNaN(Number(p))) height = Number(p);
+                    } catch {}
+                }
+            }
+        }
+    }
+    if (!height || height <= 0) height = 178;
+
+    // Weight resolution
+    let weight = currentRecord?.measurements?.weight;
+    if (!weight || weight <= 0) {
+        if (typeof window !== 'undefined') {
+            const uId = currentRecord?.userId || userProfile?.id || 'guest';
+            const rawW = localStorage.getItem(`calc_settings_${uId}_weight`) || localStorage.getItem('calc_settings_guest_weight');
+            if (rawW) {
+                try {
+                    const p = JSON.parse(rawW);
+                    if (!isNaN(Number(p))) weight = Number(p);
+                } catch {}
+            }
+        }
+    }
+    if (!weight || weight <= 0) weight = 80;
+
+    // Body fat resolution
+    let bodyFat = currentRecord?.measurements?.bodyFat;
+    if (bodyFat === undefined || isNaN(bodyFat)) bodyFat = 12.0;
+
+    return { age, height, weight, bodyFat };
 };
 
 export const AthleteComparisonCard: React.FC<Props> = ({
@@ -51,17 +155,17 @@ export const AthleteComparisonCard: React.FC<Props> = ({
     const profileCtx = useContext(ProfileContext);
     const userProfile = profileCtx?.profile;
 
-    const userAge = useMemo(() => {
-        return calculateAge(userProfile?.birthDate);
-    }, [userProfile?.birthDate]);
+    const userBio = useMemo(() => {
+        return resolveUserPhysicalStats(userProfile, currentRecord);
+    }, [userProfile, currentRecord]);
 
     // Current user's profile
     const profileA: ComparisonProfile = useMemo(() => {
         const measurements: Partial<BodyMeasurements> = currentRecord?.measurements || {};
         const name = userProfile?.name || 'Tú (Actual)';
-        const height = measurements.height || 178;
-        const weight = measurements.weight || 80;
-        const bodyFat = measurements.bodyFat ?? 12.0;
+        const height = measurements.height || userBio.height;
+        const weight = measurements.weight || userBio.weight;
+        const bodyFat = measurements.bodyFat ?? userBio.bodyFat;
 
         return {
             id: 'current_user',
@@ -69,14 +173,19 @@ export const AthleteComparisonCard: React.FC<Props> = ({
             title: 'Medición Antropométrica Actual',
             era: currentRecord?.date ? new Date(currentRecord.date).toLocaleDateString() : 'Sesión Activa',
             sex: sex,
-            age: userAge,
+            age: userBio.age,
             height,
             weight,
             bodyFat,
             date: currentRecord?.date,
-            measurements
+            measurements: {
+                ...measurements,
+                height,
+                weight,
+                bodyFat
+            }
         };
-    }, [currentRecord, sex, userProfile, userAge]);
+    }, [currentRecord, sex, userProfile, userBio]);
 
     // Community / Database Athletes
     const [communityAthletes, setCommunityAthletes] = useState<ComparisonProfile[]>([]);
@@ -118,10 +227,10 @@ export const AthleteComparisonCard: React.FC<Props> = ({
                     title: 'Registro Histórico Propio',
                     era: new Date(rec.date).toLocaleDateString(),
                     sex: sex,
-                    age: userAge,
-                    height: rec.measurements.height || profileA.height || 178,
-                    weight: rec.measurements.weight || 80,
-                    bodyFat: rec.measurements.bodyFat ?? 12.0,
+                    age: userBio.age,
+                    height: rec.measurements?.height || profileA.height || 178,
+                    weight: rec.measurements?.weight || 80,
+                    bodyFat: rec.measurements?.bodyFat ?? 12.0,
                     date: rec.date,
                     measurements: rec.measurements || {}
                 };
@@ -130,7 +239,7 @@ export const AthleteComparisonCard: React.FC<Props> = ({
 
         // Fallback to Steve Reeves
         return CANONICAL_PRESETS[0];
-    }, [selectedBId, communityAthletes, records, sex, userAge, profileA.height]);
+    }, [selectedBId, communityAthletes, records, sex, userBio.age, profileA.height]);
 
     // Full comparison analysis
     const comparison = useMemo(() => {

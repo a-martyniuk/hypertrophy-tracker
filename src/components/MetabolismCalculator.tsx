@@ -36,18 +36,22 @@ interface MetabolismCalculatorProps {
 export function MetabolismCalculator({ sex, age: initialAge, currentWeight, height: initialHeight, userId }: MetabolismCalculatorProps) {
     const { t } = useTranslation();
     const loadSetting = <T,>(key: string, defaultVal: T): T => {
-        if (!userId) return defaultVal
+        const uId = userId || 'guest';
         try {
-            const saved = localStorage.getItem(`calc_settings_${userId}_${key}`)
-            return saved ? JSON.parse(saved) : defaultVal
+            const saved = localStorage.getItem(`calc_settings_${uId}_${key}`) || localStorage.getItem(`calc_settings_guest_${key}`);
+            return saved ? JSON.parse(saved) : defaultVal;
         } catch (e) {
-            return defaultVal
+            return defaultVal;
         }
-    }
+    };
 
     const saveSetting = (key: string, val: any) => {
-        if (userId) localStorage.setItem(`calc_settings_${userId}_${key}`, JSON.stringify(val))
-    }
+        const uId = userId || 'guest';
+        localStorage.setItem(`calc_settings_${uId}_${key}`, JSON.stringify(val));
+        localStorage.setItem(`calc_settings_guest_${key}`, JSON.stringify(val));
+        if (key === 'age') localStorage.setItem('user_age', JSON.stringify(val));
+        if (key === 'height') localStorage.setItem('skeletal_height', String(val));
+    };
 
     // Physical Stats
     const [age, setAge] = useState<number>(() => loadSetting('age', initialAge || 25))
