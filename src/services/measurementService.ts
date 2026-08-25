@@ -7,8 +7,9 @@ import {
     query,
     orderBy
 } from 'firebase/firestore';
-import { db, isFirebaseConfigured } from '../lib/firebase';
+import { db, isFirebaseConfigured, auth } from '../lib/firebase';
 import type { MeasurementRecord } from '../types/measurements';
+import { publishCommunityAthlete } from './communityAthleteService';
 
 export const fetchCloudRecords = async (userId: string): Promise<MeasurementRecord[] | null> => {
     if (!isFirebaseConfigured || !userId) return null;
@@ -42,6 +43,11 @@ export const saveCloudRecord = async (record: MeasurementRecord, userId: string)
             userId
         };
         await setDoc(recordRef, dataToSave, { merge: true });
+
+        // Also publish to public community athletes for peer comparison
+        const user = auth.currentUser;
+        const name = user?.displayName || user?.email?.split('@')[0] || 'Atleta';
+        await publishCommunityAthlete(userId, name, 'male', record);
     } catch (err) {
         console.error('[measurementService] Error al guardar registro en Firestore:', err);
         throw err;

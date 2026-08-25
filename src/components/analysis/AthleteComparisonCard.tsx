@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
     Radar,
     RadarChart,
@@ -11,11 +11,10 @@ import {
 } from 'recharts';
 import {
     Swords,
-    QrCode,
     Sparkles,
     Share2,
     Check,
-    X
+    Users
 } from 'lucide-react';
 import type { MeasurementRecord } from '../../types/measurements';
 import {
@@ -23,7 +22,7 @@ import {
     compareAthletes,
     type ComparisonProfile
 } from '../../utils/athleteComparison';
-import { decodeAthleteData } from '../../utils/shareEncoder';
+import { fetchCommunityAthletes } from '../../services/communityAthleteService';
 import './AthleteComparisonCard.css';
 
 interface Props {
@@ -51,24 +50,34 @@ export const AthleteComparisonCard: React.FC<Props> = ({
         };
     }, [currentRecord, sex]);
 
-    // Available comparison options
+    // Community / Database Athletes
+    const [communityAthletes, setCommunityAthletes] = useState<ComparisonProfile[]>([]);
+    const [_loadingCommunity, setLoadingCommunity] = useState(true);
     const [selectedBId, setSelectedBId] = useState<string>('steve_reeves_1950');
-    const [customProfile, setCustomProfile] = useState<ComparisonProfile | null>(null);
-    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-    const [importInput, setImportInput] = useState('');
-    const [importError, setImportError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        let isMounted = true;
+        fetchCommunityAthletes(currentRecord?.userId).then((list) => {
+            if (isMounted) {
+                setCommunityAthletes(list);
+                setLoadingCommunity(false);
+            }
+        });
+        return () => {
+            isMounted = false;
+        };
+    }, [currentRecord?.userId]);
 
     // Build profile list for opponent B
     const profileB: ComparisonProfile = useMemo(() => {
-        // 1. Custom imported athlete
-        if (selectedBId === 'custom_imported' && customProfile) {
-            return customProfile;
-        }
-
-        // 2. Preset canonical athletes
+        // 1. Preset canonical athletes
         const preset = CANONICAL_PRESETS.find((p) => p.id === selectedBId);
         if (preset) return preset;
+
+        // 2. Community athlete from database
+        const community = communityAthletes.find((a) => a.id === selectedBId);
+        if (community) return community;
 
         // 3. Past user session
         if (selectedBId.startsWith('past_')) {
@@ -89,7 +98,7 @@ export const AthleteComparisonCard: React.FC<Props> = ({
 
         // Fallback to Steve Reeves
         return CANONICAL_PRESETS[0];
-    }, [selectedBId, customProfile, records, sex]);
+    }, [selectedBId, communityAthletes, records, sex]);
 
     // Full comparison analysis
     const comparison = useMemo(() => {
@@ -97,50 +106,6 @@ export const AthleteComparisonCard: React.FC<Props> = ({
     }, [profileA, profileB]);
 
     const { metrics, radarData, verdict } = comparison;
-
-    // Handle importing payload
-    const handleImportAthlete = () => {
-        setImportError(null);
-        if (!importInput.trim()) {
-            setImportError('Por favor pega un enlace o payload Base64 válido.');
-            return;
-        }
-
-        let rawPayload = importInput.trim();
-        // If it's a URL (e.g. https://.../#/share?d=PAYLOAD)
-        if (rawPayload.includes('?d=')) {
-            const parts = rawPayload.split('?d=');
-            rawPayload = parts[1].split('&')[0];
-        } else if (rawPayload.includes('#')) {
-            const hashParts = rawPayload.split('#');
-            const sub = hashParts[1] || '';
-            if (sub.includes('?d=')) {
-                rawPayload = sub.split('?d=')[1].split('&')[0];
-            }
-        }
-
-        const decoded = decodeAthleteData(rawPayload);
-        if (!decoded || !decoded.measurements) {
-            setImportError('No se pudo decodificar el atleta. Verifica el formato del payload.');
-            return;
-        }
-
-        const imported: ComparisonProfile = {
-            id: 'custom_imported',
-            name: decoded.name || 'Atleta Invitado',
-            title: 'Atleta Importado (QR / Enlace)',
-            era: decoded.date ? new Date(decoded.date).toLocaleDateString() : 'Telemetría Externa',
-            sex: decoded.sex || 'male',
-            date: decoded.date,
-            measurements: decoded.measurements,
-            isCustom: true
-        };
-
-        setCustomProfile(imported);
-        setSelectedBId('custom_imported');
-        setIsImportModalOpen(false);
-        setImportInput('');
-    };
 
     // Quick copy battle summary
     const handleCopySummary = () => {
@@ -170,7 +135,7 @@ Dictamen: ${verdict.summary}
                         </div>
                         <div className="versus-title-text">
                             <h3>Duelo & Comparativa Táctica Head-to-Head</h3>
-                            <p>Auditoría anatómica relativa y radar de proporciones enfrentadas en tiempo real.</p>
+                            <p>Auditoría anatómica relativa contra leyendas del culturismo o atletas reales de la comunidad.</p>
                         </div>
                     </div>
 
@@ -180,7 +145,7 @@ Dictamen: ${verdict.summary}
                             onChange={(e) => setSelectedBId(e.target.value)}
                             className="versus-select"
                         >
-                            <optgroup label="Físicos Canónicos de Referencia">
+                            <optgroup label="🏆 Físicos Canónicos de Referencia (Leyendas)">
                                 {CANONICAL_PRESETS.map((p) => (
                                     <option key={p.id} value={p.id}>
                                         {p.name} ({p.era})
@@ -188,33 +153,26 @@ Dictamen: ${verdict.summary}
                                 ))}
                             </optgroup>
 
-                            {records.length > 1 && (
-                                <optgroup label="Tus Sesiones Históricas Anteriores">
-                                    {records.slice(1, 6).map((r) => (
-                                        <option key={r.id} value={`past_${r.id}`}>
-                                            Tú ({new Date(r.date).toLocaleDateString()})
+                            {communityAthletes.length > 0 && (
+                                <optgroup label={`👥 Atletas de la Comunidad / Base de Datos (${communityAthletes.length})`}>
+                                    {communityAthletes.map((a) => (
+                                        <option key={a.id} value={a.id}>
+                                            👤 {a.name} — {a.era}
                                         </option>
                                     ))}
                                 </optgroup>
                             )}
 
-                            {customProfile && (
-                                <optgroup label="Atletas Importados">
-                                    <option value="custom_imported">
-                                        ⚡ {customProfile.name} (QR / Enlace)
-                                    </option>
+                            {records.length > 1 && (
+                                <optgroup label="📅 Tus Sesiones Históricas Anteriores">
+                                    {records.slice(1, 8).map((r) => (
+                                        <option key={r.id} value={`past_${r.id}`}>
+                                            Tú ({new Date(r.date).toLocaleDateString()}) {r.measurements.weight ? `— ${r.measurements.weight} kg` : ''}
+                                        </option>
+                                    ))}
                                 </optgroup>
                             )}
                         </select>
-
-                        <button
-                            onClick={() => setIsImportModalOpen(true)}
-                            className="versus-btn-secondary"
-                            title="Importar payload QR o enlace de otro atleta"
-                        >
-                            <QrCode size={14} />
-                            <span>Importar Atleta</span>
-                        </button>
 
                         <button
                             onClick={handleCopySummary}
@@ -245,7 +203,17 @@ Dictamen: ${verdict.summary}
                     </div>
 
                     <div className="athlete-fighter fighter-b">
-                        <span className="fighter-tag">Atleta B (Rival / Ref)</span>
+                        <span className="fighter-tag">
+                            {profileB.id.startsWith('comm_') || profileB.id.startsWith('cloud_') ? (
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                    <Users size={11} /> Atleta Comunidad
+                                </span>
+                            ) : profileB.id.startsWith('past_') ? (
+                                'Histórico Propio'
+                            ) : (
+                                'Leyenda Canónica'
+                            )}
+                        </span>
                         <span className="fighter-name">{profileB.name}</span>
                         <span className="fighter-era">{profileB.era}</span>
                     </div>
@@ -348,7 +316,7 @@ Dictamen: ${verdict.summary}
                         {/* % Casey Butt Genetic Ceiling */}
                         <div className="pillar-row">
                             <div className="pillar-header">
-                                <span>% Límite Genético Natural (Casey Butt)</span>
+                                <span>% Límite Magro Estimado</span>
                                 <span style={{ color: verdict.geneticCeilingA >= verdict.geneticCeilingB ? '#22d3ee' : '#fbbf24' }}>
                                     {verdict.geneticCeilingA >= verdict.geneticCeilingB ? `${profileA.name} más cerca` : `${profileB.name} más cerca`}
                                 </span>
@@ -464,58 +432,6 @@ Dictamen: ${verdict.summary}
                 </div>
                 <p className="verdict-desc">{verdict.summary}</p>
             </div>
-
-            {/* Import Payload Modal */}
-            {isImportModalOpen && (
-                <div className="import-modal-overlay" onClick={() => setIsImportModalOpen(false)}>
-                    <div className="import-modal-box" onClick={(e) => e.stopPropagation()}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h4 style={{ margin: 0, color: '#ffffff', fontSize: '1rem', fontWeight: 800, fontFamily: 'monospace' }}>
-                                Importar Atleta (QR / Enlace URL)
-                            </h4>
-                            <button
-                                onClick={() => setIsImportModalOpen(false)}
-                                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
-                            >
-                                <X size={18} />
-                            </button>
-                        </div>
-
-                        <p style={{ margin: 0, fontSize: '0.8rem', color: '#94a3b8' }}>
-                            Pega aquí el enlace de compartición o el payload Base64 generado desde la app de otro atleta para iniciar la comparativa instantánea.
-                        </p>
-
-                        <textarea
-                            value={importInput}
-                            onChange={(e) => setImportInput(e.target.value)}
-                            placeholder="Pega la URL de reporte o el código Base64 aquí..."
-                            className="import-textarea"
-                        />
-
-                        {importError && (
-                            <div style={{ color: '#f87171', fontSize: '0.75rem', fontWeight: 600 }}>
-                                ⚠️ {importError}
-                            </div>
-                        )}
-
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                            <button
-                                onClick={() => setIsImportModalOpen(false)}
-                                className="versus-btn-secondary"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={handleImportAthlete}
-                                className="versus-btn-secondary"
-                                style={{ background: '#f59e0b', color: '#000000', borderColor: '#f59e0b', fontWeight: 800 }}
-                            >
-                                Cargar & Comparar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
