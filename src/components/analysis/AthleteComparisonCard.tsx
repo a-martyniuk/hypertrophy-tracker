@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useContext } from 'react';
 import {
     Radar,
     RadarChart,
@@ -14,9 +14,14 @@ import {
     Sparkles,
     Share2,
     Check,
-    Users
+    Users,
+    Ruler,
+    Calendar,
+    Flame,
+    Zap
 } from 'lucide-react';
-import type { MeasurementRecord } from '../../types/measurements';
+import type { BodyMeasurements, MeasurementRecord } from '../../types/measurements';
+import { ProfileContext } from '../../context/ProfileContext';
 import {
     CANONICAL_PRESETS,
     compareAthletes,
@@ -31,24 +36,47 @@ interface Props {
     sex?: 'male' | 'female';
 }
 
+const calculateAge = (birthDate?: string): number => {
+    if (!birthDate) return 28;
+    const diff = Date.now() - new Date(birthDate).getTime();
+    const ageDate = new Date(diff);
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+};
+
 export const AthleteComparisonCard: React.FC<Props> = ({
     currentRecord,
     records = [],
     sex = 'male'
 }) => {
+    const profileCtx = useContext(ProfileContext);
+    const userProfile = profileCtx?.profile;
+
+    const userAge = useMemo(() => {
+        return calculateAge(userProfile?.birthDate);
+    }, [userProfile?.birthDate]);
+
     // Current user's profile
     const profileA: ComparisonProfile = useMemo(() => {
-        const measurements = currentRecord?.measurements || {};
+        const measurements: Partial<BodyMeasurements> = currentRecord?.measurements || {};
+        const name = userProfile?.name || 'Tú (Actual)';
+        const height = measurements.height || 178;
+        const weight = measurements.weight || 80;
+        const bodyFat = measurements.bodyFat ?? 12.0;
+
         return {
             id: 'current_user',
-            name: 'Tú (Actual)',
+            name,
             title: 'Medición Antropométrica Actual',
             era: currentRecord?.date ? new Date(currentRecord.date).toLocaleDateString() : 'Sesión Activa',
             sex: sex,
+            age: userAge,
+            height,
+            weight,
+            bodyFat,
             date: currentRecord?.date,
             measurements
         };
-    }, [currentRecord, sex]);
+    }, [currentRecord, sex, userProfile, userAge]);
 
     // Community / Database Athletes
     const [communityAthletes, setCommunityAthletes] = useState<ComparisonProfile[]>([]);
@@ -90,6 +118,10 @@ export const AthleteComparisonCard: React.FC<Props> = ({
                     title: 'Registro Histórico Propio',
                     era: new Date(rec.date).toLocaleDateString(),
                     sex: sex,
+                    age: userAge,
+                    height: rec.measurements.height || profileA.height || 178,
+                    weight: rec.measurements.weight || 80,
+                    bodyFat: rec.measurements.bodyFat ?? 12.0,
                     date: rec.date,
                     measurements: rec.measurements || {}
                 };
@@ -98,7 +130,7 @@ export const AthleteComparisonCard: React.FC<Props> = ({
 
         // Fallback to Steve Reeves
         return CANONICAL_PRESETS[0];
-    }, [selectedBId, communityAthletes, records, sex]);
+    }, [selectedBId, communityAthletes, records, sex, userAge, profileA.height]);
 
     // Full comparison analysis
     const comparison = useMemo(() => {
@@ -110,10 +142,11 @@ export const AthleteComparisonCard: React.FC<Props> = ({
     // Quick copy battle summary
     const handleCopySummary = () => {
         const text = `🏆 Duelo Táctico Hypertrophy Tracker Pro:
-${profileA.name} vs ${profileB.name}
+${profileA.name} (${verdict.bioA.height}cm, ${verdict.bioA.weight}kg, ${verdict.bioA.age}a) vs ${profileB.name} (${verdict.bioB.height}cm, ${verdict.bioB.weight}kg, ${verdict.bioB.age}a)
 Marcador: ${verdict.scoreA} vs ${verdict.scoreB}
 • V-Taper: ${verdict.vTaperA}x vs ${verdict.vTaperB}x
-• Techo Genético: ${verdict.geneticCeilingA}% vs ${verdict.geneticCeilingB}%
+• FFMI Normalizado: ${verdict.bioA.ffmi} vs ${verdict.bioB.ffmi}
+• Techo Magro: ${verdict.geneticCeilingA}% vs ${verdict.geneticCeilingB}%
 • Tríada Reeves: ${verdict.triadScoreA}% vs ${verdict.triadScoreB}%
 Dictamen: ${verdict.summary}
 👉 Medite en: https://www.alexismartyniuk.com.ar/hypertrophyracker`;
@@ -123,6 +156,10 @@ Dictamen: ${verdict.summary}
             setTimeout(() => setCopied(false), 2500);
         });
     };
+
+    const biometricsMetrics = metrics.filter((m) => m.category === 'biometrics');
+    const ratiosMetrics = metrics.filter((m) => m.category === 'ratios');
+    const perimetersMetrics = metrics.filter((m) => m.category === 'perimeters' || !m.category);
 
     return (
         <div className="versus-container animate-fade">
@@ -148,7 +185,7 @@ Dictamen: ${verdict.summary}
                             <optgroup label="🏆 Físicos Canónicos de Referencia (Leyendas)">
                                 {CANONICAL_PRESETS.map((p) => (
                                     <option key={p.id} value={p.id}>
-                                        {p.name} ({p.era})
+                                        {p.name} ({p.height} cm · {p.weight} kg · {p.age} años)
                                     </option>
                                 ))}
                             </optgroup>
@@ -157,7 +194,7 @@ Dictamen: ${verdict.summary}
                                 <optgroup label={`👥 Atletas de la Comunidad / Base de Datos (${communityAthletes.length})`}>
                                     {communityAthletes.map((a) => (
                                         <option key={a.id} value={a.id}>
-                                            👤 {a.name} — {a.era}
+                                            👤 {a.name} — {a.height ? `${a.height} cm · ` : ''}{a.era}
                                         </option>
                                     ))}
                                 </optgroup>
@@ -185,14 +222,38 @@ Dictamen: ${verdict.summary}
                     </div>
                 </div>
 
-                {/* Scoreboard Banner */}
+                {/* Scoreboard Banner with Biometrics Strip */}
                 <div className="versus-match-banner">
+                    {/* Athlete A (You) */}
                     <div className="athlete-fighter fighter-a">
                         <span className="fighter-tag">Atleta A (Tú)</span>
                         <span className="fighter-name">{profileA.name}</span>
                         <span className="fighter-era">{profileA.era}</span>
+
+                        <div className="fighter-bio-chips">
+                            <span className="bio-chip" title="Estatura / Altura">
+                                <Ruler size={11} style={{ color: '#22d3ee' }} />
+                                <strong>{verdict.bioA.height}</strong> cm
+                            </span>
+                            <span className="bio-chip" title="Edad Cronológica">
+                                <Calendar size={11} style={{ color: '#22d3ee' }} />
+                                <strong>{verdict.bioA.age}</strong> años
+                            </span>
+                            <span className="bio-chip" title="Peso Total">
+                                <strong>{verdict.bioA.weight}</strong> kg
+                            </span>
+                            <span className="bio-chip" title="Masa Magra / Grasa Corporal">
+                                <Flame size={11} style={{ color: '#22d3ee' }} />
+                                <strong>{verdict.bioA.leanMassKg}</strong> kg ({verdict.bioA.bodyFat}%)
+                            </span>
+                            <span className="bio-chip" title="FFMI Normalizado">
+                                <Zap size={11} style={{ color: '#22d3ee' }} />
+                                FFMI <strong>{verdict.bioA.ffmi}</strong>
+                            </span>
+                        </div>
                     </div>
 
+                    {/* VS Badge */}
                     <div className="versus-vs-badge">
                         <div className="vs-circle">VS</div>
                         <div className="vs-score-tally">
@@ -202,6 +263,7 @@ Dictamen: ${verdict.summary}
                         </div>
                     </div>
 
+                    {/* Athlete B (Opponent / Legend) */}
                     <div className="athlete-fighter fighter-b">
                         <span className="fighter-tag">
                             {profileB.id.startsWith('comm_') || profileB.id.startsWith('cloud_') ? (
@@ -216,6 +278,28 @@ Dictamen: ${verdict.summary}
                         </span>
                         <span className="fighter-name">{profileB.name}</span>
                         <span className="fighter-era">{profileB.era}</span>
+
+                        <div className="fighter-bio-chips">
+                            <span className="bio-chip" title="Estatura / Altura">
+                                <Ruler size={11} style={{ color: '#fbbf24' }} />
+                                <strong>{verdict.bioB.height}</strong> cm
+                            </span>
+                            <span className="bio-chip" title="Edad Cronológica">
+                                <Calendar size={11} style={{ color: '#fbbf24' }} />
+                                <strong>{verdict.bioB.age}</strong> años
+                            </span>
+                            <span className="bio-chip" title="Peso Total">
+                                <strong>{verdict.bioB.weight}</strong> kg
+                            </span>
+                            <span className="bio-chip" title="Masa Magra / Grasa Corporal">
+                                <Flame size={11} style={{ color: '#fbbf24' }} />
+                                <strong>{verdict.bioB.leanMassKg}</strong> kg ({verdict.bioB.bodyFat}%)
+                            </span>
+                            <span className="bio-chip" title="FFMI Normalizado">
+                                <Zap size={11} style={{ color: '#fbbf24' }} />
+                                FFMI <strong>{verdict.bioB.ffmi}</strong>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -363,7 +447,7 @@ Dictamen: ${verdict.summary}
             {/* Head-to-Head Detailed Telemetry Table */}
             <div className="versus-table-card">
                 <div className="versus-card-title" style={{ marginBottom: '0.75rem' }}>
-                    <span>Matriz Detallada de Perímetros & Deltas</span>
+                    <span>Matriz Detallada de Perímetros, Biometría & Deltas</span>
                     <span className="badge">HEAD-TO-HEAD AUDIT</span>
                 </div>
 
@@ -378,48 +462,23 @@ Dictamen: ${verdict.summary}
                         </tr>
                     </thead>
                     <tbody>
-                        {metrics.map((m) => {
-                            const isWinA = m.winner === 'A';
-                            const isWinB = m.winner === 'B';
-                            return (
-                                <tr key={m.key}>
-                                    <td style={{ fontWeight: 600 }}>
-                                        {m.label}
-                                        {m.insight && (
-                                            <span style={{ display: 'block', fontSize: '0.7rem', color: '#64748b', fontWeight: 400 }}>
-                                                {m.insight}
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="val-cell-a">
-                                        {m.valA > 0 ? `${m.valA} ${m.unit}` : '--'}
-                                    </td>
-                                    <td className="val-cell-b">
-                                        {m.valB > 0 ? `${m.valB} ${m.unit}` : '--'}
-                                    </td>
-                                    <td>
-                                        <span className={`delta-tag ${isWinA ? 'win-a' : isWinB ? 'win-b' : 'tie'}`}>
-                                            {m.diff > 0 ? `+${m.diff}` : `${m.diff}`} {m.unit} ({m.percentDiff > 0 ? `+${m.percentDiff}%` : `${m.percentDiff}%`})
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {isWinA ? (
-                                            <span style={{ color: '#22d3ee', fontWeight: 700, fontSize: '0.75rem' }}>
-                                                ★ {profileA.name}
-                                            </span>
-                                        ) : isWinB ? (
-                                            <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '0.75rem' }}>
-                                                ★ {profileB.name}
-                                            </span>
-                                        ) : (
-                                            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
-                                                = Empate
-                                            </span>
-                                        )}
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                        {/* 1. Biometrics Section */}
+                        <tr className="versus-table-category-row">
+                            <td colSpan={5}>📊 Datos Biométricos Generales & Composición Corporal</td>
+                        </tr>
+                        {biometricsMetrics.map((m) => renderMetricRow(m, profileA.name, profileB.name))}
+
+                        {/* 2. Ratios & Canons */}
+                        <tr className="versus-table-category-row">
+                            <td colSpan={5}>📐 Cánones Clásicos, Ratios Áureos & Simetría</td>
+                        </tr>
+                        {ratiosMetrics.map((m) => renderMetricRow(m, profileA.name, profileB.name))}
+
+                        {/* 3. Perimeters & Skeletal Frame */}
+                        <tr className="versus-table-category-row">
+                            <td colSpan={5}>🛡️ Perímetros Musculares & Estructura Ósea</td>
+                        </tr>
+                        {perimetersMetrics.map((m) => renderMetricRow(m, profileA.name, profileB.name))}
                     </tbody>
                 </table>
             </div>
@@ -433,5 +492,65 @@ Dictamen: ${verdict.summary}
                 <p className="verdict-desc">{verdict.summary}</p>
             </div>
         </div>
+    );
+};
+
+const renderMetricRow = (
+    m: ReturnType<typeof compareAthletes>['metrics'][0],
+    nameA: string,
+    nameB: string
+) => {
+    const isWinA = m.winner === 'A';
+    const isWinB = m.winner === 'B';
+    const isNeutral = m.winner === 'NEUTRAL';
+
+    return (
+        <tr key={m.key}>
+            <td style={{ fontWeight: 600 }}>
+                {m.label}
+                {m.insight && (
+                    <span style={{ display: 'block', fontSize: '0.7rem', color: '#64748b', fontWeight: 400 }}>
+                        {m.insight}
+                    </span>
+                )}
+            </td>
+            <td className="val-cell-a">
+                {m.valA !== undefined && m.valA !== '' ? `${m.valA} ${m.unit}` : '--'}
+            </td>
+            <td className="val-cell-b">
+                {m.valB !== undefined && m.valB !== '' ? `${m.valB} ${m.unit}` : '--'}
+            </td>
+            <td>
+                {isNeutral ? (
+                    <span className="delta-tag tie">
+                        $\Delta$ {m.diff} {m.unit}
+                    </span>
+                ) : (
+                    <span className={`delta-tag ${isWinA ? 'win-a' : isWinB ? 'win-b' : 'tie'}`}>
+                        {typeof m.diff === 'number' && m.diff > 0 ? `+${m.diff}` : `${m.diff}`} {m.unit}
+                        {m.percentDiff !== undefined ? ` (${m.percentDiff > 0 ? `+${m.percentDiff}%` : `${m.percentDiff}%`})` : ''}
+                    </span>
+                )}
+            </td>
+            <td>
+                {isNeutral ? (
+                    <span style={{ color: '#64748b', fontSize: '0.75rem' }}>
+                        Informativo
+                    </span>
+                ) : isWinA ? (
+                    <span style={{ color: '#22d3ee', fontWeight: 700, fontSize: '0.75rem' }}>
+                        ★ {nameA}
+                    </span>
+                ) : isWinB ? (
+                    <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '0.75rem' }}>
+                        ★ {nameB}
+                    </span>
+                ) : (
+                    <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
+                        = Empate
+                    </span>
+                )}
+            </td>
+        </tr>
     );
 };

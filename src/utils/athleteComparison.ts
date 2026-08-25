@@ -1,6 +1,6 @@
 import type { BodyMeasurements } from '../types/measurements';
 import { analyzeProportions } from './proportions';
-import { calculateBerkhanLimit, calculateSkeletalPotential } from './skeletal';
+import { calculateBerkhanLimit, calculateSkeletalPotential, calculateFFMI } from './skeletal';
 
 export interface ComparisonProfile {
     id: string;
@@ -8,6 +8,10 @@ export interface ComparisonProfile {
     title: string;
     era?: string;
     sex: 'male' | 'female';
+    age?: number;
+    height?: number;
+    weight?: number;
+    bodyFat?: number;
     date?: string;
     measurements: Partial<BodyMeasurements>;
     isCustom?: boolean;
@@ -15,14 +19,15 @@ export interface ComparisonProfile {
 
 export interface HeadToHeadMetric {
     key: string;
+    category?: 'biometrics' | 'ratios' | 'perimeters';
     label: string;
-    valA: number;
-    valB: number;
-    diff: number; // A - B
-    percentDiff: number; // ((A - B) / B) * 100
+    valA: number | string;
+    valB: number | string;
+    diff: number | string;
+    percentDiff?: number;
     unit: string;
-    higherIsBetter: boolean; // e.g. true for chest/arms, false for waist
-    winner: 'A' | 'B' | 'TIE';
+    higherIsBetter?: boolean; // true, false or undefined if neutral
+    winner: 'A' | 'B' | 'TIE' | 'NEUTRAL';
     insight?: string;
 }
 
@@ -33,6 +38,15 @@ export interface DualRadarPoint {
     ideal: number;
     valA: string;
     valB: string;
+}
+
+export interface BioSummaryChip {
+    height: number;
+    age: number;
+    weight: number;
+    bodyFat: number;
+    leanMassKg: number;
+    ffmi: number;
 }
 
 export interface ComparisonVerdict {
@@ -49,6 +63,8 @@ export interface ComparisonVerdict {
     vTaperB: number;
     triadScoreA: number;
     triadScoreB: number;
+    bioA: BioSummaryChip;
+    bioB: BioSummaryChip;
 }
 
 export interface FullAthleteComparison {
@@ -67,6 +83,10 @@ export const CANONICAL_PRESETS: ComparisonProfile[] = [
         title: 'Canon Clásico de la Proporción Áurea (1950)',
         era: 'Golden Era 1950',
         sex: 'male',
+        age: 24,
+        height: 185,
+        weight: 97.0,
+        bodyFat: 10.5,
         measurements: {
             height: 185,
             weight: 97.0,
@@ -90,6 +110,10 @@ export const CANONICAL_PRESETS: ComparisonProfile[] = [
         title: 'Estándar Estético & V-Taper Extremo (1979)',
         era: 'Mr. Olympia 1979',
         sex: 'male',
+        age: 37,
+        height: 175,
+        weight: 84.0,
+        bodyFat: 7.8,
         measurements: {
             height: 175,
             weight: 84.0,
@@ -113,6 +137,10 @@ export const CANONICAL_PRESETS: ComparisonProfile[] = [
         title: 'Volumen & Torso Dominante (1975)',
         era: 'Mr. Olympia 1975',
         sex: 'male',
+        age: 28,
+        height: 188,
+        weight: 106.0,
+        bodyFat: 9.0,
         measurements: {
             height: 188,
             weight: 106.0,
@@ -147,6 +175,15 @@ export const compareAthletes = (
     const mA = profileA.measurements || {};
     const mB = profileB.measurements || {};
 
+    const heightA = profileA.height || mA.height || 178;
+    const heightB = profileB.height || mB.height || 178;
+    const ageA = profileA.age || 28;
+    const ageB = profileB.age || 26;
+    const weightA = profileA.weight || mA.weight || 80;
+    const weightB = profileB.weight || mB.weight || 80;
+    const bfA = profileA.bodyFat ?? mA.bodyFat ?? 12.0;
+    const bfB = profileB.bodyFat ?? mB.bodyFat ?? 12.0;
+
     const armA = getAvg(mA.arm);
     const armB = getAvg(mB.arm);
     const foreA = getAvg(mA.forearm);
@@ -166,14 +203,22 @@ export const compareAthletes = (
     const waistB = mB.waist || 0;
     const neckA = mA.neck || 0;
     const neckB = mB.neck || 0;
-    const weightA = mA.weight || 0;
-    const weightB = mB.weight || 0;
-    const bfA = mA.bodyFat || 0;
-    const bfB = mB.bodyFat || 0;
+
+    // Body Composition & FFMI Calculations
+    const ffmiResA = calculateFFMI(weightA, heightA, bfA);
+    const ffmiResB = calculateFFMI(weightB, heightB, bfB);
+
+    const leanMassA = ffmiResA?.leanMassKg || parseFloat((weightA * (1 - bfA / 100)).toFixed(1));
+    const leanMassB = ffmiResB?.leanMassKg || parseFloat((weightB * (1 - bfB / 100)).toFixed(1));
+    const ffmiA = ffmiResA?.normalizedFFMI || 22.0;
+    const ffmiB = ffmiResB?.normalizedFFMI || 22.0;
 
     // Ratios
     const vTaperA = waistA > 0 ? parseFloat((chestA / waistA).toFixed(2)) : 0;
     const vTaperB = waistB > 0 ? parseFloat((chestB / waistB).toFixed(2)) : 0;
+
+    const whtrA = heightA > 0 ? parseFloat((waistA / heightA).toFixed(2)) : 0;
+    const whtrB = heightB > 0 ? parseFloat((waistB / heightB).toFixed(2)) : 0;
 
     const armDensityA = wristA > 0 ? parseFloat((armA / wristA).toFixed(2)) : 0;
     const armDensityB = wristB > 0 ? parseFloat((armB / wristB).toFixed(2)) : 0;
@@ -186,8 +231,8 @@ export const compareAthletes = (
     const triadScoreB = propB?.reevesTriad.symmetryScore || 0;
 
     // Berkhan / Skeletal Limits
-    const berkhanA = calculateBerkhanLimit(mA.height || 175, profileA.sex || 'male', bfA || 10);
-    const berkhanB = calculateBerkhanLimit(mB.height || 175, profileB.sex || 'male', bfB || 10);
+    const berkhanA = calculateBerkhanLimit(heightA, profileA.sex || 'male', bfA);
+    const berkhanB = calculateBerkhanLimit(heightB, profileB.sex || 'male', bfB);
 
     const ceilingPctA = (berkhanA && berkhanA.maxWeightAtCurrentBf > 0 && weightA > 0)
         ? Math.min(100, Math.round((weightA / berkhanA.maxWeightAtCurrentBf) * 100))
@@ -198,13 +243,95 @@ export const compareAthletes = (
         : 0;
 
     // Skeletal Potential Chest / Biceps target check
-    const skelA = calculateSkeletalPotential(wristA, ankleA, mA.height || 175, profileA.sex || 'male');
-    const skelB = calculateSkeletalPotential(wristB, ankleB, mB.height || 175, profileB.sex || 'male');
+    const skelA = calculateSkeletalPotential(wristA, ankleA, heightA, profileA.sex || 'male');
+    const skelB = calculateSkeletalPotential(wristB, ankleB, heightB, profileB.sex || 'male');
 
-    // Metrics List
+    // Comprehensive Metrics List categorized
     const metrics: HeadToHeadMetric[] = [
+        // --- 1. BIOMETRIC CORE & COMPOSITION ---
+        {
+            key: 'height',
+            category: 'biometrics',
+            label: 'Estatura / Altura',
+            valA: heightA,
+            valB: heightB,
+            diff: parseFloat((heightA - heightB).toFixed(1)),
+            percentDiff: heightB > 0 ? parseFloat((((heightA - heightB) / heightB) * 100).toFixed(1)) : 0,
+            unit: 'cm',
+            higherIsBetter: true,
+            winner: heightA > heightB ? 'A' : heightA < heightB ? 'B' : 'TIE',
+            insight: 'Estatura total. Mayor altura requiere mayor volumen total para misma densidad visual.'
+        },
+        {
+            key: 'age',
+            category: 'biometrics',
+            label: 'Edad Cronológica',
+            valA: ageA,
+            valB: ageB,
+            diff: ageA - ageB,
+            percentDiff: ageB > 0 ? parseFloat((((ageA - ageB) / ageB) * 100).toFixed(1)) : 0,
+            unit: 'años',
+            higherIsBetter: false, // In training, younger has hormonal edge, older has training age
+            winner: ageA < ageB ? 'A' : ageA > ageB ? 'B' : 'TIE',
+            insight: 'Edad al momento del registro biométrico.'
+        },
+        {
+            key: 'weight',
+            category: 'biometrics',
+            label: 'Peso Corporal Total',
+            valA: weightA,
+            valB: weightB,
+            diff: parseFloat((weightA - weightB).toFixed(1)),
+            percentDiff: weightB > 0 ? parseFloat((((weightA - weightB) / weightB) * 100).toFixed(1)) : 0,
+            unit: 'kg',
+            higherIsBetter: true,
+            winner: weightA > weightB ? 'A' : weightA < weightB ? 'B' : 'TIE',
+            insight: 'Masa corporal total en báscula.'
+        },
+        {
+            key: 'leanMass',
+            category: 'biometrics',
+            label: 'Masa Libre de Grasa (Masa Magra)',
+            valA: leanMassA,
+            valB: leanMassB,
+            diff: parseFloat((leanMassA - leanMassB).toFixed(1)),
+            percentDiff: leanMassB > 0 ? parseFloat((((leanMassA - leanMassB) / leanMassB) * 100).toFixed(1)) : 0,
+            unit: 'kg',
+            higherIsBetter: true,
+            winner: leanMassA > leanMassB ? 'A' : leanMassA < leanMassB ? 'B' : 'TIE',
+            insight: 'Masa muscular y contráctil real sin tejido adiposo.'
+        },
+        {
+            key: 'ffmi',
+            category: 'biometrics',
+            label: 'FFMI Normalizado (Kouri et al.)',
+            valA: ffmiA,
+            valB: ffmiB,
+            diff: parseFloat((ffmiA - ffmiB).toFixed(1)),
+            percentDiff: ffmiB > 0 ? parseFloat((((ffmiA - ffmiB) / ffmiB) * 100).toFixed(1)) : 0,
+            unit: 'pts',
+            higherIsBetter: true,
+            winner: ffmiA > ffmiB ? 'A' : ffmiA < ffmiB ? 'B' : 'TIE',
+            insight: 'Índice de masa libre de grasa ajustado a 1.80m de altura (Límite natural ~25.0).'
+        },
+        {
+            key: 'bodyFat',
+            category: 'biometrics',
+            label: 'Grasa Corporal Estimada',
+            valA: bfA,
+            valB: bfB,
+            diff: parseFloat((bfA - bfB).toFixed(1)),
+            percentDiff: bfB > 0 ? parseFloat((((bfA - bfB) / bfB) * 100).toFixed(1)) : 0,
+            unit: '%',
+            higherIsBetter: false,
+            winner: bfA < bfB && bfA > 0 ? 'A' : bfA > bfB ? 'B' : 'TIE',
+            insight: 'Menor porcentaje revela mayor definición y separación muscular.'
+        },
+
+        // --- 2. RATIOS ÁUREOS & CANON ESTÉTICO ---
         {
             key: 'vTaper',
+            category: 'ratios',
             label: 'Ratio V-Taper (Pecho / Cintura)',
             valA: vTaperA,
             valB: vTaperB,
@@ -213,10 +340,65 @@ export const compareAthletes = (
             unit: 'x',
             higherIsBetter: true,
             winner: vTaperA > vTaperB ? 'A' : vTaperA < vTaperB ? 'B' : 'TIE',
-            insight: 'Mayor conicidad y amplitud torácica frente a cintura.'
+            insight: 'Conicidad clásica del torso frente a cintura (Ideal clásico: 1.618x).'
         },
         {
+            key: 'whtr',
+            category: 'ratios',
+            label: 'Ratio Cintura / Altura (WHtR)',
+            valA: whtrA,
+            valB: whtrB,
+            diff: parseFloat((whtrA - whtrB).toFixed(2)),
+            percentDiff: whtrB > 0 ? parseFloat((((whtrA - whtrB) / whtrB) * 100).toFixed(1)) : 0,
+            unit: 'x',
+            higherIsBetter: false,
+            winner: whtrA < whtrB && whtrA > 0 ? 'A' : whtrA > whtrB ? 'B' : 'TIE',
+            insight: 'Esbeltez del talle en relación a la estatura (< 0.45 óptimo estético).'
+        },
+        {
+            key: 'triad',
+            category: 'ratios',
+            label: 'Simetría Tríada Steve Reeves (1:1:1)',
+            valA: triadScoreA,
+            valB: triadScoreB,
+            diff: parseFloat((triadScoreA - triadScoreB).toFixed(0)),
+            percentDiff: triadScoreB > 0 ? parseFloat((((triadScoreA - triadScoreB) / triadScoreB) * 100).toFixed(1)) : 0,
+            unit: '%',
+            higherIsBetter: true,
+            winner: triadScoreA > triadScoreB ? 'A' : triadScoreA < triadScoreB ? 'B' : 'TIE',
+            insight: 'Equilibrio de volumen idéntico entre Brazo, Cuello y Gemelo.'
+        },
+        {
+            key: 'geneticLimit',
+            category: 'ratios',
+            label: '% Techo Magro Estimado (Casey Butt)',
+            valA: ceilingPctA,
+            valB: ceilingPctB,
+            diff: parseFloat((ceilingPctA - ceilingPctB).toFixed(0)),
+            percentDiff: ceilingPctB > 0 ? parseFloat((((ceilingPctA - ceilingPctB) / ceilingPctB) * 100).toFixed(1)) : 0,
+            unit: '%',
+            higherIsBetter: true,
+            winner: ceilingPctA > ceilingPctB ? 'A' : ceilingPctA < ceilingPctB ? 'B' : 'TIE',
+            insight: 'Desarrollo muscular alcanzado respecto al límite óseo natural.'
+        },
+        {
+            key: 'armDensity',
+            category: 'ratios',
+            label: 'Densidad Brazo / Muñeca',
+            valA: armDensityA,
+            valB: armDensityB,
+            diff: parseFloat((armDensityA - armDensityB).toFixed(2)),
+            percentDiff: armDensityB > 0 ? parseFloat((((armDensityA - armDensityB) / armDensityB) * 100).toFixed(1)) : 0,
+            unit: 'x',
+            higherIsBetter: true,
+            winner: armDensityA > armDensityB ? 'A' : armDensityA < armDensityB ? 'B' : 'TIE',
+            insight: 'Volumen del brazo en proporción al grosor articular de la muñeca (2.5x ideal).'
+        },
+
+        // --- 3. PERÍMETROS MUSCULARES DIRECTOS ---
+        {
             key: 'pecho',
+            category: 'perimeters',
             label: 'Perímetro Torácico (Pecho)',
             valA: chestA,
             valB: chestB,
@@ -228,6 +410,7 @@ export const compareAthletes = (
         },
         {
             key: 'neck',
+            category: 'perimeters',
             label: 'Cuello',
             valA: neckA,
             valB: neckB,
@@ -239,18 +422,20 @@ export const compareAthletes = (
         },
         {
             key: 'waist',
+            category: 'perimeters',
             label: 'Perímetro de Cintura',
             valA: waistA,
             valB: waistB,
             diff: parseFloat((waistA - waistB).toFixed(1)),
             percentDiff: waistB > 0 ? parseFloat((((waistA - waistB) / waistB) * 100).toFixed(1)) : 0,
             unit: 'cm',
-            higherIsBetter: false, // Menor cintura es estéticamente mejor
+            higherIsBetter: false,
             winner: waistA < waistB && waistA > 0 ? 'A' : waistA > waistB ? 'B' : 'TIE',
-            insight: 'Cintura más compacta maximiza la ilusión estética.'
+            insight: 'Cintura más compacta crea mayor ilusión óptica de amplitud.'
         },
         {
             key: 'arm',
+            category: 'perimeters',
             label: 'Brazo / Bíceps Promedio',
             valA: armA,
             valB: armB,
@@ -261,19 +446,20 @@ export const compareAthletes = (
             winner: armA > armB ? 'A' : armA < armB ? 'B' : 'TIE'
         },
         {
-            key: 'armDensity',
-            label: 'Densidad Brazo / Muñeca',
-            valA: armDensityA,
-            valB: armDensityB,
-            diff: parseFloat((armDensityA - armDensityB).toFixed(2)),
-            percentDiff: armDensityB > 0 ? parseFloat((((armDensityA - armDensityB) / armDensityB) * 100).toFixed(1)) : 0,
-            unit: 'x',
+            key: 'forearm',
+            category: 'perimeters',
+            label: 'Antebrazos',
+            valA: foreA,
+            valB: foreB,
+            diff: parseFloat((foreA - foreB).toFixed(1)),
+            percentDiff: foreB > 0 ? parseFloat((((foreA - foreB) / foreB) * 100).toFixed(1)) : 0,
+            unit: 'cm',
             higherIsBetter: true,
-            winner: armDensityA > armDensityB ? 'A' : armDensityA < armDensityB ? 'B' : 'TIE',
-            insight: 'Volumen muscular relativo a la estructura ósea articular.'
+            winner: foreA > foreB ? 'A' : foreA < foreB ? 'B' : 'TIE'
         },
         {
             key: 'thigh',
+            category: 'perimeters',
             label: 'Muslos / Cuádriceps',
             valA: thighA,
             valB: thighB,
@@ -285,6 +471,7 @@ export const compareAthletes = (
         },
         {
             key: 'calf',
+            category: 'perimeters',
             label: 'Gemelos / Pantorrillas',
             valA: calfA,
             valB: calfB,
@@ -295,39 +482,15 @@ export const compareAthletes = (
             winner: calfA > calfB ? 'A' : calfA < calfB ? 'B' : 'TIE'
         },
         {
-            key: 'triad',
-            label: 'Simetría Tríada de Steve Reeves',
-            valA: triadScoreA,
-            valB: triadScoreB,
-            diff: parseFloat((triadScoreA - triadScoreB).toFixed(0)),
-            percentDiff: triadScoreB > 0 ? parseFloat((((triadScoreA - triadScoreB) / triadScoreB) * 100).toFixed(1)) : 0,
-            unit: '%',
-            higherIsBetter: true,
-            winner: triadScoreA > triadScoreB ? 'A' : triadScoreA < triadScoreB ? 'B' : 'TIE',
-            insight: 'Equilibrio de proporción 1:1:1 entre Brazo, Cuello y Gemelo.'
-        },
-        {
-            key: 'geneticLimit',
-            label: '% Techo Magro Estimado',
-            valA: ceilingPctA,
-            valB: ceilingPctB,
-            diff: parseFloat((ceilingPctA - ceilingPctB).toFixed(0)),
-            percentDiff: ceilingPctB > 0 ? parseFloat((((ceilingPctA - ceilingPctB) / ceilingPctB) * 100).toFixed(1)) : 0,
-            unit: '%',
-            higherIsBetter: true,
-            winner: ceilingPctA > ceilingPctB ? 'A' : ceilingPctA < ceilingPctB ? 'B' : 'TIE',
-            insight: 'Desarrollo alcanzado respecto al potencial óseo natural.'
-        },
-        {
-            key: 'bodyFat',
-            label: 'Grasa Corporal Estimada',
-            valA: bfA,
-            valB: bfB,
-            diff: parseFloat((bfA - bfB).toFixed(1)),
-            percentDiff: bfB > 0 ? parseFloat((((bfA - bfB) / bfB) * 100).toFixed(1)) : 0,
-            unit: '%',
-            higherIsBetter: false,
-            winner: bfA < bfB && bfA > 0 ? 'A' : bfA > bfB ? 'B' : 'TIE'
+            key: 'bones',
+            category: 'perimeters',
+            label: 'Estructura Ósea (Muñeca / Tobillo)',
+            valA: `${wristA} / ${ankleA}`,
+            valB: `${wristB} / ${ankleB}`,
+            diff: `${parseFloat((wristA - wristB).toFixed(1))} / ${parseFloat((ankleA - ankleB).toFixed(1))}`,
+            unit: 'cm',
+            winner: 'NEUTRAL',
+            insight: 'Base articular ósea que determina el potencial hipertrófico natural.'
         }
     ];
 
@@ -388,7 +551,7 @@ export const compareAthletes = (
         }
     ];
 
-    // Score tally
+    // Score tally (excluding NEUTRAL)
     let scoreA = 0;
     let scoreB = 0;
     const strengthsA: string[] = [];
@@ -413,14 +576,32 @@ export const compareAthletes = (
 
     if (winner === 'A') {
         verdictTitle = `${profileA.name} lidera el Duelo Táctico (${scoreA} vs ${scoreB})`;
-        verdictSummary = `${profileA.name} muestra superioridad biomecánica destacada en ${strengthsA.slice(0, 3).join(', ')}. Mantén el plan de volumen para consolidar la ventaja.`;
+        verdictSummary = `${profileA.name} muestra superioridad destacada en ${strengthsA.slice(0, 3).join(', ')}. Mantén el enfoque biomecánico para consolidar la ventaja.`;
     } else if (winner === 'B') {
         verdictTitle = `${profileB.name} lidera la Comparativa (${scoreB} vs ${scoreA})`;
-        verdictSummary = `${profileB.name} presenta ventaja en ${strengthsB.slice(0, 3).join(', ')}. Enfoque prioritario en ${strengthsB.slice(0, 2).join(' y ')} para cerrar el gap de simetría.`;
+        verdictSummary = `${profileB.name} presenta ventaja en ${strengthsB.slice(0, 3).join(', ')}. Enfoque prioritario en ${strengthsB.slice(0, 2).join(' y ')} para cerrar la brecha estética.`;
     } else {
         verdictTitle = 'Duelo Biomecánico Equilibrado (Empate Técnico)';
-        verdictSummary = 'Ambos físicos demuestran un nivel parejo de desarrollo y proporciones equivalentes con ligeras ventajas cruzadas entre tren superior e inferior.';
+        verdictSummary = 'Ambos físicos demuestran un nivel parejo de desarrollo y proporciones equivalentes con fortalezas complementarias.';
     }
+
+    const bioA: BioSummaryChip = {
+        height: heightA,
+        age: ageA,
+        weight: weightA,
+        bodyFat: bfA,
+        leanMassKg: leanMassA,
+        ffmi: ffmiA
+    };
+
+    const bioB: BioSummaryChip = {
+        height: heightB,
+        age: ageB,
+        weight: weightB,
+        bodyFat: bfB,
+        leanMassKg: leanMassB,
+        ffmi: ffmiB
+    };
 
     const verdict: ComparisonVerdict = {
         winner,
@@ -435,7 +616,9 @@ export const compareAthletes = (
         vTaperA,
         vTaperB,
         triadScoreA,
-        triadScoreB
+        triadScoreB,
+        bioA,
+        bioB
     };
 
     return {

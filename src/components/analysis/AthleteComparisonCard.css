@@ -169,6 +169,60 @@
     color: #94a3b8;
 }
 
+.fighter-bio-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.4rem;
+}
+
+.fighter-a .fighter-bio-chips {
+    justify-content: flex-start;
+}
+
+.fighter-b .fighter-bio-chips {
+    justify-content: flex-end;
+}
+
+.bio-chip {
+    font-size: 0.68rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 700;
+    padding: 0.2rem 0.45rem;
+    border-radius: 0.4rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.fighter-a .bio-chip {
+    border-color: rgba(6, 182, 212, 0.25);
+}
+
+.fighter-b .bio-chip {
+    border-color: rgba(245, 158, 11, 0.25);
+}
+
+.bio-chip strong {
+    color: #ffffff;
+}
+
+.versus-table-category-row td {
+    background: rgba(255, 255, 255, 0.03);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #fbbf24;
+    padding: 0.6rem 0.6rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .versus-vs-badge {
     display: flex;
     flex-direction: column;

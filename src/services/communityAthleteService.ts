@@ -18,6 +18,10 @@ export const DEFAULT_COMMUNITY_ATHLETES: ComparisonProfile[] = [
         title: 'Atleta Intermedio (Powerbuilder)',
         era: 'Comunidad (84.0 kg)',
         sex: 'male',
+        age: 26,
+        height: 180,
+        weight: 84.0,
+        bodyFat: 12.0,
         date: '2026-08-18',
         measurements: {
             height: 180,
@@ -42,6 +46,10 @@ export const DEFAULT_COMMUNITY_ATHLETES: ComparisonProfile[] = [
         title: 'Atleta Avanzado (Recomposición Táctica)',
         era: 'Comunidad (79.5 kg)',
         sex: 'male',
+        age: 29,
+        height: 174,
+        weight: 79.5,
+        bodyFat: 10.2,
         date: '2026-08-12',
         measurements: {
             height: 174,
@@ -66,6 +74,10 @@ export const DEFAULT_COMMUNITY_ATHLETES: ComparisonProfile[] = [
         title: 'Hipertrofia Clásica (V-Taper Dominante)',
         era: 'Comunidad (81.2 kg)',
         sex: 'male',
+        age: 27,
+        height: 177,
+        weight: 81.2,
+        bodyFat: 11.5,
         date: '2026-08-05',
         measurements: {
             height: 177,
@@ -90,6 +102,10 @@ export const DEFAULT_COMMUNITY_ATHLETES: ComparisonProfile[] = [
         title: 'Atleta Femenina (Aesthetic & Glúteos)',
         era: 'Comunidad (58.5 kg)',
         sex: 'female',
+        age: 25,
+        height: 165,
+        weight: 58.5,
+        bodyFat: 18.5,
         date: '2026-08-15',
         measurements: {
             height: 165,
@@ -114,6 +130,10 @@ export const DEFAULT_COMMUNITY_ATHLETES: ComparisonProfile[] = [
         title: 'Volumen Limpio & Fuerza',
         era: 'Comunidad (86.0 kg)',
         sex: 'male',
+        age: 31,
+        height: 182,
+        weight: 86.0,
+        bodyFat: 13.5,
         date: '2026-07-28',
         measurements: {
             height: 182,
@@ -159,6 +179,10 @@ export const fetchCommunityAthletes = async (currentUserId?: string): Promise<Co
                     title: data.title || 'Usuario Registrado',
                     era: weightStr ? `${weightStr} (${dateStr})` : dateStr,
                     sex: data.sex || 'male',
+                    age: data.age || 26,
+                    height: data.height || data.measurements.height || 178,
+                    weight: data.weight || data.measurements.weight || 80,
+                    bodyFat: data.bodyFat ?? data.measurements.bodyFat ?? 12,
                     date: data.date,
                     measurements: data.measurements as Partial<BodyMeasurements>
                 });
@@ -187,19 +211,27 @@ export const publishCommunityAthlete = async (
     userId: string,
     name: string,
     sex: 'male' | 'female',
-    latestRecord: MeasurementRecord
+    latestRecord: MeasurementRecord,
+    age?: number
 ): Promise<void> => {
     if (!isFirebaseConfigured || !userId || userId === 'guest' || !latestRecord) return;
 
     try {
         const athleteRef = doc(db, 'community_athletes', userId);
         const weight = latestRecord.measurements?.weight;
+        const height = latestRecord.measurements?.height;
+        const bodyFat = latestRecord.measurements?.bodyFat;
+
         const payload = {
             id: userId,
             name: name || 'Atleta',
             title: 'Atleta Registrado',
             era: weight ? `${weight} kg` : 'Comunidad',
             sex: sex || 'male',
+            age: age || 28,
+            height: height || 178,
+            weight: weight || 80,
+            bodyFat: bodyFat ?? 12,
             date: latestRecord.date,
             measurements: latestRecord.measurements || {},
             updatedAt: new Date().toISOString()
