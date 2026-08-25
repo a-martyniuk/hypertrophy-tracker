@@ -4,7 +4,7 @@ import {
     ReferenceLine,
     YAxis
 } from 'recharts';
-import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale, Download, Dumbbell } from 'lucide-react';
+import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale, Download, Dumbbell, Swords } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
@@ -20,6 +20,7 @@ import { BenchmarkCard } from './analysis/BenchmarkCard';
 import { RatioBenchmarkCard } from './analysis/RatioBenchmarkCard';
 import { MuscleHistoryModal } from './analysis/MuscleHistoryModal';
 import { TrainingPrescriptionCard } from './analysis/TrainingPrescriptionCard';
+import { AthleteComparisonCard } from './analysis/AthleteComparisonCard';
 import type { MuscleBenchmark } from '../utils/benchmarkAnalysis';
 import './AnalysisView.css';
 
@@ -34,7 +35,7 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const muscleId = searchParams.get('muscle');
-    const [activeTab, setActiveTab] = useState<'prescription' | 'benchmarks' | 'ratios' | 'history'>('prescription');
+    const [activeTab, setActiveTab] = useState<'prescription' | 'benchmarks' | 'ratios' | 'history' | 'versus'>('prescription');
     const [selectedBenchmark, setSelectedBenchmark] = useState<MuscleBenchmark | null>(null);
 
     const latestRecord = records[0];
@@ -240,6 +241,14 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                         <span>Tendencias</span>
                     </button>
                     <button
+                        onClick={() => setActiveTab('versus')}
+                        className={`analysis-tab-btn ${activeTab === 'versus' ? 'active' : ''}`}
+                        style={{ color: activeTab === 'versus' ? '#22d3ee' : undefined }}
+                    >
+                        <Swords size={14} />
+                        <span>Duelo & Comparativa</span>
+                    </button>
+                    <button
                         onClick={() => navigate('/potential')}
                         className="analysis-tab-btn"
                         style={{ color: '#fbbf24', borderLeft: '1px solid rgba(255, 255, 255, 0.1)', paddingLeft: '0.75rem' }}
@@ -395,6 +404,17 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                             <Line type="monotone" dataKey="whr" stroke="#fbbf24" name={t('analysis.charts.whr.series')} strokeWidth={2} />
                         </MeasurementChart>
                     </div>
+                </section>
+            )}
+
+            {/* TAB 5: VERSUS & ATHLETE COMPARISON */}
+            {activeTab === 'versus' && (
+                <section className="tab-section animate-fade">
+                    <AthleteComparisonCard
+                        currentRecord={latestRecord}
+                        records={records}
+                        sex={sex}
+                    />
                 </section>
             )}
 
