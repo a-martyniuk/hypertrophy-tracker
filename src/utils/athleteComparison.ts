@@ -7,6 +7,7 @@ export interface ComparisonProfile {
     name: string;
     title: string;
     era?: string;
+    category?: 'golden' | 'mass' | 'lean' | 'modern' | 'female' | 'community';
     sex: 'male' | 'female';
     age?: number;
     height?: number;
@@ -75,13 +76,15 @@ export interface FullAthleteComparison {
     verdict: ComparisonVerdict;
 }
 
-// --- CANONICAL BENCHMARK PRESETS ---
+// --- CANONICAL BENCHMARK PRESETS (Categorized) ---
 export const CANONICAL_PRESETS: ComparisonProfile[] = [
+    // 1. LEYENDAS DE ORO & ESTÉTICA CLÁSICA (Golden Era)
     {
         id: 'steve_reeves_1950',
         name: 'Steve Reeves',
         title: 'Canon Clásico de la Proporción Áurea (1950)',
         era: 'Golden Era 1950',
+        category: 'golden',
         sex: 'male',
         age: 24,
         height: 185,
@@ -109,6 +112,7 @@ export const CANONICAL_PRESETS: ComparisonProfile[] = [
         name: 'Frank Zane',
         title: 'Estándar Estético & V-Taper Extremo (1979)',
         era: 'Mr. Olympia 1979',
+        category: 'golden',
         sex: 'male',
         age: 37,
         height: 175,
@@ -132,10 +136,125 @@ export const CANONICAL_PRESETS: ComparisonProfile[] = [
         }
     },
     {
+        id: 'serge_nubret_1975',
+        name: 'Serge Nubret',
+        title: 'La Pantera Negra — Máxima Amplitud Torácica (1975)',
+        era: 'Golden Era 1975',
+        category: 'golden',
+        sex: 'male',
+        age: 36,
+        height: 183,
+        weight: 96.0,
+        bodyFat: 7.5,
+        measurements: {
+            height: 183,
+            weight: 96.0,
+            bodyFat: 7.5,
+            neck: 44.5,
+            pecho: 145.0,
+            back: 140.0,
+            waist: 71.0,
+            hips: 96.0,
+            arm: { left: 50.8, right: 50.8 },
+            forearm: { left: 38.0, right: 38.0 },
+            thigh: { left: 68.5, right: 68.5 },
+            calf: { left: 46.0, right: 46.0 },
+            wrist: { left: 18.0, right: 18.0 },
+            ankle: { left: 23.0, right: 23.0 }
+        }
+    },
+    {
+        id: 'bob_paris_1984',
+        name: 'Bob Paris',
+        title: 'El Físico Más Armónico y Escultórico (1984)',
+        era: 'Mr. Universe 1984',
+        category: 'golden',
+        sex: 'male',
+        age: 25,
+        height: 183,
+        weight: 98.0,
+        bodyFat: 6.5,
+        measurements: {
+            height: 183,
+            weight: 98.0,
+            bodyFat: 6.5,
+            neck: 44.5,
+            pecho: 132.0,
+            back: 130.0,
+            waist: 74.0,
+            hips: 96.0,
+            arm: { left: 48.0, right: 48.0 },
+            forearm: { left: 37.0, right: 37.0 },
+            thigh: { left: 67.0, right: 67.0 },
+            calf: { left: 44.5, right: 44.5 },
+            wrist: { left: 18.0, right: 18.0 },
+            ankle: { left: 23.0, right: 23.0 }
+        }
+    },
+    {
+        id: 'john_grimek_1941',
+        name: 'John Grimek',
+        title: 'El Monarca Invicto — Proporción Pre-Química (1941)',
+        era: 'Mr. America 1941',
+        category: 'golden',
+        sex: 'male',
+        age: 31,
+        height: 174,
+        weight: 88.5,
+        bodyFat: 9.5,
+        measurements: {
+            height: 174,
+            weight: 88.5,
+            bodyFat: 9.5,
+            neck: 43.0,
+            pecho: 122.0,
+            back: 120.0,
+            waist: 77.5,
+            hips: 97.0,
+            arm: { left: 44.5, right: 44.5 },
+            forearm: { left: 35.5, right: 35.5 },
+            thigh: { left: 63.5, right: 63.5 },
+            calf: { left: 43.0, right: 43.0 },
+            wrist: { left: 18.5, right: 18.5 },
+            ankle: { left: 23.0, right: 23.0 }
+        }
+    },
+    {
+        id: 'eugen_sandow_1894',
+        name: 'Eugen Sandow',
+        title: 'El Padre del Culturismo & Escultura Griega (1894)',
+        era: 'Pionero Clásico 1894',
+        category: 'golden',
+        sex: 'male',
+        age: 27,
+        height: 175,
+        weight: 84.0,
+        bodyFat: 9.0,
+        measurements: {
+            height: 175,
+            weight: 84.0,
+            bodyFat: 9.0,
+            neck: 44.5,
+            pecho: 122.0,
+            back: 120.0,
+            waist: 73.5,
+            hips: 94.0,
+            arm: { left: 44.5, right: 44.5 },
+            forearm: { left: 35.5, right: 35.5 },
+            thigh: { left: 61.0, right: 61.0 },
+            calf: { left: 43.0, right: 43.0 },
+            wrist: { left: 19.0, right: 19.0 },
+            ankle: { left: 24.0, right: 24.0 }
+        }
+    },
+
+    // 2. PODER, MASA & DENSIDAD (Heavyweight Titans)
+    {
         id: 'arnold_schwarzenegger_1975',
         name: 'Arnold Schwarzenegger',
-        title: 'Volumen & Torso Dominante (1975)',
+        title: 'El Roble Austríaco — Volumen & Torso Dominante (1975)',
         era: 'Mr. Olympia 1975',
+        category: 'mass',
         sex: 'male',
         age: 28,
         height: 188,
@@ -156,6 +275,180 @@ export const CANONICAL_PRESETS: ComparisonProfile[] = [
             calf: { left: 51.0, right: 51.0 },
             wrist: { left: 19.5, right: 19.5 },
             ankle: { left: 24.5, right: 24.5 }
+        }
+    },
+    {
+        id: 'reg_park_1958',
+        name: 'Reg Park',
+        title: 'Leyenda de Fuerza & Densidad Suprema (1958)',
+        era: 'Mr. Universe 1958',
+        category: 'mass',
+        sex: 'male',
+        age: 30,
+        height: 185,
+        weight: 103.0,
+        bodyFat: 10.0,
+        measurements: {
+            height: 185,
+            weight: 103.0,
+            bodyFat: 10.0,
+            neck: 46.0,
+            pecho: 137.0,
+            back: 135.0,
+            waist: 81.0,
+            hips: 101.0,
+            arm: { left: 48.5, right: 48.5 },
+            forearm: { left: 38.0, right: 38.0 },
+            thigh: { left: 68.5, right: 68.5 },
+            calf: { left: 44.5, right: 44.5 },
+            wrist: { left: 19.5, right: 19.5 },
+            ankle: { left: 25.0, right: 25.0 }
+        }
+    },
+    {
+        id: 'franco_columbu_1976',
+        name: 'Franco Columbu',
+        title: 'El Coloso Sardo — Máxima Densidad Relativa (1976)',
+        era: 'Mr. Olympia 1976',
+        category: 'mass',
+        sex: 'male',
+        age: 35,
+        height: 165,
+        weight: 84.0,
+        bodyFat: 8.0,
+        measurements: {
+            height: 165,
+            weight: 84.0,
+            bodyFat: 8.0,
+            neck: 44.0,
+            pecho: 132.0,
+            back: 130.0,
+            waist: 76.0,
+            hips: 96.0,
+            arm: { left: 48.5, right: 48.5 },
+            forearm: { left: 37.0, right: 37.0 },
+            thigh: { left: 66.0, right: 66.0 },
+            calf: { left: 44.5, right: 44.5 },
+            wrist: { left: 17.5, right: 17.5 },
+            ankle: { left: 22.0, right: 22.0 }
+        }
+    },
+    {
+        id: 'tom_platz_1981',
+        name: 'Tom Platz',
+        title: 'The Quadfather — Desarrollo de Piernas Histórico (1981)',
+        era: 'Golden Era 1981',
+        category: 'mass',
+        sex: 'male',
+        age: 26,
+        height: 173,
+        weight: 104.0,
+        bodyFat: 7.0,
+        measurements: {
+            height: 173,
+            weight: 104.0,
+            bodyFat: 7.0,
+            neck: 43.0,
+            pecho: 127.0,
+            back: 125.0,
+            waist: 76.0,
+            hips: 102.0,
+            arm: { left: 47.0, right: 47.0 },
+            forearm: { left: 37.0, right: 37.0 },
+            thigh: { left: 76.0, right: 76.0 },
+            calf: { left: 50.0, right: 50.0 },
+            wrist: { left: 18.0, right: 18.0 },
+            ankle: { left: 24.0, right: 24.0 }
+        }
+    },
+
+    // 3. DEFINICIÓN & CALISTENIA FUNCIONAL (Lean & Athletic)
+    {
+        id: 'bruce_lee_1973',
+        name: 'Bruce Lee',
+        title: 'Operación Dragón — Definición Funcional & Calistenia (1973)',
+        era: 'Cine & Artes Marciales 1973',
+        category: 'lean',
+        sex: 'male',
+        age: 32,
+        height: 172,
+        weight: 62.0,
+        bodyFat: 4.8,
+        measurements: {
+            height: 172,
+            weight: 62.0,
+            bodyFat: 4.8,
+            neck: 39.0,
+            pecho: 112.0,
+            back: 110.0,
+            waist: 66.0,
+            hips: 84.0,
+            arm: { left: 37.0, right: 37.0 },
+            forearm: { left: 31.5, right: 31.5 },
+            thigh: { left: 56.0, right: 56.0 },
+            calf: { left: 37.0, right: 37.0 },
+            wrist: { left: 16.5, right: 16.5 },
+            ankle: { left: 20.5, right: 20.5 }
+        }
+    },
+
+    // 4. ERA MODERNA (Classic Physique)
+    {
+        id: 'chris_bumstead_2023',
+        name: 'Chris Bumstead (CBum)',
+        title: 'El Rey del Classic Physique Moderno (2023)',
+        era: 'Classic Physique 2023',
+        category: 'modern',
+        sex: 'male',
+        age: 28,
+        height: 185,
+        weight: 107.5,
+        bodyFat: 6.0,
+        measurements: {
+            height: 185,
+            weight: 107.5,
+            bodyFat: 6.0,
+            neck: 45.0,
+            pecho: 132.0,
+            back: 130.0,
+            waist: 76.0,
+            hips: 100.0,
+            arm: { left: 50.8, right: 50.8 },
+            forearm: { left: 38.5, right: 38.5 },
+            thigh: { left: 73.5, right: 73.5 },
+            calf: { left: 46.0, right: 46.0 },
+            wrist: { left: 18.5, right: 18.5 },
+            ankle: { left: 23.5, right: 23.5 }
+        }
+    },
+
+    // 5. CULTURISMO & FISONOMÍA FEMENINA (Female Canonical)
+    {
+        id: 'cory_everson_1985',
+        name: 'Cory Everson',
+        title: '6× Ms. Olympia — Canon Femenino de Oro (1985)',
+        era: 'Ms. Olympia 1985',
+        category: 'female',
+        sex: 'female',
+        age: 27,
+        height: 175,
+        weight: 68.0,
+        bodyFat: 10.5,
+        measurements: {
+            height: 175,
+            weight: 68.0,
+            bodyFat: 10.5,
+            neck: 34.0,
+            pecho: 97.0,
+            back: 95.0,
+            waist: 61.0,
+            hips: 91.0,
+            arm: { left: 37.0, right: 37.0 },
+            forearm: { left: 28.0, right: 28.0 },
+            thigh: { left: 58.0, right: 58.0 },
+            calf: { left: 38.0, right: 38.0 },
+            wrist: { left: 15.5, right: 15.5 },
+            ankle: { left: 20.0, right: 20.0 }
         }
     }
 ];

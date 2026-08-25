@@ -187,10 +187,11 @@ export const AthleteComparisonCard: React.FC<Props> = ({
         };
     }, [currentRecord, sex, userProfile, userBio]);
 
-    // Community / Database Athletes
     const [communityAthletes, setCommunityAthletes] = useState<ComparisonProfile[]>([]);
     const [_loadingCommunity, setLoadingCommunity] = useState(true);
-    const [selectedBId, setSelectedBId] = useState<string>('steve_reeves_1950');
+    const [selectedBId, setSelectedBId] = useState<string>(() => {
+        return sex === 'female' ? 'cory_everson_1985' : 'steve_reeves_1950';
+    });
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
@@ -205,6 +206,12 @@ export const AthleteComparisonCard: React.FC<Props> = ({
             isMounted = false;
         };
     }, [currentRecord?.userId]);
+
+    const goldenPresets = CANONICAL_PRESETS.filter((p) => p.category === 'golden');
+    const massPresets = CANONICAL_PRESETS.filter((p) => p.category === 'mass');
+    const leanPresets = CANONICAL_PRESETS.filter((p) => p.category === 'lean');
+    const modernPresets = CANONICAL_PRESETS.filter((p) => p.category === 'modern');
+    const femalePresets = CANONICAL_PRESETS.filter((p) => p.category === 'female');
 
     // Build profile list for opponent B
     const profileB: ComparisonProfile = useMemo(() => {
@@ -237,8 +244,8 @@ export const AthleteComparisonCard: React.FC<Props> = ({
             }
         }
 
-        // Fallback to Steve Reeves
-        return CANONICAL_PRESETS[0];
+        // Fallback
+        return sex === 'female' ? CANONICAL_PRESETS.find(p => p.category === 'female') || CANONICAL_PRESETS[0] : CANONICAL_PRESETS[0];
     }, [selectedBId, communityAthletes, records, sex, userBio.age, profileA.height]);
 
     // Full comparison analysis
@@ -250,15 +257,12 @@ export const AthleteComparisonCard: React.FC<Props> = ({
 
     // Quick copy battle summary
     const handleCopySummary = () => {
-        const text = `🏆 Duelo Táctico Hypertrophy Tracker Pro:
-${profileA.name} (${verdict.bioA.height}cm, ${verdict.bioA.weight}kg, ${verdict.bioA.age}a) vs ${profileB.name} (${verdict.bioB.height}cm, ${verdict.bioB.weight}kg, ${verdict.bioB.age}a)
-Marcador: ${verdict.scoreA} vs ${verdict.scoreB}
-• V-Taper: ${verdict.vTaperA}x vs ${verdict.vTaperB}x
-• FFMI Normalizado: ${verdict.bioA.ffmi} vs ${verdict.bioB.ffmi}
-• Techo Magro: ${verdict.geneticCeilingA}% vs ${verdict.geneticCeilingB}%
-• Tríada Reeves: ${verdict.triadScoreA}% vs ${verdict.triadScoreB}%
-Dictamen: ${verdict.summary}
-👉 Medite en: https://www.alexismartyniuk.com.ar/hypertrophyracker`;
+        const text = `🏆 DUELO ANTROPOMÉTRICO: ${profileA.name} vs ${profileB.name}\n` +
+            `⚔️ Marcador: ${verdict.scoreA} a ${verdict.scoreB} (${verdict.summary})\n` +
+            `📐 V-Taper: ${verdict.vTaperA.toFixed(2)}x vs ${verdict.vTaperB.toFixed(2)}x\n` +
+            `🧬 Techo Casey Butt: ${verdict.geneticCeilingA}% vs ${verdict.geneticCeilingB}%\n` +
+            `⚡ FFMI: ${verdict.bioA.ffmi} vs ${verdict.bioB.ffmi}\n\n` +
+            `Evaluado en Hypertrophy Tracker Pro: https://www.alexismartyniuk.com.ar/hypertrophyracker`;
 
         navigator.clipboard.writeText(text).then(() => {
             setCopied(true);
@@ -291,13 +295,51 @@ Dictamen: ${verdict.summary}
                             onChange={(e) => setSelectedBId(e.target.value)}
                             className="versus-select"
                         >
-                            <optgroup label="🏆 Físicos Canónicos de Referencia (Leyendas)">
-                                {CANONICAL_PRESETS.map((p) => (
-                                    <option key={p.id} value={p.id}>
-                                        {p.name} ({p.height} cm · {p.weight} kg · {p.age} años)
-                                    </option>
-                                ))}
-                            </optgroup>
+                            {goldenPresets.length > 0 && (
+                                <optgroup label={`🏛️ Leyendas de Oro & Estética Clásica (${goldenPresets.length})`}>
+                                    {goldenPresets.map((p) => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.name} ({p.height} cm · {p.weight} kg · {p.age} años)
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            )}
+                            {massPresets.length > 0 && (
+                                <optgroup label={`💥 Poder, Masa & Densidad (${massPresets.length})`}>
+                                    {massPresets.map((p) => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.name} ({p.height} cm · {p.weight} kg · {p.age} años)
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            )}
+                            {leanPresets.length > 0 && (
+                                <optgroup label={`⚡ Definición & Calistenia Funcional (${leanPresets.length})`}>
+                                    {leanPresets.map((p) => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.name} ({p.height} cm · {p.weight} kg · {p.age} años)
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            )}
+                            {modernPresets.length > 0 && (
+                                <optgroup label={`🛡️ Era Moderna — Classic Physique (${modernPresets.length})`}>
+                                    {modernPresets.map((p) => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.name} ({p.height} cm · {p.weight} kg · {p.age} años)
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            )}
+                            {femalePresets.length > 0 && (
+                                <optgroup label={`👑 Culturismo & Fisonomía Femenina (${femalePresets.length})`}>
+                                    {femalePresets.map((p) => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.name} ({p.height} cm · {p.weight} kg · {p.age} años)
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            )}
 
                             {communityAthletes.length > 0 && (
                                 <optgroup label={`👥 Atletas de la Comunidad / Base de Datos (${communityAthletes.length})`}>
@@ -391,8 +433,16 @@ Dictamen: ${verdict.summary}
                                 </span>
                             ) : profileB.id.startsWith('past_') ? (
                                 'Histórico Propio'
+                            ) : profileB.category === 'female' ? (
+                                '👑 Canon Femenino'
+                            ) : profileB.category === 'lean' ? (
+                                '⚡ Definición & Calistenia'
+                            ) : profileB.category === 'modern' ? (
+                                '🛡️ Classic Moderno'
+                            ) : profileB.category === 'mass' ? (
+                                '💥 Poder & Densidad'
                             ) : (
-                                'Leyenda Canónica'
+                                '🏛️ Leyenda de Oro'
                             )}
                         </span>
                         <span className="fighter-name">{profileB.name}</span>
