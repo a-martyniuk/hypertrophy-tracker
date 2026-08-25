@@ -192,21 +192,31 @@ Dictamen: ${verdict.summary}
 
                             {communityAthletes.length > 0 && (
                                 <optgroup label={`👥 Atletas de la Comunidad / Base de Datos (${communityAthletes.length})`}>
-                                    {communityAthletes.map((a) => (
-                                        <option key={a.id} value={a.id}>
-                                            👤 {a.name} — {a.height ? `${a.height} cm · ` : ''}{a.era}
-                                        </option>
-                                    ))}
+                                    {communityAthletes.map((a) => {
+                                        const h = a.height || a.measurements?.height || 178;
+                                        const w = a.weight || a.measurements?.weight || 80;
+                                        const age = a.age || 26;
+                                        return (
+                                            <option key={a.id} value={a.id}>
+                                                {a.name} ({h} cm · {w} kg · {age} años)
+                                            </option>
+                                        );
+                                    })}
                                 </optgroup>
                             )}
 
                             {records.length > 1 && (
                                 <optgroup label="📅 Tus Sesiones Históricas Anteriores">
-                                    {records.slice(1, 8).map((r) => (
-                                        <option key={r.id} value={`past_${r.id}`}>
-                                            Tú ({new Date(r.date).toLocaleDateString()}) {r.measurements.weight ? `— ${r.measurements.weight} kg` : ''}
-                                        </option>
-                                    ))}
+                                    {records.slice(1, 8).map((r) => {
+                                        const h = r.measurements?.height || profileA.height || 178;
+                                        const w = r.measurements?.weight || 80;
+                                        const d = new Date(r.date).toLocaleDateString();
+                                        return (
+                                            <option key={r.id} value={`past_${r.id}`}>
+                                                Tú - {d} ({h} cm · {w} kg)
+                                            </option>
+                                        );
+                                    })}
                                 </optgroup>
                             )}
                         </select>
