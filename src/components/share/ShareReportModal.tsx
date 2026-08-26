@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { X, QrCode, Copy, Check } from 'lucide-react';
 import QRCode from 'qrcode';
 import { encodeAthleteData } from '../../utils/shareEncoder';
@@ -23,24 +23,22 @@ export const ShareReportModal: React.FC<Props> = ({
 }) => {
     const [qrUrl, setQrUrl] = useState<string>('');
     const [copied, setCopied] = useState(false);
-    const [shareUrl, setShareUrl] = useState<string>('');
 
-    useEffect(() => {
-        if (!isOpen || !latestRecord) return;
-
+    const shareUrl = useMemo(() => {
+        if (!isOpen || !latestRecord) return '';
         const encoded = encodeAthleteData(userName, latestRecord, sex, records);
-        // Build base URL cleanly from current browser origin and pathname
         const origin = window.location.origin;
         let pathname = window.location.pathname;
         if (!pathname.endsWith('/')) {
             pathname += '/';
         }
-        
-        // Construct canonical hash route for the public share page
-        const url = `${origin}${pathname}#/share?data=${encoded}`;
-        setShareUrl(url);
+        return `${origin}${pathname}#/share?data=${encoded}`;
+    }, [isOpen, latestRecord, userName, sex, records]);
 
-        QRCode.toDataURL(url, {
+    useEffect(() => {
+        if (!shareUrl) return;
+
+        QRCode.toDataURL(shareUrl, {
             width: 240,
             margin: 2,
             errorCorrectionLevel: 'M',
@@ -51,7 +49,7 @@ export const ShareReportModal: React.FC<Props> = ({
         })
             .then(url => setQrUrl(url))
             .catch(err => console.error('Error generating QR code:', err));
-    }, [isOpen, latestRecord, userName, sex]);
+    }, [shareUrl]);
 
     if (!isOpen || !latestRecord) return null;
 

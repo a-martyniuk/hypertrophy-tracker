@@ -146,8 +146,7 @@ export const generateAthletePDFReport = (options: PDFReportOptions) => {
     });
 
     // Section 3: Classical & Aesthetic Ratios Table
-    // @ts-ignore
-    currentY = (doc as any).lastAutoTable.finalY + 8;
+    currentY = (doc as any).lastAutoTable?.finalY ? (doc as any).lastAutoTable.finalY + 8 : currentY + 40;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);

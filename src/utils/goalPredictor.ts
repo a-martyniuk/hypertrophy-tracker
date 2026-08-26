@@ -42,7 +42,7 @@ const MONTHLY_RATES: Record<string, { gain: number; loss: number; unit: string }
 export const predictGoalTimeline = (
   goal: GrowthGoal,
   latestRecord?: MeasurementRecord,
-  _profile?: UserProfile | null
+  profile?: UserProfile | null
 ): GoalPrediction => {
   const m = latestRecord?.measurements;
   let currentVal = 0;
@@ -69,7 +69,8 @@ export const predictGoalTimeline = (
   const delta = Math.abs(goal.targetValue - currentVal);
   const isReduction = goal.targetValue < currentVal;
   const rates = MONTHLY_RATES[goal.measurementType] || { gain: 0.35, loss: 0.8, unit: 'cm' };
-  const monthlyRate = isReduction ? rates.loss : rates.gain;
+  const sexMod = (profile?.sex === 'female' && !isReduction && goal.measurementType !== 'weight' && goal.measurementType !== 'bodyFat') ? 0.75 : 1.0;
+  const monthlyRate = parseFloat(((isReduction ? rates.loss : rates.gain) * sexMod).toFixed(2));
 
   if (delta === 0 || (isReduction ? currentVal <= goal.targetValue : currentVal >= goal.targetValue)) {
     return {

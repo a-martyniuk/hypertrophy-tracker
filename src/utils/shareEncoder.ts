@@ -96,10 +96,10 @@ export const decodeAthleteData = (encodedStr: string): SharedAthletePayload | nu
 
         // Version 2: Multi-record chronological array format
         if (Array.isArray(parsed) && parsed[0] === 2) {
-            const [_ver, name, sexFlag, rawRecords] = parsed;
+            const [, name, sexFlag, rawRecords] = parsed;
             const sex: 'male' | 'female' = sexFlag === 1 ? 'female' : 'male';
 
-            const records: MeasurementRecord[] = (rawRecords as any[]).map((arr, idx) => {
+            const records: MeasurementRecord[] = (rawRecords as unknown[][]).map((arr, idx) => {
                 const [
                     dateStr, height, weight, bodyFat, neck, pecho, back, waist, hips,
                     armL, armR, foreL, foreR, thighL, thighR, calfL, calfR,
@@ -145,7 +145,7 @@ export const decodeAthleteData = (encodedStr: string): SharedAthletePayload | nu
         // Version 1: Single record array format
         if (Array.isArray(parsed) && parsed[0] === 1) {
             const [
-                _ver, name, sexFlag, dateStr,
+                , name, sexFlag, dateStr,
                 height, weight, bodyFat, neck, pecho, back, waist, hips,
                 armL, armR, foreL, foreR, thighL, thighR, calfL, calfR,
                 wristL, wristR, ankleL, ankleR, notes
