@@ -58,6 +58,8 @@ export const MeasurementInput = ({
                 <div className="hud-double-inputs">
                     <input
                         type="number"
+                        step="0.1"
+                        inputMode="decimal"
                         placeholder="Izq"
                         className="hud-input-l"
                         min="0"
@@ -68,6 +70,8 @@ export const MeasurementInput = ({
                     />
                     <input
                         type="number"
+                        step="0.1"
+                        inputMode="decimal"
                         placeholder="Der"
                         className="hud-input-r"
                         min="0"
@@ -94,6 +98,8 @@ export const MeasurementInput = ({
             </div>
             <input
                 type="number"
+                step="0.1"
+                inputMode="decimal"
                 min="0"
                 value={(value as number) || ''}
                 onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
