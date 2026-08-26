@@ -54,9 +54,9 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
     };
 
     // Physical Stats
-    const [age, setAge] = useState<number>(() => loadSetting('age', initialAge || 25))
-    const [weight, setWeight] = useState<number>(() => loadSetting('weight', currentWeight || 70))
-    const [height, setHeight] = useState<number>(() => loadSetting('height', initialHeight || 175))
+    const [age, setAge] = useState<number>(() => loadSetting('age', initialAge || 38))
+    const [weight, setWeight] = useState<number>(() => loadSetting('weight', currentWeight || 104))
+    const [height, setHeight] = useState<number>(() => loadSetting('height', initialHeight || 191))
 
     // Sync props if they update (and aren't just defaults)
     // Sync props only if we explicitly want to reset (omitted to prefer user persistence)

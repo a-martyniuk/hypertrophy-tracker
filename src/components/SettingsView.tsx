@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
-import { Download, Upload, AlertTriangle, Check, Database, FileJson, RefreshCw, Languages } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Download, Upload, AlertTriangle, Check, Database, FileJson, RefreshCw, Languages, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
+import { useProfile } from '../hooks/useProfile';
 import type { MeasurementRecord, GrowthGoal, UserProfile } from '../types/measurements';
 
 interface Props {
@@ -13,10 +14,36 @@ interface Props {
 export const SettingsView = ({ records, goals, profile }: Props) => {
     const { t, i18n } = useTranslation();
     const { user } = useAuth();
+    const { profile: currentProfile, updateProfile } = useProfile();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [importing, setImporting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+    // Profile & Biometrics State
+    const activeProfile = profile || currentProfile;
+    const [name, setName] = useState(activeProfile?.name || 'Alexis Martyniuk');
+    const [age, setAge] = useState<number>(activeProfile?.age || 38);
+    const [height, setHeight] = useState<number>(activeProfile?.height || 191);
+    const [profileSaved, setProfileSaved] = useState(false);
+
+    useEffect(() => {
+        if (activeProfile) {
+            if (activeProfile.name) setName(activeProfile.name);
+            if (activeProfile.age) setAge(activeProfile.age);
+            if (activeProfile.height) setHeight(activeProfile.height);
+        }
+    }, [activeProfile]);
+
+    const handleSaveProfile = async () => {
+        await updateProfile({
+            name: name.trim() || 'Atleta',
+            age: Number(age) || 38,
+            height: Number(height) || 191
+        });
+        setProfileSaved(true);
+        setTimeout(() => setProfileSaved(false), 2500);
+    };
 
     const handleExport = () => {
         const data = {
@@ -120,6 +147,74 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
             </div>
 
             <div className="settings-grid">
+                {/* PROFILE & BIOMETRICS CARD */}
+                <div className="card glass settings-card">
+                    <div className="card-header">
+                        <User className="text-amber-400" size={24} />
+                        <div>
+                            <h3 style={{ margin: 0 }}>Perfil del Atleta & Biometría</h3>
+                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Datos sincronizados con tu cuenta y el simulador Versus</span>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div>
+                            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.35rem', fontWeight: 600 }}>
+                                Nombre / Alias de Atleta
+                            </label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="settings-input"
+                                placeholder="Tu nombre"
+                            />
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.35rem', fontWeight: 600 }}>
+                                    Edad (Años)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={age || ''}
+                                    onChange={(e) => setAge(Number(e.target.value))}
+                                    className="settings-input"
+                                    placeholder="38"
+                                    min="10"
+                                    max="110"
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.35rem', fontWeight: 600 }}>
+                                    Estatura Habitual (cm)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={height || ''}
+                                    onChange={(e) => setHeight(Number(e.target.value))}
+                                    className="settings-input"
+                                    placeholder="191"
+                                    min="100"
+                                    max="250"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button className="btn-primary" onClick={handleSaveProfile} style={{ marginTop: '0.25rem' }}>
+                        <Check size={18} className="mr-2" />
+                        {profileSaved ? '¡Guardado Correctamente!' : 'Guardar Datos Biométricos'}
+                    </button>
+                    {profileSaved && (
+                        <div className="success-tag animate-fade-in">
+                            <Check size={14} /> Sincronizado en la nube y en el dispositivo
+                        </div>
+                    )}
+                </div>
+
                 {/* EXPORT CARD */}
                 <div className="card glass settings-card">
                     <div className="card-header">
@@ -354,6 +449,24 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                     border-color: #f59e0b;
                     color: #fbbf24;
                     box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+                }
+
+                .settings-input {
+                    width: 100%;
+                    padding: 0.75rem 1rem;
+                    background: rgba(0, 0, 0, 0.35);
+                    border: 1px solid rgba(255, 255, 255, 0.12);
+                    border-radius: 8px;
+                    color: #ffffff;
+                    font-size: 0.95rem;
+                    font-weight: 500;
+                    outline: none;
+                    transition: border-color 0.2s, box-shadow 0.2s;
+                    box-sizing: border-box;
+                }
+                .settings-input:focus {
+                    border-color: #f59e0b;
+                    box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
                 }
             `}</style>
         </div>

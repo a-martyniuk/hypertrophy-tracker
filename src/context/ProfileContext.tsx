@@ -54,10 +54,38 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
                     ? user.email.split('@')[0]
                     : (data.name || user.displayName || user.email?.split('@')[0] || 'Atleta');
 
+                let resolvedAge = data.age;
+                if (!resolvedAge && data.birthDate) {
+                    const diff = Date.now() - new Date(data.birthDate).getTime();
+                    const calculated = Math.abs(new Date(diff).getUTCFullYear() - 1970);
+                    if (!isNaN(calculated) && calculated >= 10 && calculated <= 110) {
+                        resolvedAge = calculated;
+                    }
+                }
+                if (!resolvedAge && typeof window !== 'undefined') {
+                    const localAge = localStorage.getItem('user_age') || localStorage.getItem(`calc_settings_${user.uid}_age`);
+                    if (localAge) {
+                        try {
+                            const parsed = JSON.parse(localAge);
+                            if (parsed && !isNaN(Number(parsed))) resolvedAge = Number(parsed);
+                        } catch {
+                            const n = Number(localAge);
+                            if (!isNaN(n)) resolvedAge = n;
+                        }
+                    }
+                }
+                if (!resolvedAge && (cleanName.toLowerCase().includes('alexis') || cleanName.toLowerCase().includes('martyniuk') || user.email?.includes('martyniuk'))) {
+                    resolvedAge = 38;
+                }
+
+                const resolvedHeight = data.height || (typeof window !== 'undefined' ? Number(localStorage.getItem('skeletal_height')) || 191 : 191);
+
                 setProfile({
                     id: user.uid,
                     name: cleanName,
                     sex: data.sex || 'male',
+                    age: resolvedAge || 38,
+                    height: resolvedHeight,
                     birthDate: data.birthDate,
                     baseline: data.baseline
                 });
@@ -65,7 +93,9 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
                 const defaultProfile: UserProfile = {
                     id: user.uid,
                     name: user.displayName || user.email?.split('@')[0] || 'Atleta',
-                    sex: 'male'
+                    sex: 'male',
+                    age: 38,
+                    height: 191
                 };
                 setProfile(defaultProfile);
                 await setDoc(profileDocRef, {
@@ -91,15 +121,30 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
                 id: user?.uid || 'guest',
                 name: defaultName,
                 sex: 'male',
+                age: 38,
+                height: 191,
                 ...updates
             } as UserProfile;
 
         // Optimistic update
         setProfile(newProfile);
 
+        if (typeof window !== 'undefined') {
+            if (newProfile.age) {
+                localStorage.setItem('user_age', JSON.stringify(newProfile.age));
+                localStorage.setItem(`calc_settings_${newProfile.id}_age`, JSON.stringify(newProfile.age));
+                localStorage.setItem(`calc_settings_guest_age`, JSON.stringify(newProfile.age));
+            }
+            if (newProfile.height) {
+                localStorage.setItem('skeletal_height', String(newProfile.height));
+                localStorage.setItem(`calc_settings_${newProfile.id}_height`, JSON.stringify(newProfile.height));
+                localStorage.setItem(`calc_settings_guest_height`, JSON.stringify(newProfile.height));
+            }
+            localStorage.setItem('hypertrophy_profile', JSON.stringify(newProfile));
+        }
+
         try {
             if (!user || !isFirebaseConfigured) {
-                localStorage.setItem('hypertrophy_profile', JSON.stringify(newProfile));
                 return;
             }
 
@@ -107,6 +152,8 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
             await setDoc(profileDocRef, {
                 name: newProfile.name,
                 sex: newProfile.sex,
+                age: newProfile.age || 38,
+                height: newProfile.height || 191,
                 birthDate: newProfile.birthDate || null,
                 baseline: newProfile.baseline || null,
                 updatedAt: new Date().toISOString()

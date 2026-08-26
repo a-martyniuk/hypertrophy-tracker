@@ -160,9 +160,9 @@ function App() {
         <Route path="/calculator" element={
           <MetabolismCalculator
             sex={userSex}
-            currentWeight={records[0]?.measurements.weight}
-            height={records[0]?.measurements.height}
-            age={undefined}
+            currentWeight={records[0]?.measurements.weight || 104}
+            height={records[0]?.measurements.height || profile?.height || 191}
+            age={profile?.age || 38}
             userId={authUser?.uid}
           />
         } />
