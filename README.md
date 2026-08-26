@@ -97,11 +97,11 @@ Visualización inmediata en la silueta anatómica comparando la sesión actual c
 
 | 1. Dashboard & Heatmap | 2. Registro Biométrico | 3. Historial Longitudinal |
 | :---: | :---: | :---: |
-| ![Dashboard](promo/1-Inicio.png) | ![Formulario](promo/2-Nueva%20medida.png) | ![Historial](promo/3-Historial.png) |
+| ![Dashboard](promo/screenshots/01_tactical_diagnosis_hero.png) | ![Formulario](promo/screenshots/06_tap_to_measure_form.png) | ![Historial](promo/screenshots/16_history_evolution.png) |
 
-| 4. Auditoría de Proporciones | 5. Límites de Casey Butt | 6. Calculadora Metabólica |
+| 4. Auditoría de Proporciones | 5. Límites de Casey Butt | 6. Duelo Táctico Versus |
 | :---: | :---: | :---: |
-| ![Analisis](promo/4-Analisis.png) | ![Genetica](promo/5-Genetica.png) | ![Metabolismo](promo/7-Metabolismo.png) |
+| ![Analisis](promo/screenshots/09_symmetry_ratios.png) | ![Genetica](promo/screenshots/11_casey_butt_potential.png) | ![Versus](promo/screenshots/20_versus_athlete_comparison.png) |
 
 ---
 

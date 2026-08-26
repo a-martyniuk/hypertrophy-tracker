@@ -20,14 +20,14 @@ Material visual, técnico y narrativo para la difusión profesional del proyecto
 - **Call-to-Action:** *LINK EN BIO // DEMO EN VIVO GRATIS*
 
 ### 🖼️ Galería de Capturas HUD
-1. **Dashboard Táctico & Heatmap:** `promo/1-Inicio.png`
-2. **Registro Biométrico Preciso:** `promo/2-Nueva medida.png`
-3. **Historial Longitudinal:** `promo/3-Historial.png`
-4. **Auditoría de Proporciones & Ratios:** `promo/4-Analisis.png`
-5. **Laboratorio de Potencial Óseo:** `promo/5-Genetica.png`
-6. **Simulador de Combate Versus:** `promo/6-Versus.png`
-7. **Calculadora Metabólica:** `promo/7-Metabolismo.png`
-8. **Centro de Metas & Objetivos:** `promo/8-Objetivos.png`
+1. **Dashboard Táctico & Heatmap:** `promo/screenshots/01_tactical_diagnosis_hero.png`
+2. **Registro Biométrico Preciso:** `promo/screenshots/06_tap_to_measure_form.png`
+3. **Historial Longitudinal:** `promo/screenshots/16_history_evolution.png`
+4. **Auditoría de Proporciones & Ratios:** `promo/screenshots/09_symmetry_ratios.png`
+5. **Laboratorio de Potencial Óseo:** `promo/screenshots/11_casey_butt_potential.png`
+6. **Simulador de Combate Versus:** `promo/screenshots/20_versus_athlete_comparison.png`
+7. **Calculadora Metabólica:** `promo/screenshots/14_metabolic_tdee_results.png`
+8. **Centro de Metas & Objetivos:** `promo/screenshots/12_timetogoal_cards.png`
 
 ---
 
