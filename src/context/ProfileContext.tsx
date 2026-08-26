@@ -54,6 +54,8 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
                     ? user.email.split('@')[0]
                     : (data.name || user.displayName || user.email?.split('@')[0] || 'Atleta');
 
+                const isAlexis = (cleanName.toLowerCase().includes('alexis') || cleanName.toLowerCase().includes('martyniuk') || user.email?.toLowerCase().includes('martyniuk'));
+
                 let resolvedAge = data.age;
                 if (!resolvedAge && data.birthDate) {
                     const diff = Date.now() - new Date(data.birthDate).getTime();
@@ -74,28 +76,32 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
                         }
                     }
                 }
-                if (!resolvedAge && (cleanName.toLowerCase().includes('alexis') || cleanName.toLowerCase().includes('martyniuk') || user.email?.includes('martyniuk'))) {
-                    resolvedAge = 38;
+                if (!resolvedAge) {
+                    resolvedAge = isAlexis ? 38 : 28;
                 }
 
-                const resolvedHeight = data.height || (typeof window !== 'undefined' ? Number(localStorage.getItem('skeletal_height')) || 191 : 191);
+                const resolvedHeight = data.height || (typeof window !== 'undefined' ? Number(localStorage.getItem('skeletal_height')) || (isAlexis ? 191 : 178) : (isAlexis ? 191 : 178));
+                const resolvedWeight = data.weight || (isAlexis ? 104 : (data.sex === 'female' ? 60 : 78));
 
                 setProfile({
                     id: user.uid,
                     name: cleanName,
                     sex: data.sex || 'male',
-                    age: resolvedAge || 38,
+                    age: resolvedAge,
                     height: resolvedHeight,
+                    weight: resolvedWeight,
                     birthDate: data.birthDate,
                     baseline: data.baseline
                 });
             } else {
+                const isAlexis = (user.displayName?.toLowerCase().includes('alexis') || user.displayName?.toLowerCase().includes('martyniuk') || user.email?.toLowerCase().includes('martyniuk'));
                 const defaultProfile: UserProfile = {
                     id: user.uid,
                     name: user.displayName || user.email?.split('@')[0] || 'Atleta',
                     sex: 'male',
-                    age: 38,
-                    height: 191
+                    age: isAlexis ? 38 : 28,
+                    height: isAlexis ? 191 : 178,
+                    weight: isAlexis ? 104 : 78
                 };
                 setProfile(defaultProfile);
                 await setDoc(profileDocRef, {

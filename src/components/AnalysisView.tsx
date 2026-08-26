@@ -306,15 +306,23 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                         </div>
                     </div>
 
-                    <div className="benchmarks-grid">
-                        {comprehensiveAnalysis.muscleBenchmarks.map((bm) => (
-                            <BenchmarkCard
-                                key={bm.key}
-                                benchmark={bm}
-                                onClick={() => setSelectedBenchmark(bm)}
-                            />
-                        ))}
-                    </div>
+                    {comprehensiveAnalysis ? (
+                        <div className="benchmarks-grid">
+                            {comprehensiveAnalysis.muscleBenchmarks.map((bm) => (
+                                <BenchmarkCard
+                                    key={bm.key}
+                                    benchmark={bm}
+                                    onClick={() => setSelectedBenchmark(bm)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="card glass" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+                            <p style={{ color: '#94a3b8', margin: 0 }}>
+                                No hay mediciones antropométricas disponibles para calcular benchmarks. Registra tu primera medición.
+                            </p>
+                        </div>
+                    )}
                 </section>
             )}
 
@@ -331,16 +339,26 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                         </p>
                     </div>
 
-                    <div className="ratios-grid">
-                        {comprehensiveAnalysis.ratioBenchmarks.map((ratio) => (
-                            <RatioBenchmarkCard key={ratio.id} benchmark={ratio} />
-                        ))}
-                    </div>
+                    {comprehensiveAnalysis ? (
+                        <>
+                            <div className="ratios-grid">
+                                {comprehensiveAnalysis.ratioBenchmarks.map((ratio) => (
+                                    <RatioBenchmarkCard key={ratio.id} benchmark={ratio} />
+                                ))}
+                            </div>
 
-                    {/* Radar Chart de Simetría */}
-                    <div style={{ paddingTop: '1rem' }}>
-                        <ProportionsRadar measurements={latestRecord?.measurements} />
-                    </div>
+                            {/* Radar Chart de Simetría */}
+                            <div style={{ paddingTop: '1rem' }}>
+                                <ProportionsRadar measurements={latestRecord?.measurements} />
+                            </div>
+                        </>
+                    ) : (
+                        <div className="card glass" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+                            <p style={{ color: '#94a3b8', margin: 0 }}>
+                                No hay mediciones antropométricas disponibles para calcular ratios y cánones. Registra tu primera medición.
+                            </p>
+                        </div>
+                    )}
                 </section>
             )}
 
