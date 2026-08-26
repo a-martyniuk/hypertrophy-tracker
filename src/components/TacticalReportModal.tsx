@@ -212,7 +212,7 @@ export const TacticalReportModal: React.FC<Props> = ({
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '14px', marginBottom: '14px', borderBottom: '1px solid rgba(245, 158, 11, 0.3)', position: 'relative' }}>
                             <div style={{ flex: 1, minWidth: 0, paddingRight: '12px' }}>
                                 <div style={{ fontSize: '10px', color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: '1.2', marginBottom: '4px' }}>
-                                    HYPERTROPHY TRACKER PRO // AUDIT REPORT
+                                    HYPERTROPHY TRACKER // AUDIT REPORT
                                 </div>
                                 <div style={{ fontSize: '17px', fontWeight: 800, color: '#ffffff', lineHeight: '1.3', wordBreak: 'break-word', marginBottom: '6px' }}>
                                     EXPEDIENTE: <span style={{ color: '#fbbf24' }}>{userName.toUpperCase()}</span>
@@ -369,7 +369,7 @@ export const TacticalReportModal: React.FC<Props> = ({
 
                         {/* Footer Watermark */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '9px', color: '#64748b', boxSizing: 'border-box' }}>
-                            <span>HYPERTROPHY TRACKER PRO // MILITARY GRADE PHYSIOLOGY</span>
+                            <span>HYPERTROPHY TRACKER // MILITARY GRADE PHYSIOLOGY</span>
                             <span>VERIFICADO POR CASEY BUTT / REEVES / KOURI</span>
                         </div>
                     </div>

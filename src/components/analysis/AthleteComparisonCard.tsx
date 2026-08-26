@@ -271,7 +271,7 @@ export const AthleteComparisonCard: React.FC<Props> = ({
             `📐 V-Taper: ${verdict.vTaperA.toFixed(2)}x vs ${verdict.vTaperB.toFixed(2)}x\n` +
             `🧬 Techo Casey Butt: ${verdict.geneticCeilingA}% vs ${verdict.geneticCeilingB}%\n` +
             `⚡ FFMI: ${verdict.bioA.ffmi} vs ${verdict.bioB.ffmi}\n\n` +
-            `Evaluado en Hypertrophy Tracker Pro: https://www.alexismartyniuk.com.ar/hypertrophyracker`;
+            `Evaluado en Hypertrophy Tracker: https://www.alexismartyniuk.com.ar/hypertrophyracker`;
 
         navigator.clipboard.writeText(text).then(() => {
             setCopied(true);

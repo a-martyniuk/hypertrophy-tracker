@@ -11,7 +11,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'Hypertrophy Tracker Pro',
+        name: 'Hypertrophy Tracker',
         short_name: 'HyperTracker',
         description: 'Advanced physiological tracking & genetic potential analysis',
         theme_color: '#030305',
