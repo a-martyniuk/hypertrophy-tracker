@@ -500,3 +500,62 @@
 .import-textarea:focus {
     border-color: #fbbf24;
 }
+
+/* Mobile & Tablet Responsiveness */
+@media (max-width: 768px) {
+    .versus-top-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .versus-controls {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .versus-select {
+        width: 100%;
+    }
+
+    .versus-btn-secondary {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .versus-match-banner {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        padding: 1.25rem 0.85rem;
+    }
+
+    .athlete-fighter.fighter-a,
+    .athlete-fighter.fighter-b {
+        align-items: center;
+        text-align: center;
+    }
+
+    .fighter-a .fighter-bio-chips,
+    .fighter-b .fighter-bio-chips {
+        justify-content: center;
+    }
+
+    .versus-vs-badge {
+        margin: 0.25rem 0;
+    }
+
+    .versus-table-card {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .versus-table {
+        min-width: 520px;
+    }
+
+    .versus-pillars-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

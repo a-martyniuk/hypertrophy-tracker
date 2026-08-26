@@ -152,6 +152,7 @@ function App() {
           <SkeletalFrameView
             baseline={profile?.baseline}
             currentMeasurements={records[0]?.measurements}
+            profile={profile}
             sex={userSex}
             onSave={(baseline) => updateProfile({ baseline })}
           />

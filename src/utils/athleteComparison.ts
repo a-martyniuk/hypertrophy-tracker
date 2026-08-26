@@ -861,8 +861,7 @@ export const compareAthletes = (
             diff: parseFloat((heightA - heightB).toFixed(1)),
             percentDiff: heightB > 0 ? parseFloat((((heightA - heightB) / heightB) * 100).toFixed(1)) : 0,
             unit: 'cm',
-            higherIsBetter: true,
-            winner: heightA > heightB ? 'A' : heightA < heightB ? 'B' : 'TIE',
+            winner: 'NEUTRAL',
             insight: 'Estatura total. Mayor altura requiere mayor volumen total para misma densidad visual.'
         },
         {
@@ -874,8 +873,7 @@ export const compareAthletes = (
             diff: ageA - ageB,
             percentDiff: ageB > 0 ? parseFloat((((ageA - ageB) / ageB) * 100).toFixed(1)) : 0,
             unit: 'años',
-            higherIsBetter: false, // In training, younger has hormonal edge, older has training age
-            winner: ageA < ageB ? 'A' : ageA > ageB ? 'B' : 'TIE',
+            winner: 'NEUTRAL',
             insight: 'Edad al momento del registro biométrico.'
         },
         {
@@ -887,9 +885,8 @@ export const compareAthletes = (
             diff: parseFloat((weightA - weightB).toFixed(1)),
             percentDiff: weightB > 0 ? parseFloat((((weightA - weightB) / weightB) * 100).toFixed(1)) : 0,
             unit: 'kg',
-            higherIsBetter: true,
-            winner: weightA > weightB ? 'A' : weightA < weightB ? 'B' : 'TIE',
-            insight: 'Masa corporal total en báscula.'
+            winner: 'NEUTRAL',
+            insight: 'Masa corporal total en báscula (incluye agua y grasa).'
         },
         {
             key: 'leanMass',

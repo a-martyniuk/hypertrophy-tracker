@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Target, HelpCircle, Sparkles, TrendingUp, Award, Dna } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Tooltip as AppTooltip } from './Tooltip';
-import type { BodyMeasurements, SkeletalFrame } from '../types/measurements';
+import type { BodyMeasurements, SkeletalFrame, UserProfile } from '../types/measurements';
 import {
   calculateSkeletalPotential,
   calculateIEO,
@@ -14,26 +14,27 @@ import {
 interface Props {
   baseline?: SkeletalFrame;
   currentMeasurements?: BodyMeasurements;
+  profile?: UserProfile | null;
   onSave: (baseline: SkeletalFrame) => void;
   sex?: 'male' | 'female';
 }
 
-export const SkeletalFrameView = ({ baseline, currentMeasurements, onSave: _onSave, sex = 'male' }: Props) => {
+export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSave: _onSave, sex = 'male' }: Props) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   const [height, setHeight] = useState<number>(() => {
     const saved = localStorage.getItem('skeletal_height');
     if (saved) return parseFloat(saved);
-    return currentMeasurements?.height || 177;
+    return currentMeasurements?.height || profile?.height || 191;
   });
 
   const [weight, setWeight] = useState<number>(() => {
-    return currentMeasurements?.weight || 75;
+    return currentMeasurements?.weight || profile?.weight || 104;
   });
 
   const [bodyFat, setBodyFat] = useState<number>(() => {
-    return currentMeasurements?.bodyFat || 15;
+    return currentMeasurements?.bodyFat || 18;
   });
 
   const [frame, setFrame] = useState<SkeletalFrame>(() => {

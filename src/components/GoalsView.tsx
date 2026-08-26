@@ -54,12 +54,12 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
     const suggestions = useMemo(() => {
         if (!profile?.baseline) return [];
 
-        const height = (latestRecord?.measurements.height) || 177;
+        const height = (latestRecord?.measurements.height) || profile?.height || 191;
         const potential = calculateSkeletalPotential(
             profile.baseline.wrist,
             profile.baseline.ankle,
             height,
-            profile.sex
+            profile.sex || 'male'
         );
 
         return [
@@ -117,7 +117,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
         try {
             setSubmitting(true);
             await onAddGoal({
-                userId: 'default-user',
+                userId: profile?.id || 'guest',
                 ...newGoal
             });
             console.log('[GoalsView] Add goal success, closing form');

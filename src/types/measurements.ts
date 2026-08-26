@@ -87,6 +87,7 @@ export interface UserProfile {
     sex: 'male' | 'female';
     age?: number;
     height?: number;
+    weight?: number;
     birthDate?: string;
     baseline?: SkeletalFrame;
 }
