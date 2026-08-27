@@ -84,7 +84,7 @@ export const DynamicSilhouette = ({
     <div className="silhouette-container">
       <svg
         id="silhouette-svg-root"
-        viewBox="0 0 260 550"
+        viewBox="0 0 260 572"
         className="body-svg animate-fade-in silhouette-svg"
         preserveAspectRatio="xMidYMid meet"
       >
@@ -114,27 +114,27 @@ export const DynamicSilhouette = ({
 
         {/* Anatomical Orientation HUD Overlay */}
         <g className="hud-orientation-labels" style={{ pointerEvents: 'none', userSelect: 'none' }}>
-          {/* Top View Mode */}
-          <rect x="55" y="10" width="150" height="18" rx="4" fill="rgba(15, 23, 42, 0.75)" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="0.75" />
-          <text x="130" y="22.5" textAnchor="middle" fill="#94a3b8" fontSize="7.5" fontFamily="var(--font-mono)" fontWeight="700" letterSpacing="0.08em">
+          {/* Top View Mode: Positioned completely above the silhouette head */}
+          <rect x="55" y="-20" width="150" height="18" rx="4" fill="rgba(15, 23, 42, 0.9)" stroke="rgba(255, 255, 255, 0.2)" strokeWidth="0.75" />
+          <text x="130" y="-7.5" textAnchor="middle" fill="#94a3b8" fontSize="7.5" fontFamily="var(--font-mono)" fontWeight="700" letterSpacing="0.08em">
             VISTA ANTERIOR (DE FRENTE)
           </text>
 
           {/* Left Side of Drawing (Athlete's Right Arm) */}
-          <rect x="6" y="36" width="58" height="24" rx="4" fill="rgba(245, 158, 11, 0.12)" stroke="rgba(245, 158, 11, 0.35)" strokeWidth="0.75" />
-          <text x="35" y="47" textAnchor="middle" fill="#fbbf24" fontSize="8" fontFamily="var(--font-mono)" fontWeight="800">
+          <rect x="6" y="8" width="58" height="24" rx="4" fill="rgba(245, 158, 11, 0.15)" stroke="rgba(245, 158, 11, 0.4)" strokeWidth="0.75" />
+          <text x="35" y="19" textAnchor="middle" fill="#fbbf24" fontSize="8" fontFamily="var(--font-mono)" fontWeight="800">
             DER (R)
           </text>
-          <text x="35" y="55.5" textAnchor="middle" fill="rgba(255, 255, 255, 0.6)" fontSize="5.8" fontFamily="var(--font-mono)">
+          <text x="35" y="27.5" textAnchor="middle" fill="rgba(255, 255, 255, 0.7)" fontSize="5.8" fontFamily="var(--font-mono)">
             TU DERECHA
           </text>
 
           {/* Right Side of Drawing (Athlete's Left Arm) */}
-          <rect x="196" y="36" width="58" height="24" rx="4" fill="rgba(56, 189, 248, 0.12)" stroke="rgba(56, 189, 248, 0.35)" strokeWidth="0.75" />
-          <text x="225" y="47" textAnchor="middle" fill="#38bdf8" fontSize="8" fontFamily="var(--font-mono)" fontWeight="800">
+          <rect x="196" y="8" width="58" height="24" rx="4" fill="rgba(56, 189, 248, 0.15)" stroke="rgba(56, 189, 248, 0.4)" strokeWidth="0.75" />
+          <text x="225" y="19" textAnchor="middle" fill="#38bdf8" fontSize="8" fontFamily="var(--font-mono)" fontWeight="800">
             IZQ (L)
           </text>
-          <text x="225" y="55.5" textAnchor="middle" fill="rgba(255, 255, 255, 0.6)" fontSize="5.8" fontFamily="var(--font-mono)">
+          <text x="225" y="27.5" textAnchor="middle" fill="rgba(255, 255, 255, 0.7)" fontSize="5.8" fontFamily="var(--font-mono)">
             TU IZQUIERDA
           </text>
 

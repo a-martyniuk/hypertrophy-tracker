@@ -17,7 +17,7 @@ import { MapModal } from './measurement/MapModal';
 import { BodyFatCalculatorModal } from './measurement/BodyFatCalculatorModal';
 import { MobileTapMeasure } from './measurement/MobileTapMeasure';
 import { Tooltip } from './Tooltip';
-import { Map as MapIcon, Calculator, Info } from 'lucide-react';
+import { Map as MapIcon, Calculator } from 'lucide-react';
 import './MeasurementForm.css';
 
 import { useProfile } from '../hooks/useProfile';
@@ -86,11 +86,27 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
     };
   })();
 
-  const { control, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<MeasurementFormValues['measurements']>({
+  const { control, handleSubmit, setValue, reset, formState: { errors, isSubmitting } } = useForm<MeasurementFormValues['measurements']>({
     // @ts-ignore - resolver types mismatch with deep nested objects sometimes, but runtime is fine
     resolver: zodResolver(measurementRecordSchema.shape.measurements),
     defaultValues
   });
+
+  // Auto-fill new entry with the latest measurement as reference to easily adjust up/down
+  useEffect(() => {
+    if (recordToEdit?.measurements) {
+      reset(recordToEdit.measurements);
+    } else if (previousRecord?.measurements) {
+      reset(previousRecord.measurements);
+    } else {
+      reset({
+        ...DEFAULT_MEASUREMENTS,
+        height: profile?.height || 0,
+        age: profile?.age || 0,
+        weight: profile?.weight || 0,
+      });
+    }
+  }, [recordToEdit, previousRecord, profile, reset]);
 
   const measurements = useWatch({ control });
 
@@ -247,24 +263,6 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
                 </span>
               )}
               <input type="date" className="date-input" value={date} onChange={(e) => setDate(e.target.value)} />
-            </div>
-          </div>
-
-          {/* Anatomical Perspective Banner */}
-          <div className="anatomical-guide-banner">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <Info size={16} style={{ color: '#38bdf8', flexShrink: 0 }} />
-              <span style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>
-                <strong style={{ color: '#ffffff' }}>Perspectiva Anatómica Propia (Vista de Frente):</strong> Los campos <strong>IZQ (L)</strong> y <strong>DER (R)</strong> corresponden a <strong>tu propio brazo/pierna izquierda y derecha</strong>.
-              </span>
-            </div>
-            <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.72rem', fontFamily: 'var(--font-mono)' }}>
-              <span style={{ padding: '0.2rem 0.55rem', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', borderRadius: '4px', border: '1px solid rgba(56, 189, 248, 0.3)', fontWeight: 700 }}>
-                👈 TU IZQUIERDA (L)
-              </span>
-              <span style={{ padding: '0.2rem 0.55rem', background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', borderRadius: '4px', border: '1px solid rgba(245, 158, 11, 0.3)', fontWeight: 700 }}>
-                TU DERECHA (R) 👉
-              </span>
             </div>
           </div>
 
