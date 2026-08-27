@@ -153,7 +153,11 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
 
         localStorage.removeItem('measurement_draft_values');
         localStorage.removeItem('measurement_draft_date');
-        addToast(t('common.save') + " " + t('common.success', { defaultValue: 'Success' }), "success");
+        if (user && user.uid !== 'guest') {
+          addToast("☁️ Medición guardada y respaldada en la Nube (Firestore)", "success");
+        } else {
+          addToast("💾 Medición guardada localmente en tu dispositivo", "success");
+        }
       } else {
         addToast(result.error?.message || t('common.error'), "error");
       }

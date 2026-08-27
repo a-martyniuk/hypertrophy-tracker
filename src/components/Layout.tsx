@@ -137,7 +137,10 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                             </div>
                             <div className="user-info">
                                 <span className="name">{userName}</span>
-                                <span className="status">{authUser ? 'Online' : 'Invitado'}</span>
+                                <span className="status" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: authUser ? '#10b981' : '#f59e0b', display: 'inline-block' }}></span>
+                                    {authUser ? '☁️ Nube Activa' : '💾 Modo Local'}
+                                </span>
                             </div>
                         </div>
                         <div className="gender-toggle">
