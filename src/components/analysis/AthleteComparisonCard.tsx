@@ -314,6 +314,21 @@ export const AthleteComparisonCard: React.FC<Props> = ({
                             onChange={(e) => setSelectedBId(e.target.value)}
                             className="versus-select"
                         >
+                            {communityAthletes.length > 0 && (
+                                <optgroup label={`👥 Atletas de la Comunidad / Base de Datos (${communityAthletes.length})`}>
+                                    {communityAthletes.map((a) => {
+                                        const h = a.height || a.measurements?.height || 178;
+                                        const w = a.weight || a.measurements?.weight || 80;
+                                        const age = a.age || 26;
+                                        return (
+                                            <option key={a.id} value={a.id}>
+                                                {a.name} ({h} cm · {w} kg · {age} años)
+                                            </option>
+                                        );
+                                    })}
+                                </optgroup>
+                            )}
+
                             {goldenPresets.length > 0 && (
                                 <optgroup label={`🏛️ Leyendas de Oro & Estética Clásica (${goldenPresets.length})`}>
                                     {goldenPresets.map((p) => (
@@ -366,21 +381,6 @@ export const AthleteComparisonCard: React.FC<Props> = ({
                                             {p.name} ({p.height} cm · {p.weight} kg · {p.age} años)
                                         </option>
                                     ))}
-                                </optgroup>
-                            )}
-
-                            {communityAthletes.length > 0 && (
-                                <optgroup label={`👥 Atletas de la Comunidad / Base de Datos (${communityAthletes.length})`}>
-                                    {communityAthletes.map((a) => {
-                                        const h = a.height || a.measurements?.height || 178;
-                                        const w = a.weight || a.measurements?.weight || 80;
-                                        const age = a.age || 26;
-                                        return (
-                                            <option key={a.id} value={a.id}>
-                                                {a.name} ({h} cm · {w} kg · {age} años)
-                                            </option>
-                                        );
-                                    })}
                                 </optgroup>
                             )}
 
