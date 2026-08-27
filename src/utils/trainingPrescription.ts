@@ -186,7 +186,10 @@ export const generateTrainingPrescriptions = (
     let recommendedFrequency = '2 veces por semana';
     let tacticalDiagnosis = '';
 
-    if (bm.percentOfMax < 85 || diffFromAvg <= -6) {
+    const isLagging = diffFromAvg <= -5 || (avgPercent >= 88 && bm.percentOfMax < 84);
+    const isDominant = (bm.percentOfMax >= 93 && diffFromAvg >= 0) || (diffFromAvg >= 6 && avgPercent >= 80);
+
+    if (isLagging) {
       priorityLevel = 1;
       priorityLabel = 'PRIORIDAD 1: Rezagado';
       priorityColor = '#ef4444';
@@ -194,7 +197,7 @@ export const generateTrainingPrescriptions = (
       recommendedWeeklySets = 16;
       recommendedFrequency = '2 a 3 veces por semana (Frecuencia Alta)';
       tacticalDiagnosis = `Este grupo muscular se encuentra al ${bm.percentOfMax}% de su techo genético (${Math.abs(diffFromAvg).toFixed(1)}% por debajo de tu promedio corporal). Requiere sobrecarga prioritaria al inicio de tus sesiones.`;
-    } else if (bm.percentOfMax >= 93 || diffFromAvg >= 6) {
+    } else if (isDominant) {
       priorityLevel = 3;
       priorityLabel = 'PRIORIDAD 3: Dominante / Mantenimiento';
       priorityColor = '#10b981';
@@ -209,7 +212,7 @@ export const generateTrainingPrescriptions = (
       priorityBg = 'rgba(251, 191, 36, 0.15)';
       recommendedWeeklySets = 12;
       recommendedFrequency = '2 veces por semana';
-      tacticalDiagnosis = `Desarrollo armónico en fase intermedia (${bm.percentOfMax}% del techo). Mantén un volumen progresivo con 10-14 series semanales.`;
+      tacticalDiagnosis = `Desarrollo armónico (${bm.percentOfMax}% del techo). Mantén un volumen progresivo con 10-14 series semanales.`;
     }
 
     const exercises = EXERCISE_DATABASE[bm.key] || [

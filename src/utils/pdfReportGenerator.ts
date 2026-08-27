@@ -85,7 +85,7 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
     const wristAvg = getAvg(m.wrist) || (sex === 'female' ? 15.5 : 18);
     const ankleAvg = getAvg(m.ankle) || (sex === 'female' ? 20.5 : 23);
 
-    const ffmi = calculateFFMI(weight, height, bodyFat);
+    const ffmi = calculateFFMI(weight, height, bodyFat, sex);
     const berkhan = calculateBerkhanLimit(height, sex, bodyFat);
     const ieo = calculateIEO(wristAvg, ankleAvg, sex);
     const helms = calculateHelmsGainRates(weight);

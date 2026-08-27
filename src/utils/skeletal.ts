@@ -98,10 +98,12 @@ export interface FFMIResult {
 export const calculateFFMI = (
     weight: number,
     height: number,
-    bodyFat: number
+    bodyFat: number,
+    sex: 'male' | 'female' = 'male'
 ): FFMIResult | null => {
     if (!weight || !height || weight <= 0 || height <= 0) return null;
-    const bf = Math.max(3, Math.min(60, bodyFat || 15));
+    const defaultBf = sex === 'female' ? 22 : 15;
+    const bf = Math.max(3, Math.min(60, bodyFat || defaultBf));
     const leanMassKg = weight * (1 - bf / 100);
     const fatMassKg = weight - leanMassKg;
     const heightM = height / 100;
@@ -111,15 +113,29 @@ export const calculateFFMI = (
     const normalizedFFMI = rawFFMI + 6.1 * (1.8 - heightM);
 
     let categoryKey = 'average';
-    if (normalizedFFMI < 18) categoryKey = 'below_average';
-    else if (normalizedFFMI < 20) categoryKey = 'average';
-    else if (normalizedFFMI < 22) categoryKey = 'athletic';
-    else if (normalizedFFMI < 23) categoryKey = 'advanced';
-    else if (normalizedFFMI < 25) categoryKey = 'natural_limit';
-    else categoryKey = 'exceptional';
+    let scorePercent = 0;
 
-    // 15 = 0%, 25 = 100%
-    const scorePercent = Math.min(100, Math.max(0, ((normalizedFFMI - 15) / 10) * 100));
+    if (sex === 'female') {
+        if (normalizedFFMI < 14) categoryKey = 'below_average';
+        else if (normalizedFFMI < 16) categoryKey = 'average';
+        else if (normalizedFFMI < 18) categoryKey = 'athletic';
+        else if (normalizedFFMI < 20) categoryKey = 'advanced';
+        else if (normalizedFFMI < 22) categoryKey = 'natural_limit';
+        else categoryKey = 'exceptional';
+
+        // 12 = 0%, 22 = 100%
+        scorePercent = Math.min(100, Math.max(0, ((normalizedFFMI - 12) / 10) * 100));
+    } else {
+        if (normalizedFFMI < 18) categoryKey = 'below_average';
+        else if (normalizedFFMI < 20) categoryKey = 'average';
+        else if (normalizedFFMI < 22) categoryKey = 'athletic';
+        else if (normalizedFFMI < 23) categoryKey = 'advanced';
+        else if (normalizedFFMI < 25) categoryKey = 'natural_limit';
+        else categoryKey = 'exceptional';
+
+        // 15 = 0%, 25 = 100%
+        scorePercent = Math.min(100, Math.max(0, ((normalizedFFMI - 15) / 10) * 100));
+    }
 
     return {
         rawFFMI: parseFloat(rawFFMI.toFixed(1)),

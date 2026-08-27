@@ -27,11 +27,12 @@ export const fetchCommunityAthletes = async (currentUserId?: string): Promise<Co
             const athleteId = d.id;
             // Only include athletes who are public (isPublic !== false) and not the current user
             if (data && data.measurements && athleteId !== currentUserId && data.isPublic !== false) {
+                const athleteSex: 'male' | 'female' = data.sex || 'male';
                 const dateStr = data.date ? new Date(data.date).toLocaleDateString() : 'Activo';
                 const weightStr = data.measurements.weight ? `${data.measurements.weight} kg` : '';
-                const h = data.height || data.measurements.height || 178;
-                const w = data.weight || data.measurements.weight || 80;
-                const age = data.age || data.measurements.age || 25;
+                const h = data.height || data.measurements.height || (athleteSex === 'female' ? 165 : 178);
+                const w = data.weight || data.measurements.weight || (athleteSex === 'female' ? 60 : 78);
+                const age = data.age || data.measurements.age || 28;
                 const displayName = data.publicAlias || data.name || 'Atleta de la Comunidad';
 
                 cloudAthletes.push({
@@ -40,11 +41,11 @@ export const fetchCommunityAthletes = async (currentUserId?: string): Promise<Co
                     title: `${h} cm · ${w} kg · ${age} años`,
                     era: weightStr ? `${weightStr} (${dateStr})` : dateStr,
                     category: 'community',
-                    sex: data.sex || 'male',
+                    sex: athleteSex,
                     age,
                     height: h,
                     weight: w,
-                    bodyFat: data.bodyFat ?? data.measurements.bodyFat ?? 12,
+                    bodyFat: data.bodyFat ?? data.measurements.bodyFat ?? (athleteSex === 'female' ? 22 : 15),
                     date: data.date,
                     measurements: data.measurements as Partial<BodyMeasurements>
                 });
@@ -91,20 +92,23 @@ export const publishCommunityAthlete = async (
         const weight = latestRecord.measurements?.weight;
         const height = latestRecord.measurements?.height;
         const bodyFat = latestRecord.measurements?.bodyFat;
-        const resolvedAge = latestRecord.measurements?.age || age || 25;
+        const resolvedAge = latestRecord.measurements?.age || age || 28;
         const cleanName = publicAlias?.trim() || ((name && name !== 'User' && name !== 'guest') ? name : 'Atleta Registrado');
+        const defaultHeight = sex === 'female' ? 165 : 178;
+        const defaultWeight = sex === 'female' ? 60 : 78;
+        const defaultBodyFat = sex === 'female' ? 22 : 15;
 
         const payload = {
             id: userId,
             name: cleanName,
             publicAlias: publicAlias?.trim() || null,
-            title: `${height || 178} cm · ${weight || 80} kg · ${resolvedAge} años`,
+            title: `${height || defaultHeight} cm · ${weight || defaultWeight} kg · ${resolvedAge} años`,
             era: weight ? `${weight} kg` : 'Comunidad',
             sex: sex || 'male',
             age: resolvedAge,
-            height: height || 178,
-            weight: weight || 80,
-            bodyFat: bodyFat ?? 12,
+            height: height || defaultHeight,
+            weight: weight || defaultWeight,
+            bodyFat: bodyFat ?? defaultBodyFat,
             isPublic: true,
             date: latestRecord.date,
             measurements: latestRecord.measurements || {},

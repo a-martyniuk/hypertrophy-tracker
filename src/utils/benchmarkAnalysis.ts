@@ -96,7 +96,7 @@ export const computeComprehensiveAnalysis = (
     const ankle = ankleAvg > 0 ? ankleAvg : (sex === 'female' ? 20.5 : 22.5);
 
     const potentials = calculateSkeletalPotential(wrist, ankle, height, sex);
-    const ffmi = calculateFFMI(m.weight || 75, height, m.bodyFat || 15);
+    const ffmi = calculateFFMI(m.weight || (sex === 'female' ? 60 : 75), height, m.bodyFat || (sex === 'female' ? 22 : 15), sex);
 
     const armCurrent = getAvg(m.arm);
     const forearmCurrent = getAvg(m.forearm);
