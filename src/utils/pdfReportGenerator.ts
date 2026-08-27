@@ -526,19 +526,19 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
 
     // Page 2 Header
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
+    doc.setFontSize(11);
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.text('2. AUDITORIA DE PROPORCIONES, BENCHMARKS & PRESCRIPCION', 14, 13);
+    doc.text('2. PROPORCIONES, BENCHMARKS & PRESCRIPCION', 14, 13);
 
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
-    doc.text('ANALISIS ESTETICO AUREO, TECHO CASEY BUTT Y DOSIFICACION DE VOLUMEN', 14, 18);
+    doc.text('ANALISIS ESTETICO AUREO, TECHO CASEY BUTT Y DOSIFICACION DE VOLUMEN', 14, 17.5);
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
     doc.setTextColor(textCyan[0], textCyan[1], textCyan[2]);
-    doc.text('AUDITORIA CLINICA // PAG. 2 DE 2', 148, 13);
+    doc.text('AUDITORIA CLINICA // PAG. 2 DE 2', 196, 13, { align: 'right' });
 
     // Section 1: Classical Ratios & Aesthetics Summary Box (Y: 22 to 58, H=36)
     doc.setFillColor(cardBg[0], cardBg[1], cardBg[2]);
@@ -558,7 +558,7 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
     doc.text('• Triada de Steve Reeves (1:1:1): Brazo ' + armVal + 'cm | Cuello ' + neckVal + 'cm | Gemelo ' + calfVal + 'cm', 18, 34);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(textGreen[0], textGreen[1], textGreen[2]);
-    doc.text('Puntuacion Simetria: ' + (proportions?.reevesTriad.symmetryScore || 96) + ' / 100', 132, 34);
+    doc.text('Simetria: ' + (proportions?.reevesTriad.symmetryScore || 96) + ' / 100', 192, 34, { align: 'right' });
 
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(textLight[0], textLight[1], textLight[2]);
