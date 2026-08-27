@@ -210,6 +210,55 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                         <p>
                             Evaluación anatómica contra modelos de Steve Reeves, Casey Butt y proporciones áureas.
                         </p>
+                        {comprehensiveAnalysis && (
+                            <div style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                flexWrap: 'wrap',
+                                gap: '0.45rem',
+                                marginTop: '0.4rem',
+                                fontSize: '0.75rem',
+                                fontFamily: 'var(--font-mono)'
+                            }}>
+                                <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.35rem',
+                                    padding: '0.2rem 0.55rem',
+                                    borderRadius: '6px',
+                                    background: 'rgba(245, 158, 11, 0.15)',
+                                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                                    color: '#fbbf24',
+                                    fontWeight: 700
+                                }}>
+                                    🎖️ {comprehensiveAnalysis.overallLevelLabel}
+                                </span>
+                                <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.35rem',
+                                    padding: '0.2rem 0.55rem',
+                                    borderRadius: '6px',
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    color: '#cbd5e1'
+                                }}>
+                                    🧬 Techo: <strong style={{ color: '#ffffff' }}>{comprehensiveAnalysis.overallScore}%</strong>
+                                </span>
+                                <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.35rem',
+                                    padding: '0.2rem 0.55rem',
+                                    borderRadius: '6px',
+                                    background: 'rgba(34, 211, 238, 0.12)',
+                                    border: '1px solid rgba(34, 211, 238, 0.25)',
+                                    color: '#22d3ee'
+                                }}>
+                                    ⚡ FFMI: <strong style={{ color: '#ffffff' }}>{comprehensiveAnalysis.ffmiScore.value}</strong> ({comprehensiveAnalysis.ffmiScore.statusText})
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="analysis-header-actions">
@@ -269,9 +318,6 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                 </div>
             </div>
 
-            {/* 1. Global Executive Development Banner */}
-            <PhysiqueOverviewHero analysis={comprehensiveAnalysis} />
-
             {/* Alerts Strip */}
             {alerts.length > 0 && (
                 <div className="alerts-strip">
@@ -294,6 +340,9 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
             {/* TAB 1: BENCHMARKS & PROGRESS TOWARDS GENETIC LIMIT */}
             {activeTab === 'benchmarks' && (
                 <section style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    {/* Executive Development Banner inside Benchmarks tab */}
+                    <PhysiqueOverviewHero analysis={comprehensiveAnalysis} />
+
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
                             <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
