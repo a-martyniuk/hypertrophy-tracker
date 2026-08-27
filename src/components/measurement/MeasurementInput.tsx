@@ -56,30 +56,44 @@ export const MeasurementInput = ({
                     </div>
                 </div>
                 <div className="hud-double-inputs">
-                    <input
-                        type="number"
-                        step="0.1"
-                        inputMode="decimal"
-                        placeholder="Izq"
-                        className="hud-input-l"
-                        min="0"
-                        value={val.left || ''}
-                        onChange={(e) => onChange({ ...val, left: parseFloat(e.target.value) || 0 })}
-                        onFocus={onFocus}
-                        onBlur={onBlur}
-                    />
-                    <input
-                        type="number"
-                        step="0.1"
-                        inputMode="decimal"
-                        placeholder="Der"
-                        className="hud-input-r"
-                        min="0"
-                        value={val.right || ''}
-                        onChange={(e) => onChange({ ...val, right: parseFloat(e.target.value) || 0 })}
-                        onFocus={onFocus}
-                        onBlur={onBlur}
-                    />
+                    <div className="hud-input-col">
+                        <div className="side-badge left" title="Tu extremidad izquierda (Perspectiva anatómica propia)">
+                            <span>IZQ</span>
+                            <span className="side-code">(L)</span>
+                        </div>
+                        <input
+                            type="number"
+                            step="0.1"
+                            inputMode="decimal"
+                            placeholder="0.0"
+                            className="hud-input-l"
+                            min="0"
+                            value={val.left || ''}
+                            onChange={(e) => onChange({ ...val, left: parseFloat(e.target.value) || 0 })}
+                            onFocus={onFocus}
+                            onBlur={onBlur}
+                            title="Tu extremidad izquierda (Perspectiva anatómica propia)"
+                        />
+                    </div>
+                    <div className="hud-input-col">
+                        <div className="side-badge right" title="Tu extremidad derecha (Perspectiva anatómica propia)">
+                            <span>DER</span>
+                            <span className="side-code">(R)</span>
+                        </div>
+                        <input
+                            type="number"
+                            step="0.1"
+                            inputMode="decimal"
+                            placeholder="0.0"
+                            className="hud-input-r"
+                            min="0"
+                            value={val.right || ''}
+                            onChange={(e) => onChange({ ...val, right: parseFloat(e.target.value) || 0 })}
+                            onFocus={onFocus}
+                            onBlur={onBlur}
+                            title="Tu extremidad derecha (Perspectiva anatómica propia)"
+                        />
+                    </div>
                 </div>
             </div>
         );

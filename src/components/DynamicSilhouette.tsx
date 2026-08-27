@@ -18,42 +18,45 @@ export const DynamicSilhouette = ({
   const silhouetteImg = sex === 'female' ? femaleSilhouette : maleSilhouette;
 
   // Exact anatomical anchors calibrated directly against pixel contour data
+  // Model is facing front (anterior view):
+  // Screen Left (x < 130) = Athlete's Right (R / Tu lado derecho)
+  // Screen Right (x > 130) = Athlete's Left (L / Tu lado izquierdo)
   const anchors = sex === 'female' ? {
     neck: { x: 130, y: 82 },
     back: { x: 60, y: 125 },
     pecho: { x: 150, y: 148 },
-    armL: { x: 64, y: 175 },
-    armR: { x: 196, y: 175 },
+    armR: { x: 64, y: 175 },     // Brazo Derecho (Screen Left)
+    armL: { x: 196, y: 175 },    // Brazo Izquierdo (Screen Right)
     waist: { x: 130, y: 240 },
-    forearmL: { x: 49, y: 212 },
-    forearmR: { x: 211, y: 212 },
+    forearmR: { x: 49, y: 212 }, // Antebrazo Derecho (Screen Left)
+    forearmL: { x: 211, y: 212 },// Antebrazo Izquierdo (Screen Right)
     hips: { x: 150, y: 280 },
-    wristL: { x: 33, y: 252 },
-    wristR: { x: 227, y: 252 },
-    thighL: { x: 97, y: 308 },
-    thighR: { x: 163, y: 308 },
-    calfL: { x: 96, y: 415 },
-    calfR: { x: 164, y: 415 },
-    ankleL: { x: 100, y: 485 },
-    ankleR: { x: 160, y: 485 },
+    wristR: { x: 33, y: 252 },   // Muñeca Derecha (Screen Left)
+    wristL: { x: 227, y: 252 },  // Muñeca Izquierda (Screen Right)
+    thighR: { x: 97, y: 308 },   // Muslo Derecho (Screen Left)
+    thighL: { x: 163, y: 308 },  // Muslo Izquierdo (Screen Right)
+    calfR: { x: 96, y: 415 },    // Gemelo Derecho (Screen Left)
+    calfL: { x: 164, y: 415 },   // Gemelo Izquierdo (Screen Right)
+    ankleR: { x: 100, y: 485 },  // Tobillo Derecho (Screen Left)
+    ankleL: { x: 160, y: 485 },  // Tobillo Izquierdo (Screen Right)
   } : {
     neck: { x: 130, y: 82 },
     back: { x: 60, y: 125 },
     pecho: { x: 150, y: 148 },
-    armL: { x: 64, y: 175 },
-    armR: { x: 196, y: 175 },
-    forearmL: { x: 49, y: 212 },
-    forearmR: { x: 211, y: 212 },
+    armR: { x: 64, y: 175 },     // Brazo Derecho (Screen Left)
+    armL: { x: 196, y: 175 },    // Brazo Izquierdo (Screen Right)
+    forearmR: { x: 49, y: 212 }, // Antebrazo Derecho (Screen Left)
+    forearmL: { x: 211, y: 212 },// Antebrazo Izquierdo (Screen Right)
     waist: { x: 130, y: 240 },
     hips: { x: 150, y: 280 },
-    wristL: { x: 33, y: 252 },
-    wristR: { x: 227, y: 252 },
-    thighL: { x: 97, y: 308 },
-    thighR: { x: 163, y: 308 },
-    calfL: { x: 96, y: 415 },
-    calfR: { x: 164, y: 415 },
-    ankleL: { x: 100, y: 485 },
-    ankleR: { x: 160, y: 485 },
+    wristR: { x: 33, y: 252 },   // Muñeca Derecha (Screen Left)
+    wristL: { x: 227, y: 252 },  // Muñeca Izquierda (Screen Right)
+    thighR: { x: 97, y: 308 },   // Muslo Derecho (Screen Left)
+    thighL: { x: 163, y: 308 },  // Muslo Izquierdo (Screen Right)
+    calfR: { x: 96, y: 415 },    // Gemelo Derecho (Screen Left)
+    calfL: { x: 164, y: 415 },   // Gemelo Izquierdo (Screen Right)
+    ankleR: { x: 100, y: 485 },  // Tobillo Derecho (Screen Left)
+    ankleL: { x: 160, y: 485 },  // Tobillo Izquierdo (Screen Right)
   };
 
   // Anthropometric tape measure guideline bands perfectly bounded by body silhouette edges
@@ -61,20 +64,20 @@ export const DynamicSilhouette = ({
     { id: 'neck', y: 82, x1: 110, x2: 150, muscle: 'neck' },
     { id: 'back', y: 125, x1: 51, x2: 208, muscle: 'back' },
     { id: 'pecho', y: 148, x1: 76, x2: 184, muscle: 'pecho' },
-    { id: 'armL', y: 175, x1: 48, x2: 80, muscle: 'arm' },
-    { id: 'armR', y: 175, x1: 180, x2: 212, muscle: 'arm' },
+    { id: 'armR', y: 175, x1: 48, x2: 80, muscle: 'arm' },
+    { id: 'armL', y: 175, x1: 180, x2: 212, muscle: 'arm' },
     { id: 'waist', y: 240, x1: 88, x2: 172, muscle: 'waist' },
-    { id: 'forearmL', y: 212, x1: 29, x2: 69, muscle: 'forearm' },
-    { id: 'forearmR', y: 212, x1: 191, x2: 231, muscle: 'forearm' },
+    { id: 'forearmR', y: 212, x1: 29, x2: 69, muscle: 'forearm' },
+    { id: 'forearmL', y: 212, x1: 191, x2: 231, muscle: 'forearm' },
     { id: 'hips', y: 280, x1: 84, x2: 176, muscle: 'hips' },
-    { id: 'wristL', y: 252, x1: 18, x2: 48, muscle: 'wrist' },
-    { id: 'wristR', y: 252, x1: 212, x2: 242, muscle: 'wrist' },
-    { id: 'thighL', y: 308, x1: 70, x2: 124, muscle: 'thigh' },
-    { id: 'thighR', y: 308, x1: 136, x2: 190, muscle: 'thigh' },
-    { id: 'calfL', y: 415, x1: 72, x2: 120, muscle: 'calf' },
-    { id: 'calfR', y: 415, x1: 140, x2: 188, muscle: 'calf' },
-    { id: 'ankleL', y: 485, x1: 84, x2: 116, muscle: 'ankle' },
-    { id: 'ankleR', y: 485, x1: 144, x2: 176, muscle: 'ankle' },
+    { id: 'wristR', y: 252, x1: 18, x2: 48, muscle: 'wrist' },
+    { id: 'wristL', y: 252, x1: 212, x2: 242, muscle: 'wrist' },
+    { id: 'thighR', y: 308, x1: 70, x2: 124, muscle: 'thigh' },
+    { id: 'thighL', y: 308, x1: 136, x2: 190, muscle: 'thigh' },
+    { id: 'calfR', y: 415, x1: 72, x2: 120, muscle: 'calf' },
+    { id: 'calfL', y: 415, x1: 140, x2: 188, muscle: 'calf' },
+    { id: 'ankleR', y: 485, x1: 84, x2: 116, muscle: 'ankle' },
+    { id: 'ankleL', y: 485, x1: 144, x2: 176, muscle: 'ankle' },
   ];
 
   return (
@@ -109,6 +112,38 @@ export const DynamicSilhouette = ({
           </filter>
         </defs>
 
+        {/* Anatomical Orientation HUD Overlay */}
+        <g className="hud-orientation-labels" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+          {/* Top View Mode */}
+          <rect x="55" y="10" width="150" height="18" rx="4" fill="rgba(15, 23, 42, 0.75)" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="0.75" />
+          <text x="130" y="22.5" textAnchor="middle" fill="#94a3b8" fontSize="7.5" fontFamily="var(--font-mono)" fontWeight="700" letterSpacing="0.08em">
+            VISTA ANTERIOR (DE FRENTE)
+          </text>
+
+          {/* Left Side of Drawing (Athlete's Right Arm) */}
+          <rect x="6" y="36" width="58" height="24" rx="4" fill="rgba(245, 158, 11, 0.12)" stroke="rgba(245, 158, 11, 0.35)" strokeWidth="0.75" />
+          <text x="35" y="47" textAnchor="middle" fill="#fbbf24" fontSize="8" fontFamily="var(--font-mono)" fontWeight="800">
+            DER (R)
+          </text>
+          <text x="35" y="55.5" textAnchor="middle" fill="rgba(255, 255, 255, 0.6)" fontSize="5.8" fontFamily="var(--font-mono)">
+            TU DERECHA
+          </text>
+
+          {/* Right Side of Drawing (Athlete's Left Arm) */}
+          <rect x="196" y="36" width="58" height="24" rx="4" fill="rgba(56, 189, 248, 0.12)" stroke="rgba(56, 189, 248, 0.35)" strokeWidth="0.75" />
+          <text x="225" y="47" textAnchor="middle" fill="#38bdf8" fontSize="8" fontFamily="var(--font-mono)" fontWeight="800">
+            IZQ (L)
+          </text>
+          <text x="225" y="55.5" textAnchor="middle" fill="rgba(255, 255, 255, 0.6)" fontSize="5.8" fontFamily="var(--font-mono)">
+            TU IZQUIERDA
+          </text>
+
+          {/* Bottom Perspective Footer */}
+          <text x="130" y="542" textAnchor="middle" fill="rgba(245, 158, 11, 0.65)" fontSize="6.5" fontFamily="var(--font-mono)" fontWeight="700" letterSpacing="0.06em">
+            PERSPECTIVA ANATÓMICA DEL ATLETA
+          </text>
+        </g>
+
         {/* Anatomical Silhouette Graphic */}
         <image
           href={silhouetteImg}
@@ -138,8 +173,7 @@ export const DynamicSilhouette = ({
                   x2={band.x2 + 15}
                   y2={band.y}
                   stroke="transparent"
-                  strokeWidth="28"
-                  style={{ cursor: 'pointer' }}
+                  strokeWidth="20"
                 />
                 {/* Dashed Tape Guideline */}
                 <line
@@ -182,18 +216,18 @@ export const DynamicSilhouette = ({
         <g className="hud-interactive-markers">
           {Object.entries(anchors).map(([key, pos]) => {
             const junctionId = key
-              .replace('armL', 'arm-left')
               .replace('armR', 'arm-right')
-              .replace('forearmL', 'forearm-left')
+              .replace('armL', 'arm-left')
               .replace('forearmR', 'forearm-right')
-              .replace('wristL', 'wrist-left')
+              .replace('forearmL', 'forearm-left')
               .replace('wristR', 'wrist-right')
-              .replace('thighL', 'thigh-left')
+              .replace('wristL', 'wrist-left')
               .replace('thighR', 'thigh-right')
-              .replace('calfL', 'calf-left')
+              .replace('thighL', 'thigh-left')
               .replace('calfR', 'calf-right')
-              .replace('ankleL', 'ankle-left')
+              .replace('calfL', 'calf-left')
               .replace('ankleR', 'ankle-right')
+              .replace('ankleL', 'ankle-left')
               .replace('pecho', 'pecho')
               .replace('neck', 'neck')
               .replace('back', 'back')

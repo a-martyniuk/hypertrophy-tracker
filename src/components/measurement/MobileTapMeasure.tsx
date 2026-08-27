@@ -225,10 +225,13 @@ export const MobileTapMeasure: React.FC<Props> = ({
           {currentMetadata.isBilateral ? (
             <div className="hero-bilateral-inputs">
               {/* Left Side */}
-              <div className="hero-side-card">
+              <div className="hero-side-card" style={{ borderColor: 'rgba(56, 189, 248, 0.3)' }}>
                 <div className="hero-side-header">
-                  <span className="hero-side-tag">IZQUIERDO</span>
+                  <span className="hero-side-tag" style={{ color: '#38bdf8' }}>👈 TU IZQ (L)</span>
                   {prevVal?.left > 0 && <span className="hero-prev-text">Ant: {prevVal.left}cm</span>}
+                </div>
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginBottom: '0.35rem', textAlign: 'left' }}>
+                  Extremidad Izquierda
                 </div>
                 <div className="hero-side-row">
                   <input
@@ -249,10 +252,13 @@ export const MobileTapMeasure: React.FC<Props> = ({
               </div>
 
               {/* Right Side */}
-              <div className="hero-side-card">
+              <div className="hero-side-card" style={{ borderColor: 'rgba(245, 158, 11, 0.3)' }}>
                 <div className="hero-side-header">
-                  <span className="hero-side-tag">DERECHO</span>
+                  <span className="hero-side-tag" style={{ color: '#fbbf24' }}>TU DER (R) 👉</span>
                   {prevVal?.right > 0 && <span className="hero-prev-text">Ant: {prevVal.right}cm</span>}
+                </div>
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginBottom: '0.35rem', textAlign: 'left' }}>
+                  Extremidad Derecha
                 </div>
                 <div className="hero-side-row">
                   <input
