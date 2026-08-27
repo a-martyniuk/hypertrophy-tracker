@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import {
     Line,
-    ReferenceLine,
-    YAxis
+    ReferenceLine
 } from 'recharts';
 import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale, Download, Dumbbell, Swords } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -430,50 +429,35 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                     </div>
 
                     <div className="charts-grid">
+                        {/* GRÁFICO 1: COMPOSICIÓN & V-TAPER */}
                         <MeasurementChart
-                            title={t('analysis.charts.weight_waist.title')}
-                            tooltip={t('analysis.charts.weight_waist.tooltip')}
+                            title="Composición Corporal & V-Taper (Torso, Peso y Cintura)"
+                            tooltip="Correlación entre el crecimiento muscular del torso y el control o reducción del perímetro de cintura."
                             data={chartData}
+                            height={340}
                         >
-                            {getGoalValue('peso') && <ReferenceLine y={getGoalValue('peso')!} stroke="#ef4444" strokeDasharray="3 3" />}
-                            {getGoalValue('cintura') && <ReferenceLine y={getGoalValue('cintura')!} stroke="#ef4444" strokeDasharray="3 3" />}
-                            <Line type="monotone" dataKey="peso" stroke="#f59e0b" name={t('analysis.charts.weight_waist.weight')} strokeWidth={2} dot={{ r: 4 }} />
-                            <Line type="monotone" dataKey="cintura" stroke="#fbbf24" name={t('analysis.charts.weight_waist.waist')} strokeWidth={2} dot={{ r: 4 }} />
+                            {getGoalValue('peso') && (
+                                <ReferenceLine y={getGoalValue('peso')!} stroke="#ef4444" strokeDasharray="3 3" label={{ value: 'Meta Peso', fill: '#ef4444', fontSize: 10 }} />
+                            )}
+                            {getGoalValue('cintura') && (
+                                <ReferenceLine y={getGoalValue('cintura')!} stroke="#06b6d4" strokeDasharray="3 3" label={{ value: 'Meta Cintura', fill: '#06b6d4', fontSize: 10 }} />
+                            )}
+                            <Line type="monotone" dataKey="peso" stroke="#f59e0b" name="Peso Corporal (kg)" strokeWidth={2.5} dot={{ r: 4, fill: '#f59e0b' }} activeDot={{ r: 6 }} />
+                            <Line type="monotone" dataKey="pecho" stroke="#10b981" name="Pecho / Torso (cm)" strokeWidth={2.5} dot={{ r: 4, fill: '#10b981' }} activeDot={{ r: 6 }} />
+                            <Line type="monotone" dataKey="cintura" stroke="#06b6d4" name="Cintura (cm)" strokeWidth={2.5} dot={{ r: 4, fill: '#06b6d4' }} activeDot={{ r: 6 }} />
                         </MeasurementChart>
 
+                        {/* GRÁFICO 2: HIPERTROFIA Y SIMETRÍA BILATERAL DE EXTREMIDADES */}
                         <MeasurementChart
-                            title={t('analysis.charts.arms_comparison.title')}
-                            tooltip={t('analysis.charts.arms_comparison.tooltip')}
+                            title="Hipertrofia & Simetría de Extremidades (Brazos y Piernas)"
+                            tooltip="Trazabilidad y balance bilateral entre brazo izquierdo/derecho y muslo izquierdo/derecho."
                             data={chartData}
+                            height={340}
                         >
-                            <Line type="monotone" dataKey="brazoDer" stroke="#f59e0b" name={t('analysis.charts.arms_comparison.right')} strokeWidth={2} />
-                            <Line type="monotone" dataKey="brazoIzq" stroke="#fbbf24" name={t('analysis.charts.arms_comparison.left')} strokeWidth={2} />
-                        </MeasurementChart>
-
-                        <MeasurementChart
-                            title={t('analysis.charts.legs_comparison.title')}
-                            tooltip={t('analysis.charts.legs_comparison.tooltip')}
-                            data={chartData}
-                        >
-                            <Line type="monotone" dataKey="piernaDer" stroke="#f59e0b" name={t('analysis.charts.arms_comparison.right')} strokeWidth={2} />
-                            <Line type="monotone" dataKey="piernaIzq" stroke="#fbbf24" name={t('analysis.charts.arms_comparison.left')} strokeWidth={2} />
-                        </MeasurementChart>
-
-                        <MeasurementChart
-                            title={t('analysis.charts.torso_proportion.title')}
-                            tooltip={t('analysis.charts.torso_proportion.tooltip')}
-                            data={chartData}
-                        >
-                            <Line type="step" dataKey="tronco" stroke="#f59e0b" name={t('analysis.charts.torso_proportion.avg_torso')} strokeWidth={3} />
-                        </MeasurementChart>
-
-                        <MeasurementChart
-                            title={t('analysis.charts.whr.title')}
-                            tooltip={t('analysis.charts.whr.tooltip')}
-                            data={chartData}
-                        >
-                            <YAxis domain={[0.5, 1.2]} stroke="#94a3b8" fontSize={12} />
-                            <Line type="monotone" dataKey="whr" stroke="#fbbf24" name={t('analysis.charts.whr.series')} strokeWidth={2} />
+                            <Line type="monotone" dataKey="brazoDer" stroke="#a855f7" name="Brazo Der (cm)" strokeWidth={2.5} dot={{ r: 4, fill: '#a855f7' }} activeDot={{ r: 6 }} />
+                            <Line type="monotone" dataKey="brazoIzq" stroke="#c084fc" name="Brazo Izq (cm)" strokeWidth={2} strokeDasharray="4 4" dot={{ r: 3, fill: '#c084fc' }} activeDot={{ r: 5 }} />
+                            <Line type="monotone" dataKey="piernaDer" stroke="#f97316" name="Muslo Der (cm)" strokeWidth={2.5} dot={{ r: 4, fill: '#f97316' }} activeDot={{ r: 6 }} />
+                            <Line type="monotone" dataKey="piernaIzq" stroke="#fbbf24" name="Muslo Izq (cm)" strokeWidth={2} strokeDasharray="4 4" dot={{ r: 3, fill: '#fbbf24' }} activeDot={{ r: 5 }} />
                         </MeasurementChart>
                     </div>
                 </section>

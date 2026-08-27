@@ -447,8 +447,14 @@
 
 .charts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.25rem;
+}
+
+@media (max-width: 960px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Responsive Media Queries (Mobile & Small Tablets) */

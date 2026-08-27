@@ -44,6 +44,7 @@ export const useAnalysisData = ({ records, goals, sex = 'male' }: UseAnalysisDat
                 peso: m.weight || 0,
                 cintura: m.waist || 0,
                 cadera: m.hips || 0,
+                pecho: p,
                 whr: (m.hips && m.hips > 0 && m.waist && m.waist > 0) ? Number((m.waist / m.hips).toFixed(2)) : 0,
                 tronco,
                 brazoDer: m.arm?.right || 0,
