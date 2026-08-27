@@ -9,6 +9,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
 import { useAnalysisData } from '../hooks/useAnalysisData';
+import { useProfile } from '../hooks/useProfile';
 import { computeComprehensiveAnalysis } from '../utils/benchmarkAnalysis';
 import { generateTrainingPrescriptions } from '../utils/trainingPrescription';
 import { generateAthletePDFReport } from '../utils/pdfReportGenerator';
@@ -33,6 +34,7 @@ interface Props {
 export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { profile } = useProfile();
     const [searchParams, setSearchParams] = useSearchParams();
     const muscleId = searchParams.get('muscle');
     const [activeTab, setActiveTab] = useState<'prescription' | 'benchmarks' | 'ratios' | 'history' | 'versus'>('prescription');
@@ -269,7 +271,7 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                             <span>🧬 Simulador Genético &rarr;</span>
                         </button>
                         <button
-                            onClick={() => generateAthletePDFReport({ latestRecord, sex })}
+                            onClick={() => generateAthletePDFReport({ latestRecord, previousRecord: records[1], records, userName: profile?.name || 'Atleta', sex })}
                             className="analysis-action-btn action-pdf"
                         >
                             <Download size={14} style={{ color: '#fbbf24' }} />

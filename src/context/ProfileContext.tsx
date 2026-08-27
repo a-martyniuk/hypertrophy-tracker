@@ -129,14 +129,17 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
         const previousProfile = profile;
 
         const defaultName = user?.displayName || user?.email?.split('@')[0] || 'Atleta';
+        const isAlexis = defaultName.toLowerCase().includes('alexis') || defaultName.toLowerCase().includes('martyniuk') || user?.email?.toLowerCase().includes('martyniuk');
+        const defaultSex = updates.sex || 'male';
         const newProfile: UserProfile = profile
             ? { ...profile, ...updates }
             : {
                 id: user?.uid || 'guest',
                 name: defaultName,
-                sex: 'male',
-                age: 38,
-                height: 191,
+                sex: defaultSex,
+                age: isAlexis ? 38 : 28,
+                height: isAlexis ? 191 : (defaultSex === 'female' ? 165 : 178),
+                weight: isAlexis ? 104 : (defaultSex === 'female' ? 60 : 78),
                 isPublic: true,
                 publicAlias: '',
                 ...updates

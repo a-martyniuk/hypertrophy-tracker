@@ -43,28 +43,33 @@ const resolveUserPhysicalStats = (
 ) => {
     let age: number | undefined;
 
-    // 1. Check userProfile direct age (Primary Source of Truth)
-    if (userProfile?.age && !isNaN(Number(userProfile.age)) && Number(userProfile.age) >= 10 && Number(userProfile.age) <= 110) {
+    // 1. Check currentRecord direct measurements.age (Primary telemetry)
+    if (currentRecord?.measurements?.age && Number(currentRecord.measurements.age) >= 10 && Number(currentRecord.measurements.age) <= 110) {
+        age = Number(currentRecord.measurements.age);
+    }
+
+    // 2. Check userProfile direct age (Primary Profile source)
+    if (!age && userProfile?.age && !isNaN(Number(userProfile.age)) && Number(userProfile.age) >= 10 && Number(userProfile.age) <= 110) {
         age = Number(userProfile.age);
     }
 
-    // 2. Check userProfile birthDate
+    // 3. Check userProfile birthDate
     if (!age && userProfile?.birthDate) {
         const diff = Date.now() - new Date(userProfile.birthDate).getTime();
         const ageDate = new Date(diff);
         const calculated = Math.abs(ageDate.getUTCFullYear() - 1970);
-        if (!isNaN(calculated) && calculated > 10 && calculated < 110) {
+        if (!isNaN(calculated) && calculated >= 10 && calculated <= 110) {
             age = calculated;
         }
     }
 
-    // 3. Check name heuristic (Alexis Martyniuk is 38)
+    // 4. Check name heuristic (Alexis Martyniuk is 38)
     const nameStr = (userProfile?.name || '').toLowerCase();
     if (!age && (nameStr.includes('alexis') || nameStr.includes('martyniuk'))) {
         age = 38;
     }
 
-    // 4. Check LocalStorage user_age and calculator settings
+    // 5. Check LocalStorage user_age and calculator settings
     if (!age && typeof window !== 'undefined') {
         const uId = currentRecord?.userId || userProfile?.id || 'guest';
         const candidates = [
@@ -108,7 +113,7 @@ const resolveUserPhysicalStats = (
     }
 
     if (!age || isNaN(age)) {
-        age = 38; // Default to 38
+        age = (nameStr.includes('alexis') || nameStr.includes('martyniuk')) ? 38 : 28;
     }
 
     // Height resolution
@@ -131,12 +136,14 @@ const resolveUserPhysicalStats = (
             }
         }
     }
-    if (!height || height <= 0) height = 178;
+    if (!height || height <= 0) height = userProfile?.sex === 'female' ? 165 : 178;
 
     // Weight resolution
     let weight = currentRecord?.measurements?.weight;
     if (!weight || weight <= 0) {
-        if (typeof window !== 'undefined') {
+        if (userProfile?.weight && userProfile.weight > 0) {
+            weight = userProfile.weight;
+        } else if (typeof window !== 'undefined') {
             const uId = currentRecord?.userId || userProfile?.id || 'guest';
             const rawW = localStorage.getItem(`calc_settings_${uId}_weight`) || localStorage.getItem('calc_settings_guest_weight');
             if (rawW) {
@@ -147,11 +154,11 @@ const resolveUserPhysicalStats = (
             }
         }
     }
-    if (!weight || weight <= 0) weight = 80;
+    if (!weight || weight <= 0) weight = userProfile?.sex === 'female' ? 60 : 78;
 
     // Body fat resolution
     let bodyFat = currentRecord?.measurements?.bodyFat;
-    if (bodyFat === undefined || isNaN(bodyFat)) bodyFat = 12.0;
+    if (bodyFat === undefined || isNaN(bodyFat) || bodyFat <= 0) bodyFat = userProfile?.sex === 'female' ? 22.0 : 15.0;
 
     return { age, height, weight, bodyFat };
 };

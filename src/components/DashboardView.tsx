@@ -105,6 +105,9 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
             <TacticalInsightCard
                 latestRecord={latestRecord}
                 previousRecord={previousRecord}
+                records={records}
+                userName={userName}
+                sex={sex}
                 onOpenReport={() => setReportModalOpen(true)}
                 onShareReport={() => setShareModalOpen(true)}
             />

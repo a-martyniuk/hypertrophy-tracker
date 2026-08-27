@@ -24,9 +24,12 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
 
     // Profile & Biometrics State
     const activeProfile = profile || currentProfile;
-    const [name, setName] = useState(activeProfile?.name || 'Alexis Martyniuk');
-    const [age, setAge] = useState<number>(activeProfile?.age || 38);
-    const [height, setHeight] = useState<number>(activeProfile?.height || 191);
+    const defaultUserName = activeProfile?.name || user?.displayName || user?.email?.split('@')[0] || 'Atleta';
+    const isAlexis = defaultUserName.toLowerCase().includes('alexis') || defaultUserName.toLowerCase().includes('martyniuk') || user?.email?.toLowerCase().includes('martyniuk');
+
+    const [name, setName] = useState(defaultUserName);
+    const [age, setAge] = useState<number>(activeProfile?.age || (isAlexis ? 38 : 28));
+    const [height, setHeight] = useState<number>(activeProfile?.height || (isAlexis ? 191 : (activeProfile?.sex === 'female' ? 165 : 178)));
     const [isPublic, setIsPublic] = useState<boolean>(activeProfile?.isPublic !== false);
     const [publicAlias, setPublicAlias] = useState<string>(activeProfile?.publicAlias || '');
     const [profileSaved, setProfileSaved] = useState(false);
@@ -43,9 +46,9 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
 
     const handleSaveProfile = async () => {
         await updateProfile({
-            name: name.trim() || 'Atleta',
-            age: Number(age) || 38,
-            height: Number(height) || 191,
+            name: name.trim() || defaultUserName,
+            age: Number(age) || (isAlexis ? 38 : 28),
+            height: Number(height) || (isAlexis ? 191 : (activeProfile?.sex === 'female' ? 165 : 178)),
             isPublic,
             publicAlias: publicAlias.trim()
         });
@@ -203,7 +206,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                                     value={age || ''}
                                     onChange={(e) => setAge(Number(e.target.value))}
                                     className="settings-input"
-                                    placeholder="38"
+                                    placeholder="28"
                                     min="10"
                                     max="110"
                                 />
@@ -218,7 +221,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                                     value={height || ''}
                                     onChange={(e) => setHeight(Number(e.target.value))}
                                     className="settings-input"
-                                    placeholder="191"
+                                    placeholder="178"
                                     min="100"
                                     max="250"
                                 />

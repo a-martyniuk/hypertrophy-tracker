@@ -8,6 +8,9 @@ import './TacticalInsightCard.css';
 interface Props {
     latestRecord?: MeasurementRecord;
     previousRecord?: MeasurementRecord;
+    records?: MeasurementRecord[];
+    userName?: string;
+    sex?: 'male' | 'female';
     onOpenReport?: () => void;
     onShareReport?: () => void;
 }
@@ -15,6 +18,9 @@ interface Props {
 export const TacticalInsightCard: React.FC<Props> = ({
     latestRecord,
     previousRecord,
+    records,
+    userName,
+    sex,
     onOpenReport,
     onShareReport
 }) => {
@@ -107,7 +113,7 @@ export const TacticalInsightCard: React.FC<Props> = ({
                 )}
 
                 <button
-                    onClick={() => generateAthletePDFReport({ latestRecord, previousRecord })}
+                    onClick={() => generateAthletePDFReport({ latestRecord, previousRecord, records, userName, sex })}
                     className="tactical-report-btn"
                     style={{ background: 'rgba(245, 158, 11, 0.15)', borderColor: 'rgba(245, 158, 11, 0.4)' }}
                 >
