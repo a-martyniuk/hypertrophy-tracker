@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useProfile } from '../hooks/useProfile';
 import type { MeasurementRecord, GrowthGoal, UserProfile } from '../types/measurements';
 import { CANONICAL_INITIAL_RECORDS, CANONICAL_INITIAL_PROFILE } from '../data/defaultRecords';
+import { getMeasurementsStorageKey, getProfileStorageKey, getGoalsStorageKey } from '../utils/storageKeys';
 
 interface Props {
     records: MeasurementRecord[];
@@ -108,11 +109,10 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                     });
                 }
 
-                // 2. Restore Main Data structures to LocalStorage (Standard Keys)
-                // Even for Auth users, we dump to local first, app logic will verify/sync if needed
-                if (json.measurements) localStorage.setItem('hypertrophy_measurements', JSON.stringify(json.measurements));
-                if (json.goals) localStorage.setItem('hypertrophy_goals', JSON.stringify(json.goals));
-                if (json.profile) localStorage.setItem('hypertrophy_profile', JSON.stringify(json.profile));
+                // 2. Restore Main Data structures to User-Scoped LocalStorage
+                if (json.measurements) localStorage.setItem(getMeasurementsStorageKey(user?.uid), JSON.stringify(json.measurements));
+                if (json.goals) localStorage.setItem(getGoalsStorageKey(user?.uid), JSON.stringify(json.goals));
+                if (json.profile) localStorage.setItem(getProfileStorageKey(user?.uid), JSON.stringify(json.profile));
 
                 setSuccessMsg(t('settings.success_import'));
 
@@ -134,9 +134,11 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
     };
 
     const handleRestoreBaseline = () => {
-        if (confirm('¿Deseas restaurar la ficha histórica y línea base del 20/08/2026?')) {
-            localStorage.setItem('hypertrophy_measurements', JSON.stringify(CANONICAL_INITIAL_RECORDS));
-            localStorage.setItem('hypertrophy_profile', JSON.stringify(CANONICAL_INITIAL_PROFILE));
+        if (confirm('¿Deseas restaurar la ficha histórica y línea base del 20/08/2026 en tu cuenta?')) {
+            const mKey = getMeasurementsStorageKey(user?.uid);
+            const pKey = getProfileStorageKey(user?.uid);
+            localStorage.setItem(mKey, JSON.stringify(CANONICAL_INITIAL_RECORDS));
+            localStorage.setItem(pKey, JSON.stringify(CANONICAL_INITIAL_PROFILE));
             localStorage.setItem('skeletal_height', '191');
             localStorage.setItem('skeletal_frame_draft', JSON.stringify({ wrist: 17.5, ankle: 22.5, knee: 39 }));
             setSuccessMsg('¡Línea base histórica (20/08/2026) restaurada con éxito!');

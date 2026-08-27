@@ -11,14 +11,16 @@ import {
 import { db, isFirebaseConfigured } from '../lib/firebase';
 import type { GrowthGoal } from '../types/measurements';
 
-const STORAGE_KEY = 'hypertrophy_goals';
+import { getGoalsStorageKey } from '../utils/storageKeys';
 
 export const useGoals = (userId?: string) => {
     const [goals, setGoals] = useState<GrowthGoal[]>([]);
 
     const fetchGoals = useCallback(async () => {
+        const storageKey = getGoalsStorageKey(userId);
+
         if (!userId || userId === 'guest' || !isFirebaseConfigured) {
-            const saved = localStorage.getItem(STORAGE_KEY);
+            const saved = localStorage.getItem(storageKey);
             if (saved) {
                 try {
                     setGoals(JSON.parse(saved));
@@ -51,6 +53,7 @@ export const useGoals = (userId?: string) => {
             });
 
             setGoals(mappedGoals);
+            localStorage.setItem(storageKey, JSON.stringify(mappedGoals));
         } catch (error) {
             console.error('[useGoals] Error al obtener objetivos de Firestore:', error);
         }
@@ -60,6 +63,7 @@ export const useGoals = (userId?: string) => {
         const isCloud = isFirebaseConfigured && userId && userId !== 'guest';
         const newId = crypto.randomUUID();
         const createdAt = new Date().toISOString();
+        const storageKey = getGoalsStorageKey(userId);
 
         const newGoal: GrowthGoal = {
             ...goal,
@@ -71,7 +75,7 @@ export const useGoals = (userId?: string) => {
         if (!isCloud) {
             const newGoals = [newGoal, ...goals];
             setGoals(newGoals);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newGoals));
+            localStorage.setItem(storageKey, JSON.stringify(newGoals));
             return;
         }
 
@@ -87,11 +91,12 @@ export const useGoals = (userId?: string) => {
 
     const deleteGoal = async (id: string) => {
         const isCloud = isFirebaseConfigured && userId && userId !== 'guest';
+        const storageKey = getGoalsStorageKey(userId);
 
         if (!isCloud) {
             const newGoals = goals.filter(g => g.id !== id);
             setGoals(newGoals);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newGoals));
+            localStorage.setItem(storageKey, JSON.stringify(newGoals));
             return;
         }
 
@@ -105,51 +110,14 @@ export const useGoals = (userId?: string) => {
         }
     };
 
-    const syncLocalGoalsToCloud = useCallback(async () => {
-        if (!userId || userId === 'guest' || !isFirebaseConfigured) return;
-
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
-
-        let localGoals: GrowthGoal[] = [];
-        try {
-            localGoals = JSON.parse(saved);
-        } catch {
-            return;
-        }
-
-        if (localGoals.length === 0) return;
-
-        console.log(`[useGoals] Sincronizando ${localGoals.length} objetivos locales a Firestore...`);
-
-        for (const goal of localGoals) {
-            try {
-                const goalDocRef = doc(db, 'users', userId, 'goals', goal.id || crypto.randomUUID());
-                await setDoc(goalDocRef, {
-                    ...goal,
-                    userId
-                }, { merge: true });
-            } catch (err) {
-                console.error('[useGoals] Error al sincronizar objetivo individual:', err);
-            }
-        }
-
-        localStorage.removeItem(STORAGE_KEY);
-    }, [userId]);
-
     useEffect(() => {
         let isMounted = true;
         const init = async () => {
-            if (userId && userId !== 'guest' && isFirebaseConfigured) {
-                await syncLocalGoalsToCloud();
-                if (isMounted) await fetchGoals();
-            } else {
-                if (isMounted) await fetchGoals();
-            }
+            if (isMounted) await fetchGoals();
         };
         void init();
         return () => { isMounted = false; };
-    }, [userId, fetchGoals, syncLocalGoalsToCloud]);
+    }, [userId, fetchGoals]);
 
     return {
         goals,

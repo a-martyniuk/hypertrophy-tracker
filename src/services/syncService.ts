@@ -1,10 +1,11 @@
 import { saveCloudRecord } from './measurementService';
 import type { MeasurementRecord } from '../types/measurements';
-
-const STORAGE_KEY = 'hypertrophy_measurements';
+import { getMeasurementsStorageKey } from '../utils/storageKeys';
 
 export const syncOfflineRecords = async (userId: string) => {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!userId || userId === 'guest') return 0;
+    const userKey = getMeasurementsStorageKey(userId);
+    const saved = localStorage.getItem(userKey);
     if (!saved) return 0;
 
     let locals: MeasurementRecord[] = [];
@@ -14,27 +15,18 @@ export const syncOfflineRecords = async (userId: string) => {
         return 0;
     }
 
-    if (!locals.length) return 0;
-
-    console.log(`[syncService] Sincronizando ${locals.length} registros locales a Firestore...`);
+    // Only sync records that strictly belong to this user
+    const userLocals = locals.filter(r => r.userId === userId || r.userId === 'local');
+    if (!userLocals.length) return 0;
 
     let successCount = 0;
-    const remaining: MeasurementRecord[] = [];
-
-    for (const r of locals) {
+    for (const r of userLocals) {
         try {
             await saveCloudRecord(r, userId);
             successCount++;
         } catch (error) {
             console.error('[syncService] Error al sincronizar registro:', r.id, error);
-            remaining.push(r);
         }
-    }
-
-    if (remaining.length === 0 && successCount > 0) {
-        localStorage.removeItem(STORAGE_KEY);
-    } else if (remaining.length > 0) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
     }
 
     return successCount;

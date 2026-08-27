@@ -4,6 +4,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth, isFirebaseConfigured } from '../lib/firebase';
 import type { UserProfile } from '../types/measurements';
 
+import { getProfileStorageKey } from '../utils/storageKeys';
+
 export interface ProfileContextType {
     profile: UserProfile | null;
     loading: boolean;
@@ -20,9 +22,10 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     const fetchProfile = async () => {
         try {
             const user = auth.currentUser;
+            const storageKey = getProfileStorageKey(user?.uid);
 
             if (!user || !isFirebaseConfigured) {
-                const saved = localStorage.getItem('hypertrophy_profile');
+                const saved = localStorage.getItem(storageKey);
                 if (saved) {
                     try {
                         setProfile(JSON.parse(saved));
@@ -146,7 +149,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
                 localStorage.setItem(`calc_settings_${newProfile.id}_height`, JSON.stringify(newProfile.height));
                 localStorage.setItem(`calc_settings_guest_height`, JSON.stringify(newProfile.height));
             }
-            localStorage.setItem('hypertrophy_profile', JSON.stringify(newProfile));
+            localStorage.setItem(getProfileStorageKey(user?.uid), JSON.stringify(newProfile));
         }
 
         try {
