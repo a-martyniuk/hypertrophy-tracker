@@ -76,6 +76,13 @@ function App() {
 
   const location = useLocation()
 
+  // Reset editingRecord if navigating anywhere away from /new-entry
+  useEffect(() => {
+    if (location.pathname !== '/new-entry') {
+      setEditingRecord(null)
+    }
+  }, [location.pathname])
+
   // Public Trainer Share View (No auth required)
   if (location.pathname === '/share') {
     return (

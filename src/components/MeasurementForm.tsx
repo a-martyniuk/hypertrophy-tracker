@@ -49,25 +49,32 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Initialize default date
-  const defaultDate = (() => {
-    if (recordToEdit?.date) return new Date(recordToEdit.date).toLocaleDateString('en-CA');
-    if (!recordToEdit) {
-      const saved = localStorage.getItem('measurement_draft_date');
-      if (saved) return saved;
-    }
-    return new Date().toLocaleDateString('en-CA');
-  })();
+  const getTodayDateStr = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-  const [date, setDate] = useState(defaultDate);
+  // Initialize date: if editing an existing record, use that date. For any new entry, ALWAYS default to TODAY.
+  const [date, setDate] = useState(() => {
+    if (recordToEdit?.date) return new Date(recordToEdit.date).toLocaleDateString('en-CA');
+    return getTodayDateStr();
+  });
+
+  // Sync date when recordToEdit prop changes
+  useEffect(() => {
+    if (recordToEdit?.date) {
+      setDate(new Date(recordToEdit.date).toLocaleDateString('en-CA'));
+    } else {
+      setDate(getTodayDateStr());
+    }
+  }, [recordToEdit]);
 
   // Initialize draft values if not editing
   const defaultValues = (() => {
     if (recordToEdit) return recordToEdit.measurements;
-    const saved = localStorage.getItem('measurement_draft_values');
-    if (saved) {
-      try { return JSON.parse(saved); } catch { }
-    }
     return previousRecord?.measurements || DEFAULT_MEASUREMENTS;
   })();
 
@@ -79,13 +86,12 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
 
   const measurements = useWatch({ control });
 
-  // Persist draft
+  // Persist draft for new entries
   useEffect(() => {
     if (!recordToEdit) {
       localStorage.setItem('measurement_draft_values', JSON.stringify(measurements));
-      localStorage.setItem('measurement_draft_date', date);
     }
-  }, [measurements, date, recordToEdit]);
+  }, [measurements, recordToEdit]);
 
   const [notes, setNotes] = useState(recordToEdit?.notes || '');
   const [metadata, setMetadata] = useState<RecordMetadata>(recordToEdit?.metadata || {
@@ -99,8 +105,9 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
   const [isBfCalcOpen, setIsBfCalcOpen] = useState(false);
 
   const onSubmit = async (data: MeasurementFormValues['measurements']) => {
+    const isEditing = Boolean(recordToEdit?.id);
     const record: MeasurementRecord = {
-      id: recordToEdit?.id || crypto.randomUUID(),
+      id: isEditing ? recordToEdit!.id : crypto.randomUUID(),
       userId: user?.uid || 'default-user',
       date: new Date(`${date}T00:00:00`).toISOString(),
       measurements: data,
@@ -213,6 +220,15 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>{t('common.form.subtitle')}</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {recordToEdit ? (
+                <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', background: 'rgba(34, 211, 238, 0.15)', color: '#22d3ee', border: '1px solid rgba(34, 211, 238, 0.3)', fontWeight: 700 }}>
+                  MODO EDICIÓN
+                </span>
+              ) : (
+                <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)', fontWeight: 700 }}>
+                  NUEVO REGISTRO
+                </span>
+              )}
               <input type="date" className="date-input" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
           </div>

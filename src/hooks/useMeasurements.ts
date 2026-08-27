@@ -8,6 +8,8 @@ import {
 } from '../services/measurementService';
 import { syncOfflineRecords } from '../services/syncService';
 
+import { CANONICAL_INITIAL_RECORDS } from '../data/defaultRecords';
+
 const STORAGE_KEY = 'hypertrophy_measurements';
 
 export const useMeasurements = (userId?: string | null) => {
@@ -22,7 +24,7 @@ export const useMeasurements = (userId?: string | null) => {
             // 1. Cloud Mode (Firestore)
             if (isFirebaseConfigured && effectiveUserId && effectiveUserId !== 'guest') {
                 const cloudRecords = await fetchCloudRecords(effectiveUserId);
-                if (cloudRecords) {
+                if (cloudRecords && cloudRecords.length > 0) {
                     setRecords(cloudRecords);
                     return;
                 }
@@ -32,13 +34,27 @@ export const useMeasurements = (userId?: string | null) => {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 try {
-                    setRecords(JSON.parse(saved));
+                    const parsed: MeasurementRecord[] = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        // Ensure canonical 2026-08-20 baseline record is preserved if not present
+                        const hasBaseline = parsed.some(r => r.id === CANONICAL_INITIAL_RECORDS[0].id || r.date.startsWith('2026-08-20'));
+                        if (!hasBaseline) {
+                            const merged = [...parsed, ...CANONICAL_INITIAL_RECORDS].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                            setRecords(merged);
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+                            return;
+                        }
+                        setRecords(parsed);
+                        return;
+                    }
                 } catch {
-                    setRecords([]);
+                    // JSON parse error
                 }
-            } else {
-                setRecords([]);
             }
+
+            // Initialize with canonical baseline record
+            setRecords(CANONICAL_INITIAL_RECORDS);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(CANONICAL_INITIAL_RECORDS));
         } catch (err) {
             console.error('[useMeasurements] Error al obtener registros:', err);
         } finally {
