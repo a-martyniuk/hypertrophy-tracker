@@ -155,33 +155,39 @@ export const DEFAULT_COMMUNITY_ATHLETES: ComparisonProfile[] = [
 ];
 
 /**
- * Fetches all public community athletes from Firestore, merging with sample athletes.
+ * Fetches all real public community athletes from Firestore.
  */
 export const fetchCommunityAthletes = async (currentUserId?: string): Promise<ComparisonProfile[]> => {
     if (!isFirebaseConfigured) {
-        return DEFAULT_COMMUNITY_ATHLETES.filter((a) => a.id !== currentUserId);
+        return [];
     }
 
     try {
         const communityRef = collection(db, 'community_athletes');
-        const q = query(communityRef, orderBy('updatedAt', 'desc'), limit(25));
+        const q = query(communityRef, orderBy('updatedAt', 'desc'), limit(50));
         const snapshot = await getDocs(q);
 
         const cloudAthletes: ComparisonProfile[] = [];
         snapshot.forEach((d) => {
             const data = d.data();
-            if (data && data.measurements && d.id !== currentUserId) {
+            const athleteId = d.id;
+            if (data && data.measurements && athleteId !== currentUserId) {
                 const dateStr = data.date ? new Date(data.date).toLocaleDateString() : 'Activo';
                 const weightStr = data.measurements.weight ? `${data.measurements.weight} kg` : '';
+                const h = data.height || data.measurements.height || 178;
+                const w = data.weight || data.measurements.weight || 80;
+                const age = data.age || data.measurements.age || 25;
+
                 cloudAthletes.push({
-                    id: `cloud_${d.id}`,
-                    name: data.name || 'Atleta Anónimo',
-                    title: data.title || 'Usuario Registrado',
+                    id: `cloud_${athleteId}`,
+                    name: data.name || 'Atleta de la Comunidad',
+                    title: `${h} cm · ${w} kg · ${age} años`,
                     era: weightStr ? `${weightStr} (${dateStr})` : dateStr,
+                    category: 'community',
                     sex: data.sex || 'male',
-                    age: data.age || 26,
-                    height: data.height || data.measurements.height || 178,
-                    weight: data.weight || data.measurements.weight || 80,
+                    age,
+                    height: h,
+                    weight: w,
                     bodyFat: data.bodyFat ?? data.measurements.bodyFat ?? 12,
                     date: data.date,
                     measurements: data.measurements as Partial<BodyMeasurements>
@@ -189,18 +195,10 @@ export const fetchCommunityAthletes = async (currentUserId?: string): Promise<Co
             }
         });
 
-        // Merge cloud athletes with default benchmarks if less than 5 cloud users exist
-        const merged = [...cloudAthletes];
-        DEFAULT_COMMUNITY_ATHLETES.forEach((def) => {
-            if (!merged.some((m) => m.name.toLowerCase() === def.name.toLowerCase())) {
-                merged.push(def);
-            }
-        });
-
-        return merged.filter((a) => a.id !== currentUserId);
+        return cloudAthletes;
     } catch (err) {
         console.error('[communityAthleteService] Error al obtener atletas de la comunidad:', err);
-        return DEFAULT_COMMUNITY_ATHLETES.filter((a) => a.id !== currentUserId);
+        return [];
     }
 };
 
@@ -221,14 +219,16 @@ export const publishCommunityAthlete = async (
         const weight = latestRecord.measurements?.weight;
         const height = latestRecord.measurements?.height;
         const bodyFat = latestRecord.measurements?.bodyFat;
+        const resolvedAge = latestRecord.measurements?.age || age || 25;
+        const cleanName = (name && name !== 'User' && name !== 'guest') ? name : 'Atleta Registrado';
 
         const payload = {
             id: userId,
-            name: name || 'Atleta',
-            title: 'Atleta Registrado',
+            name: cleanName,
+            title: `${height || 178} cm · ${weight || 80} kg · ${resolvedAge} años`,
             era: weight ? `${weight} kg` : 'Comunidad',
             sex: sex || 'male',
-            age: age || 28,
+            age: resolvedAge,
             height: height || 178,
             weight: weight || 80,
             bodyFat: bodyFat ?? 12,

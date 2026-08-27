@@ -47,7 +47,7 @@ export const saveCloudRecord = async (record: MeasurementRecord, userId: string)
         // Also publish to public community athletes for peer comparison
         const user = auth.currentUser;
         const name = user?.displayName || user?.email?.split('@')[0] || 'Atleta';
-        await publishCommunityAthlete(userId, name, 'male', record);
+        await publishCommunityAthlete(userId, name, 'male', record, record.measurements?.age);
     } catch (err) {
         console.error('[measurementService] Error al guardar registro en Firestore:', err);
         throw err;
