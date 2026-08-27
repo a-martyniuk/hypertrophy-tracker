@@ -3,10 +3,7 @@ import {
     doc,
     getDocs,
     setDoc,
-    deleteDoc,
-    query,
-    orderBy,
-    limit
+    deleteDoc
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../lib/firebase';
 import type { BodyMeasurements, MeasurementRecord } from '../types/measurements';
@@ -22,8 +19,7 @@ export const fetchCommunityAthletes = async (currentUserId?: string): Promise<Co
 
     try {
         const communityRef = collection(db, 'community_athletes');
-        const q = query(communityRef, orderBy('updatedAt', 'desc'), limit(50));
-        const snapshot = await getDocs(q);
+        const snapshot = await getDocs(communityRef);
 
         const cloudAthletes: ComparisonProfile[] = [];
         snapshot.forEach((d) => {
@@ -53,6 +49,13 @@ export const fetchCommunityAthletes = async (currentUserId?: string): Promise<Co
                     measurements: data.measurements as Partial<BodyMeasurements>
                 });
             }
+        });
+
+        // Sort by newest date in memory
+        cloudAthletes.sort((a, b) => {
+            const dateA = a.date ? new Date(a.date).getTime() : 0;
+            const dateB = b.date ? new Date(b.date).getTime() : 0;
+            return dateB - dateA;
         });
 
         return cloudAthletes;

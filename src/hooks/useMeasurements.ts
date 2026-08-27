@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import { isFirebaseConfigured } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { db, auth, isFirebaseConfigured } from '../lib/firebase';
 import type { MeasurementRecord } from '../types/measurements';
 import {
     fetchCloudRecords,
     saveCloudRecord,
     deleteCloudRecord
 } from '../services/measurementService';
+import { publishCommunityAthlete } from '../services/communityAthleteService';
 import { getMeasurementsStorageKey } from '../utils/storageKeys';
 
 export const useMeasurements = (userId?: string | null) => {
@@ -24,6 +26,24 @@ export const useMeasurements = (userId?: string | null) => {
                     // Firestore returned valid response (even if empty [])
                     setRecords(cloudRecords);
                     localStorage.setItem(storageKey, JSON.stringify(cloudRecords));
+
+                    // Auto-sync latest measurement to community in background
+                    if (cloudRecords.length > 0) {
+                        try {
+                            const latestRecord = cloudRecords[0];
+                            const profileDoc = await getDoc(doc(db, 'users', effectiveUserId, 'profile', 'main'));
+                            const profileData = profileDoc.exists() ? profileDoc.data() : null;
+                            const isPublic = profileData?.isPublic !== false;
+                            const user = auth.currentUser;
+                            const name = profileData?.publicAlias || profileData?.name || user?.displayName || user?.email?.split('@')[0] || 'Atleta';
+                            const sex = profileData?.sex || 'male';
+                            const publicAlias = profileData?.publicAlias;
+
+                            publishCommunityAthlete(effectiveUserId, name, sex, latestRecord, latestRecord.measurements?.age, isPublic, publicAlias).catch(() => {});
+                        } catch {
+                            // Non-blocking background sync
+                        }
+                    }
                     return;
                 }
             }

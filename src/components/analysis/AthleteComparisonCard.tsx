@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import type { BodyMeasurements, MeasurementRecord } from '../../types/measurements';
 import { ProfileContext } from '../../context/ProfileContext';
+import { useAuth } from '../../hooks/useAuth';
 import {
     CANONICAL_PRESETS,
     compareAthletes,
@@ -160,6 +161,7 @@ export const AthleteComparisonCard: React.FC<Props> = ({
     records = [],
     sex = 'male'
 }) => {
+    const { user } = useAuth();
     const profileCtx = useContext(ProfileContext);
     const userProfile = profileCtx?.profile;
 
@@ -204,7 +206,8 @@ export const AthleteComparisonCard: React.FC<Props> = ({
 
     useEffect(() => {
         let isMounted = true;
-        fetchCommunityAthletes(currentRecord?.userId).then((list) => {
+        const effectiveUserId = user?.uid || currentRecord?.userId;
+        fetchCommunityAthletes(effectiveUserId).then((list) => {
             if (isMounted) {
                 setCommunityAthletes(list);
                 setLoadingCommunity(false);
@@ -213,7 +216,7 @@ export const AthleteComparisonCard: React.FC<Props> = ({
         return () => {
             isMounted = false;
         };
-    }, [currentRecord?.userId]);
+    }, [user?.uid, currentRecord?.userId]);
 
     const goldenPresets = CANONICAL_PRESETS.filter((p) => p.category === 'golden');
     const massPresets = CANONICAL_PRESETS.filter((p) => p.category === 'mass');
