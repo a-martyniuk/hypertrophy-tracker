@@ -8,8 +8,6 @@ import {
 } from '../services/measurementService';
 import { syncOfflineRecords } from '../services/syncService';
 
-import { CANONICAL_INITIAL_RECORDS } from '../data/defaultRecords';
-
 const STORAGE_KEY = 'hypertrophy_measurements';
 
 export const useMeasurements = (userId?: string | null) => {
@@ -35,26 +33,17 @@ export const useMeasurements = (userId?: string | null) => {
             if (saved) {
                 try {
                     const parsed: MeasurementRecord[] = JSON.parse(saved);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        // Ensure canonical 2026-08-20 baseline record is preserved if not present
-                        const hasBaseline = parsed.some(r => r.id === CANONICAL_INITIAL_RECORDS[0].id || r.date.startsWith('2026-08-20'));
-                        if (!hasBaseline) {
-                            const merged = [...parsed, ...CANONICAL_INITIAL_RECORDS].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                            setRecords(merged);
-                            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-                            return;
-                        }
+                    if (Array.isArray(parsed)) {
                         setRecords(parsed);
                         return;
                     }
                 } catch {
-                    // JSON parse error
+                    // JSON parse error fallback
                 }
             }
 
-            // Initialize with canonical baseline record
-            setRecords(CANONICAL_INITIAL_RECORDS);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(CANONICAL_INITIAL_RECORDS));
+            // New visitor / Clean slate: start with empty records
+            setRecords([]);
         } catch (err) {
             console.error('[useMeasurements] Error al obtener registros:', err);
         } finally {
