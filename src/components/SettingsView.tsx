@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Download, Upload, AlertTriangle, Check, Database, FileJson, RefreshCw, Languages, User, RotateCcw } from 'lucide-react';
+import { Download, Upload, AlertTriangle, Check, Database, FileJson, RefreshCw, Languages, User, RotateCcw, Shield, Globe, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import { useProfile } from '../hooks/useProfile';
@@ -27,6 +27,8 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
     const [name, setName] = useState(activeProfile?.name || 'Alexis Martyniuk');
     const [age, setAge] = useState<number>(activeProfile?.age || 38);
     const [height, setHeight] = useState<number>(activeProfile?.height || 191);
+    const [isPublic, setIsPublic] = useState<boolean>(activeProfile?.isPublic !== false);
+    const [publicAlias, setPublicAlias] = useState<string>(activeProfile?.publicAlias || '');
     const [profileSaved, setProfileSaved] = useState(false);
 
     useEffect(() => {
@@ -34,6 +36,8 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
             if (activeProfile.name) setName(activeProfile.name);
             if (activeProfile.age) setAge(activeProfile.age);
             if (activeProfile.height) setHeight(activeProfile.height);
+            setIsPublic(activeProfile.isPublic !== false);
+            if (activeProfile.publicAlias) setPublicAlias(activeProfile.publicAlias);
         }
     }, [activeProfile]);
 
@@ -41,7 +45,9 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
         await updateProfile({
             name: name.trim() || 'Atleta',
             age: Number(age) || 38,
-            height: Number(height) || 191
+            height: Number(height) || 191,
+            isPublic,
+            publicAlias: publicAlias.trim()
         });
         setProfileSaved(true);
         setTimeout(() => setProfileSaved(false), 2500);
@@ -169,14 +175,14 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                         <User className="text-amber-400" size={24} />
                         <div>
                             <h3 style={{ margin: 0 }}>Perfil del Atleta & Biometría</h3>
-                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Datos sincronizados con tu cuenta y el simulador Versus</span>
+                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Datos base sincronizados con tu cuenta</span>
                         </div>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div>
                             <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.35rem', fontWeight: 600 }}>
-                                Nombre / Alias de Atleta
+                                Nombre de Usuario
                             </label>
                             <input
                                 type="text"
@@ -229,6 +235,114 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                             <Check size={14} /> Sincronizado en la nube y en el dispositivo
                         </div>
                     )}
+                </div>
+
+                {/* PRIVACY & COMMUNITY CARD */}
+                <div className="card glass settings-card">
+                    <div className="card-header">
+                        <Shield className="text-cyan-400" size={24} />
+                        <div>
+                            <h3 style={{ margin: 0 }}>Privacidad & Duelos Comunitarios</h3>
+                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Controla tu visibilidad para comparativas Head-to-Head</span>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {/* Privacy Toggle Options */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                            <div
+                                onClick={() => setIsPublic(true)}
+                                style={{
+                                    padding: '0.75rem',
+                                    borderRadius: '12px',
+                                    cursor: 'pointer',
+                                    background: isPublic ? 'rgba(34, 211, 238, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                                    border: isPublic ? '1.5px solid #22d3ee' : '1px solid rgba(255, 255, 255, 0.08)',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '0.35rem',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, fontSize: '0.82rem', color: isPublic ? '#22d3ee' : '#cbd5e1' }}>
+                                        <Globe size={15} />
+                                        <span>Público</span>
+                                    </div>
+                                    {isPublic && <Check size={15} style={{ color: '#22d3ee' }} />}
+                                </div>
+                                <p style={{ margin: 0, fontSize: '0.7rem', color: '#94a3b8', lineHeight: 1.35 }}>
+                                    Apareces en el selector de la comunidad para duelos y comparativas.
+                                </p>
+                            </div>
+
+                            <div
+                                onClick={() => setIsPublic(false)}
+                                style={{
+                                    padding: '0.75rem',
+                                    borderRadius: '12px',
+                                    cursor: 'pointer',
+                                    background: !isPublic ? 'rgba(239, 68, 68, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                                    border: !isPublic ? '1.5px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.08)',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '0.35rem',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, fontSize: '0.82rem', color: !isPublic ? '#ef4444' : '#cbd5e1' }}>
+                                        <Lock size={15} />
+                                        <span>Privado</span>
+                                    </div>
+                                    {!isPublic && <Check size={15} style={{ color: '#ef4444' }} />}
+                                </div>
+                                <p style={{ margin: 0, fontSize: '0.7rem', color: '#94a3b8', lineHeight: 1.35 }}>
+                                    100% confidencial. Se oculta tu ficha de la base comunitaria.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Public Alias Field */}
+                        {isPublic && (
+                            <div className="animate-fade-in">
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.35rem', fontWeight: 600 }}>
+                                    Alias / Apodo Público en la Comunidad (Opcional)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={publicAlias}
+                                    onChange={(e) => setPublicAlias(e.target.value)}
+                                    className="settings-input"
+                                    placeholder="Ej: Alexis M. o IronTitan"
+                                />
+                                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.2rem' }}>
+                                    Nombre mostrado a otros atletas al seleccionarte como rival.
+                                </span>
+                            </div>
+                        )}
+
+                        {/* Security and Privacy Guarantee Badge */}
+                        <div style={{
+                            padding: '0.65rem 0.85rem',
+                            borderRadius: '10px',
+                            background: 'rgba(245, 158, 11, 0.07)',
+                            border: '1px solid rgba(245, 158, 11, 0.2)',
+                            fontSize: '0.71rem',
+                            color: '#cbd5e1',
+                            lineHeight: 1.35
+                        }}>
+                            <strong style={{ color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.15rem' }}>
+                                <Shield size={12} /> Garantía de Privacidad Total:
+                            </strong>
+                            Nunca se comparten fotos corporales, correos ni notas privadas. Solo se comparan perímetros musculares de forma técnica.
+                        </div>
+
+                        <button className="btn-primary" onClick={handleSaveProfile} style={{ marginTop: '0.25rem' }}>
+                            <Check size={18} className="mr-2" />
+                            {profileSaved ? '¡Preferencia Guardada!' : 'Guardar Ajustes de Privacidad'}
+                        </button>
+                    </div>
                 </div>
 
                 {/* EXPORT CARD */}

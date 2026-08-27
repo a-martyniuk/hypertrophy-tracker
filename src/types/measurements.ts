@@ -90,5 +90,7 @@ export interface UserProfile {
     height?: number;
     weight?: number;
     birthDate?: string;
+    isPublic?: boolean;
+    publicAlias?: string;
     baseline?: SkeletalFrame;
 }

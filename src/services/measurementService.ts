@@ -1,6 +1,7 @@
 import {
     collection,
     doc,
+    getDoc,
     getDocs,
     setDoc,
     deleteDoc,
@@ -44,10 +45,20 @@ export const saveCloudRecord = async (record: MeasurementRecord, userId: string)
         };
         await setDoc(recordRef, dataToSave, { merge: true });
 
-        // Also publish to public community athletes for peer comparison
-        const user = auth.currentUser;
-        const name = user?.displayName || user?.email?.split('@')[0] || 'Atleta';
-        await publishCommunityAthlete(userId, name, 'male', record, record.measurements?.age);
+        // Also sync with public community athletes for peer comparison if isPublic !== false
+        try {
+            const profileDoc = await getDoc(doc(db, 'users', userId, 'profile', 'main'));
+            const profileData = profileDoc.exists() ? profileDoc.data() : null;
+            const isPublic = profileData?.isPublic !== false; // Default is public
+            const user = auth.currentUser;
+            const name = profileData?.publicAlias || profileData?.name || user?.displayName || user?.email?.split('@')[0] || 'Atleta';
+            const sex = profileData?.sex || 'male';
+            const publicAlias = profileData?.publicAlias;
+
+            await publishCommunityAthlete(userId, name, sex, record, record.measurements?.age, isPublic, publicAlias);
+        } catch (pubErr) {
+            console.warn('[measurementService] Error al sincronizar con comunidad:', pubErr);
+        }
     } catch (err) {
         console.error('[measurementService] Error al guardar registro en Firestore:', err);
         throw err;

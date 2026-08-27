@@ -3,6 +3,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth, isFirebaseConfigured } from '../lib/firebase';
 import type { UserProfile } from '../types/measurements';
+import { removeCommunityAthlete } from '../services/communityAthleteService';
 
 import { getProfileStorageKey } from '../utils/storageKeys';
 
@@ -94,6 +95,8 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
                     height: resolvedHeight,
                     weight: resolvedWeight,
                     birthDate: data.birthDate,
+                    isPublic: data.isPublic !== false,
+                    publicAlias: data.publicAlias || '',
                     baseline: data.baseline
                 });
             } else {
@@ -104,7 +107,9 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
                     sex: 'male',
                     age: isAlexis ? 38 : 28,
                     height: isAlexis ? 191 : 178,
-                    weight: isAlexis ? 104 : 78
+                    weight: isAlexis ? 104 : 78,
+                    isPublic: true,
+                    publicAlias: ''
                 };
                 setProfile(defaultProfile);
                 await setDoc(profileDocRef, {
@@ -132,6 +137,8 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
                 sex: 'male',
                 age: 38,
                 height: 191,
+                isPublic: true,
+                publicAlias: '',
                 ...updates
             } as UserProfile;
 
@@ -164,9 +171,16 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
                 age: newProfile.age || 38,
                 height: newProfile.height || 191,
                 birthDate: newProfile.birthDate || null,
+                isPublic: newProfile.isPublic !== false,
+                publicAlias: newProfile.publicAlias || null,
                 baseline: newProfile.baseline || null,
                 updatedAt: new Date().toISOString()
             }, { merge: true });
+
+            // If user turned profile to private, remove from community immediately
+            if (newProfile.isPublic === false) {
+                await removeCommunityAthlete(user.uid);
+            }
 
         } catch (err) {
             console.error('[ProfileContext] Error al actualizar perfil:', err);
