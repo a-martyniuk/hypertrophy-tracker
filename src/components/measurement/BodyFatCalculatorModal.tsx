@@ -19,25 +19,31 @@ export const BodyFatCalculatorModal: React.FC<Props> = ({
     onClose,
     onApply,
     sex = 'male',
-    initialHeight = 175,
-    initialNeck = 40,
-    initialWaist = 85,
-    initialHips = 95,
-    initialWeight = 75
+    initialHeight,
+    initialNeck,
+    initialWaist,
+    initialHips,
+    initialWeight
 }) => {
-    const [height, setHeight] = useState<number>(initialHeight || 175);
-    const [neck, setNeck] = useState<number>(initialNeck || 40);
-    const [waist, setWaist] = useState<number>(initialWaist || 85);
-    const [hips, setHips] = useState<number>(initialHips || 95);
-    const [weight, setWeight] = useState<number>(initialWeight || 75);
+    const defaultHeight = initialHeight || (sex === 'female' ? 165 : 178);
+    const defaultNeck = initialNeck || (sex === 'female' ? 33 : 39);
+    const defaultWaist = initialWaist || (sex === 'female' ? 72 : 84);
+    const defaultHips = initialHips || 95;
+    const defaultWeight = initialWeight || (sex === 'female' ? 60 : 78);
+
+    const [height, setHeight] = useState<number>(defaultHeight);
+    const [neck, setNeck] = useState<number>(defaultNeck);
+    const [waist, setWaist] = useState<number>(defaultWaist);
+    const [hips, setHips] = useState<number>(defaultHips);
+    const [weight, setWeight] = useState<number>(defaultWeight);
 
     useEffect(() => {
-        if (initialHeight) setHeight(initialHeight);
-        if (initialNeck) setNeck(initialNeck);
-        if (initialWaist) setWaist(initialWaist);
-        if (initialHips) setHips(initialHips);
-        if (initialWeight) setWeight(initialWeight);
-    }, [initialHeight, initialNeck, initialWaist, initialHips, initialWeight, isOpen]);
+        setHeight(initialHeight || (sex === 'female' ? 165 : 178));
+        setNeck(initialNeck || (sex === 'female' ? 33 : 39));
+        setWaist(initialWaist || (sex === 'female' ? 72 : 84));
+        setHips(initialHips || 95);
+        setWeight(initialWeight || (sex === 'female' ? 60 : 78));
+    }, [initialHeight, initialNeck, initialWaist, initialHips, initialWeight, sex, isOpen]);
 
     if (!isOpen) return null;
 

@@ -103,13 +103,27 @@ export const evaluateAthleteBadges = (
         rarityColor: '#a855f7'
     });
 
-    // 5. SIMETRÍA GRIEGA (Diferencia bilateral <= 0.5 cm en todas las extremidades)
-    const armDiff = Math.abs(armL - armR);
-    const forearmDiff = Math.abs((m?.forearm?.left || 0) - (m?.forearm?.right || 0));
-    const thighDiff = Math.abs((m?.thigh?.left || 0) - (m?.thigh?.right || 0));
-    const calfDiff = Math.abs((m?.calf?.left || 0) - (m?.calf?.right || 0));
-    const maxBilateralDiff = Math.max(armDiff, forearmDiff, thighDiff, calfDiff);
-    const isSymmetric = maxBilateralDiff <= 0.5 && (armL > 0 || (m?.thigh?.left || 0) > 0);
+    // 5. SIMETRÍA GRIEGA (Diferencia bilateral <= 0.5 cm en todas las extremidades medidas)
+    const getBilateralDiff = (left?: number, right?: number) => {
+        if (left && right && left > 0 && right > 0) {
+            return Math.abs(left - right);
+        }
+        return 0;
+    };
+
+    const measuredDiffs = [
+        getBilateralDiff(m?.arm?.left, m?.arm?.right),
+        getBilateralDiff(m?.forearm?.left, m?.forearm?.right),
+        getBilateralDiff(m?.thigh?.left, m?.thigh?.right),
+        getBilateralDiff(m?.calf?.left, m?.calf?.right),
+    ];
+    const hasMeasuredPairs = Boolean(
+        (m?.arm?.left && m?.arm?.right && m.arm.left > 0 && m.arm.right > 0) ||
+        (m?.thigh?.left && m?.thigh?.right && m.thigh.left > 0 && m.thigh.right > 0)
+    );
+
+    const maxBilateralDiff = Math.max(...measuredDiffs, 0);
+    const isSymmetric = hasMeasuredPairs && maxBilateralDiff <= 0.5;
     badges.push({
         id: 'greek_symmetry',
         title: 'Simetría Griega',
@@ -117,8 +131,8 @@ export const evaluateAthleteBadges = (
         icon: '🏛️',
         category: 'Aesthetic',
         isUnlocked: isSymmetric,
-        progressPercent: isSymmetric ? 100 : Math.max(0, Math.round((1 - (maxBilateralDiff - 0.5) / 2) * 100)),
-        currentValueText: `Máx desvío: ${maxBilateralDiff.toFixed(1)} cm`,
+        progressPercent: isSymmetric ? 100 : (hasMeasuredPairs ? Math.max(0, Math.round((1 - (maxBilateralDiff - 0.5) / 2) * 100)) : 0),
+        currentValueText: hasMeasuredPairs ? `Máx desvío: ${maxBilateralDiff.toFixed(1)} cm` : 'Sin pares bilaterales',
         targetValueText: '≤ 0.5 cm',
         rarity: 'Rare',
         rarityColor: '#34d399'

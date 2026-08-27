@@ -31,11 +31,11 @@ export const HarmonyRadarChart: React.FC<Props> = ({ currentMeasurements, sex = 
     bmMap[bm.key] = bm.percentOfMax;
   });
 
-  const chestScore = bmMap['pecho'] || 80;
-  const armScore = bmMap['arm'] || 75;
-  const forearmScore = bmMap['forearm'] || 75;
-  const thighScore = bmMap['thigh'] || 80;
-  const calfScore = bmMap['calf'] || 78;
+  const chestScore = bmMap['pecho'] ?? 50;
+  const armScore = bmMap['arm'] ?? 50;
+  const forearmScore = bmMap['forearm'] ?? 50;
+  const thighScore = bmMap['thigh'] ?? 50;
+  const calfScore = bmMap['calf'] ?? 50;
 
   // V-Taper score: 100 is ideal Reeves/Golden ratio
   const chestVal = currentMeasurements?.pecho || 0;
