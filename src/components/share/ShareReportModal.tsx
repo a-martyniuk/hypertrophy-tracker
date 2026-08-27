@@ -28,11 +28,8 @@ export const ShareReportModal: React.FC<Props> = ({
         if (!isOpen || !latestRecord) return '';
         const encoded = encodeAthleteData(userName, latestRecord, sex, records);
         const origin = window.location.origin;
-        let pathname = window.location.pathname;
-        if (!pathname.endsWith('/')) {
-            pathname += '/';
-        }
-        return `${origin}${pathname}#/share?data=${encoded}`;
+        const basePath = window.location.pathname.replace(/\/index\.html$/, '').replace(/\/+$/, '');
+        return `${origin}${basePath}/#/share?data=${encoded}`;
     }, [isOpen, latestRecord, userName, sex, records]);
 
     useEffect(() => {

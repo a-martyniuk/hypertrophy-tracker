@@ -54,9 +54,11 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
     };
 
     // Physical Stats
-    const [age, setAge] = useState<number>(() => loadSetting('age', initialAge || 25))
-    const [weight, setWeight] = useState<number>(() => loadSetting('weight', currentWeight || 75))
-    const [height, setHeight] = useState<number>(() => loadSetting('height', initialHeight || 175))
+    const defaultHeight = sex === 'female' ? 165 : 178;
+    const defaultWeight = sex === 'female' ? 60 : 78;
+    const [age, setAge] = useState<number>(() => loadSetting('age', initialAge || 28))
+    const [weight, setWeight] = useState<number>(() => loadSetting('weight', currentWeight || defaultWeight))
+    const [height, setHeight] = useState<number>(() => loadSetting('height', initialHeight || defaultHeight))
 
     // Sync props if they update from profile or latest record
     useEffect(() => {
