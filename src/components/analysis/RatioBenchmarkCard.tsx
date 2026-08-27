@@ -19,69 +19,89 @@ export const RatioBenchmarkCard: React.FC<Props> = ({ benchmark }) => {
     } = benchmark;
 
     return (
-        <div className="bm-card" style={{ cursor: 'default' }}>
+        <div className="bm-card ratio-benchmark-card" style={{ cursor: 'default', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
             <div>
                 {/* Header: Ratio Name & Status Badge */}
-                <div className="bm-card-header">
-                    <div>
-                        <div className="bm-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Sparkles size={14} style={{ color: '#fbbf24', flexShrink: 0 }} />
-                            <span>{name}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.85rem', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Sparkles size={16} style={{ color: '#fbbf24', flexShrink: 0 }} />
+                            <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)', letterSpacing: '-0.01em', lineHeight: 1.3 }}>
+                                {name}
+                            </h4>
                         </div>
-                        <div className="bm-sub">{scaleDescription}</div>
+                        <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', marginTop: '0.3rem' }}>
+                            {scaleDescription}
+                        </div>
                     </div>
 
                     <div
-                        className="bm-badge"
                         style={{
                             color: statusColor,
                             backgroundColor: statusBg,
-                            borderColor: `${statusColor}50`,
-                            flexShrink: 0
+                            borderColor: `${statusColor}60`,
+                            border: '1px solid',
+                            borderRadius: '8px',
+                            padding: '0.35rem 0.65rem',
+                            fontSize: '0.72rem',
+                            fontFamily: 'var(--font-mono)',
+                            fontWeight: 800,
+                            letterSpacing: '0.02em',
+                            boxShadow: `0 0 14px ${statusColor}15`,
+                            whiteSpace: 'nowrap',
+                            alignSelf: 'flex-start'
                         }}
                     >
-                        <span>{statusText}</span>
+                        {statusText}
                     </div>
                 </div>
 
                 {/* Big Metric Display */}
-                <div style={{ margin: '0.75rem 0' }}>
-                    <span style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fbbf24', fontFamily: 'var(--font-mono)' }}>
+                <div style={{ margin: '0.85rem 0 0.65rem 0', display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '2.1rem', fontWeight: 900, color: '#fbbf24', fontFamily: 'var(--font-mono)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
                         {label}
                     </span>
                 </div>
 
                 {/* Explanation */}
-                <p style={{ fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.45, marginBottom: '1rem' }}>
+                <p style={{ fontSize: '0.82rem', color: '#cbd5e1', lineHeight: 1.5, margin: '0.5rem 0 1.25rem 0' }}>
                     {explanation}
                 </p>
             </div>
 
             {/* Reference Tiers Scale */}
-            <div style={{ background: 'rgba(8, 10, 16, 0.7)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)', fontFamily: 'var(--font-mono)' }}>
-                <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 800, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Info size={11} style={{ color: '#fbbf24' }} />
+            <div style={{ background: 'rgba(8, 10, 16, 0.75)', padding: '0.85rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.06)', fontFamily: 'var(--font-mono)' }}>
+                <div style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 800, marginBottom: '0.65rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <Info size={12} style={{ color: '#fbbf24' }} />
                     <span>Escala de Niveles y Referencia:</span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(70px, 1fr))', gap: '6px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${referenceTiers.length}, minmax(0, 1fr))`, gap: '6px' }}>
                     {referenceTiers.map((tier, idx) => (
                         <div
                             key={idx}
                             style={{
-                                padding: '6px 4px',
+                                padding: '8px 4px',
                                 borderRadius: '8px',
                                 textAlign: 'center',
-                                border: tier.isCurrent ? '1px solid #fbbf24' : '1px solid rgba(255, 255, 255, 0.05)',
-                                background: tier.isCurrent ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.02)',
-                                color: tier.isCurrent ? '#fbbf24' : '#94a3b8'
+                                border: tier.isCurrent ? '1.5px solid #fbbf24' : '1px solid rgba(255, 255, 255, 0.05)',
+                                background: tier.isCurrent ? 'rgba(245, 158, 11, 0.18)' : 'rgba(255, 255, 255, 0.02)',
+                                color: tier.isCurrent ? '#fbbf24' : '#94a3b8',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                minHeight: '62px'
                             }}
                         >
-                            <div style={{ fontSize: '0.65rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tier.label}</div>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: tier.isCurrent ? '#ffffff' : '#cbd5e1', marginTop: '2px' }}>{tier.range}</div>
+                            <div style={{ fontSize: '0.68rem', fontWeight: tier.isCurrent ? 700 : 500, lineHeight: 1.2, color: tier.isCurrent ? '#ffffff' : '#94a3b8', wordBreak: 'break-word' }}>
+                                {tier.label}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: tier.isCurrent ? '#fbbf24' : '#cbd5e1', marginTop: '4px' }}>
+                                {tier.range}
+                            </div>
                             {tier.isCurrent && (
-                                <div style={{ fontSize: '0.55rem', color: '#fbbf24', fontWeight: 900, marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                                    <CheckCircle2 size={8} />
+                                <div style={{ fontSize: '0.58rem', color: '#fbbf24', fontWeight: 900, marginTop: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                                    <CheckCircle2 size={9} />
                                     <span>TU VALOR</span>
                                 </div>
                             )}

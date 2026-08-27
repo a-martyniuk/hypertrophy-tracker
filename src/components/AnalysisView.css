@@ -301,8 +301,14 @@
 
 .ratios-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+@media (max-width: 860px) {
+    .ratios-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Benchmark Card Details */

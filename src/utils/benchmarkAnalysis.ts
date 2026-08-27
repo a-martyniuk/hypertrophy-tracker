@@ -196,22 +196,27 @@ export const computeComprehensiveAnalysis = (
     // Key Ratio Benchmarks with Clear Scales
     const ratioBenchmarks: RatioBenchmark[] = [];
 
-    // 1. V-Taper Ratio (Pecho o Espalda / Cintura)
+    // 1. Ratio Pecho / Cintura (V-Taper Clásico)
     if (chestCurrent > 0 && waistCurrent > 0) {
         const vRatio = parseFloat((chestCurrent / waistCurrent).toFixed(2));
         let status: 'optimal' | 'good' | 'needs_work' = 'good';
-        let statusText = 'V-Shape Atlético';
-        let statusColor = '#34d399';
-        let statusBg = 'rgba(52, 211, 153, 0.15)';
+        let statusText = 'En Desarrollo (Atlético)';
+        let statusColor = '#60a5fa';
+        let statusBg = 'rgba(96, 165, 250, 0.15)';
 
-        if (vRatio >= 1.45) {
+        if (vRatio >= 1.55) {
             status = 'optimal';
-            statusText = 'V-Taper Élite / Proporción Áurea';
+            statusText = 'Élite Clásico / Golden Ratio';
             statusColor = '#fbbf24';
             statusBg = 'rgba(251, 191, 36, 0.15)';
+        } else if (vRatio >= 1.40) {
+            status = 'good';
+            statusText = 'V-Shape Prominente';
+            statusColor = '#34d399';
+            statusBg = 'rgba(52, 211, 153, 0.15)';
         } else if (vRatio >= 1.25) {
             status = 'good';
-            statusText = 'V-Shape Atlético Marcado';
+            statusText = 'Atlético / Cónico';
             statusColor = '#60a5fa';
             statusBg = 'rgba(96, 165, 250, 0.15)';
         } else {
@@ -234,10 +239,10 @@ export const computeComprehensiveAnalysis = (
             statusBg,
             explanation: 'Mide la ilusión de torso cónico. Se optimiza aumentando la amplitud de dorsales/pecho y reduciendo el perímetro de cintura.',
             referenceTiers: [
-                { label: 'Cilíndrico / Base', range: '< 1.25', isCurrent: vRatio < 1.25 },
+                { label: 'Cilíndrico', range: '< 1.25', isCurrent: vRatio < 1.25 },
                 { label: 'Atlético', range: '1.25 - 1.40', isCurrent: vRatio >= 1.25 && vRatio < 1.40 },
-                { label: 'Avanzado V-Shape', range: '1.40 - 1.55', isCurrent: vRatio >= 1.40 && vRatio < 1.55 },
-                { label: 'Élite Golden Ratio', range: '1.55 - 1.62+', isCurrent: vRatio >= 1.55 }
+                { label: 'Avanzado', range: '1.40 - 1.55', isCurrent: vRatio >= 1.40 && vRatio < 1.55 },
+                { label: 'Élite Golden', range: '≥ 1.55', isCurrent: vRatio >= 1.55 }
             ]
         });
     }
@@ -288,7 +293,7 @@ export const computeComprehensiveAnalysis = (
                 { label: 'Inicial', range: '< 2.00', isCurrent: armWristRatio < 2.00 },
                 { label: 'Intermedio', range: '2.00 - 2.25', isCurrent: armWristRatio >= 2.00 && armWristRatio < 2.25 },
                 { label: 'Avanzado', range: '2.25 - 2.45', isCurrent: armWristRatio >= 2.25 && armWristRatio < 2.45 },
-                { label: 'Élite Natural', range: '2.45 - 2.60+', isCurrent: armWristRatio >= 2.45 }
+                { label: 'Élite Natural', range: '≥ 2.45', isCurrent: armWristRatio >= 2.45 }
             ]
         });
     }
@@ -337,9 +342,9 @@ export const computeComprehensiveAnalysis = (
             explanation: 'El predictor antropométrico #1 de estética corporal y bajo riesgo de grasa visceral profunda.',
             referenceTiers: [
                 { label: 'Muy Magro', range: '< 0.44', isCurrent: whtr < 0.44 },
-                { label: 'Zona Estética Óptima', range: '0.44 - 0.48', isCurrent: whtr >= 0.44 && whtr <= 0.48 },
-                { label: 'Volumen Moderado', range: '0.49 - 0.52', isCurrent: whtr > 0.48 && whtr <= 0.52 },
-                { label: 'Corte Recomendado', range: '> 0.52', isCurrent: whtr > 0.52 }
+                { label: 'Zona Estética', range: '0.44 - 0.48', isCurrent: whtr >= 0.44 && whtr <= 0.48 },
+                { label: 'Volumen', range: '0.49 - 0.52', isCurrent: whtr > 0.48 && whtr <= 0.52 },
+                { label: 'Corte', range: '> 0.52', isCurrent: whtr > 0.52 }
             ]
         });
     }
@@ -385,10 +390,10 @@ export const computeComprehensiveAnalysis = (
             statusBg,
             explanation: 'En el canon clásico de Reeves, el brazo, el cuello y el gemelo deben tener exactamente la misma medida para crear la ilusión de proporción perfecta.',
             referenceTiers: [
-                { label: 'Simetría Reeves Perfecta', range: 'Delta ≤ 1.0 cm', isCurrent: maxDiff <= 1.0 },
-                { label: 'Armonía Buena', range: 'Delta 1.1 - 2.0 cm', isCurrent: maxDiff > 1.0 && maxDiff <= 2.0 },
-                { label: 'Desbalance Leve', range: 'Delta 2.1 - 3.5 cm', isCurrent: maxDiff > 2.0 && maxDiff <= 3.5 },
-                { label: 'Prioridad de Balance', range: 'Delta > 3.5 cm', isCurrent: maxDiff > 3.5 }
+                { label: 'Simetría 1:1', range: '≤ 1.0 cm', isCurrent: maxDiff <= 1.0 },
+                { label: 'Armonía Buena', range: '1.1 - 2.0 cm', isCurrent: maxDiff > 1.0 && maxDiff <= 2.0 },
+                { label: 'Desbalance', range: '2.1 - 3.5 cm', isCurrent: maxDiff > 2.0 && maxDiff <= 3.5 },
+                { label: 'Prioridad', range: '> 3.5 cm', isCurrent: maxDiff > 3.5 }
             ]
         });
     }
