@@ -51,7 +51,8 @@ export const encodeAthleteData = (
             m.wrist?.right || 0,
             m.ankle?.left || 0,
             m.ankle?.right || 0,
-            r.notes || ''
+            r.notes || '',
+            m.age || 0
         ];
     });
 
@@ -103,7 +104,7 @@ export const decodeAthleteData = (encodedStr: string): SharedAthletePayload | nu
                 const [
                     dateStr, height, weight, bodyFat, neck, pecho, back, waist, hips,
                     armL, armR, foreL, foreR, thighL, thighR, calfL, calfR,
-                    wristL, wristR, ankleL, ankleR, notes
+                    wristL, wristR, ankleL, ankleR, notes, age
                 ] = arr;
 
                 return {
@@ -113,6 +114,7 @@ export const decodeAthleteData = (encodedStr: string): SharedAthletePayload | nu
                     measurements: {
                         height: Number(height) || undefined,
                         weight: Number(weight) || 0,
+                        age: Number(age) > 0 ? Number(age) : undefined,
                         bodyFat: Number(bodyFat) || undefined,
                         neck: Number(neck) || 0,
                         pecho: Number(pecho) || 0,

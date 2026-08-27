@@ -80,21 +80,23 @@ export const computeComprehensiveAnalysis = (
 ): ComprehensiveAnalysis | null => {
     if (!m) return null;
 
-    const height = m.height || 175;
-    const wrist = m.wrist?.right || m.wrist?.left || (sex === 'female' ? 15.5 : 17.5);
-    const ankle = m.ankle?.right || m.ankle?.left || (sex === 'female' ? 20.5 : 22.5);
+    const getAvg = (val?: number | { left?: number; right?: number }): number => {
+        if (!val) return 0;
+        if (typeof val === 'number') return val;
+        const l = val.left || 0;
+        const r = val.right || 0;
+        if (l > 0 && r > 0) return parseFloat(((l + r) / 2).toFixed(1));
+        return l || r || 0;
+    };
+
+    const height = m.height || (sex === 'female' ? 165 : 178);
+    const wristAvg = getAvg(m.wrist);
+    const ankleAvg = getAvg(m.ankle);
+    const wrist = wristAvg > 0 ? wristAvg : (sex === 'female' ? 15.5 : 17.5);
+    const ankle = ankleAvg > 0 ? ankleAvg : (sex === 'female' ? 20.5 : 22.5);
 
     const potentials = calculateSkeletalPotential(wrist, ankle, height, sex);
     const ffmi = calculateFFMI(m.weight || 75, height, m.bodyFat || 15);
-
-    const getAvg = (sideObj?: { left: number; right: number }, singleVal?: number) => {
-        if (sideObj && (sideObj.left > 0 || sideObj.right > 0)) {
-            const l = sideObj.left || sideObj.right;
-            const r = sideObj.right || sideObj.left;
-            return parseFloat(((l + r) / 2).toFixed(1));
-        }
-        return singleVal || 0;
-    };
 
     const armCurrent = getAvg(m.arm);
     const forearmCurrent = getAvg(m.forearm);

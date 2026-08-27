@@ -113,7 +113,11 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
     try {
         const shareData = encodeAthleteData(userName, latestRecord, sex, records.length ? records : [latestRecord]);
         const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.alexismartyniuk.com.ar';
-        const shareUrl = origin + '/hypertrophyracker/#/share?data=' + shareData;
+        let pathname = typeof window !== 'undefined' ? window.location.pathname : '/hypertrophyracker/';
+        if (!pathname.endsWith('/')) {
+            pathname += '/';
+        }
+        const shareUrl = `${origin}${pathname}#/share?data=${shareData}`;
         qrDataUrl = await QRCode.toDataURL(shareUrl, {
             width: 140,
             margin: 1,

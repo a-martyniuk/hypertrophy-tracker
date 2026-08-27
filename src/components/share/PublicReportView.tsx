@@ -347,6 +347,12 @@ export const PublicReportView: React.FC = () => {
                     </div>
                 </div>
                 <div className="card glass" style={{ padding: '0.85rem 1rem' }}>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase' }}>Edad</div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#38bdf8', marginTop: '2px' }}>
+                        {measurements.age ? `${measurements.age} años` : '--'}
+                    </div>
+                </div>
+                <div className="card glass" style={{ padding: '0.85rem 1rem' }}>
                     <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase' }}>Grasa Estimada</div>
                     <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', marginTop: '2px' }}>
                         {measurements.bodyFat ? `${measurements.bodyFat}%` : '--'}
