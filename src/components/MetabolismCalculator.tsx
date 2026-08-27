@@ -54,15 +54,22 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
     };
 
     // Physical Stats
-    const [age, setAge] = useState<number>(() => loadSetting('age', initialAge || 38))
-    const [weight, setWeight] = useState<number>(() => loadSetting('weight', currentWeight || 104))
-    const [height, setHeight] = useState<number>(() => loadSetting('height', initialHeight || 191))
+    const [age, setAge] = useState<number>(() => loadSetting('age', initialAge || 25))
+    const [weight, setWeight] = useState<number>(() => loadSetting('weight', currentWeight || 75))
+    const [height, setHeight] = useState<number>(() => loadSetting('height', initialHeight || 175))
 
-    // Sync props if they update (and aren't just defaults)
-    // Sync props only if we explicitly want to reset (omitted to prefer user persistence)
-    // useEffect(() => { if (initialAge) { setAge(initialAge); saveSetting('age', initialAge) } }, [initialAge])
-    // useEffect(() => { if (currentWeight) { setWeight(currentWeight); saveSetting('weight', currentWeight) } }, [currentWeight])
-    // useEffect(() => { if (initialHeight) { setHeight(initialHeight); saveSetting('height', initialHeight) } }, [initialHeight])
+    // Sync props if they update from profile or latest record
+    useEffect(() => {
+        if (initialAge && initialAge > 0) setAge(initialAge);
+    }, [initialAge]);
+
+    useEffect(() => {
+        if (currentWeight && currentWeight > 0) setWeight(currentWeight);
+    }, [currentWeight]);
+
+    useEffect(() => {
+        if (initialHeight && initialHeight > 0) setHeight(initialHeight);
+    }, [initialHeight]);
 
     // Activity Stats
     const [neatLevel, setNeatLevel] = useState<number>(() => loadSetting('neatLevel', ACTIVITY_FACTORS.SEDENTARY))

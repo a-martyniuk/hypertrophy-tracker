@@ -4,7 +4,12 @@ import { ProfileContext } from '../context/ProfileContext';
 export const useProfile = () => {
     const context = useContext(ProfileContext);
     if (context === undefined) {
-        throw new Error('useProfile must be used within a ProfileProvider');
+        return {
+            profile: null,
+            loading: false,
+            updateProfile: async () => {},
+            refresh: async () => {}
+        };
     }
     return context;
 };

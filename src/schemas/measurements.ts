@@ -5,6 +5,7 @@ const positiveNumber = z.number().min(0, "El valor no puede ser negativo");
 const bodyMeasurementsSchema = z.object({
     weight: positiveNumber,
     height: positiveNumber.optional(),
+    age: positiveNumber.max(120, "Edad máxima 120 años").optional(),
     bodyFat: positiveNumber.optional(),
     neck: positiveNumber,
     back: positiveNumber,

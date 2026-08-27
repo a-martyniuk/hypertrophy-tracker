@@ -168,9 +168,9 @@ function App() {
         <Route path="/calculator" element={
           <MetabolismCalculator
             sex={userSex}
-            currentWeight={records[0]?.measurements.weight || 104}
-            height={records[0]?.measurements.height || profile?.height || 191}
-            age={profile?.age || 38}
+            currentWeight={records[0]?.measurements.weight || profile?.weight}
+            height={records[0]?.measurements.height || profile?.height}
+            age={records[0]?.measurements.age || profile?.age}
             userId={authUser?.uid}
           />
         } />

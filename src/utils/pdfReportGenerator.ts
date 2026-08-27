@@ -80,6 +80,7 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
 
     const height = m.height || (sex === 'female' ? 165 : 180);
     const weight = m.weight || 75;
+    const athleteAge = m.age || (sex === 'female' ? 26 : 28);
     const bodyFat = m.bodyFat || 15;
     const wristAvg = getAvg(m.wrist) || (sex === 'female' ? 15.5 : 18);
     const ankleAvg = getAvg(m.ankle) || (sex === 'female' ? 20.5 : 23);
@@ -166,9 +167,10 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
     doc.setFontSize(7.5);
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.text('PESO: ' + weight + ' kg', 18, 34.5);
-    doc.text('ALTURA: ' + height + ' cm', 65, 34.5);
-    doc.text('GRASA: ' + bodyFat + '%', 110, 34.5);
-    doc.text('MAGRA: ' + (ffmi?.leanMassKg || (weight * 0.85).toFixed(1)) + ' kg', 150, 34.5);
+    doc.text('ALTURA: ' + height + ' cm', 55, 34.5);
+    doc.text('EDAD: ' + athleteAge + ' a', 92, 34.5);
+    doc.text('GRASA: ' + bodyFat + '%', 124, 34.5);
+    doc.text('MAGRA: ' + (ffmi?.leanMassKg || (weight * (1 - bodyFat / 100)).toFixed(1)) + ' kg', 155, 34.5);
 
     // --- THREE COLUMN MAIN GRID (Y: 41 to 198) ---
     // 1. LEFT COLUMN: GENETICS & METABOLISM (X=14, Width=52)
@@ -235,7 +237,7 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.text('BALANCE METABOLICO', 18, leftY + 6);
 
-    const bmr = Math.round(sex === 'female' ? 10 * weight + 6.25 * height - 5 * 28 - 161 : 10 * weight + 6.25 * height - 5 * 30 + 5);
+    const bmr = Math.round(sex === 'female' ? 10 * weight + 6.25 * height - 5 * athleteAge - 161 : 10 * weight + 6.25 * height - 5 * athleteAge + 5);
     const tdee = Math.round(bmr * 1.45);
 
     doc.setFontSize(7);

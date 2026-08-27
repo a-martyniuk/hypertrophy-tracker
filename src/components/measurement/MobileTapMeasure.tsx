@@ -10,6 +10,7 @@ import {
   Scale, 
   Ruler, 
   Percent,
+  Calendar,
   CheckCircle2,
   Sparkles,
   ArrowRight,
@@ -87,6 +88,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
 
   const weightVal = measurements?.weight || 0;
   const heightVal = measurements?.height || 0;
+  const ageVal = measurements?.age || 0;
   const bodyFatVal = measurements?.bodyFat || 0;
 
   // Calculate measured count
@@ -146,6 +148,16 @@ export const MobileTapMeasure: React.FC<Props> = ({
             <Ruler size={13} className="pill-icon" />
             <span className="pill-label">Alt:</span>
             <span className="pill-val">{heightVal > 0 ? `${heightVal}cm` : '--'}</span>
+          </button>
+
+          <button
+            type="button"
+            className={`core-pill ${ageVal > 0 ? 'filled' : ''}`}
+            onClick={() => setShowCoreModal(true)}
+          >
+            <Calendar size={13} className="pill-icon" />
+            <span className="pill-label">Edad:</span>
+            <span className="pill-val">{ageVal > 0 ? `${ageVal}a` : '--'}</span>
           </button>
 
           <button
@@ -370,6 +382,19 @@ export const MobileTapMeasure: React.FC<Props> = ({
                   placeholder="Ej: 180"
                   value={measurements.height || ''}
                   onChange={(e) => setValue('height', parseFloat(e.target.value) || 0, { shouldDirty: true })}
+                />
+              </div>
+
+              <div className="core-field-card">
+                <label>Edad del Atleta (Años)</label>
+                <input
+                  type="number"
+                  step="1"
+                  min="10"
+                  max="120"
+                  placeholder="Ej: 28"
+                  value={measurements.age || ''}
+                  onChange={(e) => setValue('age', parseFloat(e.target.value) || 0, { shouldDirty: true })}
                 />
               </div>
 

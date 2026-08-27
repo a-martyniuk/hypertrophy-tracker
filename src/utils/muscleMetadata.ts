@@ -27,6 +27,15 @@ export const MUSCLE_METADATA: Record<string, MuscleInfo> = {
     instruction: 'Estatura descalzo con talones juntos y postura erguida.',
     unit: 'cm',
   },
+  age: {
+    id: 'age',
+    name: 'Edad',
+    category: 'core',
+    categoryLabel: 'Métricas Base',
+    isBilateral: false,
+    instruction: 'Edad cronológica actual en años cumplidos.',
+    unit: 'años',
+  },
   bodyFat: {
     id: 'bodyFat',
     name: 'Grasa Corporal',
@@ -151,5 +160,6 @@ export const MEASUREMENT_KEYS = [
   'ankle',
   'weight',
   'height',
+  'age',
   'bodyFat',
 ];

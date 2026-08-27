@@ -4,6 +4,9 @@ export const CANONICAL_INITIAL_PROFILE: UserProfile = {
     id: 'guest',
     name: 'Alexis Martyniuk',
     sex: 'male',
+    age: 38,
+    height: 191,
+    weight: 104,
     baseline: {
         wrist: 17.5,
         ankle: 22.5,
@@ -19,6 +22,7 @@ export const CANONICAL_INITIAL_RECORDS: MeasurementRecord[] = [
         measurements: {
             weight: 104,
             height: 191,
+            age: 38,
             bodyFat: 20,
             neck: 43,
             back: 130,

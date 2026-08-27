@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Activity } from 'lucide-react';
 import { DynamicSilhouette } from './DynamicSilhouette';
 import { useAuth } from '../hooks/useAuth';
-import type { MeasurementRecord, RecordMetadata, BodyMeasurements } from '../types/measurements';
+import type { MeasurementRecord, RecordMetadata, BodyMeasurements, UserProfile } from '../types/measurements';
 import { measurementRecordSchema, type MeasurementFormValues } from '../schemas/measurements';
 import { MeasurementInput } from './measurement/MeasurementInput';
 import { MeasurementSection } from './measurement/MeasurementSection';
@@ -20,6 +20,8 @@ import { Tooltip } from './Tooltip';
 import { Map as MapIcon, Calculator, Info } from 'lucide-react';
 import './MeasurementForm.css';
 
+import { useProfile } from '../hooks/useProfile';
+
 interface Props {
   onSave: (record: MeasurementRecord) => Promise<{ success: boolean; error?: any }>;
   onCancel: () => void;
@@ -29,7 +31,7 @@ interface Props {
 }
 
 const DEFAULT_MEASUREMENTS = {
-  weight: 0, height: 0, bodyFat: 0, neck: 0, back: 0, pecho: 0, waist: 0, hips: 0,
+  weight: 0, height: 0, age: 0, bodyFat: 0, neck: 0, back: 0, pecho: 0, waist: 0, hips: 0,
   arm: { left: 0, right: 0 }, forearm: { left: 0, right: 0 }, wrist: { left: 0, right: 0 },
   thigh: { left: 0, right: 0 }, calf: { left: 0, right: 0 }, ankle: { left: 0, right: 0 },
 };
@@ -37,6 +39,7 @@ const DEFAULT_MEASUREMENTS = {
 export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit, sex = 'male' }: Props) => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { profile, updateProfile } = useProfile();
   const { addToast } = useToast();
   const containerRef = useRef<HTMLFormElement>(null);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1000);
@@ -75,7 +78,12 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
   // Initialize draft values if not editing
   const defaultValues = (() => {
     if (recordToEdit) return recordToEdit.measurements;
-    return previousRecord?.measurements || DEFAULT_MEASUREMENTS;
+    if (previousRecord?.measurements) return previousRecord.measurements;
+    return {
+      ...DEFAULT_MEASUREMENTS,
+      height: profile?.height || 0,
+      age: profile?.age || 0,
+    };
   })();
 
   const { control, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<MeasurementFormValues['measurements']>({
@@ -118,6 +126,15 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
     try {
       const result = await onSave(record);
       if (result.success) {
+        // Auto-sync biometrics to profile seamlessly
+        const profileUpdates: Partial<UserProfile> = {};
+        if (data.age && data.age > 0) profileUpdates.age = data.age;
+        if (data.height && data.height > 0) profileUpdates.height = data.height;
+        if (data.weight && data.weight > 0) profileUpdates.weight = data.weight;
+        if (Object.keys(profileUpdates).length > 0) {
+          void updateProfile(profileUpdates);
+        }
+
         localStorage.removeItem('measurement_draft_values');
         localStorage.removeItem('measurement_draft_date');
         addToast(t('common.save') + " " + t('common.success', { defaultValue: 'Success' }), "success");
@@ -256,6 +273,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
               <MeasurementSection title={t('common.form.core_metrics')}>
                 {renderInput('weight', t('common.form.weight'))}
                 {renderInput('height', t('common.form.height'))}
+                {renderInput('age', 'Edad (Años)')}
                 <div style={{ position: 'relative' }}>
                   {renderInput('bodyFat', t('common.form.body_fat'))}
                   <button

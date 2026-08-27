@@ -23,9 +23,10 @@ export interface BodyMeasurements {
     calf: BilateralMeasurement;
     ankle: BilateralMeasurement;
 
-    // Complementary
+    // Complementary / Core Biometrics
     weight: number;
     height?: number;
+    age?: number;
     bodyFat?: number;
 }
 
