@@ -54,7 +54,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
     const suggestions = useMemo(() => {
         if (!profile?.baseline) return [];
 
-        const height = (latestRecord?.measurements.height) || profile?.height || 191;
+        const height = (latestRecord?.measurements.height) || profile?.height || (profile?.sex === 'female' ? 165 : 178);
         const potential = calculateSkeletalPotential(
             profile.baseline.wrist,
             profile.baseline.ankle,
@@ -91,6 +91,9 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
             const [base, side] = type.split('.');
             return measurements[base]?.[side] || 0;
         }
+        if (type === 'biceps') return Math.max(measurements.arm?.right || 0, measurements.arm?.left || 0);
+        if (type === 'chest') return measurements.pecho || 0;
+        if (type === 'calves') return Math.max(measurements.calf?.right || 0, measurements.calf?.left || 0);
         return measurements[type] || 0;
     };
 

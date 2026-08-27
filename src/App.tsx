@@ -175,6 +175,8 @@ function App() {
           />
         } />
 
+        <Route path="/metabolism" element={<Navigate to="/calculator" replace />} />
+
         <Route path="/goals" element={
           <GoalsView
             goals={goals}

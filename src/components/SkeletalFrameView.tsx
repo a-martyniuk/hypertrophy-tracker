@@ -26,15 +26,15 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSa
   const [height, setHeight] = useState<number>(() => {
     const saved = localStorage.getItem('skeletal_height');
     if (saved) return parseFloat(saved);
-    return currentMeasurements?.height || profile?.height || 191;
+    return currentMeasurements?.height || profile?.height || (sex === 'female' ? 165 : 178);
   });
 
   const [weight, setWeight] = useState<number>(() => {
-    return currentMeasurements?.weight || profile?.weight || 104;
+    return currentMeasurements?.weight || profile?.weight || (sex === 'female' ? 60 : 78);
   });
 
   const [bodyFat, setBodyFat] = useState<number>(() => {
-    return currentMeasurements?.bodyFat || 18;
+    return currentMeasurements?.bodyFat || (sex === 'female' ? 22 : 15);
   });
 
   const [frame, setFrame] = useState<SkeletalFrame>(() => {
@@ -45,8 +45,8 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSa
       try { return JSON.parse(saved); } catch { }
     }
 
-    let wrist = 17;
-    let ankle = 22;
+    let wrist = sex === 'female' ? 15.5 : 17.5;
+    let ankle = sex === 'female' ? 20.5 : 22.5;
 
     if (currentMeasurements) {
       const getAvg = (m: { left: number; right: number }) => {
@@ -63,7 +63,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSa
       if (a > 0) ankle = parseFloat(a.toFixed(1));
     }
 
-    return { wrist, ankle, knee: 38 };
+    return { wrist, ankle, knee: sex === 'female' ? 35 : 38 };
   });
 
   useEffect(() => {
