@@ -58,6 +58,31 @@ describe('Proportions & Aesthetics Utilities', () => {
         expect(armAsymmetry!.largerSide).toBe('right');
     });
 
+    it('should not report false asymmetry when only one limb is measured', () => {
+        const unilateralMeasurements: BodyMeasurements = {
+            weight: 80,
+            height: 180,
+            bodyFat: 10,
+            neck: 40,
+            pecho: 110,
+            back: 100,
+            waist: 80,
+            hips: 95,
+            arm: { left: 0, right: 40 },
+            forearm: { left: 0, right: 32 },
+            wrist: { left: 0, right: 18 },
+            thigh: { left: 0, right: 60 },
+            calf: { left: 0, right: 40 },
+            ankle: { left: 0, right: 23 }
+        };
+
+        const result = analyzeProportions(unilateralMeasurements);
+        const armAsymmetry = result!.asymmetries.find(a => a.group === 'arm');
+        expect(armAsymmetry).toBeDefined();
+        expect(armAsymmetry!.diff).toBe(0);
+        expect(armAsymmetry!.severity).toBe('none');
+    });
+
     it('should return null when no measurements are passed', () => {
         expect(analyzeProportions(undefined)).toBeNull();
     });

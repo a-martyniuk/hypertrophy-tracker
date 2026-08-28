@@ -110,6 +110,9 @@ export const analyzeProportions = (m?: BodyMeasurements): FullProportionsAnalysi
         left: number,
         right: number
     ): AsymmetryAlert => {
+        if (left <= 0 || right <= 0) {
+            return { group, label, left, right, diff: 0, largerSide: 'equal', severity: 'none' };
+        }
         const diff = parseFloat(Math.abs(left - right).toFixed(1));
         let largerSide: 'left' | 'right' | 'equal' = 'equal';
         if (left > right) largerSide = 'left';
