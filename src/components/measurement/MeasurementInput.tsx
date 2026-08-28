@@ -1,5 +1,20 @@
+import { HelpCircle } from 'lucide-react';
+import { Tooltip } from '../Tooltip';
 import type { BilateralMeasurement } from '../../types/measurements';
 
+export const ANATOMICAL_GUIDES: Record<string, string> = {
+    neck: 'Mide justo por debajo de la nuez de Adán manteniendo el cuello recto y relajado.',
+    pecho: 'Pasa la cinta métrica horizontalmente a la altura de los pezones con respiración neutra.',
+    back: 'Mide cruzando por debajo de las axilas y los dorsales en su punto de máxima apertura.',
+    waist: 'Mide en el punto más estrecho del abdomen (o sobre el ombligo), sin apretar ni meter panza.',
+    hips: 'Mide en la zona de mayor volumen de los glúteos manteniendo los pies juntos.',
+    arm: 'Mide en la cúspide más alta del bíceps flexionado a 90° con contracción máxima.',
+    forearm: 'Mide en la parte más ancha del antebrazo con la mano cerrada en puño.',
+    wrist: 'Mide en la parte más estrecha justo antes de la mano (chasis óseo de referencia).',
+    thigh: 'Mide en la zona más ancha del cuádriceps de pie con el peso repartido en ambas piernas.',
+    calf: 'Mide en la máxima circunferencia del gemelo/pantorrilla de pie.',
+    ankle: 'Mide en la parte más fina justo por encima de los huesos del tobillo (maléolos).'
+};
 
 interface Props {
     label: string;
@@ -8,6 +23,7 @@ interface Props {
     id?: string;
     previousValue?: number | BilateralMeasurement;
     className?: string;
+    tooltip?: string;
     onFocus?: () => void;
     onBlur?: () => void;
     onMouseEnter?: () => void;
@@ -30,6 +46,7 @@ export const MeasurementInput = ({
     id,
     previousValue,
     className,
+    tooltip,
     onFocus,
     onBlur,
     onMouseEnter,
@@ -37,6 +54,10 @@ export const MeasurementInput = ({
 }: Props) => {
     // Robust check: any non-null object is treated as bilateral to prevent [object Object] rendering
     const isDouble = typeof value === 'object' && value !== null;
+
+    // Resolve guide text from id or prop
+    const cleanId = id?.replace('input-', '') || '';
+    const guideText = tooltip || (cleanId && ANATOMICAL_GUIDES[cleanId]);
 
     if (isDouble) {
         const val = value as BilateralMeasurement;
@@ -49,7 +70,14 @@ export const MeasurementInput = ({
                 onMouseLeave={onMouseLeave}
             >
                 <div className="hud-label-row">
-                    <label>{label}</label>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                        <span>{label}</span>
+                        {guideText && (
+                            <Tooltip content={guideText} position="top" width="220px">
+                                <HelpCircle size={13} style={{ opacity: 0.6, cursor: 'help', color: 'var(--primary-color)' }} />
+                            </Tooltip>
+                        )}
+                    </label>
                     <div className="trends">
                         <TrendIndicator current={val.left || 0} previous={prev?.left} />
                         <TrendIndicator current={val.right || 0} previous={prev?.right} />
@@ -107,7 +135,14 @@ export const MeasurementInput = ({
             onMouseLeave={onMouseLeave}
         >
             <div className="hud-label-row">
-                <label>{label}</label>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                    <span>{label}</span>
+                    {guideText && (
+                        <Tooltip content={guideText} position="top" width="220px">
+                            <HelpCircle size={13} style={{ opacity: 0.6, cursor: 'help', color: 'var(--primary-color)' }} />
+                        </Tooltip>
+                    )}
+                </label>
                 <TrendIndicator current={value as number} previous={previousValue as number} />
             </div>
             <input

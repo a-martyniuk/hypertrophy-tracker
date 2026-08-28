@@ -1,4 +1,5 @@
-import { Moon, Zap, Coffee } from 'lucide-react';
+import { Moon, Zap, Coffee, HelpCircle } from 'lucide-react';
+import { Tooltip } from '../Tooltip';
 import type { RecordMetadata } from '../../types/measurements';
 
 interface Props {
@@ -15,37 +16,55 @@ export const ContextSection = ({ metadata, onChange, notes, onNotesChange }: Pro
     return (
         <div className="form-secondary-inputs">
             <section className="form-section context-section glass">
-                <h3>{t('common.form.physiological_state')}</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem' }}>
+                    <h3 style={{ margin: 0 }}>{t('common.form.physiological_state')}</h3>
+                    <Tooltip content="El contexto fisiológico en que tomas la medida explica variaciones temporales en el agua corporal y el bombeo muscular." position="top" width="260px">
+                        <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help', color: 'var(--primary-color)' }} />
+                    </Tooltip>
+                </div>
                 <div className="context-grid">
                     <div className="condition-selector">
-                        <label>{t('common.form.current_condition')}</label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>{t('common.form.current_condition')}</span>
+                        </label>
                         <div className="condition-buttons">
-                            <button
-                                type="button"
-                                className={metadata.condition === 'fasted' ? 'active' : ''}
-                                onClick={() => onChange({ ...metadata, condition: 'fasted' })}
-                            >
-                                <Coffee size={14} /> {t('common.history.conditions.fasted')}
-                            </button>
-                            <button
-                                type="button"
-                                className={metadata.condition === 'post_workout' ? 'active' : ''}
-                                onClick={() => onChange({ ...metadata, condition: 'post_workout' })}
-                            >
-                                <Zap size={14} /> {t('common.history.conditions.post_workout')}
-                            </button>
-                            <button
-                                type="button"
-                                className={metadata.condition === 'rest_day' ? 'active' : ''}
-                                onClick={() => onChange({ ...metadata, condition: 'rest_day' })}
-                            >
-                                <Moon size={14} /> {t('common.history.conditions.rest_day')}
-                            </button>
+                            <Tooltip content="Estándar de oro: Medición matutina en ayunas, sin retención digestiva para máxima precisión basal." position="top" width="220px">
+                                <button
+                                    type="button"
+                                    className={metadata.condition === 'fasted' ? 'active' : ''}
+                                    onClick={() => onChange({ ...metadata, condition: 'fasted' })}
+                                >
+                                    <Coffee size={14} /> {t('common.history.conditions.fasted')}
+                                </button>
+                            </Tooltip>
+                            <Tooltip content="Post-entreno: La congestión sanguínea (pump) aumenta los perímetros de 1 a 2.5 cm temporalmente." position="top" width="220px">
+                                <button
+                                    type="button"
+                                    className={metadata.condition === 'post_workout' ? 'active' : ''}
+                                    onClick={() => onChange({ ...metadata, condition: 'post_workout' })}
+                                >
+                                    <Zap size={14} /> {t('common.history.conditions.post_workout')}
+                                </button>
+                            </Tooltip>
+                            <Tooltip content="Día de descanso: Medición en reposo y recuperación muscular." position="top" width="200px">
+                                <button
+                                    type="button"
+                                    className={metadata.condition === 'rest_day' ? 'active' : ''}
+                                    onClick={() => onChange({ ...metadata, condition: 'rest_day' })}
+                                >
+                                    <Moon size={14} /> {t('common.history.conditions.rest_day')}
+                                </button>
+                            </Tooltip>
                         </div>
                     </div>
 
                     <div className="sleep-input">
-                        <label>{t('common.form.sleep_hours')}</label>
+                        <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <span>{t('common.form.sleep_hours')}</span>
+                            <Tooltip content="Horas de sueño previo: Un descanso óptimo (7-9 hrs) minimiza la retención de cortisol e inflamación." position="top" width="220px">
+                                <HelpCircle size={13} style={{ opacity: 0.6, cursor: 'help', color: 'var(--primary-color)' }} />
+                            </Tooltip>
+                        </label>
                         <div className="sleep-control">
                             <input
                                 type="number"

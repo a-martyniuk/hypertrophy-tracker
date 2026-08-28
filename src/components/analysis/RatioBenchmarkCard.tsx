@@ -1,5 +1,6 @@
 import React from 'react';
-import { Sparkles, Info, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Info, CheckCircle2, HelpCircle } from 'lucide-react';
+import { Tooltip as AppTooltip } from '../Tooltip';
 import type { RatioBenchmark } from '../../utils/benchmarkAnalysis';
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 
 export const RatioBenchmarkCard: React.FC<Props> = ({ benchmark }) => {
     const {
+        id,
         name,
         label,
         scaleDescription,
@@ -18,6 +20,15 @@ export const RatioBenchmarkCard: React.FC<Props> = ({ benchmark }) => {
         referenceTiers
     } = benchmark;
 
+    const RATIO_TOOLTIPS: Record<string, string> = {
+        v_taper: 'El canon clásico de Steve Reeves y Frank Zane busca un ratio 1.618x (la Proporción Áurea) entre pecho y cintura para una silueta en V imponente.',
+        arm_wrist: 'Evalúa la densidad e hipertrofia del brazo en relación con el grosor de la muñeca. 2.50x es el estándar de oro del culturismo natural.',
+        whtr: 'Ratio Cintura/Estatura: Indicador clave de salud metabólica y grasa visceral. Un valor ≤ 0.45 optimiza la estética abdominal.',
+        reeves_triad: 'Canon clásico de Steve Reeves donde el brazo flexionado, el cuello y la pantorrilla/gemelo mantienen una proporción simétrica 1:1:1.'
+    };
+
+    const ratioHint = RATIO_TOOLTIPS[id] || scaleDescription;
+
     return (
         <div className="bm-card ratio-benchmark-card" style={{ cursor: 'default', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
             <div>
@@ -26,8 +37,11 @@ export const RatioBenchmarkCard: React.FC<Props> = ({ benchmark }) => {
                     <div style={{ flex: '1 1 200px', minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <Sparkles size={16} style={{ color: '#fbbf24', flexShrink: 0 }} />
-                            <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)', letterSpacing: '-0.01em', lineHeight: 1.3 }}>
-                                {name}
+                            <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)', letterSpacing: '-0.01em', lineHeight: 1.3, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                <span>{name}</span>
+                                <AppTooltip content={ratioHint} position="top" width="260px">
+                                    <HelpCircle size={14} style={{ opacity: 0.6, cursor: 'help', color: 'var(--primary-color)' }} />
+                                </AppTooltip>
                             </h4>
                         </div>
                         <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', marginTop: '0.3rem' }}>

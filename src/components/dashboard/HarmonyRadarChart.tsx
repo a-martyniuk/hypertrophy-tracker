@@ -8,7 +8,8 @@ import {
   ResponsiveContainer,
   Tooltip
 } from 'recharts';
-import { Sparkles, Compass } from 'lucide-react';
+import { Sparkles, Compass, HelpCircle } from 'lucide-react';
+import { Tooltip as AppTooltip } from '../Tooltip';
 import type { BodyMeasurements } from '../../types/measurements';
 import { computeComprehensiveAnalysis } from '../../utils/benchmarkAnalysis';
 import './HarmonyRadarChart.css';
@@ -70,7 +71,12 @@ export const HarmonyRadarChart: React.FC<Props> = ({ currentMeasurements, sex = 
                 <Sparkles size={11} /> {overallHarmonyScore}/100 Armonía
               </span>
             </div>
-            <h3 className="radar-title">Radar de Simetría & Proporción Áurea</h3>
+            <h3 className="radar-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>Radar de Simetría & Proporción Áurea</span>
+              <AppTooltip content="El Radar 360° evalúa el balance entre tus grupos musculares respecto a tu potencial genético natural (Modelo Casey Butt y Proporción Áurea de Reeves). El 100% representa el equilibrio estético óptimo." position="bottom" width="280px">
+                <HelpCircle size={14} style={{ opacity: 0.7, cursor: 'help', color: 'var(--primary-color)' }} />
+              </AppTooltip>
+            </h3>
           </div>
         </div>
       </div>

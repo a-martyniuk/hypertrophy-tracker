@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Dumbbell, Target, Sparkles, ChevronDown, ChevronUp, AlertCircle, CheckCircle2, Flame, Layers } from 'lucide-react';
+import { Dumbbell, Target, Sparkles, ChevronDown, ChevronUp, AlertCircle, CheckCircle2, Flame, Layers, HelpCircle } from 'lucide-react';
+import { Tooltip as AppTooltip } from '../Tooltip';
 import type { ComprehensivePrescription } from '../../utils/trainingPrescription';
 import './TrainingPrescriptionCard.css';
 
@@ -99,12 +100,14 @@ export const TrainingPrescriptionCard: React.FC<Props> = ({ prescriptionData }) 
             <div className="active-name-group">
               <div className="active-title-row">
                 <h4 className="active-muscle-title">{activePrescription.muscleName}</h4>
-                <span 
-                  className="priority-pill"
-                  style={{ color: activePrescription.priorityColor, backgroundColor: activePrescription.priorityBg }}
-                >
-                  {activePrescription.priorityLabel}
-                </span>
+                <AppTooltip content="P1 = Prioridad Máxima (grupo rezagado con mayor volumen asignado). P2/P3 = Crecimiento equilibrado. P4 = Mantenimiento y calidad." position="top" width="260px">
+                  <span 
+                    className="priority-pill"
+                    style={{ color: activePrescription.priorityColor, backgroundColor: activePrescription.priorityBg, cursor: 'help' }}
+                  >
+                    {activePrescription.priorityLabel}
+                  </span>
+                </AppTooltip>
               </div>
               <p className="active-diagnosis">{activePrescription.tacticalDiagnosis}</p>
             </div>
@@ -112,19 +115,34 @@ export const TrainingPrescriptionCard: React.FC<Props> = ({ prescriptionData }) 
             {/* Quick Metrics Cards */}
             <div className="active-metrics-grid">
               <div className="metric-box">
-                <span className="m-lbl">Volumen Semanal</span>
+                <span className="m-lbl" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <span>Volumen Semanal</span>
+                  <AppTooltip content="Series efectivas a la semana llevadas a RIR 1-3 (cerca del fallo muscular) para máxima hipertrofia sin fatiga residual excesiva." position="top" width="240px">
+                    <HelpCircle size={12} style={{ opacity: 0.6, cursor: 'help' }} />
+                  </AppTooltip>
+                </span>
                 <span className="m-val highlight" style={{ color: activePrescription.priorityColor }}>
                   {activePrescription.recommendedWeeklySets} series
                 </span>
                 <span className="m-sub">óptimas / sem</span>
               </div>
               <div className="metric-box">
-                <span className="m-lbl">Frecuencia</span>
+                <span className="m-lbl" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <span>Frecuencia</span>
+                  <AppTooltip content="Número de días a la semana en que conviene entrenar este músculo para mantener la síntesis proteica elevada." position="top" width="220px">
+                    <HelpCircle size={12} style={{ opacity: 0.6, cursor: 'help' }} />
+                  </AppTooltip>
+                </span>
                 <span className="m-val">{activePrescription.recommendedFrequency}</span>
                 <span className="m-sub">distribución</span>
               </div>
               <div className="metric-box">
-                <span className="m-lbl">Desarrollo Real</span>
+                <span className="m-lbl" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <span>Desarrollo Real</span>
+                  <AppTooltip content="Comparativa entre tu perímetro actual y tu límite genético natural calculado por el modelo Casey Butt." position="top" width="240px">
+                    <HelpCircle size={12} style={{ opacity: 0.6, cursor: 'help' }} />
+                  </AppTooltip>
+                </span>
                 <span className="m-val">{activePrescription.currentCm} / {activePrescription.potentialCm} cm</span>
                 <span className="m-sub">{activePrescription.percentOfMax}% del límite</span>
               </div>

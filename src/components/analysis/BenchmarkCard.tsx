@@ -1,5 +1,6 @@
 import React from 'react';
-import { Target, TrendingUp, Award } from 'lucide-react';
+import { Target, TrendingUp, Award, HelpCircle } from 'lucide-react';
+import { Tooltip as AppTooltip } from '../Tooltip';
 import type { MuscleBenchmark } from '../../utils/benchmarkAnalysis';
 
 interface Props {
@@ -27,22 +28,28 @@ export const BenchmarkCard: React.FC<Props> = ({ benchmark, onClick }) => {
             <div className="bm-card-header">
                 <div>
                     <div className="bm-title">{label}</div>
-                    <div className="bm-sub">
-                        Potencial Genético: <strong style={{ color: '#e2e8f0' }}>{potentialMax} cm</strong>
+                    <div className="bm-sub" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span>Potencial Genético: <strong style={{ color: '#e2e8f0' }}>{potentialMax} cm</strong></span>
+                        <AppTooltip content="Límite biológico natural calculado matemáticamente por el modelo de Casey Butt a partir de tu altura y estructura ósea." position="top" width="250px">
+                            <HelpCircle size={12} style={{ opacity: 0.6, cursor: 'help', color: 'var(--primary-color)' }} />
+                        </AppTooltip>
                     </div>
                 </div>
 
-                <div
-                    className="bm-badge"
-                    style={{
-                        color: levelColor,
-                        backgroundColor: levelBg,
-                        borderColor: `${levelColor}50`
-                    }}
-                >
-                    <Award size={13} />
-                    <span>{levelLabel}</span>
-                </div>
+                <AppTooltip content="Nivel respecto al límite natural: Base (<70%), Intermedio (70-85%), Avanzado (85-95%), Élite Natural (>95%)." position="top" width="240px">
+                    <div
+                        className="bm-badge"
+                        style={{
+                            color: levelColor,
+                            backgroundColor: levelBg,
+                            borderColor: `${levelColor}50`,
+                            cursor: 'help'
+                        }}
+                    >
+                        <Award size={13} />
+                        <span>{levelLabel}</span>
+                    </div>
+                </AppTooltip>
             </div>
 
             {/* Middle: Big Value + Percent */}
