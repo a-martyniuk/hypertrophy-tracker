@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Download, Upload, AlertTriangle, Check, Database, FileJson, RefreshCw, Languages, User, RotateCcw, Shield, Globe, Lock } from 'lucide-react';
+import { Download, Upload, AlertTriangle, Check, Database, FileJson, RefreshCw, Languages, User, Shield, Globe, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import { useProfile } from '../hooks/useProfile';
 import type { MeasurementRecord, GrowthGoal, UserProfile } from '../types/measurements';
-import { CANONICAL_INITIAL_RECORDS, CANONICAL_INITIAL_PROFILE } from '../data/defaultRecords';
 import { getMeasurementsStorageKey, getProfileStorageKey, getGoalsStorageKey } from '../utils/storageKeys';
 
 interface Props {
@@ -140,21 +139,6 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
             }
         };
         reader.readAsText(file);
-    };
-
-    const handleRestoreBaseline = () => {
-        if (confirm('¿Deseas restaurar la ficha histórica y línea base del 20/08/2026 en tu cuenta?')) {
-            const mKey = getMeasurementsStorageKey(user?.uid);
-            const pKey = getProfileStorageKey(user?.uid);
-            localStorage.setItem(mKey, JSON.stringify(CANONICAL_INITIAL_RECORDS));
-            localStorage.setItem(pKey, JSON.stringify(CANONICAL_INITIAL_PROFILE));
-            localStorage.setItem('skeletal_height', '191');
-            localStorage.setItem('skeletal_frame_draft', JSON.stringify({ wrist: 17.5, ankle: 22.5, knee: 39 }));
-            setSuccessMsg('¡Línea base histórica (20/08/2026) restaurada con éxito!');
-            setTimeout(() => {
-                window.location.reload();
-            }, 1200);
-        }
     };
 
     return (
@@ -419,16 +403,6 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                                 {t('settings.btn_upload')}
                             </>
                         )}
-                    </button>
-
-                    <button
-                        type="button"
-                        className="btn-secondary"
-                        style={{ borderColor: 'rgba(245, 158, 11, 0.4)', color: '#fbbf24', marginTop: '0.25rem' }}
-                        onClick={handleRestoreBaseline}
-                    >
-                        <RotateCcw size={18} className="mr-2" />
-                        Restaurar Histórico Inicial (20/08/2026)
                     </button>
 
                     {error && (
