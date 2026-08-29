@@ -3,7 +3,7 @@ import {
     Line,
     ReferenceLine
 } from 'recharts';
-import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale, Download, Dumbbell, Swords } from 'lucide-react';
+import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale, Download, Dumbbell, Swords, Share2 } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
@@ -21,6 +21,7 @@ import { RatioBenchmarkCard } from './analysis/RatioBenchmarkCard';
 import { MuscleHistoryModal } from './analysis/MuscleHistoryModal';
 import { TrainingPrescriptionCard } from './analysis/TrainingPrescriptionCard';
 import { AthleteComparisonCard } from './analysis/AthleteComparisonCard';
+import { ShareReportModal } from './share/ShareReportModal';
 import type { MuscleBenchmark } from '../utils/benchmarkAnalysis';
 import './AnalysisView.css';
 
@@ -38,6 +39,7 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
     const muscleId = searchParams.get('muscle');
     const [activeTab, setActiveTab] = useState<'prescription' | 'benchmarks' | 'ratios' | 'history' | 'versus'>('prescription');
     const [selectedBenchmark, setSelectedBenchmark] = useState<MuscleBenchmark | null>(null);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
     const latestRecord = records[0];
     const comprehensiveAnalysis = computeComprehensiveAnalysis(latestRecord?.measurements, sex);
@@ -270,6 +272,18 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                             <span>🧬 Simulador Genético &rarr;</span>
                         </button>
                         <button
+                            onClick={() => setIsShareModalOpen(true)}
+                            className="analysis-action-btn"
+                            style={{
+                                background: 'rgba(245, 158, 11, 0.15)',
+                                border: '1px solid rgba(245, 158, 11, 0.4)',
+                                color: '#fbbf24'
+                            }}
+                        >
+                            <Share2 size={14} style={{ color: '#fbbf24' }} />
+                            <span>Compartir Ficha</span>
+                        </button>
+                        <button
                             onClick={() => generateAthletePDFReport({ latestRecord, previousRecord: records[1], records, userName: profile?.name || 'Atleta', sex })}
                             className="analysis-action-btn action-pdf"
                         >
@@ -479,6 +493,16 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                 benchmark={selectedBenchmark}
                 records={records}
                 onClose={() => setSelectedBenchmark(null)}
+            />
+
+            {/* Share Athlete Report Modal */}
+            <ShareReportModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                latestRecord={latestRecord}
+                records={records}
+                userName={profile?.name || 'Atleta'}
+                sex={sex}
             />
         </div>
     );

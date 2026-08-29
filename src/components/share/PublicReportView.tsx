@@ -864,7 +864,10 @@ export const PublicReportView: React.FC = () => {
                         <span>Crear Mi Ficha Gratis &rarr;</span>
                     </button>
                     <button
-                        onClick={() => setActiveTab('versus')}
+                        onClick={() => {
+                            setActiveTab('versus');
+                            window.scrollTo({ top: 380, behavior: 'smooth' });
+                        }}
                         className="viral-cta-btn viral-cta-secondary"
                     >
                         <Swords size={18} />
@@ -881,7 +884,10 @@ export const PublicReportView: React.FC = () => {
                 </div>
                 <div style={{ display: 'flex', gap: '6px' }}>
                     <button
-                        onClick={() => setActiveTab('versus')}
+                        onClick={() => {
+                            setActiveTab('versus');
+                            window.scrollTo({ top: 380, behavior: 'smooth' });
+                        }}
                         className="btn-secondary"
                         style={{ padding: '0.45rem 0.75rem', fontSize: '0.75rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}
                     >
