@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { X, QrCode, Copy, Check, Share2, Swords, Link as LinkIcon } from 'lucide-react';
 import QRCode from 'qrcode';
 import { encodeAthleteData } from '../../utils/shareEncoder';
@@ -12,19 +13,19 @@ interface Props {
     records?: MeasurementRecord[];
     userName?: string;
     sex?: 'male' | 'female';
-    profileA: ComparisonProfile;
-    profileB: ComparisonProfile;
-    verdict: {
-        scoreA: number;
-        scoreB: number;
-        summary: string;
-        winner: string;
-        vTaperA: number;
-        vTaperB: number;
-        geneticCeilingA: number;
-        geneticCeilingB: number;
-        bioA: { ffmi: number };
-        bioB: { ffmi: number };
+    profileA?: ComparisonProfile;
+    profileB?: ComparisonProfile;
+    verdict?: {
+        scoreA?: number;
+        scoreB?: number;
+        summary?: string;
+        winner?: string;
+        vTaperA?: number;
+        vTaperB?: number;
+        geneticCeilingA?: number;
+        geneticCeilingB?: number;
+        bioA?: { ffmi?: number };
+        bioB?: { ffmi?: number };
     };
 }
 
@@ -43,16 +44,26 @@ export const ShareDuelModal: React.FC<Props> = ({
     const [copied, setCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link');
 
+    const nameA = profileA?.name || userName || 'Tú (Actual)';
+    const nameB = profileB?.name || 'Rival';
+    const rivalId = profileB?.id || 'steve_reeves_1950';
+    const scoreA = verdict?.scoreA ?? 0;
+    const scoreB = verdict?.scoreB ?? 0;
+
     // Build the visual Duel link
     const duelShareUrl = useMemo(() => {
-        if (!isOpen || !currentRecord) return '';
-        const athleteName = profileA.name || userName || 'Atleta';
-        const encoded = encodeAthleteData(athleteName, currentRecord, sex, records);
+        if (!isOpen) return '';
+        const effectiveRecord = currentRecord || records?.[0] || {
+            id: 'current',
+            date: new Date().toISOString(),
+            measurements: profileA?.measurements || {}
+        };
+        const encoded = encodeAthleteData(nameA, effectiveRecord as MeasurementRecord, sex, records);
         if (!encoded) return '';
         const origin = window.location.origin;
         const basePath = window.location.pathname.replace(/\/index\.html$/, '').replace(/\/+$/, '');
-        return `${origin}${basePath}/#/share?data=${encoded}&tab=versus&rival=${profileB.id}`;
-    }, [isOpen, currentRecord, profileA.name, userName, sex, records, profileB.id]);
+        return `${origin}${basePath}/#/share?data=${encoded}&tab=versus&rival=${rivalId}`;
+    }, [isOpen, currentRecord, records, profileA?.measurements, nameA, sex, rivalId]);
 
     useEffect(() => {
         if (!duelShareUrl) return;
@@ -70,7 +81,7 @@ export const ShareDuelModal: React.FC<Props> = ({
             .catch(err => console.error('Error generating Duel QR code:', err));
     }, [duelShareUrl]);
 
-    if (!isOpen || !currentRecord) return null;
+    if (!isOpen) return null;
 
     const handleCopy = () => {
         if (!duelShareUrl) return;
@@ -83,8 +94,8 @@ export const ShareDuelModal: React.FC<Props> = ({
         if (typeof navigator !== 'undefined' && navigator.share) {
             try {
                 await navigator.share({
-                    title: `Duelo: ${profileA.name} vs ${profileB.name} - Hypertrophy Tracker`,
-                    text: `⚔️ Duelo Head-to-Head (${verdict.scoreA} a ${verdict.scoreB}):`,
+                    title: `Duelo: ${nameA} vs ${nameB} - Hypertrophy Tracker`,
+                    text: `⚔️ Duelo Head-to-Head (${scoreA} a ${scoreB}):`,
                     url: duelShareUrl
                 });
             } catch (err) {
@@ -97,33 +108,41 @@ export const ShareDuelModal: React.FC<Props> = ({
 
     const hasNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
-    return (
-        <div style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            backdropFilter: 'blur(10px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: '1rem'
-        }}>
-            <div style={{
-                background: 'linear-gradient(135deg, rgba(16, 22, 36, 0.98), rgba(9, 13, 22, 0.99))',
-                border: '1.5px solid rgba(245, 158, 11, 0.35)',
-                borderRadius: '20px',
-                maxWidth: '460px',
-                width: '100%',
-                padding: '1.5rem',
-                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.15)',
+    return createPortal(
+        <div
+            onClick={onClose}
+            style={{
+                position: 'fixed',
+                inset: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.82)',
+                backdropFilter: 'blur(10px)',
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
-                textAlign: 'center',
-                gap: '1.25rem',
-                position: 'relative'
-            }}>
+                justifyContent: 'center',
+                zIndex: 99999,
+                padding: '1rem'
+            }}
+        >
+            <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                    background: 'linear-gradient(135deg, rgba(16, 22, 36, 0.98), rgba(9, 13, 22, 0.99))',
+                    border: '1.5px solid rgba(245, 158, 11, 0.35)',
+                    borderRadius: '20px',
+                    maxWidth: '460px',
+                    width: '100%',
+                    maxHeight: '90vh',
+                    overflowY: 'auto',
+                    padding: '1.5rem',
+                    boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.15)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    gap: '1.25rem',
+                    position: 'relative'
+                }}
+            >
                 {/* Close button */}
                 <button
                     onClick={onClose}
@@ -184,10 +203,10 @@ export const ShareDuelModal: React.FC<Props> = ({
                 }}>
                     <div style={{ textAlign: 'left', flex: 1 }}>
                         <div style={{ fontSize: '0.7rem', color: '#38bdf8', fontWeight: 800, textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
-                            Tú ({profileA.name})
+                            {nameA}
                         </div>
                         <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                            {verdict.scoreA} pts
+                            {scoreA} pts
                         </div>
                     </div>
 
@@ -206,10 +225,10 @@ export const ShareDuelModal: React.FC<Props> = ({
 
                     <div style={{ textAlign: 'right', flex: 1 }}>
                         <div style={{ fontSize: '0.7rem', color: '#f43f5e', fontWeight: 800, textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
-                            {profileB.name}
+                            {nameB}
                         </div>
                         <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                            {verdict.scoreB} pts
+                            {scoreB} pts
                         </div>
                     </div>
                 </div>
@@ -378,6 +397,7 @@ export const ShareDuelModal: React.FC<Props> = ({
                     </div>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };

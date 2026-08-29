@@ -66,7 +66,15 @@ export const encodeAthleteData = (
 
     try {
         const jsonStr = JSON.stringify(payload);
-        return btoa(unescape(encodeURIComponent(jsonStr)))
+        let base64 = '';
+        if (typeof TextEncoder !== 'undefined') {
+            const bytes = new TextEncoder().encode(jsonStr);
+            const binString = Array.from(bytes, (b) => String.fromCharCode(b)).join('');
+            base64 = btoa(binString);
+        } else {
+            base64 = btoa(unescape(encodeURIComponent(jsonStr)));
+        }
+        return base64
             .replace(/\+/g, '-')
             .replace(/\//g, '_')
             .replace(/=+$/, '');
@@ -88,9 +96,19 @@ export const decodeAthleteData = (encodedStr: string): SharedAthletePayload | nu
 
         let jsonStr = '';
         try {
-            jsonStr = decodeURIComponent(escape(atob(base64)));
+            if (typeof TextDecoder !== 'undefined') {
+                const binString = atob(base64);
+                const bytes = Uint8Array.from(binString, (m) => m.charCodeAt(0));
+                jsonStr = new TextDecoder().decode(bytes);
+            } else {
+                jsonStr = decodeURIComponent(escape(atob(base64)));
+            }
         } catch {
-            jsonStr = atob(base64);
+            try {
+                jsonStr = decodeURIComponent(escape(atob(base64)));
+            } catch {
+                jsonStr = atob(base64);
+            }
         }
 
         const parsed = JSON.parse(jsonStr);
