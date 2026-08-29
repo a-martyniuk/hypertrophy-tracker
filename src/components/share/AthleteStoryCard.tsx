@@ -20,7 +20,7 @@ interface Props {
 
 export const AthleteStoryCardModal: React.FC<Props> = ({
     record,
-    records = [],
+    records: _records = [],
     userName = 'Atleta',
     sex = 'male',
     isOpen = false,

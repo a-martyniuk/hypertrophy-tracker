@@ -589,7 +589,7 @@ export const ShareDuelModal: React.FC<Props> = ({
                         </p>
 
                         <button
-                            onClick={handleCopy}
+                            onClick={() => handleCopy(shortUrl || duelShareUrl)}
                             className="btn-secondary"
                             style={{ width: '100%', padding: '0.65rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                         >

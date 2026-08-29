@@ -540,7 +540,7 @@ export const ShareReportModal: React.FC<Props> = ({
                         </p>
 
                         <button
-                            onClick={handleCopy}
+                            onClick={() => handleCopy(shortUrl || shareUrl)}
                             className="btn-secondary"
                             style={{ width: '100%', padding: '0.65rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                         >
