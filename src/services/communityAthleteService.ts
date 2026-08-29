@@ -178,7 +178,8 @@ export const fetchCommunityAthletes = async (currentUserId?: string): Promise<Co
 
         return allCommunity;
     } catch (err) {
-        console.error('[communityAthleteService] Error al obtener atletas de la comunidad:', err);
+        // Graceful fallback to verified community benchmarks when unauthenticated or offline
+        console.warn('[communityAthleteService] Acceso anónimo o sin permisos a atletas cloud. Usando atletas comunitarios base.');
         return verifiedList;
     }
 };

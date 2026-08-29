@@ -6,6 +6,38 @@
       "destination": "/assets/:match*"
     },
     {
+      "source": "/hypertrophyracker/favicon.ico",
+      "destination": "/favicon.ico"
+    },
+    {
+      "source": "/hypertrophyracker/favicon.svg",
+      "destination": "/favicon.svg"
+    },
+    {
+      "source": "/hypertrophyracker/favicon-32x32.png",
+      "destination": "/favicon-32x32.png"
+    },
+    {
+      "source": "/hypertrophyracker/favicon-16x16.png",
+      "destination": "/favicon-16x16.png"
+    },
+    {
+      "source": "/hypertrophyracker/apple-touch-icon.png",
+      "destination": "/apple-touch-icon.png"
+    },
+    {
+      "source": "/hypertrophyracker/mask-icon.svg",
+      "destination": "/mask-icon.svg"
+    },
+    {
+      "source": "/hypertrophyracker/pwa-192x192.png",
+      "destination": "/pwa-192x192.png"
+    },
+    {
+      "source": "/hypertrophyracker/pwa-512x512.png",
+      "destination": "/pwa-512x512.png"
+    },
+    {
       "source": "/hypertrophyracker/pwa-icon.svg",
       "destination": "/pwa-icon.svg"
     },

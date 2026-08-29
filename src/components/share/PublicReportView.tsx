@@ -431,7 +431,13 @@ export const PublicReportView: React.FC = () => {
                         </button>
 
                         <button
-                            onClick={() => generateAthletePDFReport({ latestRecord: activeRecord, userName: name, sex })}
+                            onClick={() => generateAthletePDFReport({
+                                latestRecord: activeRecord,
+                                previousRecord,
+                                records,
+                                userName: name,
+                                sex
+                            })}
                             className="hero-btn hero-btn-secondary"
                             title="Descargar dossier médico-deportivo en PDF"
                         >
@@ -736,7 +742,7 @@ export const PublicReportView: React.FC = () => {
                         <h4 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
                             Evolución de Composición Corporal (Peso & Grasa)
                         </h4>
-                        <div style={{ width: '100%', height: 260 }}>
+                        <div style={{ width: '100%', height: 260, minWidth: 0, minHeight: 0 }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={weightFatTrendData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.06)" />
@@ -765,7 +771,7 @@ export const PublicReportView: React.FC = () => {
                         <h4 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
                             Evolución de Extremidades Superiores y Torso
                         </h4>
-                        <div style={{ width: '100%', height: 260 }}>
+                        <div style={{ width: '100%', height: 260, minWidth: 0, minHeight: 0 }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={limbsTrendData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.06)" />
@@ -795,7 +801,7 @@ export const PublicReportView: React.FC = () => {
                         <h4 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
                             Evolución de Tren Inferior & Cintura
                         </h4>
-                        <div style={{ width: '100%', height: 260 }}>
+                        <div style={{ width: '100%', height: 260, minWidth: 0, minHeight: 0 }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={lowerTorsoTrendData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.06)" />
