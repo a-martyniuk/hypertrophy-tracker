@@ -48,16 +48,18 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
 
     const shareUrl = useMemo(() => {
         if (!record) return '';
-        const encoded = encodeAthleteData(userName, record, sex, records.length ? records : [record]);
+        // Use compact single record for ultra high-readability QR code on story cards
+        const encoded = encodeAthleteData(userName, record, sex, [record]);
         const baseUrl = getPublicShareBaseUrl();
         return `${baseUrl}#/share?data=${encoded}`;
-    }, [record, userName, sex, records]);
+    }, [record, userName, sex]);
 
     useEffect(() => {
         if (!shareUrl) return;
         QRCode.toDataURL(shareUrl, {
-            width: 200,
+            width: 220,
             margin: 1,
+            errorCorrectionLevel: 'M',
             color: { dark: '#000000', light: '#ffffff' }
         }).then(setQrUrl).catch(() => {});
     }, [shareUrl]);

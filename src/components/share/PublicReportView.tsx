@@ -17,6 +17,7 @@ import {
     Award
 } from 'lucide-react';
 import { decodeAthleteData } from '../../utils/shareEncoder';
+import { shortenUrl } from '../../utils/urlShortener';
 import { generateTacticalDiagnosis } from '../../utils/tacticalDiagnosis';
 import { computeComprehensiveAnalysis, type MuscleBenchmark } from '../../utils/benchmarkAnalysis';
 import { generateAthletePDFReport } from '../../utils/pdfReportGenerator';
@@ -304,7 +305,14 @@ export const PublicReportView: React.FC = () => {
     }, [records]);
 
     const handleShareOrCopy = async () => {
-        const shareUrl = window.location.href;
+        let shareUrl = window.location.href;
+        try {
+            const short = await shortenUrl(shareUrl);
+            if (short && short.length < shareUrl.length) {
+                shareUrl = short;
+            }
+        } catch {}
+
         if (typeof navigator !== 'undefined' && navigator.share) {
             try {
                 await navigator.share({

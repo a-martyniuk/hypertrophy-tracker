@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { X, QrCode, Copy, Check, Share2, Swords, Link as LinkIcon } from 'lucide-react';
+import { X, QrCode, Copy, Check, Share2, Swords, Link as LinkIcon, Wand2, Zap, Loader2 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { encodeAthleteData, getPublicShareBaseUrl } from '../../utils/shareEncoder';
+import { shortenUrl } from '../../utils/urlShortener';
 import type { MeasurementRecord } from '../../types/measurements';
 import type { ComparisonProfile } from '../../utils/athleteComparison';
 
@@ -42,7 +43,11 @@ export const ShareDuelModal: React.FC<Props> = ({
 }) => {
     const [qrUrl, setQrUrl] = useState<string>('');
     const [copied, setCopied] = useState(false);
+    const [shortCopied, setShortCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link');
+    const [includeHistory, setIncludeHistory] = useState(false);
+    const [shortUrl, setShortUrl] = useState<string>('');
+    const [isShortening, setIsShortening] = useState(false);
 
     const nameA = profileA?.name || userName || 'Tú (Actual)';
     const nameB = profileB?.name || 'Rival';
@@ -58,16 +63,23 @@ export const ShareDuelModal: React.FC<Props> = ({
             date: new Date().toISOString(),
             measurements: profileA?.measurements || {}
         };
-        const encoded = encodeAthleteData(nameA, effectiveRecord as MeasurementRecord, sex, records);
+        const recordsToEncode = includeHistory && records.length > 0 ? records : [effectiveRecord as MeasurementRecord];
+        const encoded = encodeAthleteData(nameA, effectiveRecord as MeasurementRecord, sex, recordsToEncode);
         if (!encoded) return '';
         const baseUrl = getPublicShareBaseUrl();
         return `${baseUrl}#/share?data=${encoded}&tab=versus&rival=${rivalId}`;
-    }, [isOpen, currentRecord, records, profileA?.measurements, nameA, sex, rivalId]);
+    }, [isOpen, currentRecord, records, profileA?.measurements, nameA, sex, rivalId, includeHistory]);
+
+    // Reset shortUrl when duelShareUrl changes
+    useEffect(() => {
+        setShortUrl('');
+    }, [duelShareUrl]);
 
     useEffect(() => {
-        if (!duelShareUrl) return;
+        const effectiveUrl = shortUrl || duelShareUrl;
+        if (!effectiveUrl) return;
 
-        QRCode.toDataURL(duelShareUrl, {
+        QRCode.toDataURL(effectiveUrl, {
             width: 240,
             margin: 2,
             errorCorrectionLevel: 'M',
@@ -78,30 +90,48 @@ export const ShareDuelModal: React.FC<Props> = ({
         })
             .then(url => setQrUrl(url))
             .catch(err => console.error('Error generating Duel QR code:', err));
-    }, [duelShareUrl]);
+    }, [duelShareUrl, shortUrl]);
 
     if (!isOpen) return null;
 
-    const handleCopy = () => {
-        if (!duelShareUrl) return;
-        navigator.clipboard.writeText(duelShareUrl);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+    const handleCopy = (urlToCopy: string, isShort: boolean = false) => {
+        if (!urlToCopy) return;
+        navigator.clipboard.writeText(urlToCopy);
+        if (isShort) {
+            setShortCopied(true);
+            setTimeout(() => setShortCopied(false), 2000);
+        } else {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
     };
 
-    const handleNativeShare = async () => {
+    const handleShorten = async () => {
+        if (!duelShareUrl || isShortening) return;
+        setIsShortening(true);
+        try {
+            const short = await shortenUrl(duelShareUrl);
+            setShortUrl(short);
+        } catch (e) {
+            console.error('Error shortening duel URL:', e);
+        } finally {
+            setIsShortening(false);
+        }
+    };
+
+    const handleNativeShare = async (urlToShare: string) => {
         if (typeof navigator !== 'undefined' && navigator.share) {
             try {
                 await navigator.share({
                     title: `Duelo: ${nameA} vs ${nameB} - Hypertrophy Tracker`,
                     text: `⚔️ Duelo Head-to-Head (${scoreA} a ${scoreB}):`,
-                    url: duelShareUrl
+                    url: urlToShare
                 });
             } catch (err) {
                 console.log('Share dismissed:', err);
             }
         } else {
-            handleCopy();
+            handleCopy(urlToShare);
         }
     };
 
@@ -293,7 +323,180 @@ export const ShareDuelModal: React.FC<Props> = ({
                 {/* Tab 1: Link */}
                 {activeTab === 'link' && (
                     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                        {/* URL input + Copy */}
+                        {/* Scope Selector: Snapshot (Express) vs Full History */}
+                        {records.length > 1 && (
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr 1fr',
+                                gap: '6px',
+                                background: 'rgba(0, 0, 0, 0.4)',
+                                padding: '4px',
+                                borderRadius: '10px',
+                                border: '1px solid rgba(255, 255, 255, 0.06)'
+                            }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setIncludeHistory(false)}
+                                    style={{
+                                        padding: '0.45rem 0.5rem',
+                                        fontSize: '0.74rem',
+                                        fontWeight: 800,
+                                        borderRadius: '7px',
+                                        border: 'none',
+                                        background: !includeHistory ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'transparent',
+                                        color: !includeHistory ? '#000' : '#94a3b8',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '4px'
+                                    }}
+                                >
+                                    <Zap size={13} />
+                                    <span>Medición Actual</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIncludeHistory(true)}
+                                    style={{
+                                        padding: '0.45rem 0.5rem',
+                                        fontSize: '0.74rem',
+                                        fontWeight: 800,
+                                        borderRadius: '7px',
+                                        border: 'none',
+                                        background: includeHistory ? 'linear-gradient(135deg, #38bdf8, #0284c7)' : 'transparent',
+                                        color: includeHistory ? '#fff' : '#94a3b8',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '4px'
+                                    }}
+                                >
+                                    <span>Historial Completo ({records.length})</span>
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Short Link Generator Box (Optimized for Instagram Bio & DMs) */}
+                        <div style={{
+                            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(56, 189, 248, 0.05))',
+                            border: '1px solid rgba(245, 158, 11, 0.3)',
+                            borderRadius: '14px',
+                            padding: '0.75rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.6rem',
+                            textAlign: 'left'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <Wand2 size={15} style={{ color: '#fbbf24' }} />
+                                    <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#f8fafc' }}>
+                                        Enlace Corto para Instagram Bio & DMs
+                                    </span>
+                                </div>
+                                <span style={{ fontSize: '0.68rem', color: '#10b981', fontWeight: 700, background: 'rgba(16, 185, 129, 0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+                                    Anti-Largo
+                                </span>
+                            </div>
+
+                            {shortUrl ? (
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.4rem',
+                                    background: 'rgba(0, 0, 0, 0.6)',
+                                    border: '1px solid rgba(16, 185, 129, 0.4)',
+                                    borderRadius: '10px',
+                                    padding: '0.35rem 0.5rem'
+                                }}>
+                                    <input
+                                        type="text"
+                                        readOnly
+                                        value={shortUrl}
+                                        style={{
+                                            flex: 1,
+                                            background: 'transparent',
+                                            border: 'none',
+                                            color: '#34d399',
+                                            fontSize: '0.82rem',
+                                            fontWeight: 700,
+                                            fontFamily: 'var(--font-mono)',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                    <button
+                                        onClick={() => handleCopy(shortUrl, true)}
+                                        className="btn-primary"
+                                        style={{
+                                            padding: '0.45rem 0.75rem',
+                                            fontSize: '0.74rem',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            background: shortCopied ? '#10b981' : undefined
+                                        }}
+                                    >
+                                        {shortCopied ? <Check size={13} /> : <Copy size={13} />}
+                                        <span>{shortCopied ? '¡Listo!' : 'Copiar'}</span>
+                                    </button>
+                                    {hasNativeShare && (
+                                        <button
+                                            onClick={() => handleNativeShare(shortUrl)}
+                                            className="btn-secondary"
+                                            style={{
+                                                padding: '0.45rem 0.65rem',
+                                                fontSize: '0.74rem',
+                                                display: 'flex',
+                                                alignItems: 'center'
+                                            }}
+                                            title="Compartir enlace corto"
+                                        >
+                                            <Share2 size={13} />
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={handleShorten}
+                                    disabled={isShortening}
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.6rem',
+                                        borderRadius: '10px',
+                                        border: '1px solid rgba(245, 158, 11, 0.4)',
+                                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.05))',
+                                        color: '#fbbf24',
+                                        fontSize: '0.78rem',
+                                        fontWeight: 800,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '6px',
+                                        cursor: isShortening ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    {isShortening ? (
+                                        <>
+                                            <Loader2 size={14} className="spin" />
+                                            <span>Generando enlace de ~25 caracteres...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Wand2 size={14} />
+                                            <span>🪄 Generar Enlace Ultracorto (TinyURL)</span>
+                                        </>
+                                    )}
+                                </button>
+                            )}
+                            <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                                ✨ Ideal para la biografía de Instagram, stickers de historias y mensajes directos.
+                            </div>
+                        </div>
+
+                        {/* Standard Base64 Full URL box */}
                         <div style={{
                             width: '100%',
                             display: 'flex',
@@ -313,25 +516,25 @@ export const ShareDuelModal: React.FC<Props> = ({
                                     background: 'transparent',
                                     border: 'none',
                                     color: '#cbd5e1',
-                                    fontSize: '0.78rem',
+                                    fontSize: '0.74rem',
                                     fontFamily: 'var(--font-mono)',
                                     outline: 'none',
                                     textOverflow: 'ellipsis'
                                 }}
                             />
                             <button
-                                onClick={handleCopy}
-                                className="btn-primary"
+                                onClick={() => handleCopy(duelShareUrl)}
+                                className="btn-secondary"
                                 style={{
-                                    padding: '0.55rem 0.95rem',
-                                    fontSize: '0.78rem',
+                                    padding: '0.45rem 0.75rem',
+                                    fontSize: '0.74rem',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '4px',
                                     whiteSpace: 'nowrap'
                                 }}
                             >
-                                {copied ? <Check size={14} /> : <Copy size={14} />}
+                                {copied ? <Check size={13} /> : <Copy size={13} />}
                                 <span>{copied ? '¡Copiado!' : 'Copiar'}</span>
                             </button>
                         </div>
@@ -339,13 +542,13 @@ export const ShareDuelModal: React.FC<Props> = ({
                         {/* Native Share button if supported */}
                         {hasNativeShare && (
                             <button
-                                onClick={handleNativeShare}
+                                onClick={() => handleNativeShare(shortUrl || duelShareUrl)}
                                 className="btn-secondary"
                                 style={{
                                     width: '100%',
-                                    padding: '0.75rem',
+                                    padding: '0.7rem',
                                     borderRadius: '12px',
-                                    fontSize: '0.85rem',
+                                    fontSize: '0.82rem',
                                     fontWeight: 800,
                                     display: 'flex',
                                     alignItems: 'center',
@@ -353,8 +556,8 @@ export const ShareDuelModal: React.FC<Props> = ({
                                     gap: '8px'
                                 }}
                             >
-                                <Share2 size={16} />
-                                <span>Compartir...</span>
+                                <Share2 size={15} />
+                                <span>Compartir Directo...</span>
                             </button>
                         )}
                     </div>
