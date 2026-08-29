@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, QrCode, Copy, Check, Share2, Instagram, MessageCircle, Sparkles } from 'lucide-react';
+import { X, QrCode, Copy, Check, Share2, Link as LinkIcon } from 'lucide-react';
 import QRCode from 'qrcode';
 import { encodeAthleteData } from '../../utils/shareEncoder';
 import type { MeasurementRecord } from '../../types/measurements';
@@ -23,7 +23,7 @@ export const ShareReportModal: React.FC<Props> = ({
 }) => {
     const [qrUrl, setQrUrl] = useState<string>('');
     const [copied, setCopied] = useState(false);
-    const [activeChannel, setActiveChannel] = useState<'social' | 'qr'>('social');
+    const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link');
 
     const shareUrl = useMemo(() => {
         if (!isOpen || !latestRecord) return '';
@@ -33,16 +33,11 @@ export const ShareReportModal: React.FC<Props> = ({
         return `${origin}${basePath}/#/share?data=${encoded}`;
     }, [isOpen, latestRecord, userName, sex, records]);
 
-    const socialShareText = useMemo(() => {
-        const weight = latestRecord?.measurements?.weight ? `${latestRecord.measurements.weight}kg` : '';
-        return `📊 Mira mi evolución física y ratios antropométricos en Hypertrophy Tracker (${userName} ${weight}):\n${shareUrl}`;
-    }, [userName, latestRecord, shareUrl]);
-
     useEffect(() => {
         if (!shareUrl) return;
 
         QRCode.toDataURL(shareUrl, {
-            width: 260,
+            width: 240,
             margin: 2,
             errorCorrectionLevel: 'M',
             color: {
@@ -60,30 +55,26 @@ export const ShareReportModal: React.FC<Props> = ({
         if (!shareUrl) return;
         navigator.clipboard.writeText(shareUrl);
         setCopied(true);
-        setTimeout(() => setCopied(false), 2200);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     const handleNativeShare = async () => {
-        if (navigator.share) {
+        if (typeof navigator !== 'undefined' && navigator.share) {
             try {
                 await navigator.share({
-                    title: `Ficha Antropométrica de ${userName}`,
-                    text: `📊 Mira mi evolución física y proporciones áureas en Hypertrophy Tracker:`,
+                    title: `Ficha de ${userName} - Hypertrophy Tracker`,
+                    text: `Evolución física y biometría interactiva:`,
                     url: shareUrl
                 });
             } catch (err) {
-                // User cancelled or share failed
-                console.log('Share dismissed or not supported:', err);
+                console.log('Share dismissed:', err);
             }
         } else {
             handleCopy();
         }
     };
 
-    const handleWhatsAppShare = () => {
-        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(socialShareText)}`;
-        window.open(url, '_blank');
-    };
+    const hasNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
     return (
         <div style={{
@@ -100,11 +91,11 @@ export const ShareReportModal: React.FC<Props> = ({
             <div style={{
                 background: 'linear-gradient(135deg, rgba(16, 22, 36, 0.98), rgba(9, 13, 22, 0.99))',
                 border: '1.5px solid rgba(245, 158, 11, 0.35)',
-                borderRadius: '24px',
-                maxWidth: '520px',
+                borderRadius: '20px',
+                maxWidth: '460px',
                 width: '100%',
-                padding: '1.75rem',
-                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(245, 158, 11, 0.15)',
+                padding: '1.5rem',
+                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.15)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -122,8 +113,8 @@ export const ShareReportModal: React.FC<Props> = ({
                         background: 'rgba(255, 255, 255, 0.06)',
                         border: '1px solid rgba(255, 255, 255, 0.12)',
                         borderRadius: '10px',
-                        width: '34px',
-                        height: '34px',
+                        width: '32px',
+                        height: '32px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -138,28 +129,27 @@ export const ShareReportModal: React.FC<Props> = ({
                 {/* Header */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
                     <div style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '14px',
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '12px',
                         background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(56, 189, 248, 0.2))',
                         border: '1px solid rgba(245, 158, 11, 0.5)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#fbbf24',
-                        boxShadow: '0 0 20px rgba(245, 158, 11, 0.2)'
+                        color: '#fbbf24'
                     }}>
-                        <Share2 size={24} />
+                        <Share2 size={22} />
                     </div>
-                    <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                        Compartir Perfil & Medición
+                    <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
+                        Compartir Ficha
                     </h3>
-                    <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-main)', maxWidth: '400px', lineHeight: 1.4 }}>
-                        Publica tu enlace en <strong style={{ color: '#fbbf24' }}>Instagram Stories, Bio o WhatsApp</strong> para mostrar tu progreso con telemetría visual.
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                        Comparte tu reporte mediante enlace o código QR.
                     </p>
                 </div>
 
-                {/* Mode Selector Tabs */}
+                {/* Tab Selector */}
                 <div style={{
                     display: 'flex',
                     background: 'rgba(0, 0, 0, 0.4)',
@@ -169,16 +159,16 @@ export const ShareReportModal: React.FC<Props> = ({
                     width: '100%'
                 }}>
                     <button
-                        onClick={() => setActiveChannel('social')}
+                        onClick={() => setActiveTab('link')}
                         style={{
                             flex: 1,
                             padding: '0.55rem 0.75rem',
                             borderRadius: '8px',
                             border: 'none',
-                            background: activeChannel === 'social' ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'transparent',
-                            color: activeChannel === 'social' ? '#0f172a' : '#94a3b8',
+                            background: activeTab === 'link' ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'transparent',
+                            color: activeTab === 'link' ? '#0f172a' : '#94a3b8',
                             fontFamily: 'var(--font-mono)',
-                            fontSize: '0.78rem',
+                            fontSize: '0.8rem',
                             fontWeight: 800,
                             cursor: 'pointer',
                             display: 'flex',
@@ -188,21 +178,21 @@ export const ShareReportModal: React.FC<Props> = ({
                             transition: 'all 0.2s ease'
                         }}
                     >
-                        <Instagram size={15} />
-                        <span>Instagram & Redes</span>
+                        <LinkIcon size={15} />
+                        <span>Compartir Enlace</span>
                     </button>
 
                     <button
-                        onClick={() => setActiveChannel('qr')}
+                        onClick={() => setActiveTab('qr')}
                         style={{
                             flex: 1,
                             padding: '0.55rem 0.75rem',
                             borderRadius: '8px',
                             border: 'none',
-                            background: activeChannel === 'qr' ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'transparent',
-                            color: activeChannel === 'qr' ? '#0f172a' : '#94a3b8',
+                            background: activeTab === 'qr' ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'transparent',
+                            color: activeTab === 'qr' ? '#0f172a' : '#94a3b8',
                             fontFamily: 'var(--font-mono)',
-                            fontSize: '0.78rem',
+                            fontSize: '0.8rem',
                             fontWeight: 800,
                             cursor: 'pointer',
                             display: 'flex',
@@ -213,60 +203,14 @@ export const ShareReportModal: React.FC<Props> = ({
                         }}
                     >
                         <QrCode size={15} />
-                        <span>Código QR / Coach</span>
+                        <span>Código QR</span>
                     </button>
                 </div>
 
-                {activeChannel === 'social' ? (
+                {/* Tab 1: Link */}
+                {activeTab === 'link' && (
                     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                        {/* Native Share Button on Mobile if available */}
-                        {typeof navigator !== 'undefined' && 'share' in navigator && (
-                            <button
-                                onClick={handleNativeShare}
-                                className="btn-primary"
-                                style={{
-                                    width: '100%',
-                                    padding: '0.85rem',
-                                    borderRadius: '14px',
-                                    fontSize: '0.9rem',
-                                    fontWeight: 900,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '8px'
-                                }}
-                            >
-                                <Share2 size={18} />
-                                <span>Compartir a Instagram Stories / Redes</span>
-                            </button>
-                        )}
-
-                        {/* WhatsApp Quick Share Button */}
-                        <button
-                            onClick={handleWhatsAppShare}
-                            style={{
-                                width: '100%',
-                                padding: '0.8rem',
-                                borderRadius: '14px',
-                                background: 'linear-gradient(135deg, #25D366, #128C7E)',
-                                color: '#ffffff',
-                                border: 'none',
-                                fontSize: '0.85rem',
-                                fontFamily: 'var(--font-mono)',
-                                fontWeight: 800,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '8px',
-                                cursor: 'pointer',
-                                boxShadow: '0 4px 14px rgba(37, 211, 102, 0.3)'
-                            }}
-                        >
-                            <MessageCircle size={18} />
-                            <span>Enviar por WhatsApp</span>
-                        </button>
-
-                        {/* Copy Link Input Strip */}
+                        {/* URL input + Copy */}
                         <div style={{
                             width: '100%',
                             display: 'flex',
@@ -274,7 +218,7 @@ export const ShareReportModal: React.FC<Props> = ({
                             gap: '0.5rem',
                             background: 'rgba(0, 0, 0, 0.5)',
                             border: '1px solid rgba(255, 255, 255, 0.1)',
-                            borderRadius: '14px',
+                            borderRadius: '12px',
                             padding: '0.4rem 0.5rem 0.4rem 0.85rem'
                         }}>
                             <input
@@ -286,7 +230,7 @@ export const ShareReportModal: React.FC<Props> = ({
                                     background: 'transparent',
                                     border: 'none',
                                     color: '#cbd5e1',
-                                    fontSize: '0.75rem',
+                                    fontSize: '0.78rem',
                                     fontFamily: 'var(--font-mono)',
                                     outline: 'none',
                                     textOverflow: 'ellipsis'
@@ -297,7 +241,7 @@ export const ShareReportModal: React.FC<Props> = ({
                                 className="btn-primary"
                                 style={{
                                     padding: '0.55rem 0.95rem',
-                                    fontSize: '0.75rem',
+                                    fontSize: '0.78rem',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '4px',
@@ -309,47 +253,53 @@ export const ShareReportModal: React.FC<Props> = ({
                             </button>
                         </div>
 
-                        <div style={{
-                            padding: '0.65rem 0.85rem',
-                            borderRadius: '12px',
-                            background: 'rgba(245, 158, 11, 0.08)',
-                            border: '1px solid rgba(245, 158, 11, 0.2)',
-                            fontSize: '0.75rem',
-                            color: '#e2e8f0',
-                            textAlign: 'left',
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            gap: '6px'
-                        }}>
-                            <Sparkles size={16} style={{ color: '#fbbf24', flexShrink: 0, marginTop: '2px' }} />
-                            <span>
-                                <strong>Tip para Instagram:</strong> Pega este link en el sticker <em>"Enlace / Link"</em> de tu historia o en tu biografía. ¡Tus seguidores podrán ver tu silueta 360° y retarte en duelo!
-                            </span>
-                        </div>
+                        {/* Native Share button if supported */}
+                        {hasNativeShare && (
+                            <button
+                                onClick={handleNativeShare}
+                                className="btn-secondary"
+                                style={{
+                                    width: '100%',
+                                    padding: '0.75rem',
+                                    borderRadius: '12px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 800,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px'
+                                }}
+                            >
+                                <Share2 size={16} />
+                                <span>Compartir...</span>
+                            </button>
+                        )}
                     </div>
-                ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', width: '100%' }}>
-                        {/* QR Code Container */}
+                )}
+
+                {/* Tab 2: QR Code */}
+                {activeTab === 'qr' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.85rem', width: '100%' }}>
                         {qrUrl ? (
                             <div style={{
-                                padding: '0.85rem',
+                                padding: '0.75rem',
                                 background: '#ffffff',
-                                borderRadius: '18px',
-                                boxShadow: '0 12px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.25)',
+                                borderRadius: '16px',
+                                boxShadow: '0 8px 30px rgba(0, 0, 0, 0.6)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center'
                             }}>
-                                <img src={qrUrl} alt="Código QR Ficha de Atleta" style={{ width: '200px', height: '200px', display: 'block' }} />
+                                <img src={qrUrl} alt="Código QR Ficha de Atleta" style={{ width: '180px', height: '180px', display: 'block' }} />
                             </div>
                         ) : (
-                            <div style={{ width: '200px', height: '200px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div style={{ width: '180px', height: '180px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 Generando QR...
                             </div>
                         )}
 
-                        <p style={{ margin: 0, fontSize: '0.78rem', color: '#94a3b8', fontFamily: 'var(--font-mono)' }}>
-                            Tu preparador físico puede escanear este QR en el gym para auditar tus medidas en vivo.
+                        <p style={{ margin: 0, fontSize: '0.78rem', color: '#94a3b8' }}>
+                            Escanea con la cámara para abrir la ficha interactiva.
                         </p>
 
                         <button
@@ -358,7 +308,7 @@ export const ShareReportModal: React.FC<Props> = ({
                             style={{ width: '100%', padding: '0.65rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                         >
                             {copied ? <Check size={14} /> : <Copy size={14} />}
-                            <span>{copied ? '¡Enlace Copiado!' : 'Copiar Enlace Directo'}</span>
+                            <span>{copied ? '¡Enlace Copiado!' : 'Copiar Enlace'}</span>
                         </button>
                     </div>
                 )}
