@@ -1,9 +1,7 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
-    Activity,
     Shield,
-    ArrowLeft,
     Sparkles,
     Scale,
     Download,
@@ -11,7 +9,12 @@ import {
     Calendar,
     List,
     Map as MapIcon,
-    User
+    User,
+    Share2,
+    Swords,
+    Check,
+    Flame,
+    Award
 } from 'lucide-react';
 import { decodeAthleteData } from '../../utils/shareEncoder';
 import { generateTacticalDiagnosis } from '../../utils/tacticalDiagnosis';
@@ -19,6 +22,7 @@ import { computeComprehensiveAnalysis, type MuscleBenchmark } from '../../utils/
 import { generateAthletePDFReport } from '../../utils/pdfReportGenerator';
 import { BenchmarkCard } from '../analysis/BenchmarkCard';
 import { RatioBenchmarkCard } from '../analysis/RatioBenchmarkCard';
+import { AthleteComparisonCard } from '../analysis/AthleteComparisonCard';
 import { MuscleHistoryModal } from '../analysis/MuscleHistoryModal';
 import { DynamicSilhouette } from '../DynamicSilhouette';
 import { MapModal } from '../measurement/MapModal';
@@ -28,8 +32,9 @@ import type { MeasurementRecord, BodyMeasurements } from '../../types/measuremen
 
 import '../AnalysisView.css';
 import '../MeasurementForm.css';
+import './PublicReportView.css';
 
-type TrainerTab = 'bodymap' | 'audit' | 'trends' | 'history';
+type TrainerTab = 'bodymap' | 'audit' | 'versus' | 'trends' | 'history';
 
 interface ReadOnlyHudCardProps {
     id: string;
@@ -107,6 +112,7 @@ export const PublicReportView: React.FC = () => {
     const [activeTab, setActiveTab] = useState<TrainerTab>('bodymap');
     const [selectedMuscle, setSelectedMuscle] = useState<MuscleBenchmark | null>(null);
     const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+    const [copiedLink, setCopiedLink] = useState(false);
 
     const bodyMapContainerRef = useRef<HTMLDivElement>(null);
 
@@ -118,15 +124,19 @@ export const PublicReportView: React.FC = () => {
     const records: MeasurementRecord[] = useMemo(() => {
         if (!athleteData) return [];
         if (athleteData.records && athleteData.records.length > 0) {
-            return [...athleteData.records].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            return athleteData.records;
         }
-        return [{
-            id: 'shared-record-single',
-            userId: 'shared',
-            date: athleteData.date,
-            measurements: athleteData.measurements,
-            notes: athleteData.notes
-        }];
+        if (athleteData.measurements) {
+            return [{
+                id: 'shared-record-1',
+                userId: 'shared-user',
+                date: athleteData.date || new Date().toISOString(),
+                measurements: athleteData.measurements,
+                notes: athleteData.notes || '',
+                metadata: { condition: 'fasted' }
+            }];
+        }
+        return [];
     }, [athleteData]);
 
     const [selectedRecordId, setSelectedRecordId] = useState<string>('');
@@ -168,6 +178,38 @@ export const PublicReportView: React.FC = () => {
         return computeComprehensiveAnalysis(activeRecord.measurements, athleteData.sex);
     }, [activeRecord, athleteData]);
 
+    // Calculate FFMI
+    const ffmi = useMemo(() => {
+        if (!activeRecord?.measurements?.weight || !activeRecord?.measurements?.height) return null;
+        const weight = activeRecord.measurements.weight;
+        const heightM = activeRecord.measurements.height / 100;
+        const bf = activeRecord.measurements.bodyFat || 15;
+        const leanMass = weight * (1 - bf / 100);
+        const rawFfmi = leanMass / (heightM * heightM);
+        const normalizedFfmi = rawFfmi + 6.1 * (1.8 - heightM);
+        return parseFloat(normalizedFfmi.toFixed(1));
+    }, [activeRecord]);
+
+    // V-Taper ratio
+    const vTaperRatio = useMemo(() => {
+        const chest = activeRecord?.measurements?.pecho || 0;
+        const waist = activeRecord?.measurements?.waist || 0;
+        if (chest > 0 && waist > 0) {
+            return parseFloat((chest / waist).toFixed(2));
+        }
+        return null;
+    }, [activeRecord]);
+
+    // Best Arm
+    const bestArm = useMemo(() => {
+        const arm = activeRecord?.measurements?.arm;
+        if (!arm) return null;
+        if (typeof arm === 'object') {
+            return Math.max(arm.left || 0, arm.right || 0);
+        }
+        return arm;
+    }, [activeRecord]);
+
     // Trend chart datasets
     const weightFatTrendData = useMemo(() => {
         return records.map((r) => ({
@@ -178,15 +220,16 @@ export const PublicReportView: React.FC = () => {
         }));
     }, [records]);
 
-    const upperBodyTrendData = useMemo(() => {
+    const limbsTrendData = useMemo(() => {
         return records.map((r) => {
             const m = r.measurements;
             return {
                 date: new Date(r.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
-                brazo: Math.max(m.arm?.left || 0, m.arm?.right || 0) || null,
+                fullDate: new Date(r.date).toLocaleDateString('es-ES'),
+                brazoIzq: m.arm?.left || null,
+                brazoDer: m.arm?.right || null,
                 pecho: m.pecho || null,
-                espalda: m.back || null,
-                cuello: m.neck || null
+                espalda: m.back || null
             };
         });
     }, [records]);
@@ -196,6 +239,7 @@ export const PublicReportView: React.FC = () => {
             const m = r.measurements;
             return {
                 date: new Date(r.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+                fullDate: new Date(r.date).toLocaleDateString('es-ES'),
                 cintura: m.waist || null,
                 cadera: m.hips || null,
                 muslo: Math.max(m.thigh?.left || 0, m.thigh?.right || 0) || null,
@@ -203,6 +247,25 @@ export const PublicReportView: React.FC = () => {
             };
         });
     }, [records]);
+
+    const handleShareOrCopy = async () => {
+        const shareUrl = window.location.href;
+        if (typeof navigator !== 'undefined' && navigator.share) {
+            try {
+                await navigator.share({
+                    title: `Ficha Antropométrica de ${athleteData?.name || 'Atleta'}`,
+                    text: `📊 Mira la evolución física y ratios áureos en Hypertrophy Tracker:`,
+                    url: shareUrl
+                });
+                return;
+            } catch (err) {
+                // user cancelled or dismissed
+            }
+        }
+        navigator.clipboard.writeText(shareUrl);
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2200);
+    };
 
     if (!athleteData || !activeRecord) {
         return (
@@ -218,16 +281,16 @@ export const PublicReportView: React.FC = () => {
             }}>
                 <Shield size={48} style={{ color: '#ef4444', margin: '0 auto 1rem' }} />
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-head)' }}>
-                    Ficha No Encontrada o Enlace Expirado
+                    Ficha No Encontrada o Enlace Incompleto
                 </h2>
                 <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-                    El enlace de auditoría no contiene datos válidos de telemetría. Solicita al atleta que genere un nuevo código QR o enlace compartido.
+                    El enlace no contiene datos válidos de telemetría. Solicita al atleta que genere un nuevo enlace o código QR.
                 </p>
                 <button
                     onClick={() => navigate('/')}
                     className="btn-primary"
                 >
-                    Ir a la App Principal
+                    Ir a Hypertrophy Tracker
                 </button>
             </div>
         );
@@ -237,266 +300,244 @@ export const PublicReportView: React.FC = () => {
     const { measurements, date } = activeRecord;
     const prevM = previousRecord?.measurements;
 
+    // Avatar initials
+    const initials = name
+        .split(' ')
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase() || 'AT';
+
     return (
-        <div style={{
-            maxWidth: '1240px',
-            margin: '0 auto',
-            padding: '2rem 1.5rem 5rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.75rem'
-        }} className="animate-fade">
-            {/* Top Bar for Trainer / Coach */}
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '1rem',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                paddingBottom: '1.25rem'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                    <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24' }}>
-                        <Activity size={24} />
-                    </div>
-                    <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ fontSize: '0.7rem', fontFamily: 'var(--font-mono)', color: '#fbbf24', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.5px' }}>
-                                MODO VISOR DE ENTRENADOR
-                            </span>
-                            <span style={{ fontSize: '0.65rem', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '2px 6px', borderRadius: '4px', fontFamily: 'var(--font-mono)' }}>
-                                {records.length} {records.length === 1 ? 'registro' : 'registros históricos'}
-                            </span>
+        <div className="public-dossier-container animate-fade">
+            {/* HERO ATHLETE DOSSIER CARD */}
+            <div className="hero-dossier-card">
+                <div className="hero-dossier-header">
+                    <div className="hero-athlete-identity">
+                        <div className="hero-athlete-avatar">
+                            {initials}
                         </div>
-                        <h1 style={{ margin: '0.15rem 0 0 0', fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                            Ficha de Atleta: {name}
-                        </h1>
+                        <div>
+                            <div className="hero-badge-strip">
+                                <span className="hero-pill-badge hero-pill-amber">
+                                    <Sparkles size={11} /> Telemetría Verificada
+                                </span>
+                                {analysis?.overallScore && (
+                                    <span className="hero-pill-badge hero-pill-blue">
+                                        <Award size={11} /> {analysis.overallScore}% Potencial Genético
+                                    </span>
+                                )}
+                                {ffmi && (
+                                    <span className="hero-pill-badge hero-pill-green">
+                                        <Flame size={11} /> FFMI {ffmi}
+                                    </span>
+                                )}
+                            </div>
+                            <h1 className="hero-athlete-name">{name}</h1>
+                        </div>
+                    </div>
+
+                    <div className="hero-action-buttons">
+                        {/* Selector if multiple historical records */}
+                        {records.length > 1 && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(0, 0, 0, 0.4)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', padding: '0.35rem 0.75rem' }}>
+                                <Calendar size={14} style={{ color: '#fbbf24' }} />
+                                <select
+                                    value={activeRecord.id}
+                                    onChange={(e) => setSelectedRecordId(e.target.value)}
+                                    style={{
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: '#f8fafc',
+                                        fontFamily: 'var(--font-mono)',
+                                        fontSize: '0.78rem',
+                                        outline: 'none',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {records.slice().reverse().map((r, i) => (
+                                        <option key={r.id} value={r.id} style={{ background: '#0f172a', color: '#fff' }}>
+                                            {new Date(r.date).toLocaleDateString('es-ES')} {i === 0 ? '(Última)' : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={() => setActiveTab('versus')}
+                            className="hero-btn hero-btn-primary"
+                            title="Compara tus medidas contra este atleta"
+                        >
+                            <Swords size={16} />
+                            <span>Retar en Duelo</span>
+                        </button>
+
+                        <button
+                            onClick={handleShareOrCopy}
+                            className="hero-btn hero-btn-secondary"
+                            title="Compartir enlace en Instagram o WhatsApp"
+                        >
+                            {copiedLink ? <Check size={16} style={{ color: '#10b981' }} /> : <Share2 size={16} />}
+                            <span>{copiedLink ? '¡Link Copiado!' : 'Compartir'}</span>
+                        </button>
+
+                        <button
+                            onClick={() => generateAthletePDFReport({ latestRecord: activeRecord, userName: name, sex })}
+                            className="hero-btn hero-btn-secondary"
+                            title="Descargar dossier médico-deportivo en PDF"
+                        >
+                            <Download size={16} />
+                            <span>PDF</span>
+                        </button>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
-                    {/* Record Selector if multi-record */}
-                    {records.length > 1 && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(0, 0, 0, 0.35)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '10px', padding: '0.4rem 0.75rem' }}>
-                            <Calendar size={15} style={{ color: '#fbbf24' }} />
-                            <select
-                                value={activeRecord.id}
-                                onChange={(e) => setSelectedRecordId(e.target.value)}
-                                style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: '#f8fafc',
-                                    fontFamily: 'var(--font-mono)',
-                                    fontSize: '0.8rem',
-                                    outline: 'none',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                {records.slice().reverse().map((r, i) => (
-                                    <option key={r.id} value={r.id} style={{ background: '#0f172a', color: '#fff' }}>
-                                        {new Date(r.date).toLocaleDateString('es-ES')} {i === 0 ? '(Última)' : ''}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
+                {/* STATS TILES GRID */}
+                <div className="hero-stats-grid">
+                    <div className="hero-stat-tile">
+                        <span className="hero-stat-lbl">Fecha</span>
+                        <span className="hero-stat-val" style={{ fontSize: '1.05rem', color: '#fbbf24' }}>
+                            {new Date(date).toLocaleDateString('es-ES')}
+                        </span>
+                        <span className="hero-stat-sub">Auditoría</span>
+                    </div>
 
-                    <button
-                        onClick={() => generateAthletePDFReport({ latestRecord: activeRecord, userName: name, sex })}
-                        className="btn-primary"
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}
-                    >
-                        <Download size={15} />
-                        <span>Exportar PDF</span>
-                    </button>
-                    <button
-                        onClick={() => navigate('/')}
-                        className="btn-secondary"
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}
-                    >
-                        <ArrowLeft size={15} />
-                        <span>Ingresar a la App</span>
-                    </button>
+                    <div className="hero-stat-tile">
+                        <span className="hero-stat-lbl">Peso</span>
+                        <span className="hero-stat-val">{measurements.weight || '--'}<span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#94a3b8' }}> kg</span></span>
+                        <span className="hero-stat-sub">Balanza</span>
+                    </div>
+
+                    <div className="hero-stat-tile">
+                        <span className="hero-stat-lbl">Estatura</span>
+                        <span className="hero-stat-val">{measurements.height || '--'}<span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#94a3b8' }}> cm</span></span>
+                        <span className="hero-stat-sub">Chasis Óseo</span>
+                    </div>
+
+                    <div className="hero-stat-tile">
+                        <span className="hero-stat-lbl">% Grasa</span>
+                        <span className="hero-stat-val" style={{ color: '#38bdf8' }}>{measurements.bodyFat ? `${measurements.bodyFat}%` : '--'}</span>
+                        <span className="hero-stat-sub">Fórmula Navy</span>
+                    </div>
+
+                    <div className="hero-stat-tile">
+                        <span className="hero-stat-lbl">Brazo Flexionado</span>
+                        <span className="hero-stat-val" style={{ color: '#fbbf24' }}>{bestArm ? `${bestArm} cm` : '--'}</span>
+                        <span className="hero-stat-sub">Pico Bíceps</span>
+                    </div>
+
+                    <div className="hero-stat-tile">
+                        <span className="hero-stat-lbl">Ratio V-Taper</span>
+                        <span className="hero-stat-val" style={{ color: '#10b981' }}>{vTaperRatio ? `${vTaperRatio}x` : '--'}</span>
+                        <span className="hero-stat-sub">Áureo: 1.62x</span>
+                    </div>
                 </div>
             </div>
 
-            {/* Quick Metrics Bar */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-                gap: '0.75rem',
-                fontFamily: 'var(--font-mono)'
-            }}>
-                <div className="card glass" style={{ padding: '0.85rem 1rem' }}>
-                    <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase' }}>Auditoría Activa</div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fbbf24', marginTop: '2px' }}>
-                        {new Date(date).toLocaleDateString('es-ES')}
-                    </div>
-                </div>
-                <div className="card glass" style={{ padding: '0.85rem 1rem' }}>
-                    <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase' }}>Peso Corporal</div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', marginTop: '2px' }}>
-                        {measurements.weight || '--'} kg
-                    </div>
-                </div>
-                <div className="card glass" style={{ padding: '0.85rem 1rem' }}>
-                    <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase' }}>Altura</div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', marginTop: '2px' }}>
-                        {measurements.height || '--'} cm
-                    </div>
-                </div>
-                <div className="card glass" style={{ padding: '0.85rem 1rem' }}>
-                    <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase' }}>Edad</div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#38bdf8', marginTop: '2px' }}>
-                        {measurements.age ? `${measurements.age} años` : '--'}
-                    </div>
-                </div>
-                <div className="card glass" style={{ padding: '0.85rem 1rem' }}>
-                    <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase' }}>Grasa Estimada</div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', marginTop: '2px' }}>
-                        {measurements.bodyFat ? `${measurements.bodyFat}%` : '--'}
-                    </div>
-                </div>
-                <div className="card glass" style={{ padding: '0.85rem 1rem' }}>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--primary-color)', textTransform: 'uppercase' }}>% Límite Casey Butt</div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fbbf24', marginTop: '2px' }}>
-                        {analysis?.overallScore ?? '--'}%
-                    </div>
-                </div>
-            </div>
-
-            {/* Trainer Navigation Tabs */}
-            <div style={{
-                display: 'flex',
-                gap: '0.5rem',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                paddingBottom: '0.5rem',
-                overflowX: 'auto'
-            }}>
+            {/* TAB NAVIGATION */}
+            <div className="public-tabs-nav">
                 <button
                     onClick={() => setActiveTab('bodymap')}
-                    className={`tab-btn ${activeTab === 'bodymap' ? 'active' : ''}`}
-                    style={{
-                        padding: '0.6rem 1.1rem',
-                        borderRadius: '10px',
-                        background: activeTab === 'bodymap' ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.04)',
-                        color: activeTab === 'bodymap' ? '#000000' : '#cbd5e1',
-                        fontWeight: 800,
-                        fontSize: '0.82rem',
-                        border: '1px solid ' + (activeTab === 'bodymap' ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.08)'),
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        cursor: 'pointer'
-                    }}
+                    className={`public-tab-btn ${activeTab === 'bodymap' ? 'active' : ''}`}
                 >
                     <User size={15} />
-                    <span>Mapa Corporal Anatómico</span>
+                    <span>Silueta & Ficha 360°</span>
                 </button>
 
                 <button
                     onClick={() => setActiveTab('audit')}
-                    className={`tab-btn ${activeTab === 'audit' ? 'active' : ''}`}
-                    style={{
-                        padding: '0.6rem 1.1rem',
-                        borderRadius: '10px',
-                        background: activeTab === 'audit' ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.04)',
-                        color: activeTab === 'audit' ? '#000000' : '#cbd5e1',
-                        fontWeight: 800,
-                        fontSize: '0.82rem',
-                        border: '1px solid ' + (activeTab === 'audit' ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.08)'),
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        cursor: 'pointer'
-                    }}
+                    className={`public-tab-btn ${activeTab === 'audit' ? 'active' : ''}`}
                 >
                     <Scale size={15} />
-                    <span>Benchmarks & Ratios</span>
+                    <span>Límites Casey Butt & Ratios</span>
+                </button>
+
+                <button
+                    onClick={() => setActiveTab('versus')}
+                    className={`public-tab-btn ${activeTab === 'versus' ? 'active' : ''}`}
+                >
+                    <Swords size={15} />
+                    <span>Duelo Versus (Comparativa)</span>
                 </button>
 
                 <button
                     onClick={() => setActiveTab('trends')}
-                    className={`tab-btn ${activeTab === 'trends' ? 'active' : ''}`}
-                    style={{
-                        padding: '0.6rem 1.1rem',
-                        borderRadius: '10px',
-                        background: activeTab === 'trends' ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.04)',
-                        color: activeTab === 'trends' ? '#000000' : '#cbd5e1',
-                        fontWeight: 800,
-                        fontSize: '0.82rem',
-                        border: '1px solid ' + (activeTab === 'trends' ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.08)'),
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        cursor: 'pointer'
-                    }}
+                    className={`public-tab-btn ${activeTab === 'trends' ? 'active' : ''}`}
                 >
                     <TrendingUp size={15} />
-                    <span>Curvas & Tendencias ({records.length})</span>
+                    <span>Curvas de Evolución</span>
                 </button>
 
-                <button
-                    onClick={() => setActiveTab('history')}
-                    className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
-                    style={{
-                        padding: '0.6rem 1.1rem',
-                        borderRadius: '10px',
-                        background: activeTab === 'history' ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.04)',
-                        color: activeTab === 'history' ? '#000000' : '#cbd5e1',
-                        fontWeight: 800,
-                        fontSize: '0.82rem',
-                        border: '1px solid ' + (activeTab === 'history' ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.08)'),
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    <List size={15} />
-                    <span>Libro de Registros ({records.length})</span>
-                </button>
+                {records.length > 1 && (
+                    <button
+                        onClick={() => setActiveTab('history')}
+                        className={`public-tab-btn ${activeTab === 'history' ? 'active' : ''}`}
+                    >
+                        <List size={15} />
+                        <span>Historial ({records.length})</span>
+                    </button>
+                )}
             </div>
 
-            {/* TAB 1: ANATOMICAL BODY MAP HUD (Requested by User) */}
+            {/* TAB 1: BODY MAP & HUD */}
             {activeTab === 'bodymap' && (
-                <div ref={bodyMapContainerRef} style={{ position: 'relative', width: '100%' }} className="animate-fade">
-                    {/* SVG Connector Lines Overlay */}
-                    <svg className="connector-overlay" style={{ pointerEvents: 'none', position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 5 }}>
-                        {lines.map(line => (
-                            <g key={line.id}>
-                                <line
-                                    x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2}
-                                    stroke="#f59e0b" strokeWidth="2"
-                                />
-                            </g>
-                        ))}
-                    </svg>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="animate-fade">
+                    <div
+                        ref={bodyMapContainerRef}
+                        className="body-map-container glass"
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                            gap: '1.5rem',
+                            padding: '1.5rem',
+                            position: 'relative'
+                        }}
+                    >
+                        {/* SVG Connector lines */}
+                        <svg
+                            className="measurement-lines-svg"
+                            style={{
+                                position: 'absolute',
+                                inset: 0,
+                                width: '100%',
+                                height: '100%',
+                                pointerEvents: 'none',
+                                zIndex: 1
+                            }}
+                        >
+                            {lines.map((line, idx) => (
+                                <g key={idx}>
+                                    <line
+                                        x1={line.x1}
+                                        y1={line.y1}
+                                        x2={line.x2}
+                                        y2={line.y2}
+                                        stroke="rgba(245, 158, 11, 0.45)"
+                                        strokeWidth="1.5"
+                                        strokeDasharray="3 3"
+                                    />
+                                    <circle cx={line.x1} cy={line.y1} r="3" fill="#fbbf24" />
+                                    <circle cx={line.x2} cy={line.y2} r="3" fill="#fbbf24" />
+                                </g>
+                            ))}
+                        </svg>
 
-                    <div className="form-layout-editor" style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 300px) 1fr minmax(260px, 300px)', gap: '2rem', alignItems: 'center', position: 'relative', zIndex: 6 }}>
-                        {/* LEFT COLUMN: CORE & TORSO */}
+                        {/* LEFT COLUMN: TORSO & CORE */}
                         <div className="editor-left hud-column" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div className="hud-section-title" style={{ color: '#fbbf24', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', fontWeight: 800, letterSpacing: '1px' }}>
-                                MÉTRICAS CORE
+                                TRONCO & CORE
                             </div>
-                            <ReadOnlyHudCard id="input-weight" label="Peso Corporal" value={measurements.weight} previousValue={prevM?.weight} unit="kg" />
-                            <ReadOnlyHudCard id="input-height" label="Altura" value={measurements.height || 0} previousValue={prevM?.height} unit="cm" />
-                            <ReadOnlyHudCard id="input-bodyFat" label="Grasa %" value={measurements.bodyFat || 0} previousValue={prevM?.bodyFat} unit="%" />
-
-                            <div className="hud-section-title" style={{ color: '#fbbf24', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', fontWeight: 800, letterSpacing: '1px', marginTop: '0.5rem' }}>
-                                TRONCO
-                            </div>
-                            <ReadOnlyHudCard id="input-neck" label="Cuello" value={measurements.neck} previousValue={prevM?.neck} />
-                            <ReadOnlyHudCard id="input-back" label="Espalda" value={measurements.back} previousValue={prevM?.back} />
-                            <ReadOnlyHudCard id="input-pecho" label="Pecho" value={measurements.pecho} previousValue={prevM?.pecho} />
-                            <ReadOnlyHudCard id="input-waist" label="Cintura" value={measurements.waist} previousValue={prevM?.waist} />
-                            <ReadOnlyHudCard id="input-hips" label="Caderas" value={measurements.hips} previousValue={prevM?.hips} />
+                            <ReadOnlyHudCard id="input-neck" label="Cuello" value={measurements.neck || 0} previousValue={prevM?.neck} />
+                            <ReadOnlyHudCard id="input-pecho" label="Pecho (Pectorales)" value={measurements.pecho || 0} previousValue={prevM?.pecho} />
+                            <ReadOnlyHudCard id="input-back" label="Espalda / Hombros" value={measurements.back || 0} previousValue={prevM?.back} />
+                            <ReadOnlyHudCard id="input-waist" label="Cintura (Abdomen)" value={measurements.waist || 0} previousValue={prevM?.waist} />
+                            <ReadOnlyHudCard id="input-hips" label="Cadera (Glúteos)" value={measurements.hips || 0} previousValue={prevM?.hips} />
                         </div>
 
-                        {/* CENTER COLUMN: ANATOMICAL SILHOUETTE */}
-                        <div className="editor-center glass" style={{ minHeight: '560px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '1.5rem' }}>
-                            <div className="map-link-container" style={{ position: 'absolute', bottom: '1.5rem', zIndex: 20 }}>
+                        {/* CENTER SILHOUETTE */}
+                        <div className="editor-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', minHeight: '380px' }}>
+                            <div style={{ marginBottom: '1rem', width: '100%', display: 'flex', justifyContent: 'center' }}>
                                 <button
                                     type="button"
                                     className="btn-map-link"
@@ -517,7 +558,7 @@ export const PublicReportView: React.FC = () => {
                                     }}
                                 >
                                     <MapIcon size={16} />
-                                    <span>MAPA DE MEDICIÓN MUSCULAR</span>
+                                    <span>MAPA ANATÓMICO</span>
                                 </button>
                             </div>
 
@@ -548,7 +589,6 @@ export const PublicReportView: React.FC = () => {
                     {/* Tactical Diagnosis Preview under Body Map */}
                     {diagnosis && (
                         <div className="card glass" style={{
-                            marginTop: '2rem',
                             padding: '1.25rem 1.5rem',
                             border: '1px solid rgba(245, 158, 11, 0.3)',
                             background: 'linear-gradient(135deg, rgba(16, 20, 31, 0.95), rgba(9, 12, 18, 0.98))'
@@ -614,7 +654,7 @@ export const PublicReportView: React.FC = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                 <Sparkles size={20} style={{ color: 'var(--primary-color)' }} />
                                 <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                                    Ratios Clásicos & Cánones de Simetría
+                                    Ratios Clásicos & Cánones de Simetría (Steve Reeves / Frank Zane)
                                 </h3>
                             </div>
 
@@ -628,7 +668,18 @@ export const PublicReportView: React.FC = () => {
                 </div>
             )}
 
-            {/* TAB 3: TRENDS & CHARTS */}
+            {/* TAB 3: VERSUS COMPARISON */}
+            {activeTab === 'versus' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="animate-fade">
+                    <AthleteComparisonCard
+                        currentRecord={activeRecord}
+                        records={records}
+                        sex={sex}
+                    />
+                </div>
+            )}
+
+            {/* TAB 4: TRENDS & CHARTS */}
             {activeTab === 'trends' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }} className="animate-fade">
                     {/* Weight & Body Fat Trend */}
@@ -653,21 +704,21 @@ export const PublicReportView: React.FC = () => {
                                         }}
                                     />
                                     <Legend wrapperStyle={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }} />
-                                    <Line yAxisId="left" type="monotone" dataKey="peso" name="Peso (kg)" stroke="#38bdf8" strokeWidth={2.5} dot={{ r: 4 }} />
+                                    <Line yAxisId="left" type="monotone" dataKey="peso" name="Peso (kg)" stroke="#10b981" strokeWidth={2.5} dot={{ r: 4 }} />
                                     <Line yAxisId="right" type="monotone" dataKey="grasa" name="Grasa (%)" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 4 }} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
-                    {/* Upper Body Trend */}
+                    {/* Limbs & Torso Trend */}
                     <div className="card glass" style={{ padding: '1.25rem' }}>
                         <h4 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                            Perímetros Musculares Superiores (cm)
+                            Evolución de Extremidades Superiores y Torso
                         </h4>
                         <div style={{ width: '100%', height: 260 }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={upperBodyTrendData}>
+                                <LineChart data={limbsTrendData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.06)" />
                                     <XAxis dataKey="date" stroke="#64748b" tick={{ fontSize: 11, fontFamily: 'var(--font-mono)' }} />
                                     <YAxis stroke="#64748b" tick={{ fontSize: 11, fontFamily: 'var(--font-mono)' }} domain={['auto', 'auto']} />
@@ -681,19 +732,19 @@ export const PublicReportView: React.FC = () => {
                                         }}
                                     />
                                     <Legend wrapperStyle={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }} />
-                                    <Line type="monotone" dataKey="brazo" name="Bíceps (cm)" stroke="#fbbf24" strokeWidth={2.5} dot={{ r: 4 }} />
-                                    <Line type="monotone" dataKey="pecho" name="Pecho (cm)" stroke="#34d399" strokeWidth={2.5} dot={{ r: 4 }} />
-                                    <Line type="monotone" dataKey="espalda" name="Espalda (cm)" stroke="#818cf8" strokeWidth={2.5} dot={{ r: 4 }} />
-                                    <Line type="monotone" dataKey="cuello" name="Cuello (cm)" stroke="#f43f5e" strokeWidth={2} dot={{ r: 3 }} />
+                                    <Line type="monotone" dataKey="brazoDer" name="Bíceps Der (cm)" stroke="#a855f7" strokeWidth={2.5} dot={{ r: 4 }} />
+                                    <Line type="monotone" dataKey="brazoIzq" name="Bíceps Izq (cm)" stroke="#c084fc" strokeWidth={2} strokeDasharray="4 4" dot={{ r: 3 }} />
+                                    <Line type="monotone" dataKey="pecho" name="Pecho (cm)" stroke="#38bdf8" strokeWidth={2.5} dot={{ r: 4 }} />
+                                    <Line type="monotone" dataKey="espalda" name="Espalda (cm)" stroke="#fbbf24" strokeWidth={2} dot={{ r: 3 }} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
-                    {/* Lower Body & Torso Trend */}
+                    {/* Lower Limbs & Waist Trend */}
                     <div className="card glass" style={{ padding: '1.25rem' }}>
                         <h4 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                            Perímetros Inferiores & Sección Media (cm)
+                            Evolución de Tren Inferior & Cintura
                         </h4>
                         <div style={{ width: '100%', height: 260 }}>
                             <ResponsiveContainer width="100%" height="100%">
@@ -722,8 +773,8 @@ export const PublicReportView: React.FC = () => {
                 </div>
             )}
 
-            {/* TAB 4: HISTORY LOGS */}
-            {activeTab === 'history' && (
+            {/* TAB 5: HISTORY LOGS */}
+            {activeTab === 'history' && records.length > 1 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} className="animate-fade">
                     <h4 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
                         Libro de Registros Históricos ({records.length} entradas)
@@ -788,6 +839,65 @@ export const PublicReportView: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            {/* VIRAL SIGNUP & CONVERSION BANNER (FREE JOIN CTA) */}
+            <div className="viral-signup-banner">
+                <div className="viral-signup-content">
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#fbbf24', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', fontWeight: 800, textTransform: 'uppercase' }}>
+                        <Sparkles size={14} />
+                        <span>HYPERTROPHY TRACKER PRO &bull; 100% GRATUITO</span>
+                    </div>
+                    <h3 className="viral-signup-title">
+                        ¿Quieres auditar tu físico y conocer tu límite genético natural?
+                    </h3>
+                    <p className="viral-signup-desc">
+                        Calcula tu potencial muscular real según tu chasis óseo (Casey Butt), ratios áureos (Steve Reeves), simetrías bilaterales y TDEE metabólico en 60 segundos. Sin tarjeta de crédito.
+                    </p>
+                </div>
+
+                <div className="viral-signup-actions">
+                    <button
+                        onClick={() => navigate('/')}
+                        className="viral-cta-btn viral-cta-primary"
+                    >
+                        <Flame size={18} />
+                        <span>Crear Mi Ficha Gratis &rarr;</span>
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('versus')}
+                        className="viral-cta-btn viral-cta-secondary"
+                    >
+                        <Swords size={18} />
+                        <span>Retar a {name}</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* STICKY BOTTOM BAR ON MOBILE */}
+            <div className="sticky-mobile-cta-bar">
+                <div className="sticky-mobile-text">
+                    <span className="sticky-mobile-label">Hypertrophy Tracker</span>
+                    <span className="sticky-mobile-title">¿Quieres auditar tu cuerpo?</span>
+                </div>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                    <button
+                        onClick={() => setActiveTab('versus')}
+                        className="btn-secondary"
+                        style={{ padding: '0.45rem 0.75rem', fontSize: '0.75rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                        <Swords size={13} />
+                        <span>Retar</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="btn-primary"
+                        style={{ padding: '0.45rem 0.95rem', fontSize: '0.75rem', borderRadius: '10px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                        <Flame size={13} />
+                        <span>Medirme Gratis</span>
+                    </button>
+                </div>
+            </div>
 
             {/* Individual Muscle History Modal */}
             {selectedMuscle && (
