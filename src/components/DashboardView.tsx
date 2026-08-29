@@ -8,7 +8,6 @@ import { VolumeHeatmap } from './VolumeHeatmap';
 import { HudCard } from './ui/HudCard';
 import { HudButton } from './ui/HudButton';
 import { TacticalInsightCard } from './TacticalInsightCard';
-import { TacticalReportModal } from './TacticalReportModal';
 import { ShareReportModal } from './share/ShareReportModal';
 import { AthleteBadgesGrid } from './dashboard/AthleteBadgesGrid';
 import { HarmonyRadarChart } from './dashboard/HarmonyRadarChart';
@@ -69,7 +68,6 @@ import './DashboardView.css';
 export const DashboardView = ({ userName, sex, records, loading }: DashboardViewProps) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [reportModalOpen, setReportModalOpen] = useState(false);
     const [shareModalOpen, setShareModalOpen] = useState(false);
     const [trophyModalOpen, setTrophyModalOpen] = useState(false);
     const latestRecord = records[0];
@@ -108,7 +106,6 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                 records={records}
                 userName={userName}
                 sex={sex}
-                onOpenReport={() => setReportModalOpen(true)}
                 onShareReport={() => setShareModalOpen(true)}
             />
 
@@ -228,15 +225,6 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
 
             {/* Badges & Tactical Achievements */}
             <AthleteBadgesGrid records={records} sex={sex} />
-
-            {/* Tactical Report Modal */}
-            <TacticalReportModal
-                isOpen={reportModalOpen}
-                onClose={() => setReportModalOpen(false)}
-                latestRecord={latestRecord}
-                previousRecord={previousRecord}
-                userName={userName}
-            />
 
             {/* Coach Share Modal */}
             <ShareReportModal
