@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, QrCode, Copy, Check, Share2, Swords, Link as LinkIcon, Wand2, Zap, Loader2 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { encodeAthleteData, getPublicShareBaseUrl } from '../../utils/shareEncoder';
-import { shortenUrl } from '../../utils/urlShortener';
+import { createShortReportLink } from '../../services/shortLinkService';
 import type { MeasurementRecord } from '../../types/measurements';
 import type { ComparisonProfile } from '../../utils/athleteComparison';
 
@@ -55,8 +55,7 @@ export const ShareDuelModal: React.FC<Props> = ({
     const scoreA = verdict?.scoreA ?? 0;
     const scoreB = verdict?.scoreB ?? 0;
 
-    // Build the visual Duel link
-    const duelShareUrl = useMemo(() => {
+    const encodedPayload = useMemo(() => {
         if (!isOpen) return '';
         const effectiveRecord = currentRecord || records?.[0] || {
             id: 'current',
@@ -64,16 +63,25 @@ export const ShareDuelModal: React.FC<Props> = ({
             measurements: profileA?.measurements || {}
         };
         const recordsToEncode = includeHistory && records.length > 0 ? records : [effectiveRecord as MeasurementRecord];
-        const encoded = encodeAthleteData(nameA, effectiveRecord as MeasurementRecord, sex, recordsToEncode);
-        if (!encoded) return '';
-        const baseUrl = getPublicShareBaseUrl();
-        return `${baseUrl}#/share?data=${encoded}&tab=versus&rival=${rivalId}`;
-    }, [isOpen, currentRecord, records, profileA?.measurements, nameA, sex, rivalId, includeHistory]);
+        return encodeAthleteData(nameA, effectiveRecord as MeasurementRecord, sex, recordsToEncode);
+    }, [isOpen, currentRecord, records, profileA?.measurements, nameA, sex, includeHistory]);
 
-    // Reset shortUrl when duelShareUrl changes
+    // Build the visual Duel link
+    const duelShareUrl = useMemo(() => {
+        if (!encodedPayload) return '';
+        const baseUrl = getPublicShareBaseUrl();
+        return `${baseUrl}#/share?data=${encodedPayload}&tab=versus&rival=${rivalId}`;
+    }, [encodedPayload, rivalId]);
+
+    // Automatically generate clean native short duel link on modal open
     useEffect(() => {
-        setShortUrl('');
-    }, [duelShareUrl]);
+        if (!encodedPayload || !isOpen) return;
+        setIsShortening(true);
+        createShortReportLink(nameA, encodedPayload, 'versus', rivalId)
+            .then(url => setShortUrl(url))
+            .catch(err => console.warn('Native short duel link fallback to full URL:', err))
+            .finally(() => setIsShortening(false));
+    }, [encodedPayload, isOpen, nameA, rivalId]);
 
     useEffect(() => {
         const effectiveUrl = shortUrl || duelShareUrl;
@@ -107,10 +115,10 @@ export const ShareDuelModal: React.FC<Props> = ({
     };
 
     const handleShorten = async () => {
-        if (!duelShareUrl || isShortening) return;
+        if (!encodedPayload || isShortening) return;
         setIsShortening(true);
         try {
-            const short = await shortenUrl(duelShareUrl);
+            const short = await createShortReportLink(nameA, encodedPayload, 'versus', rivalId);
             setShortUrl(short);
         } catch (e) {
             console.error('Error shortening duel URL:', e);
@@ -393,11 +401,11 @@ export const ShareDuelModal: React.FC<Props> = ({
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                     <Wand2 size={15} style={{ color: '#fbbf24' }} />
                                     <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#f8fafc' }}>
-                                        Enlace Corto para Instagram Bio & DMs
+                                        Enlace Corto Oficial (Sin Temporizador ni Anuncios)
                                     </span>
                                 </div>
                                 <span style={{ fontSize: '0.68rem', color: '#10b981', fontWeight: 700, background: 'rgba(16, 185, 129, 0.15)', padding: '2px 6px', borderRadius: '4px' }}>
-                                    Anti-Largo
+                                    Nativo 0ms
                                 </span>
                             </div>
 
@@ -481,18 +489,18 @@ export const ShareDuelModal: React.FC<Props> = ({
                                     {isShortening ? (
                                         <>
                                             <Loader2 size={14} className="spin" />
-                                            <span>Generando enlace de ~25 caracteres...</span>
+                                            <span>Generando enlace directo...</span>
                                         </>
                                     ) : (
                                         <>
                                             <Wand2 size={14} />
-                                            <span>🪄 Generar Enlace Ultracorto (TinyURL)</span>
+                                            <span>🪄 Generar Enlace Corto Oficial</span>
                                         </>
                                     )}
                                 </button>
                             )}
                             <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
-                                ✨ Ideal para la biografía de Instagram, stickers de historias y mensajes directos.
+                                ⚡ Directo en tu propio dominio. Cero esperas, 100% compatible con Instagram Bio y DMs.
                             </div>
                         </div>
 

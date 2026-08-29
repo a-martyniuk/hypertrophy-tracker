@@ -14,10 +14,12 @@ import {
     Swords,
     Check,
     Flame,
-    Award
+    Award,
+    Activity
 } from 'lucide-react';
 import { decodeAthleteData } from '../../utils/shareEncoder';
 import { shortenUrl } from '../../utils/urlShortener';
+import { fetchShortReportPayload } from '../../services/shortLinkService';
 import { generateTacticalDiagnosis } from '../../utils/tacticalDiagnosis';
 import { computeComprehensiveAnalysis, type MuscleBenchmark } from '../../utils/benchmarkAnalysis';
 import { generateAthletePDFReport } from '../../utils/pdfReportGenerator';
@@ -128,6 +130,43 @@ export const PublicReportView: React.FC = () => {
         return null;
     }, [searchParams]);
 
+    // Extract short slug if shared via /s/:slug or ?id=:slug
+    const shortSlug = useMemo(() => {
+        const fromSearch = searchParams.get('id');
+        if (fromSearch) return fromSearch;
+
+        if (typeof window !== 'undefined') {
+            const urlQuery = new URLSearchParams(window.location.search).get('id');
+            if (urlQuery) return urlQuery;
+
+            // Check if hash matches /s/slug
+            const hash = window.location.hash;
+            const match = hash.match(/#\/s\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) return match[1];
+
+            if (window.location.hash.includes('?')) {
+                const hashQuery = new URLSearchParams(window.location.hash.split('?')[1]).get('id');
+                if (hashQuery) return hashQuery;
+            }
+        }
+        return null;
+    }, [searchParams]);
+
+    const [resolvedData, setResolvedData] = useState<string | null>(null);
+    const [isLoadingShort, setIsLoadingShort] = useState<boolean>(Boolean(shortSlug && !encodedData));
+
+    useEffect(() => {
+        if (shortSlug && !encodedData) {
+            setIsLoadingShort(true);
+            fetchShortReportPayload(shortSlug)
+                .then(data => {
+                    if (data) setResolvedData(data);
+                })
+                .catch(err => console.error('Error fetching short report:', err))
+                .finally(() => setIsLoadingShort(false));
+        }
+    }, [shortSlug, encodedData]);
+
     const paramTab = useMemo(() => {
         let tab = searchParams.get('tab') as TrainerTab | null;
         if (!tab && typeof window !== 'undefined') {
@@ -169,10 +208,12 @@ export const PublicReportView: React.FC = () => {
 
     const bodyMapContainerRef = useRef<HTMLDivElement>(null);
 
+    const activePayload = encodedData || resolvedData;
+
     const athleteData = useMemo(() => {
-        if (!encodedData) return null;
-        return decodeAthleteData(encodedData);
-    }, [encodedData]);
+        if (!activePayload) return null;
+        return decodeAthleteData(activePayload);
+    }, [activePayload]);
 
     const records: MeasurementRecord[] = useMemo(() => {
         if (!athleteData) return [];
@@ -329,6 +370,17 @@ export const PublicReportView: React.FC = () => {
         setCopiedLink(true);
         setTimeout(() => setCopiedLink(false), 2200);
     };
+
+    if (isLoadingShort) {
+        return (
+            <div className="loading-screen" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+                <Activity size={40} className="animate-spin" style={{ color: '#fbbf24' }} />
+                <div style={{ color: '#94a3b8', fontSize: '0.85rem', fontFamily: 'var(--font-mono)' }}>
+                    Cargando Ficha Antropométrica...
+                </div>
+            </div>
+        );
+    }
 
     if (!athleteData || !activeRecord) {
         return (
