@@ -6,9 +6,10 @@ Material visual, técnico y narrativo para la difusión profesional del proyecto
 
 ## 🚀 Concepto: "Inteligencia Táctica para tu Físico"
 
-**Hypertrophy Tracker** es una plataforma de análisis biomecánico de grado táctico inspirada en interfaces HUD (*Head-Up Display*). Permite a culturistas naturales y atletas de fuerza monitorear su evolución física con rigor científico, utilizando modelos de potencial genético (Casey Butt, Martin Berkhan, Eric Helms), auditorías clínicas de 2 páginas en PDF con silueta humana y duelos head-to-head frente a leyendas históricas.
+**Hypertrophy Tracker** es una plataforma de análisis biomecánico de grado táctico inspirada en interfaces HUD (*Head-Up Display*). Permite a culturistas naturales y atletas de fuerza monitorear su evolución física con rigor científico, utilizando modelos de potencial genético (Casey Butt, Martin Berkhan, Eric Helms), auditorías clínicas de 2 páginas en PDF con silueta humana, duelos interactivos *Head-to-Head* compartibles por URL/QR y prescripción algorítmica de volumen.
 
-🌐 **Demo en Vivo:** [https://www.alexismartyniuk.com.ar/hypertrophyracker](https://www.alexismartyniuk.com.ar/hypertrophyracker)
+🌐 **Demo Oficial en Vivo:** [https://hypertrophyracker.alexismartyniuk.com.ar/](https://hypertrophyracker.alexismartyniuk.com.ar/)  
+*(También disponible en [https://www.alexismartyniuk.com.ar/hypertrophyracker](https://www.alexismartyniuk.com.ar/hypertrophyracker))*
 
 ---
 
@@ -37,9 +38,10 @@ Material visual, técnico y narrativo para la difusión profesional del proyecto
 - **Backend & Cloud:** Firebase Firestore (JSON documental NoSQL) + Firebase Auth (Always-On 24/7).
 - **PWA Nativa:** Service Worker con precaché offline para uso sin conexión en el gimnasio.
 - **Dossier PDF Táctico de 2 Páginas:** jsPDF + autoTable con silueta humana vectorial, etiquetas de telemetría flotantes, matriz Casey Butt y código QR en vivo para entrenadores.
-- **Simulador Versus:** Comparativas head-to-head frente a 18 leyendas históricas y celebridades de Hollywood (Steve Reeves, Frank Zane, Arnold Schwarzenegger, Bruce Lee, CBum, etc.).
+- **Simulador Versus & Duelos Compartibles en Vivo:** Comparativas head-to-head frente a 18 leyendas históricas y celebridades de Hollywood (Steve Reeves, Frank Zane, Arnold Schwarzenegger, Bruce Lee, CBum, etc.) y atletas comunitarios compartibles mediante URL/QR con payload Base64 universal UTF-8.
+- **Centro de Exportación & Difusión Consolidado:** Hub unificado en Ajustes para PDF, enlaces virales y respaldos JSON.
 - **Prescripción de Entrenamiento:** Algoritmo automático de asignación de series y volumen semanal efectivo por grupo muscular.
-- **Testing Exhaustivo:** 23 tests automatizados con Vitest validando modelos fisiológicos y conmutación responsiva Web vs Mobile.
+- **Testing Exhaustivo:** 24 tests automatizados con Vitest validando modelos fisiológicos y conmutación responsiva Web vs Mobile.
 
 ---
 
@@ -51,13 +53,13 @@ Material visual, técnico y narrativo para la difusión profesional del proyecto
 > He desarrollado **Hypertrophy Tracker**, una plataforma web progresiva (PWA) de alto rendimiento construida con React 19, TypeScript y Firebase Firestore Always-On.
 > 
 > 🔹 **Mapa de Calor Visceral (Heatmap):** Visualización instantánea de hipertrofia relativa en silueta anatómica.
-> 🔹 **Simulador Versus:** Enfrenta tus métricas en tiempo real frente a 18 leyendas del culturismo clásico y estrellas de cine (Steve Reeves, Frank Zane, Arnold, Bruce Lee, CBum).
-> 🔹 **Dossier Biomecánico PDF (2 Páginas):** Exportación con silueta humana, telemetría flotante, límites Casey Butt y código QR interactivo para coaches.
+> 🔹 **Duelos Tácticos Head-to-Head Compartibles:** Enfrenta tus métricas en tiempo real frente a 18 leyendas del culturismo clásico y estrellas de cine (Steve Reeves, Frank Zane, Arnold, Bruce Lee, CBum) y comparte el duelo en vivo con tus amigos vía link o QR.
+> 🔹 **Dossier Biomecánico PDF (2 Páginas):** Exportación clínica con silueta humana, telemetría flotante, límites Casey Butt y código QR interactivo para coaches.
 > 🔹 **Límites Óseos de Casey Butt & Techo Magro de Martin Berkhan.**
 > 🔹 **Algoritmo de Prescripción de Volumen Semanal.**
 > 🔹 **PWA Offline-First:** 100% operativa sin señal dentro del gimnasio.
 > 
-> 🚀 Pruébala en vivo gratis: https://www.alexismartyniuk.com.ar/hypertrophyracker
+> 🚀 Pruébala en vivo gratis: https://hypertrophyracker.alexismartyniuk.com.ar/
 > 
 > #React #TypeScript #Firebase #PWA #FitnessTech #WebDev #BuildInPublic #SoftwareEngineering"
 
@@ -66,6 +68,7 @@ Material visual, técnico y narrativo para la difusión profesional del proyecto
 > 
 > Presento **Hypertrophy Tracker**: análisis corporal militar HUD con cálculo de límites genéticos, proporciones áureas de Steve Reeves, expedientes PDF de 2 páginas con silueta anatómica y duelos Versus contra las leyendas del culturismo.
 > 
-> 🔗 Link en Bio para probar la demo en vivo. Totalmente gratis y sin registro obligatorio.
+> 🔗 Link en Bio para retar a tu físico en vivo. Totalmente gratis y sin registro obligatorio.
 > 
 > #CulturismoNatural #HypertrophyTracker #FitnessTech #ClassicPhysique #GymMotivation"
+

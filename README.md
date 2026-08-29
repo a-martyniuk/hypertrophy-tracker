@@ -1,33 +1,35 @@
 # Hypertrophy Tracker — Premium Body Analytics & Tactical Biometrics 🏋️‍♂️⚡
 
-[![Live Demo](https://img.shields.io/badge/demo-live%20production-amber.svg?style=for-the-badge&logo=vercel)](https://www.alexismartyniuk.com.ar/hypertrophyracker)
-[![Tests](https://img.shields.io/badge/tests-23%20passed%20(100%25)-brightgreen.svg?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Live Demo](https://img.shields.io/badge/demo-live%20production-amber.svg?style=for-the-badge&logo=vercel)](https://hypertrophyracker.alexismartyniuk.com.ar/)
+[![Tests](https://img.shields.io/badge/tests-24%20passed%20(100%25)-brightgreen.svg?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 [![React](https://img.shields.io/badge/React-19-blue.svg?style=flat&logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 [![Firebase](https://img.shields.io/badge/Database-Firebase_Firestore-orange.svg?style=flat&logo=firebase)](https://firebase.google.com/)
 [![PWA](https://img.shields.io/badge/PWA-Ready%20(Offline%20First)-purple.svg?style=flat&logo=pwa)](https://web.dev/progressive-web-apps/)
 
-> **Hypertrophy Tracker** es una plataforma de telemetría y análisis corporal de alto rendimiento diseñada para culturistas naturales, preparadores físicos y atletas de fuerza. No es un simple bloc de notas: es un **centro de diagnóstico táctico** inspirado en interfaces militares HUD (*Head-Up Display*), impulsado por modelos científicos de biomecánica, proporciones áureas clásicas y algoritmos de prescripción de volumen.
+> **Hypertrophy Tracker** es una plataforma de telemetría y análisis corporal de alto rendimiento diseñada para culturistas naturales, preparadores físicos y atletas de fuerza. No es un simple bloc de notas: es un **centro de diagnóstico táctico** inspirado en interfaces militares HUD (*Head-Up Display*), impulsado por modelos científicos de biomecánica, proporciones áureas clásicas, duelos interactivos *Head-to-Head* y algoritmos de prescripción de volumen.
 
-🌐 **Demo en Vivo Oficial:** [https://www.alexismartyniuk.com.ar/hypertrophyracker](https://www.alexismartyniuk.com.ar/hypertrophyracker)
+🌐 **Plataforma Oficial en Vivo:** [https://hypertrophyracker.alexismartyniuk.com.ar/](https://hypertrophyracker.alexismartyniuk.com.ar/)  
+*(También disponible mediante reverse-proxy en [https://www.alexismartyniuk.com.ar/hypertrophyracker](https://www.alexismartyniuk.com.ar/hypertrophyracker))*
 
 ---
 
 ## 🌟 Módulos y Capacidades Principales
 
-### 1. ⚔️ Simulador Táctico "Versus" (Head-to-Head Duel)
-Enfrenta tu físico en tiempo real contra **18 figuras históricas del culturismo y celebridades de Hollywood en su *prime*** clasificadas por categorías:
+### 1. ⚔️ Simulador Táctico "Versus" & Duelos Interactivos Compartibles
+Enfrenta tu físico en tiempo real contra **18 figuras históricas del culturismo, celebridades de Hollywood y atletas de la comunidad** clasificadas por categorías:
 - 🏛️ **Leyendas de Oro & Estética Clásica:** *Steve Reeves (1950), Frank Zane (1979), Serge Nubret (1975), Bob Paris (1984), John Grimek (1948), Eugen Sandow (1894)*.
 - 💥 **Poder, Masa & Densidad:** *Arnold Schwarzenegger (1974), Reg Park (1958), Franco Columbu (1976), Tom Platz (1981)*.
 - 🎬 **Íconos del Cine & Celebridades:** *Sylvester Stallone (Rambo II 1985), Henry Cavill (Man of Steel 2013), Dwayne "The Rock" Johnson (Hercules 2014), Brad Pitt (Fight Club 1999), Hugh Jackman (The Wolverine 2013), Jean-Claude Van Damme (Bloodsport 1988)*.
 - ⚡ **Definición & Calistenia Funcional:** *Bruce Lee (Enter the Dragon 1973)*.
 - 🛡️ **Era Moderna (Classic Physique):** *Chris Bumstead / CBum (2023)*.
 - 👑 **Heroínas del Cine & Fitness Femenino:** *Cory Everson (1985), Linda Hamilton (Terminator 2 1991), Brooke Ence (CrossFit Games 2015), Jessica Biel (Blade: Trinity 2004), Gal Gadot (Wonder Woman 2017), Natalie Portman (The Mighty Thor 2022)*.
+- 👥 **Comunidad de Atletas:** Perfiles públicos verificados y atletas anónimos con control de privacidad.
 
-**Incluye:**
-- Radar biomecánico dual de 6 ejes (*Pecho, V-Taper, Brazos, Antebrazos, Muslos, Gemelos*).
-- Matriz comparativa con **15 métricas de combate competitivas** y datos basales neutrales.
-- Dictamen táctico generado por IA analítica.
+**Capacidades de Duelo:**
+- **Radar Biomecánico Superpuesto de 6 Ejes:** *Pecho, V-Taper, Brazos, Antebrazos, Muslos, Gemelos*.
+- **Matriz Comparativa Táctica:** 15 métricas de combate competitivas, ventajas absolutas y relativas, y dictamen generado por IA analítica.
+- **Duelo Compartible en Vivo (URL & QR):** Genera un enlace instantáneo con payload Base64 seguro (`#/share?data=...&tab=versus&rival=...`) para retar a amigos o compartir el enfrentamiento en redes sociales sin intermediarios.
 
 ---
 
@@ -59,14 +61,22 @@ Generador vectorial en alta resolución (`jsPDF` + `autoTable` + `qrcode`) que p
 
 ---
 
-### 4. 🎯 Motor de Prescripción de Entrenamiento & Volumen
+### 4. 🎛️ Centro de Exportación & Difusión Consolidado (Settings Hub)
+Para mantener una navegación minimalista y libre de distracciones, todas las exportaciones globales se centralizan en la sección **Ajustes $\rightarrow$ Centro de Exportación & Difusión**:
+1. **Dossier Antropométrico Oficial (PDF 2 Páginas):** Informe clínico completo listo para imprimir o enviar a un preparador.
+2. **Ficha Pública & Difusión Viral (Link / QR):** Modal simplificado con 2 solapas limpias (`[🔗 Compartir Enlace]` y `[📷 Código QR]`) con Web Share API nativa.
+3. **Copia de Respaldo de Base de Datos (JSON):** Exportación e importación segura para custodia y migración entre dispositivos.
+
+---
+
+### 5. 🎯 Motor de Prescripción de Entrenamiento & Volumen
 - Diagnóstico automático de grupos musculares rezagados vs dominantes.
 - Algoritmo de ajuste de volumen semanal efectivo (series semanales por grupo).
 - Asignación de rango de repeticiones y selección de ejercicios prioritarios y de aislamiento.
 
 ---
 
-### 5. 🔥 Mapa de Calor Visceral (Dynamic Heatmap)
+### 6. 🔥 Mapa de Calor Visceral (Dynamic Heatmap)
 Visualización inmediata en la silueta anatómica comparando la sesión actual con el registro previo:
 - **Rojo Intenso:** Hipertrofia significativa (> +2.5%).
 - **Amarillo / Ámbar:** Crecimiento sostenido (+1.0% a +2.5%).
@@ -75,22 +85,22 @@ Visualización inmediata en la silueta anatómica comparando la sesión actual c
 
 ---
 
-### 6. ⚡ Calculadora Metabólica Integral
+### 7. ⚡ Calculadora Metabólica Integral
 - Fórmulas **Mifflin-St Jeor**, **Katch-McArdle** y **Harris-Benedict**.
 - Cálculo de NEAT, gasto calórico activo por sesión de entrenamiento y TDEE total.
 - Distribución de macronutrientes optimizada para fases de *Volumen Limpio*, *Mantenimiento* o *Déficit Agresivo*.
 
 ---
 
-### 7. 📱 Arquitectura Serverless Always-On & PWA Offline-First
+### 8. 📱 Arquitectura Serverless Always-On & PWA Offline-First
 - **Firebase Firestore (JSON NoSQL) & Auth:** Sincronización en la nube 24/7 sin suspensiones por inactividad.
-- **Modo Offline-First:** Service Worker con precaché de 54 recursos estáticos para operar dentro de vestuarios y subsuelos sin conexión.
+- **Modo Offline-First:** Service Worker con precaché de 58 recursos estáticos para operar dentro de vestuarios y subsuelos sin conexión.
 - **Entrada Numérica Optimizada:** Formulario adaptado a pantallas táctiles con `inputMode="decimal"` y pasos de precisión de `0.1 cm`.
-- **Adaptabilidad Responsiva Dinámica:** Conmutación automática entre layout de doble columna de escritorio ($ge 1000\text{px}$) con líneas láser SVG interactivas y el componente táctil `MobileTapMeasure` para smartphones ($< 1000\text{px}$).
+- **Adaptabilidad Responsiva Dinámica:** Conmutación automática entre layout de doble columna de escritorio ($\ge 1000\text{px}$) con líneas láser SVG interactivas y el componente táctil `MobileTapMeasure` para smartphones ($< 1000\text{px}$).
 
 ---
 
-## 🧪 Suite de Pruebas Automatizadas (23/23 Tests)
+## 🧪 Suite de Pruebas Automatizadas (24/24 Tests)
 
 El proyecto cuenta con una suite completa de pruebas unitarias y de integración construida sobre **Vitest** y **React Testing Library**:
 
@@ -101,7 +111,7 @@ El proyecto cuenta con una suite completa de pruebas unitarias y de integración
 | **Simulador Versus & Duelo Head-to-Head** | `src/utils/athleteComparison.test.ts` | Presets históricos (Reeves, Arnold, Zane, CBum), matriz de ventajas y radar. |
 | **Metabolismo & Gasto Calórico** | `src/utils/metabolism.test.ts` | Fórmulas BMR Mifflin / Katch / Harris, TDEE y macronutrientes. |
 | **Acciones de Formulario & Persistencia** | `src/components/measurement/FormActions.test.tsx` | Guardado, cancelación y validación de formulario. |
-| **Responsividad Web vs Mobile** | `src/components/measurement/MeasurementForm.responsive.test.tsx` | Viewport Desktop ($ge 1000\text{px}$), Mobile ($< 1000\text{px}$) y resize en vivo. |
+| **Responsividad Web vs Mobile** | `src/components/measurement/MeasurementForm.responsive.test.tsx` | Viewport Desktop ($\ge 1000\text{px}$), Mobile ($< 1000\text{px}$) y resize en vivo. |
 
 ```bash
 npm test
