@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
     Shield,
@@ -109,10 +109,19 @@ export const PublicReportView: React.FC = () => {
     const navigate = useNavigate();
     const encodedData = searchParams.get('data');
 
-    const [activeTab, setActiveTab] = useState<TrainerTab>('bodymap');
+    const paramTab = searchParams.get('tab') as TrainerTab | null;
+    const validTabs: TrainerTab[] = ['bodymap', 'audit', 'versus', 'trends', 'history'];
+    const initialTab: TrainerTab = (paramTab && validTabs.includes(paramTab)) ? paramTab : 'bodymap';
+    const [activeTab, setActiveTab] = useState<TrainerTab>(initialTab);
     const [selectedMuscle, setSelectedMuscle] = useState<MuscleBenchmark | null>(null);
     const [isMapModalOpen, setIsMapModalOpen] = useState(false);
     const [copiedLink, setCopiedLink] = useState(false);
+
+    useEffect(() => {
+        if (paramTab && validTabs.includes(paramTab)) {
+            setActiveTab(paramTab);
+        }
+    }, [paramTab]);
 
     const bodyMapContainerRef = useRef<HTMLDivElement>(null);
 
@@ -672,9 +681,10 @@ export const PublicReportView: React.FC = () => {
             {activeTab === 'versus' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="animate-fade">
                     <AthleteComparisonCard
-                        currentRecord={activeRecord}
+                        currentRecord={activeRecord || undefined}
                         records={records}
                         sex={sex}
+                        initialRivalId={searchParams.get('rival') || undefined}
                     />
                 </div>
             )}
@@ -848,10 +858,10 @@ export const PublicReportView: React.FC = () => {
                         <span>HYPERTROPHY TRACKER PRO &bull; 100% GRATUITO</span>
                     </div>
                     <h3 className="viral-signup-title">
-                        ¿Quieres auditar tu físico y conocer tu límite genético natural?
+                        ¿Quieres retar a {name} o calcular tu límite genético natural?
                     </h3>
                     <p className="viral-signup-desc">
-                        Calcula tu potencial muscular real según tu chasis óseo (Casey Butt), ratios áureos (Steve Reeves), simetrías bilaterales y TDEE metabólico en 60 segundos. Sin tarjeta de crédito.
+                        Crea tu cuenta gratuita en 30 segundos, carga tu biometría y desbloquea tu radar biomecánico 360°, comparativas Head-to-Head y análisis de potencial Casey Butt. Sin tarjeta de crédito.
                     </p>
                 </div>
 
@@ -861,7 +871,7 @@ export const PublicReportView: React.FC = () => {
                         className="viral-cta-btn viral-cta-primary"
                     >
                         <Flame size={18} />
-                        <span>Crear Mi Ficha Gratis &rarr;</span>
+                        <span>Crear Cuenta Gratis & Retar &rarr;</span>
                     </button>
                     <button
                         onClick={() => {
@@ -871,7 +881,7 @@ export const PublicReportView: React.FC = () => {
                         className="viral-cta-btn viral-cta-secondary"
                     >
                         <Swords size={18} />
-                        <span>Retar a {name}</span>
+                        <span>Ver Duelo Completo</span>
                     </button>
                 </div>
             </div>
@@ -880,7 +890,7 @@ export const PublicReportView: React.FC = () => {
             <div className="sticky-mobile-cta-bar">
                 <div className="sticky-mobile-text">
                     <span className="sticky-mobile-label">Hypertrophy Tracker</span>
-                    <span className="sticky-mobile-title">¿Quieres auditar tu cuerpo?</span>
+                    <span className="sticky-mobile-title">¿Quieres retar a este atleta?</span>
                 </div>
                 <div style={{ display: 'flex', gap: '6px' }}>
                     <button
@@ -892,7 +902,7 @@ export const PublicReportView: React.FC = () => {
                         style={{ padding: '0.45rem 0.75rem', fontSize: '0.75rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}
                     >
                         <Swords size={13} />
-                        <span>Retar</span>
+                        <span>Duelo</span>
                     </button>
                     <button
                         onClick={() => navigate('/')}
@@ -900,7 +910,7 @@ export const PublicReportView: React.FC = () => {
                         style={{ padding: '0.45rem 0.95rem', fontSize: '0.75rem', borderRadius: '10px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '4px' }}
                     >
                         <Flame size={13} />
-                        <span>Medirme Gratis</span>
+                        <span>Crear Cuenta Gratis</span>
                     </button>
                 </div>
             </div>

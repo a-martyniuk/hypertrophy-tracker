@@ -13,7 +13,6 @@ import {
     Swords,
     Sparkles,
     Share2,
-    Check,
     Users,
     Ruler,
     Calendar,
@@ -29,12 +28,14 @@ import {
     type ComparisonProfile
 } from '../../utils/athleteComparison';
 import { fetchCommunityAthletes } from '../../services/communityAthleteService';
+import { ShareDuelModal } from '../share/ShareDuelModal';
 import './AthleteComparisonCard.css';
 
 interface Props {
     currentRecord?: MeasurementRecord;
     records?: MeasurementRecord[];
     sex?: 'male' | 'female';
+    initialRivalId?: string;
 }
 
 const resolveUserPhysicalStats = (
@@ -166,7 +167,8 @@ const resolveUserPhysicalStats = (
 export const AthleteComparisonCard: React.FC<Props> = ({
     currentRecord,
     records = [],
-    sex = 'male'
+    sex = 'male',
+    initialRivalId
 }) => {
     const { user } = useAuth();
     const profileCtx = useContext(ProfileContext);
@@ -207,9 +209,15 @@ export const AthleteComparisonCard: React.FC<Props> = ({
     const [communityAthletes, setCommunityAthletes] = useState<ComparisonProfile[]>([]);
     const [_loadingCommunity, setLoadingCommunity] = useState(true);
     const [selectedBId, setSelectedBId] = useState<string>(() => {
-        return sex === 'female' ? 'cory_everson_1985' : 'steve_reeves_1950';
+        return initialRivalId || (sex === 'female' ? 'cory_everson_1985' : 'steve_reeves_1950');
     });
-    const [copied, setCopied] = useState(false);
+    const [isDuelShareOpen, setIsDuelShareOpen] = useState(false);
+
+    useEffect(() => {
+        if (initialRivalId) {
+            setSelectedBId(initialRivalId);
+        }
+    }, [initialRivalId]);
 
     useEffect(() => {
         let isMounted = true;
@@ -273,21 +281,6 @@ export const AthleteComparisonCard: React.FC<Props> = ({
     }, [profileA, profileB]);
 
     const { metrics, radarData, verdict } = comparison;
-
-    // Quick copy battle summary
-    const handleCopySummary = () => {
-        const text = `🏆 DUELO ANTROPOMÉTRICO: ${profileA.name} vs ${profileB.name}\n` +
-            `⚔️ Marcador: ${verdict.scoreA} a ${verdict.scoreB} (${verdict.summary})\n` +
-            `📐 V-Taper: ${verdict.vTaperA.toFixed(2)}x vs ${verdict.vTaperB.toFixed(2)}x\n` +
-            `🧬 Techo Casey Butt: ${verdict.geneticCeilingA}% vs ${verdict.geneticCeilingB}%\n` +
-            `⚡ FFMI: ${verdict.bioA.ffmi} vs ${verdict.bioB.ffmi}\n\n` +
-            `Evaluado en Hypertrophy Tracker: https://www.alexismartyniuk.com.ar/hypertrophyracker`;
-
-        navigator.clipboard.writeText(text).then(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2500);
-        });
-    };
 
     const biometricsMetrics = metrics.filter((m) => m.category === 'biometrics');
     const ratiosMetrics = metrics.filter((m) => m.category === 'ratios');
@@ -401,12 +394,12 @@ export const AthleteComparisonCard: React.FC<Props> = ({
                         </select>
 
                         <button
-                            onClick={handleCopySummary}
+                            onClick={() => setIsDuelShareOpen(true)}
                             className="versus-btn-secondary"
-                            title="Copiar resultado del enfrentamiento"
+                            title="Compartir Duelo interactivo con link y código QR"
                         >
-                            {copied ? <Check size={14} style={{ color: '#34d399' }} /> : <Share2 size={14} />}
-                            <span>{copied ? '¡Copiado!' : 'Compartir Duelo'}</span>
+                            <Share2 size={14} style={{ color: '#fbbf24' }} />
+                            <span>Compartir Duelo</span>
                         </button>
                     </div>
                 </div>
@@ -690,6 +683,19 @@ export const AthleteComparisonCard: React.FC<Props> = ({
                 </div>
                 <p className="verdict-desc">{verdict.summary}</p>
             </div>
+
+            {/* Share Duel Interactive Modal */}
+            <ShareDuelModal
+                isOpen={isDuelShareOpen}
+                onClose={() => setIsDuelShareOpen(false)}
+                currentRecord={currentRecord}
+                records={records}
+                userName={profileA.name}
+                sex={sex}
+                profileA={profileA}
+                profileB={profileB}
+                verdict={verdict}
+            />
         </div>
     );
 };
