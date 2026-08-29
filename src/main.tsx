@@ -7,11 +7,18 @@ import App from './App.tsx'
 
 import { ProfileProvider } from './context/ProfileContext'
 
-// Auto-migrate any direct path navigation (e.g. /hypertrophyracker/dashboard) to clean hash navigation
-if (typeof window !== 'undefined' && window.location.pathname.startsWith('/hypertrophyracker/') && window.location.pathname !== '/hypertrophyracker/' && !window.location.hash) {
-  const subRoute = window.location.pathname.replace('/hypertrophyracker', '');
-  if (subRoute && subRoute !== '/') {
-    window.location.replace('/hypertrophyracker/#' + subRoute);
+// Auto-migrate any direct path navigation (e.g. /hypertrophyracker/share?data=... or /hypertrophyracker/dashboard) to clean hash navigation
+if (typeof window !== 'undefined' && !window.location.hash) {
+  const path = window.location.pathname;
+  const search = window.location.search || '';
+  
+  if (path.startsWith('/hypertrophyracker')) {
+    const subRoute = path.replace(/^\/hypertrophyracker/, '').replace(/\/+$/, '');
+    if (subRoute && subRoute !== '/') {
+      window.location.replace('/hypertrophyracker/#' + subRoute + search);
+    } else if (search && search.includes('data=')) {
+      window.location.replace('/hypertrophyracker/#/share' + search);
+    }
   }
 }
 

@@ -107,9 +107,48 @@ const ReadOnlyHudCard: React.FC<ReadOnlyHudCardProps> = ({
 export const PublicReportView: React.FC = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const encodedData = searchParams.get('data');
 
-    const paramTab = searchParams.get('tab') as TrainerTab | null;
+    // Multi-source extraction for maximum compatibility with all browsers and share links
+    const encodedData = useMemo(() => {
+        const fromSearch = searchParams.get('data');
+        if (fromSearch) return fromSearch;
+
+        if (typeof window !== 'undefined') {
+            const urlQuery = new URLSearchParams(window.location.search).get('data');
+            if (urlQuery) return urlQuery;
+
+            if (window.location.hash.includes('?')) {
+                const hashQuery = new URLSearchParams(window.location.hash.split('?')[1]).get('data');
+                if (hashQuery) return hashQuery;
+            }
+        }
+        return null;
+    }, [searchParams]);
+
+    const paramTab = useMemo(() => {
+        let tab = searchParams.get('tab') as TrainerTab | null;
+        if (!tab && typeof window !== 'undefined') {
+            const urlTab = new URLSearchParams(window.location.search).get('tab') as TrainerTab | null;
+            if (urlTab) tab = urlTab;
+            else if (window.location.hash.includes('?')) {
+                tab = new URLSearchParams(window.location.hash.split('?')[1]).get('tab') as TrainerTab | null;
+            }
+        }
+        return tab;
+    }, [searchParams]);
+
+    const paramRival = useMemo(() => {
+        let rival = searchParams.get('rival');
+        if (!rival && typeof window !== 'undefined') {
+            const urlRival = new URLSearchParams(window.location.search).get('rival');
+            if (urlRival) rival = urlRival;
+            else if (window.location.hash.includes('?')) {
+                rival = new URLSearchParams(window.location.hash.split('?')[1]).get('rival');
+            }
+        }
+        return rival || undefined;
+    }, [searchParams]);
+
     const validTabs: TrainerTab[] = ['bodymap', 'audit', 'versus', 'trends', 'history'];
     const initialTab: TrainerTab = (paramTab && validTabs.includes(paramTab)) ? paramTab : 'bodymap';
     const [activeTab, setActiveTab] = useState<TrainerTab>(initialTab);
@@ -684,7 +723,7 @@ export const PublicReportView: React.FC = () => {
                         currentRecord={activeRecord || undefined}
                         records={records}
                         sex={sex}
-                        initialRivalId={searchParams.get('rival') || undefined}
+                        initialRivalId={paramRival}
                     />
                 </div>
             )}

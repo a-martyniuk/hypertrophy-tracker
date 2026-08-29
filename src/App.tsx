@@ -84,7 +84,15 @@ function App() {
   }, [location.pathname])
 
   // Public Trainer Share View (No auth required)
-  if (location.pathname === '/share') {
+  const isShareView = location.pathname === '/share' ||
+                      location.pathname.startsWith('/share') ||
+                      location.search.includes('data=') ||
+                      (typeof window !== 'undefined' && (
+                        window.location.search.includes('data=') ||
+                        window.location.hash.includes('data=')
+                      ));
+
+  if (isShareView) {
     return (
       <Suspense fallback={<div className="loading-screen"><Activity className="animate-spin" /></div>}>
         <PublicReportView />
