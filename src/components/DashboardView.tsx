@@ -8,7 +8,6 @@ import { VolumeHeatmap } from './VolumeHeatmap';
 import { HudCard } from './ui/HudCard';
 import { HudButton } from './ui/HudButton';
 import { TacticalInsightCard } from './TacticalInsightCard';
-import { ShareReportModal } from './share/ShareReportModal';
 import { AthleteBadgesGrid } from './dashboard/AthleteBadgesGrid';
 import { HarmonyRadarChart } from './dashboard/HarmonyRadarChart';
 import { TrophyRoomModal } from './achievements/TrophyRoomModal';
@@ -68,7 +67,6 @@ import './DashboardView.css';
 export const DashboardView = ({ userName, sex, records, loading }: DashboardViewProps) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [shareModalOpen, setShareModalOpen] = useState(false);
     const [trophyModalOpen, setTrophyModalOpen] = useState(false);
     const latestRecord = records[0];
     const previousRecord = records[1];
@@ -103,10 +101,6 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
             <TacticalInsightCard
                 latestRecord={latestRecord}
                 previousRecord={previousRecord}
-                records={records}
-                userName={userName}
-                sex={sex}
-                onShareReport={() => setShareModalOpen(true)}
             />
 
             <div className="main-dashboard-content">
@@ -225,16 +219,6 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
 
             {/* Badges & Tactical Achievements */}
             <AthleteBadgesGrid records={records} sex={sex} />
-
-            {/* Coach Share Modal */}
-            <ShareReportModal
-                isOpen={shareModalOpen}
-                onClose={() => setShareModalOpen(false)}
-                latestRecord={latestRecord}
-                records={records}
-                userName={userName}
-                sex={sex}
-            />
 
             {/* Full Trophy Room & Hall of Fame Modal */}
             <TrophyRoomModal
