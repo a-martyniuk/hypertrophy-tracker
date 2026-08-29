@@ -14,10 +14,11 @@ import { analyzeProportions } from '../../utils/proportions';
 
 interface Props {
     measurements?: BodyMeasurements;
+    sex?: 'male' | 'female';
 }
 
-export const ProportionsRadar: React.FC<Props> = ({ measurements }) => {
-    const analysis = analyzeProportions(measurements);
+export const ProportionsRadar: React.FC<Props> = ({ measurements, sex = 'male' }) => {
+    const analysis = analyzeProportions(measurements, sex);
 
     if (!analysis || !measurements) return null;
 

@@ -222,8 +222,8 @@ export const PublicReportView: React.FC = () => {
 
     const diagnosis = useMemo(() => {
         if (!activeRecord) return null;
-        return generateTacticalDiagnosis(activeRecord);
-    }, [activeRecord]);
+        return generateTacticalDiagnosis(activeRecord, previousRecord);
+    }, [activeRecord, previousRecord]);
 
     const analysis = useMemo(() => {
         if (!activeRecord || !athleteData) return null;

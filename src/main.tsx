@@ -11,18 +11,18 @@ import { initBackgroundSyncListener } from './services/offlineSyncQueue'
 // Initialize offline background sync listener for Firestore connectivity recovery
 initBackgroundSyncListener();
 
-// Auto-migrate any direct path navigation (e.g. /hypertrophyracker/share?data=... or /hypertrophyracker/dashboard) to clean hash navigation
+// Auto-migrate any direct path navigation (e.g. /hypertrophyracker/share?data=... or /share?data=...) to clean hash navigation
 if (typeof window !== 'undefined' && !window.location.hash) {
   const path = window.location.pathname;
   const search = window.location.search || '';
+  const cleanPath = path.replace(/^\/hypertrophyracker/, '').replace(/\/index\.html$/, '').replace(/\/+$/, '');
+  const isSubFolder = path.startsWith('/hypertrophyracker');
+  const baseHash = isSubFolder ? '/hypertrophyracker/#' : '/#';
   
-  if (path.startsWith('/hypertrophyracker')) {
-    const subRoute = path.replace(/^\/hypertrophyracker/, '').replace(/\/+$/, '');
-    if (subRoute && subRoute !== '/') {
-      window.location.replace('/hypertrophyracker/#' + subRoute + search);
-    } else if (search && search.includes('data=')) {
-      window.location.replace('/hypertrophyracker/#/share' + search);
-    }
+  if (cleanPath && cleanPath !== '/') {
+    window.location.replace(baseHash + cleanPath + search);
+  } else if (search && search.includes('data=')) {
+    window.location.replace(baseHash + '/share' + search);
   }
 }
 

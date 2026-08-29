@@ -827,8 +827,8 @@ export const compareAthletes = (
     const armDensityB = wristB > 0 ? parseFloat((armB / wristB).toFixed(2)) : 0;
 
     // Proportions Analysis
-    const propA = analyzeProportions(mA as BodyMeasurements);
-    const propB = analyzeProportions(mB as BodyMeasurements);
+    const propA = analyzeProportions(mA as BodyMeasurements, profileA.sex || 'male');
+    const propB = analyzeProportions(mB as BodyMeasurements, profileB.sex || 'male');
 
     const triadScoreA = propA?.reevesTriad.symmetryScore || 0;
     const triadScoreB = propB?.reevesTriad.symmetryScore || 0;

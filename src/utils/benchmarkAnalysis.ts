@@ -409,8 +409,11 @@ export const computeComprehensiveAnalysis = (
         recommendation += 'Tus grupos musculares se encuentran simétricamente balanceados. Mantén una progresión de cargas sostenida.';
     }
 
-    const ffmiVal = ffmi?.normalizedFFMI || 20.0;
-    const ffmiStatus = ffmiVal >= 23.5 ? 'Élite Natural' : ffmiVal >= 22 ? 'Avanzado' : ffmiVal >= 20 ? 'Atlético' : 'Base';
+    const defaultFfmi = sex === 'female' ? 16.0 : 20.0;
+    const ffmiVal = ffmi?.normalizedFFMI || defaultFfmi;
+    const ffmiStatus = sex === 'female'
+        ? (ffmiVal >= 20.0 ? 'Élite Natural' : ffmiVal >= 18.0 ? 'Avanzado' : ffmiVal >= 16.0 ? 'Atlético' : 'Base')
+        : (ffmiVal >= 23.5 ? 'Élite Natural' : ffmiVal >= 22.0 ? 'Avanzado' : ffmiVal >= 20.0 ? 'Atlético' : 'Base');
 
     return {
         overallLevel,

@@ -76,7 +76,7 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
     const prevM = previousRecord?.measurements;
     const diagnosis = generateTacticalDiagnosis(latestRecord, previousRecord);
     const analysis = computeComprehensiveAnalysis(m, sex);
-    const proportions = analyzeProportions(m);
+    const proportions = analyzeProportions(m, sex);
 
     const height = m.height || (sex === 'female' ? 165 : 180);
     const weight = m.weight || 75;
@@ -192,11 +192,15 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
     doc.text('FFMI Normalizado (Kouri):', 18, leftY + 13);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(textLight[0], textLight[1], textLight[2]);
-    doc.text((ffmi?.normalizedFFMI || 21.0) + ' / 25.0 (' + (ffmi?.categoryKey || 'Avanzado') + ')', 18, leftY + 18);
+    const maxFfmiScale = sex === 'female' ? '22.0' : '25.0';
+    doc.text((ffmi?.normalizedFFMI || (sex === 'female' ? 16.0 : 21.0)) + ` / ${maxFfmiScale} (` + (ffmi?.categoryKey || 'Avanzado') + ')', 18, leftY + 18);
 
     doc.setFillColor(30, 41, 59);
     doc.roundedRect(18, leftY + 21, 44, 2.5, 1, 1, 'F');
-    const ffmiPercent = Math.min(100, Math.max(0, ((ffmi?.normalizedFFMI || 20) - 15) / 10 * 100));
+    const ffmiVal = ffmi?.normalizedFFMI || (sex === 'female' ? 16.0 : 20.0);
+    const ffmiPercent = ffmi?.scorePercent ?? (sex === 'female'
+        ? Math.min(100, Math.max(0, ((ffmiVal - 12) / 10) * 100))
+        : Math.min(100, Math.max(0, ((ffmiVal - 15) / 10) * 100)));
     doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.roundedRect(18, leftY + 21, (44 * ffmiPercent) / 100, 2.5, 1, 1, 'F');
 
@@ -205,7 +209,8 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
     doc.text('Techo Competicion (Berkhan):', 18, leftY + 30);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(textCyan[0], textCyan[1], textCyan[2]);
-    doc.text(berkhan.maxWeightAtCompBf + ' kg (@5% BF)', 18, leftY + 35);
+    const compBfLabel = sex === 'female' ? '@12% BF' : '@5% BF';
+    doc.text(berkhan.maxWeightAtCompBf + ` kg (${compBfLabel})`, 18, leftY + 35);
 
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);

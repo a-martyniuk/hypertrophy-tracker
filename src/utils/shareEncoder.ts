@@ -15,15 +15,11 @@ export interface SharedAthletePayload {
  */
 export const getPublicShareBaseUrl = (): string => {
     if (typeof window !== 'undefined') {
-        const host = window.location.host;
-        if (host.includes('alexismartyniuk.com.ar')) {
-            return 'https://hypertrophyracker.alexismartyniuk.com.ar/';
-        }
-        const origin = window.location.origin;
-        const cleanPath = window.location.pathname.replace(/\/index\.html$/, '').replace(/\/+$/, '');
-        return cleanPath ? `${origin}${cleanPath}/` : `${origin}/`;
+        const baseHref = window.location.href.split('#')[0].split('?')[0];
+        const cleanBase = baseHref.replace(/\/index\.html$/, '').replace(/\/+$/, '');
+        return cleanBase ? `${cleanBase}/` : 'https://www.alexismartyniuk.com.ar/hypertrophyracker/';
     }
-    return 'https://hypertrophyracker.alexismartyniuk.com.ar/';
+    return 'https://www.alexismartyniuk.com.ar/hypertrophyracker/';
 };
 
 /**

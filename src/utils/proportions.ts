@@ -44,7 +44,10 @@ export interface FullProportionsAnalysis {
     overallGoldenScore: number;
 }
 
-export const analyzeProportions = (m?: BodyMeasurements): FullProportionsAnalysis | null => {
+export const analyzeProportions = (
+    m?: BodyMeasurements,
+    sex: 'male' | 'female' = 'male'
+): FullProportionsAnalysis | null => {
     if (!m) return null;
 
     const armLeft = m.arm?.left || 0;
@@ -58,7 +61,7 @@ export const analyzeProportions = (m?: BodyMeasurements): FullProportionsAnalysi
     const neck = m.neck || 0;
     const chest = m.pecho || 0;
     const waist = m.waist || 0;
-    const height = m.height || 178;
+    const height = m.height || (sex === 'female' ? 165 : 178);
     const hips = m.hips || 0;
     const thighLeft = m.thigh?.left || 0;
     const thighRight = m.thigh?.right || 0;

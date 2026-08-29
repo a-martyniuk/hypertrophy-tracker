@@ -1,4 +1,4 @@
-﻿import { calculateBerkhanLimit } from './skeletal';
+import { calculateBerkhanLimit } from './skeletal';
 import type { BodyMeasurements } from '../types/measurements';
 
 export interface GeneticMilestone {
@@ -33,8 +33,8 @@ export const calculateGeneticTrajectory = (
     trainingYears: number = 2,
     _measurements?: BodyMeasurements
 ): GeneticTrajectoryResult => {
-    const safeWeight = weight > 0 ? weight : 75;
-    const safeHeight = height > 0 ? height : 178;
+    const safeWeight = weight > 0 ? weight : (sex === 'female' ? 60 : 75);
+    const safeHeight = height > 0 ? height : (sex === 'female' ? 165 : 178);
     const safeBf = Math.max(3, Math.min(50, bodyFat || (sex === 'female' ? 22 : 15)));
 
     const currentLeanMassKg = parseFloat((safeWeight * (1 - safeBf / 100)).toFixed(1));

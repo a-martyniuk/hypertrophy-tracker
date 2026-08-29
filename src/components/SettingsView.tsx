@@ -51,6 +51,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
     const isAlexis = defaultUserName.toLowerCase().includes('alexis') || defaultUserName.toLowerCase().includes('martyniuk') || user?.email?.toLowerCase().includes('martyniuk');
 
     const [name, setName] = useState(defaultUserName);
+    const [sex, setSex] = useState<'male' | 'female'>(activeProfile?.sex || 'male');
     const [age, setAge] = useState<number>(activeProfile?.age || (isAlexis ? 38 : 28));
     const [height, setHeight] = useState<number>(activeProfile?.height || (isAlexis ? 191 : (activeProfile?.sex === 'female' ? 165 : 178)));
     const [isPublic, setIsPublic] = useState<boolean>(activeProfile?.isPublic !== false);
@@ -63,6 +64,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
     useEffect(() => {
         if (activeProfile) {
             if (activeProfile.name) setName(activeProfile.name);
+            if (activeProfile.sex) setSex(activeProfile.sex);
             if (activeProfile.age) setAge(activeProfile.age);
             if (activeProfile.height) setHeight(activeProfile.height);
             setIsPublic(activeProfile.isPublic !== false);
@@ -73,8 +75,9 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
     const handleSaveProfile = async () => {
         await updateProfile({
             name: name.trim() || defaultUserName,
+            sex,
             age: Number(age) || (isAlexis ? 38 : 28),
-            height: Number(height) || (isAlexis ? 191 : (activeProfile?.sex === 'female' ? 165 : 178)),
+            height: Number(height) || (isAlexis ? 191 : (sex === 'female' ? 165 : 178)),
             isPublic,
             publicAlias: publicAlias.trim()
         });
@@ -247,17 +250,58 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.35rem', fontWeight: 600 }}>
-                                    Nombre de Usuario
-                                </label>
-                                <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className="settings-input"
-                                    placeholder="Tu nombre"
-                                />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '0.75rem', alignItems: 'flex-end' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.35rem', fontWeight: 600 }}>
+                                        Nombre de Usuario
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="settings-input"
+                                        placeholder="Tu nombre"
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.35rem', fontWeight: 600 }}>
+                                        Sexo Biológico
+                                    </label>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSex('male')}
+                                            style={{
+                                                padding: '0.55rem 0.4rem',
+                                                fontSize: '0.78rem',
+                                                fontWeight: 800,
+                                                borderRadius: '8px',
+                                                border: sex === 'male' ? '1px solid #f59e0b' : '1px solid rgba(255,255,255,0.1)',
+                                                background: sex === 'male' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'rgba(255,255,255,0.05)',
+                                                color: sex === 'male' ? '#000' : '#94a3b8',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            ♂ Masc
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSex('female')}
+                                            style={{
+                                                padding: '0.55rem 0.4rem',
+                                                fontSize: '0.78rem',
+                                                fontWeight: 800,
+                                                borderRadius: '8px',
+                                                border: sex === 'female' ? '1px solid #ec4899' : '1px solid rgba(255,255,255,0.1)',
+                                                background: sex === 'female' ? 'linear-gradient(135deg, #ec4899, #db2777)' : 'rgba(255,255,255,0.05)',
+                                                color: sex === 'female' ? '#fff' : '#94a3b8',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            ♀ Fem
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
