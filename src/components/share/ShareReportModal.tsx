@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, QrCode, Copy, Check, Share2, Link as LinkIcon } from 'lucide-react';
 import QRCode from 'qrcode';
-import { encodeAthleteData } from '../../utils/shareEncoder';
+import { encodeAthleteData, getPublicShareBaseUrl } from '../../utils/shareEncoder';
 import type { MeasurementRecord } from '../../types/measurements';
 
 interface Props {
@@ -29,9 +29,8 @@ export const ShareReportModal: React.FC<Props> = ({
     const shareUrl = useMemo(() => {
         if (!isOpen || !latestRecord) return '';
         const encoded = encodeAthleteData(userName, latestRecord, sex, records);
-        const origin = window.location.origin;
-        const basePath = window.location.pathname.replace(/\/index\.html$/, '').replace(/\/+$/, '');
-        return `${origin}${basePath}/#/share?data=${encoded}`;
+        const baseUrl = getPublicShareBaseUrl();
+        return `${baseUrl}#/share?data=${encoded}`;
     }, [isOpen, latestRecord, userName, sex, records]);
 
     useEffect(() => {

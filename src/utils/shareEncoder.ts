@@ -10,6 +10,23 @@ export interface SharedAthletePayload {
 }
 
 /**
+ * Resolves canonical public base URL for sharing.
+ * In production, always points to the dedicated standalone domain https://hypertrophyracker.alexismartyniuk.com.ar/
+ */
+export const getPublicShareBaseUrl = (): string => {
+    if (typeof window !== 'undefined') {
+        const host = window.location.host;
+        if (host.includes('alexismartyniuk.com.ar')) {
+            return 'https://hypertrophyracker.alexismartyniuk.com.ar/';
+        }
+        const origin = window.location.origin;
+        const cleanPath = window.location.pathname.replace(/\/index\.html$/, '').replace(/\/+$/, '');
+        return cleanPath ? `${origin}${cleanPath}/` : `${origin}/`;
+    }
+    return 'https://hypertrophyracker.alexismartyniuk.com.ar/';
+};
+
+/**
  * Encodes athlete telemetry history into an ultra-compact, URL-safe Base64 string.
  * Supports multi-record chronological history (v2) with minimal payload size.
  */

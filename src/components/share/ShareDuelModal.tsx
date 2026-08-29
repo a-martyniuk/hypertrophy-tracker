@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, QrCode, Copy, Check, Share2, Swords, Link as LinkIcon } from 'lucide-react';
 import QRCode from 'qrcode';
-import { encodeAthleteData } from '../../utils/shareEncoder';
+import { encodeAthleteData, getPublicShareBaseUrl } from '../../utils/shareEncoder';
 import type { MeasurementRecord } from '../../types/measurements';
 import type { ComparisonProfile } from '../../utils/athleteComparison';
 
@@ -60,9 +60,8 @@ export const ShareDuelModal: React.FC<Props> = ({
         };
         const encoded = encodeAthleteData(nameA, effectiveRecord as MeasurementRecord, sex, records);
         if (!encoded) return '';
-        const origin = window.location.origin;
-        const basePath = window.location.pathname.replace(/\/index\.html$/, '').replace(/\/+$/, '');
-        return `${origin}${basePath}/#/share?data=${encoded}&tab=versus&rival=${rivalId}`;
+        const baseUrl = getPublicShareBaseUrl();
+        return `${baseUrl}#/share?data=${encoded}&tab=versus&rival=${rivalId}`;
     }, [isOpen, currentRecord, records, profileA?.measurements, nameA, sex, rivalId]);
 
     useEffect(() => {
