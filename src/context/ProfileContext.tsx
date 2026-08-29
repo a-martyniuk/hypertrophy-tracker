@@ -4,7 +4,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth, isFirebaseConfigured } from '../lib/firebase';
 import type { UserProfile } from '../types/measurements';
 import { removeCommunityAthlete } from '../services/communityAthleteService';
-
+import { enqueueSyncAction } from '../services/offlineSyncQueue';
 import { getProfileStorageKey } from '../utils/storageKeys';
 
 export interface ProfileContextType {
@@ -126,7 +126,6 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
 
     const updateProfile = async (updates: Partial<UserProfile>) => {
         const user = auth.currentUser;
-        const previousProfile = profile;
 
         const defaultName = user?.displayName || user?.email?.split('@')[0] || 'Atleta';
         const isAlexis = defaultName.toLowerCase().includes('alexis') || defaultName.toLowerCase().includes('martyniuk') || user?.email?.toLowerCase().includes('martyniuk');
@@ -167,6 +166,11 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
                 return;
             }
 
+            if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                enqueueSyncAction('UPDATE_PROFILE', user.uid, newProfile);
+                return;
+            }
+
             const profileDocRef = doc(db, 'users', user.uid, 'profile', 'main');
             await setDoc(profileDocRef, {
                 name: newProfile.name,
@@ -186,8 +190,10 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
             }
 
         } catch (err) {
-            console.error('[ProfileContext] Error al actualizar perfil:', err);
-            setProfile(previousProfile);
+            console.warn('[ProfileContext] Error en cloud. Encolando actualización de perfil para sincronización offline:', err);
+            if (user?.uid) {
+                enqueueSyncAction('UPDATE_PROFILE', user.uid, newProfile);
+            }
         }
     };
 

@@ -19,6 +19,9 @@ import { RatioBenchmarkCard } from './analysis/RatioBenchmarkCard';
 import { MuscleHistoryModal } from './analysis/MuscleHistoryModal';
 import { TrainingPrescriptionCard } from './analysis/TrainingPrescriptionCard';
 import { AthleteComparisonCard } from './analysis/AthleteComparisonCard';
+import { GeneticTrajectoryCard } from './analysis/GeneticTrajectoryCard';
+import { BilateralSymmetryCard } from './analysis/BilateralSymmetryCard';
+import { PhaseAdvisorCard } from './analysis/PhaseAdvisorCard';
 import type { MuscleBenchmark } from '../utils/benchmarkAnalysis';
 import './AnalysisView.css';
 
@@ -324,6 +327,13 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
             {/* TAB 0: TACTICAL TRAINING & VOLUME PRESCRIPTION */}
             {activeTab === 'prescription' && (
                 <section style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <PhaseAdvisorCard
+                        weight={latestRecord?.measurements?.weight}
+                        height={latestRecord?.measurements?.height}
+                        bodyFat={latestRecord?.measurements?.bodyFat}
+                        sex={sex}
+                        ffmi={comprehensiveAnalysis?.ffmiScore?.value}
+                    />
                     <TrainingPrescriptionCard prescriptionData={prescriptionData} />
                 </section>
             )}
@@ -333,6 +343,15 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                 <section style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     {/* Executive Development Banner inside Benchmarks tab */}
                     <PhysiqueOverviewHero analysis={comprehensiveAnalysis} />
+
+                    {/* Genetic Potential Trajectory & Timeline */}
+                    <GeneticTrajectoryCard
+                        weight={latestRecord?.measurements?.weight}
+                        height={latestRecord?.measurements?.height}
+                        bodyFat={latestRecord?.measurements?.bodyFat}
+                        sex={sex}
+                        measurements={latestRecord?.measurements}
+                    />
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
@@ -369,6 +388,9 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
             {/* TAB 2: RATIOS BIOMECÁNICOS Y CÁNONES CLÁSICOS */}
             {activeTab === 'ratios' && (
                 <section style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    {/* Bilateral Symmetry Health & Injury Prevention Audit */}
+                    <BilateralSymmetryCard measurements={latestRecord?.measurements} />
+
                     <div>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
                             <Sparkles style={{ color: 'var(--primary-color)' }} size={18} />

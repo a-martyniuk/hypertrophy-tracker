@@ -6,6 +6,10 @@ import './i18n'; // Import i18n configuration
 import App from './App.tsx'
 
 import { ProfileProvider } from './context/ProfileContext'
+import { initBackgroundSyncListener } from './services/offlineSyncQueue'
+
+// Initialize offline background sync listener for Firestore connectivity recovery
+initBackgroundSyncListener();
 
 // Auto-migrate any direct path navigation (e.g. /hypertrophyracker/share?data=... or /hypertrophyracker/dashboard) to clean hash navigation
 if (typeof window !== 'undefined' && !window.location.hash) {

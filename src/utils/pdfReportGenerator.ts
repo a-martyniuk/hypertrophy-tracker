@@ -72,7 +72,7 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
         return;
     }
 
-    const m = latestRecord.measurements;
+    const m = latestRecord.measurements || {} as any;
     const prevM = previousRecord?.measurements;
     const diagnosis = generateTacticalDiagnosis(latestRecord, previousRecord);
     const analysis = computeComprehensiveAnalysis(m, sex);

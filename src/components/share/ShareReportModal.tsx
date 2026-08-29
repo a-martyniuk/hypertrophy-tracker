@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { X, QrCode, Copy, Check, Share2, Link as LinkIcon } from 'lucide-react';
+import { X, QrCode, Copy, Check, Share2, Link as LinkIcon, Sparkles } from 'lucide-react';
 import QRCode from 'qrcode';
 import { encodeAthleteData, getPublicShareBaseUrl } from '../../utils/shareEncoder';
+import { AthleteStoryCardModal } from './AthleteStoryCard';
 import type { MeasurementRecord } from '../../types/measurements';
 
 interface Props {
@@ -25,6 +26,7 @@ export const ShareReportModal: React.FC<Props> = ({
     const [qrUrl, setQrUrl] = useState<string>('');
     const [copied, setCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link');
+    const [showStoryModal, setShowStoryModal] = useState(false);
 
     const shareUrl = useMemo(() => {
         if (!isOpen || !latestRecord) return '';
@@ -279,9 +281,32 @@ export const ShareReportModal: React.FC<Props> = ({
                                 }}
                             >
                                 <Share2 size={16} />
-                                <span>Compartir...</span>
+                                <span>Compartir Enlace...</span>
                             </button>
                         )}
+
+                        {/* Story Card 9:16 Action */}
+                        <button
+                            onClick={() => setShowStoryModal(true)}
+                            className="btn-secondary"
+                            style={{
+                                width: '100%',
+                                padding: '0.75rem',
+                                borderRadius: '12px',
+                                fontSize: '0.85rem',
+                                fontWeight: 800,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(56, 189, 248, 0.1))',
+                                border: '1px solid rgba(245, 158, 11, 0.4)',
+                                color: '#fbbf24'
+                            }}
+                        >
+                            <Sparkles size={16} />
+                            <span>Exportar Story 9:16 (Instagram / WhatsApp)</span>
+                        </button>
                     </div>
                 )}
 
@@ -319,6 +344,18 @@ export const ShareReportModal: React.FC<Props> = ({
                             <span>{copied ? '¡Enlace Copiado!' : 'Copiar Enlace'}</span>
                         </button>
                     </div>
+                )}
+
+                {/* Athlete Story Card 9:16 Modal */}
+                {showStoryModal && (
+                    <AthleteStoryCardModal
+                        record={latestRecord}
+                        records={records}
+                        userName={userName}
+                        sex={sex}
+                        isOpen={showStoryModal}
+                        onClose={() => setShowStoryModal(false)}
+                    />
                 )}
             </div>
         </div>,

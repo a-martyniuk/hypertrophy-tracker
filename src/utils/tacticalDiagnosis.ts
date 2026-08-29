@@ -34,8 +34,8 @@ export const generateTacticalDiagnosis = (
         };
     }
 
-    if (!previous) {
-        const m = current.measurements;
+    if (!previous || !previous.measurements) {
+        const m = current.measurements || {} as any;
         const chest = m.pecho || 0;
         const waist = m.waist || 0;
         const vRatio = waist > 0 ? (chest / waist).toFixed(2) : '1.0';
@@ -46,12 +46,12 @@ export const generateTacticalDiagnosis = (
             statusText: 'CALIBRACIÓN INICIAL',
             summary: `Vector biométrico inicial registrado con éxito. Ratio V-Taper de referencia establecido en ${vRatio}.`,
             highlights: [
-                `Peso: ${m.weight} kg`,
+                `Peso: ${m.weight || '-'} kg`,
                 `Pecho: ${m.pecho || '-'} cm / Espalda: ${m.back || '-'} cm`,
                 `Cintura: ${m.waist || '-'} cm`
             ],
             metrics: [
-                { label: 'Peso de Referencia', value: `${m.weight} kg` },
+                { label: 'Peso de Referencia', value: `${m.weight || '-'} kg` },
                 { label: 'Torso Superior', value: `Pecho ${m.pecho || '-'} / Espalda ${m.back || '-'} cm` },
                 { label: 'Cintura Base', value: `${m.waist || '-'} cm` },
                 { label: 'Ratio V-Taper Base', value: `${vRatio}x` }
@@ -60,8 +60,8 @@ export const generateTacticalDiagnosis = (
         };
     }
 
-    const cur = current.measurements;
-    const prev = previous.measurements;
+    const cur = current.measurements || {} as any;
+    const prev = previous.measurements || {} as any;
 
     // Deltas
     const weightDiff = (cur.weight || 0) - (prev.weight || 0);

@@ -15,7 +15,8 @@ import {
     FileText,
     Share2,
     Layers,
-    QrCode
+    QrCode,
+    Sparkles
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
@@ -24,6 +25,7 @@ import type { MeasurementRecord, GrowthGoal, UserProfile } from '../types/measur
 import { getMeasurementsStorageKey, getProfileStorageKey, getGoalsStorageKey } from '../utils/storageKeys';
 import { generateAthletePDFReport } from '../utils/pdfReportGenerator';
 import { ShareReportModal } from './share/ShareReportModal';
+import { AthleteStoryCardModal } from './share/AthleteStoryCard';
 
 interface Props {
     records: MeasurementRecord[];
@@ -41,6 +43,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
     const [successMsg, setSuccessMsg] = useState<string | null>(null);
     const [activeSection, setActiveSection] = useState<'all' | 'profile' | 'privacy' | 'export' | 'system'>('all');
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
 
     // Profile & Biometrics State
     const activeProfile = profile || currentProfile;
@@ -494,6 +497,28 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                                     </button>
                                 </div>
                             </div>
+
+                            {/* Option 4: 9:16 Vertical Story Card for Instagram & WhatsApp */}
+                            <div className="export-item-card">
+                                <div className="export-item-top">
+                                    <h4 className="export-item-title">
+                                        <Sparkles size={16} style={{ color: '#fbbf24' }} />
+                                        <span>Ficha Visual 9:16 (Instagram Story & WhatsApp)</span>
+                                    </h4>
+                                    <span className="export-badge social" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', borderColor: 'rgba(245, 158, 11, 0.3)' }}>Formato Vertical HD</span>
+                                </div>
+                                <p className="export-item-desc">
+                                    Exporta una tarjeta estética vertical de alta resolución (1080×1920 px) estilo Cyberpunk / Spotify Wrapped con tus 4 métricas maestras y código QR incrustado para redes.
+                                </p>
+                                <button
+                                    onClick={() => setIsStoryModalOpen(true)}
+                                    className="export-item-btn social-btn"
+                                    style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(56, 189, 248, 0.15))', borderColor: 'rgba(245, 158, 11, 0.4)', color: '#fbbf24' }}
+                                >
+                                    <Sparkles size={15} />
+                                    <span>Generar Story Card 9:16</span>
+                                </button>
+                            </div>
                         </div>
 
                         {/* Hidden file input for import */}
@@ -558,6 +583,18 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                 userName={name}
                 sex={activeProfile?.sex || 'male'}
             />
+
+            {/* Athlete Story Card 9:16 Modal */}
+            {isStoryModalOpen && latestRecord && (
+                <AthleteStoryCardModal
+                    record={latestRecord}
+                    records={records}
+                    userName={name}
+                    sex={activeProfile?.sex || 'male'}
+                    isOpen={isStoryModalOpen}
+                    onClose={() => setIsStoryModalOpen(false)}
+                />
+            )}
 
             <style>{`
                 .settings-view {

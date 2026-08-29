@@ -142,10 +142,19 @@ export const decodeAthleteData = (encodedStr: string): SharedAthletePayload | nu
                     wristL, wristR, ankleL, ankleR, notes, age
                 ] = arr;
 
+                let validDate = new Date().toISOString();
+                if (dateStr && typeof dateStr === 'string') {
+                    const cleanDateStr = dateStr.startsWith('026') ? `2${dateStr}` : dateStr;
+                    const d = new Date(cleanDateStr.length === 10 ? `${cleanDateStr}T12:00:00.000Z` : cleanDateStr);
+                    if (!isNaN(d.getTime())) {
+                        validDate = d.toISOString();
+                    }
+                }
+
                 return {
                     id: `shared-rec-${idx}`,
                     userId: 'shared',
-                    date: `${dateStr}T00:00:00.000Z`,
+                    date: validDate,
                     measurements: {
                         height: Number(height) || undefined,
                         weight: Number(weight) || 0,

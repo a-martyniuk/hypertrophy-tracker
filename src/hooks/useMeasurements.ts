@@ -9,6 +9,7 @@ import {
 } from '../services/measurementService';
 import { publishCommunityAthlete } from '../services/communityAthleteService';
 import { getMeasurementsStorageKey } from '../utils/storageKeys';
+import { enqueueSyncAction } from '../services/offlineSyncQueue';
 
 export const useMeasurements = (userId?: string | null) => {
     const [records, setRecords] = useState<MeasurementRecord[]>([]);
@@ -86,11 +87,17 @@ export const useMeasurements = (userId?: string | null) => {
 
             // 2. Background Cloud Sync if connected
             if (isCloud) {
+                if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                    enqueueSyncAction('SAVE_RECORD', userId!, record);
+                    return { success: true, target: 'offline_queued' };
+                }
+
                 try {
                     await saveCloudRecord(record, userId!);
                     return { success: true, target: 'cloud' };
                 } catch (cloudErr) {
-                    console.warn('[useMeasurements] Offline mode: guardado localmente, sincronizacion pendiente.', cloudErr);
+                    console.warn('[useMeasurements] Error en cloud. Encolando para sincronización automática:', cloudErr);
+                    enqueueSyncAction('SAVE_RECORD', userId!, record);
                     return { success: true, target: 'local_cached' };
                 }
             }
@@ -116,13 +123,19 @@ export const useMeasurements = (userId?: string | null) => {
             return { success: true };
         }
 
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+            enqueueSyncAction('DELETE_RECORD', userId!, id);
+            return { success: true };
+        }
+
         // 2. Background Cloud delete
         try {
             await deleteCloudRecord(id, userId!);
             return { success: true };
         } catch (err: unknown) {
-            console.error('[useMeasurements] Error al eliminar registro en cloud:', err);
-            return { success: true, warning: 'Eliminado localmente, error en cloud' };
+            console.warn('[useMeasurements] Error al eliminar en cloud. Encolando para reintento offline:', err);
+            enqueueSyncAction('DELETE_RECORD', userId!, id);
+            return { success: true, warning: 'Eliminado localmente, reintento encolado' };
         }
     };
 

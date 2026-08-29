@@ -26,6 +26,8 @@ import { AthleteComparisonCard } from '../analysis/AthleteComparisonCard';
 import { MuscleHistoryModal } from '../analysis/MuscleHistoryModal';
 import { DynamicSilhouette } from '../DynamicSilhouette';
 import { MapModal } from '../measurement/MapModal';
+import { AthleteStoryCardModal } from './AthleteStoryCard';
+import { QuickDuelChallengeModal } from './QuickDuelChallengeModal';
 import { useMeasurementLines } from '../../hooks/useMeasurementLines';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 import type { MeasurementRecord, BodyMeasurements } from '../../types/measurements';
@@ -154,6 +156,8 @@ export const PublicReportView: React.FC = () => {
     const [activeTab, setActiveTab] = useState<TrainerTab>(initialTab);
     const [selectedMuscle, setSelectedMuscle] = useState<MuscleBenchmark | null>(null);
     const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+    const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
+    const [isQuickDuelOpen, setIsQuickDuelOpen] = useState(false);
     const [copiedLink, setCopiedLink] = useState(false);
 
     useEffect(() => {
@@ -260,17 +264,20 @@ export const PublicReportView: React.FC = () => {
 
     // Trend chart datasets
     const weightFatTrendData = useMemo(() => {
-        return records.map((r) => ({
-            date: new Date(r.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
-            fullDate: new Date(r.date).toLocaleDateString('es-ES'),
-            peso: r.measurements.weight || null,
-            grasa: r.measurements.bodyFat || null
-        }));
+        return records.map((r) => {
+            const m = r.measurements || {} as any;
+            return {
+                date: new Date(r.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+                fullDate: new Date(r.date).toLocaleDateString('es-ES'),
+                peso: m.weight || null,
+                grasa: m.bodyFat || null
+            };
+        });
     }, [records]);
 
     const limbsTrendData = useMemo(() => {
         return records.map((r) => {
-            const m = r.measurements;
+            const m = r.measurements || {} as any;
             return {
                 date: new Date(r.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
                 fullDate: new Date(r.date).toLocaleDateString('es-ES'),
@@ -284,7 +291,7 @@ export const PublicReportView: React.FC = () => {
 
     const lowerTorsoTrendData = useMemo(() => {
         return records.map((r) => {
-            const m = r.measurements;
+            const m = r.measurements || {} as any;
             return {
                 date: new Date(r.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
                 fullDate: new Date(r.date).toLocaleDateString('es-ES'),
@@ -413,12 +420,21 @@ export const PublicReportView: React.FC = () => {
                         )}
 
                         <button
-                            onClick={() => setActiveTab('versus')}
+                            onClick={() => setIsQuickDuelOpen(true)}
                             className="hero-btn hero-btn-primary"
-                            title="Compara tus medidas contra este atleta"
+                            title="Retar al atleta al instante con 4 medidas"
                         >
                             <Swords size={16} />
-                            <span>Retar en Duelo</span>
+                            <span>Retar en 10s</span>
+                        </button>
+
+                        <button
+                            onClick={() => setIsStoryModalOpen(true)}
+                            className="hero-btn hero-btn-secondary"
+                            title="Generar Story Card vertical 9:16 para Instagram"
+                        >
+                            <Sparkles size={16} style={{ color: '#fbbf24' }} />
+                            <span>Story 9:16</span>
                         </button>
 
                         <button
@@ -975,6 +991,29 @@ export const PublicReportView: React.FC = () => {
                 onClose={() => setIsMapModalOpen(false)}
                 title="Mapa de Medición Muscular"
             />
+
+            {/* Athlete Story Card 9:16 Modal */}
+            {isStoryModalOpen && activeRecord && (
+                <AthleteStoryCardModal
+                    record={activeRecord}
+                    records={records}
+                    userName={name}
+                    sex={sex}
+                    isOpen={isStoryModalOpen}
+                    onClose={() => setIsStoryModalOpen(false)}
+                />
+            )}
+
+            {/* Quick Duel 1v1 Challenge Modal */}
+            {isQuickDuelOpen && activeRecord && (
+                <QuickDuelChallengeModal
+                    isOpen={isQuickDuelOpen}
+                    onClose={() => setIsQuickDuelOpen(false)}
+                    targetRecord={activeRecord}
+                    targetName={name}
+                    targetSex={sex}
+                />
+            )}
         </div>
     );
 };
