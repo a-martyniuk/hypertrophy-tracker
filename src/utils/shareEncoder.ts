@@ -101,21 +101,9 @@ export const encodeAthleteData = (
     }
 };
 
-/**
- * Encodes a single measurement snapshot into an ultra-compact URL string (approx 80-100 characters).
- * 100% self-contained without needing any database or third-party service.
- * Format: name*sexFlag*date*h_w_bf_neck_pecho_back_waist_hips_armL_armR_fArmL_fArmR_thighL_thighR_calfL_calfR_wristL_wristR_ankleL_ankleR_age
- */
-export const encodeCompactSnapshot = (
-    name: string,
-    record: MeasurementRecord,
-    sex: 'male' | 'female' = 'male'
-): string => {
-    const m = record.measurements || ({} as BodyMeasurements);
-    const cleanName = (name || 'Atleta').replace(/[*~_]/g, ' ').trim().replace(/\s+/g, '_');
-    const sexFlag = sex === 'female' ? 1 : 0;
-    const dateStr = record.date ? record.date.split('T')[0] : new Date().toISOString().split('T')[0];
-
+const serializeCompactRecord = (r: MeasurementRecord): string => {
+    const m = r.measurements || ({} as BodyMeasurements);
+    const d = r.date ? r.date.split('T')[0] : new Date().toISOString().split('T')[0];
     const nums = [
         m.height || 0,
         m.weight || 0,
@@ -139,58 +127,99 @@ export const encodeCompactSnapshot = (
         m.ankle?.right || 0,
         m.age || 0
     ].join('_');
+    return `${d}~${nums}`;
+};
 
-    return `${cleanName}*${sexFlag}*${dateStr}*${nums}`;
+/**
+ * Encodes athlete telemetry history into an ultra-compact URL string.
+ * Supports multiple records delimited by | for full evolution curves and charts.
+ * 100% self-contained without needing any database or third-party service.
+ */
+export const encodeCompactSnapshot = (
+    name: string,
+    record: MeasurementRecord,
+    sex: 'male' | 'female' = 'male',
+    records: MeasurementRecord[] = []
+): string => {
+    const cleanName = (name || 'Atleta').replace(/[*~_|]/g, ' ').trim().replace(/\s+/g, '_');
+    const sexFlag = sex === 'female' ? 1 : 0;
+    const allRecords = records.length > 0 ? records : [record];
+    const sorted = [...allRecords].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    // Keep up to 15 latest entries for compact URL safety and complete curves
+    const limited = sorted.slice(-15);
+    const body = limited.map(serializeCompactRecord).join('|');
+
+    return `${cleanName}*${sexFlag}*${body}`;
 };
 
 export const decodeCompactSnapshot = (str: string): SharedAthletePayload | null => {
     if (!str || !str.includes('*')) return null;
-    const parts = decodeURIComponent(str).split('*');
-    if (parts.length < 4) return null;
+    const decodedStr = decodeURIComponent(str);
+    const parts = decodedStr.split('*');
+    if (parts.length < 3) return null;
 
     const name = parts[0].replace(/_/g, ' ');
     const sex: 'male' | 'female' = parts[1] === '1' ? 'female' : 'male';
-    const date = parts[2] || new Date().toISOString().split('T')[0];
-    const nums = parts[3].split('_').map(Number);
 
-    const [
-        height = 175, weight = 75, bodyFat = 15,
-        neck = 0, pecho = 0, back = 0, waist = 0, hips = 0,
-        armL = 0, armR = 0, foreL = 0, foreR = 0,
-        thighL = 0, thighR = 0, calfL = 0, calfR = 0,
-        wristL = 0, wristR = 0, ankleL = 0, ankleR = 0,
-        age = 0
-    ] = nums;
+    let rawEntries: string[] = [];
+    if (parts.length === 4) {
+        // Single snapshot: parts[2]=date, parts[3]=nums
+        rawEntries = [`${parts[2]}~${parts[3]}`];
+    } else {
+        // Multi snapshot: parts[2]=date~nums|date~nums
+        rawEntries = parts[2].split('|');
+    }
 
-    const record: MeasurementRecord = {
-        id: 'shared-compact-rec',
-        userId: 'shared',
-        date: date.length === 10 ? `${date}T12:00:00.000Z` : date,
-        measurements: {
-            height: height > 0 ? height : undefined,
-            weight: weight > 0 ? weight : 0,
-            bodyFat: bodyFat > 0 ? bodyFat : undefined,
-            age: age > 0 ? age : undefined,
-            neck: neck > 0 ? neck : 0,
-            pecho: pecho > 0 ? pecho : 0,
-            back: back > 0 ? back : 0,
-            waist: waist > 0 ? waist : 0,
-            hips: hips > 0 ? hips : 0,
-            arm: { left: armL, right: armR },
-            forearm: { left: foreL, right: foreR },
-            thigh: { left: thighL, right: thighR },
-            calf: { left: calfL, right: calfR },
-            wrist: { left: wristL, right: wristR },
-            ankle: { left: ankleL, right: ankleR }
+    const records: MeasurementRecord[] = rawEntries.map((item, idx) => {
+        let dateStr = new Date().toISOString().split('T')[0];
+        let numsStr = item;
+        if (item.includes('~')) {
+            const [d, n] = item.split('~');
+            dateStr = d;
+            numsStr = n;
         }
-    };
+        const nums = numsStr.split('_').map(Number);
+        const [
+            height = 175, weight = 75, bodyFat = 15,
+            neck = 0, pecho = 0, back = 0, waist = 0, hips = 0,
+            armL = 0, armR = 0, foreL = 0, foreR = 0,
+            thighL = 0, thighR = 0, calfL = 0, calfR = 0,
+            wristL = 0, wristR = 0, ankleL = 0, ankleR = 0,
+            age = 0
+        ] = nums;
+
+        return {
+            id: `shared-compact-rec-${idx}`,
+            userId: 'shared',
+            date: dateStr.length === 10 ? `${dateStr}T12:00:00.000Z` : dateStr,
+            measurements: {
+                height: height > 0 ? height : undefined,
+                weight: weight > 0 ? weight : 0,
+                bodyFat: bodyFat > 0 ? bodyFat : undefined,
+                age: age > 0 ? age : undefined,
+                neck: neck > 0 ? neck : 0,
+                pecho: pecho > 0 ? pecho : 0,
+                back: back > 0 ? back : 0,
+                waist: waist > 0 ? waist : 0,
+                hips: hips > 0 ? hips : 0,
+                arm: { left: armL, right: armR },
+                forearm: { left: foreL, right: foreR },
+                thigh: { left: thighL, right: thighR },
+                calf: { left: calfL, right: calfR },
+                wrist: { left: wristL, right: wristR },
+                ankle: { left: ankleL, right: ankleR }
+            }
+        };
+    });
+
+    const latest = records[records.length - 1] || records[0];
 
     return {
         name,
         sex,
-        date: record.date,
-        measurements: record.measurements,
-        records: [record]
+        date: latest.date,
+        measurements: latest.measurements,
+        records
     };
 };
 

@@ -219,11 +219,11 @@ export const PublicReportView: React.FC = () => {
 
     const records: MeasurementRecord[] = useMemo(() => {
         if (!athleteData) return [];
+        let list: MeasurementRecord[] = [];
         if (athleteData.records && athleteData.records.length > 0) {
-            return athleteData.records;
-        }
-        if (athleteData.measurements) {
-            return [{
+            list = [...athleteData.records];
+        } else if (athleteData.measurements) {
+            list = [{
                 id: 'shared-record-1',
                 userId: 'shared-user',
                 date: athleteData.date || new Date().toISOString(),
@@ -232,7 +232,7 @@ export const PublicReportView: React.FC = () => {
                 metadata: { condition: 'fasted' }
             }];
         }
-        return [];
+        return list.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }, [athleteData]);
 
     const [selectedRecordId, setSelectedRecordId] = useState<string>('');

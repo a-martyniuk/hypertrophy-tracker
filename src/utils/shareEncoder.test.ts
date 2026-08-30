@@ -28,7 +28,7 @@ describe('shareEncoder - Compact Snapshot', () => {
 
     it('encodes compact snapshot into short delimited string', () => {
         const compact = encodeCompactSnapshot('Alexis Martyniuk', sampleRecord, 'male');
-        expect(compact).toContain('Alexis_Martyniuk*0*2026-08-27*');
+        expect(compact).toContain('Alexis_Martyniuk*0*2026-08-27~');
         expect(compact.length).toBeLessThan(120);
     });
 
@@ -54,5 +54,39 @@ describe('shareEncoder - Compact Snapshot', () => {
         expect(decoded).not.toBeNull();
         expect(decoded?.name).toBe('Alexis Martyniuk');
         expect(decoded?.measurements.weight).toBe(104);
+    });
+
+    it('encodes and decodes multi-session evolution history', () => {
+        const sampleRecord2: MeasurementRecord = {
+            id: 'rec-2',
+            userId: 'u-1',
+            date: '2026-08-20',
+            measurements: {
+                height: 191,
+                weight: 104,
+                bodyFat: 20,
+                age: 38,
+                neck: 43,
+                pecho: 117,
+                back: 130,
+                waist: 95,
+                hips: 97,
+                arm: { left: 43, right: 43 },
+                forearm: { left: 33, right: 33 },
+                thigh: { left: 64, right: 64 },
+                calf: { left: 41, right: 41 },
+                wrist: { left: 17, right: 17 },
+                ankle: { left: 22, right: 22 }
+            }
+        };
+
+        const compactHistory = encodeCompactSnapshot('Alexis Martyniuk', sampleRecord, 'male', [sampleRecord2, sampleRecord]);
+        expect(compactHistory).toContain('|');
+
+        const decoded = decodeAthleteData(compactHistory);
+        expect(decoded).not.toBeNull();
+        expect(decoded?.records?.length).toBe(2);
+        expect(decoded?.records?.[0].measurements.pecho).toBe(117);
+        expect(decoded?.records?.[1].measurements.pecho).toBe(115);
     });
 });

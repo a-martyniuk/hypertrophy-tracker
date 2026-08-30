@@ -29,15 +29,16 @@ export const ShareReportModal: React.FC<Props> = ({
     const [shortCopied, setShortCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link');
     const [showStoryModal, setShowStoryModal] = useState(false);
-    const [includeHistory, setIncludeHistory] = useState(false);
+    const [includeHistory, setIncludeHistory] = useState(true);
     const [shortUrl, setShortUrl] = useState<string>('');
     const [isShortening, setIsShortening] = useState(false);
 
-    // 100% Self-contained compact snapshot link (~150 chars)
+    // 100% Self-contained compact snapshot link with full evolution curves
     const compactSelfContainedUrl = useMemo(() => {
         if (!isOpen || !latestRecord) return '';
-        return createCompactSelfContainedLink(userName, latestRecord, sex);
-    }, [isOpen, latestRecord, userName, sex]);
+        const recordsToEncode = includeHistory && records.length > 0 ? records : [latestRecord];
+        return createCompactSelfContainedLink(userName, latestRecord, sex, recordsToEncode);
+    }, [isOpen, latestRecord, userName, sex, records, includeHistory]);
 
     const encodedPayload = useMemo(() => {
         if (!isOpen || !latestRecord) return '';

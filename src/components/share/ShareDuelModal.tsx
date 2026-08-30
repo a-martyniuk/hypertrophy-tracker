@@ -45,7 +45,7 @@ export const ShareDuelModal: React.FC<Props> = ({
     const [copied, setCopied] = useState(false);
     const [shortCopied, setShortCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link');
-    const [includeHistory, setIncludeHistory] = useState(false);
+    const [includeHistory, setIncludeHistory] = useState(true);
     const [shortUrl, setShortUrl] = useState<string>('');
     const [isShortening, setIsShortening] = useState(false);
 
@@ -63,17 +63,20 @@ export const ShareDuelModal: React.FC<Props> = ({
         };
     }, [currentRecord, records, profileA?.measurements]);
 
-    // 100% Self-contained compact snapshot link for versus duels
+    const recordsToEncode = useMemo(() => {
+        return includeHistory && records.length > 0 ? records : [effectiveRecord as MeasurementRecord];
+    }, [includeHistory, records, effectiveRecord]);
+
+    // 100% Self-contained compact snapshot link for versus duels with history
     const compactSelfContainedUrl = useMemo(() => {
         if (!isOpen) return '';
-        return createCompactSelfContainedLink(nameA, effectiveRecord as MeasurementRecord, sex, 'versus', rivalId);
-    }, [isOpen, nameA, effectiveRecord, sex, rivalId]);
+        return createCompactSelfContainedLink(nameA, effectiveRecord as MeasurementRecord, sex, recordsToEncode, 'versus', rivalId);
+    }, [isOpen, nameA, effectiveRecord, sex, recordsToEncode, rivalId]);
 
     const encodedPayload = useMemo(() => {
         if (!isOpen) return '';
-        const recordsToEncode = includeHistory && records.length > 0 ? records : [effectiveRecord as MeasurementRecord];
         return encodeAthleteData(nameA, effectiveRecord as MeasurementRecord, sex, recordsToEncode);
-    }, [isOpen, effectiveRecord, records, nameA, sex, includeHistory]);
+    }, [isOpen, effectiveRecord, recordsToEncode, nameA, sex]);
 
     // Build the visual Duel link
     const duelShareUrl = useMemo(() => {
