@@ -60,7 +60,7 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
     const {
         latestRecord,
         previousRecord,
-        records = [],
+        records: _records = [],
         userName = 'Atleta',
         sex = 'male'
     } = options;
