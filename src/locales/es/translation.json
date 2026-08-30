@@ -124,6 +124,7 @@
                 "waist": "Cintura (cm)",
                 "hips": "Caderas (cm)",
                 "arm": "Brazo (cm)",
+                "forearm": "Antebrazo (cm)",
                 "thigh": "Muslo (cm)",
                 "calf": "Pantorrilla (cm)"
             },

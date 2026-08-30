@@ -66,6 +66,7 @@ export interface GrowthGoal {
     measurementType: keyof BodyMeasurements |
     'weight' | 'bodyFat' |
     'arm.left' | 'arm.right' |
+    'forearm.left' | 'forearm.right' |
     'thigh.left' | 'thigh.right' |
     'calf.left' | 'calf.right' |
     'biceps' | 'chest' | 'calves'; // Legacy Aliases for AnalysisView compatibility

@@ -45,6 +45,8 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
         hips: t('common.goals.labels.hips'),
         'arm.left': `${t('common.goals.labels.arm')} (L)`,
         'arm.right': `${t('common.goals.labels.arm')} (R)`,
+        'forearm.left': `${t('common.goals.labels.forearm')} (L)`,
+        'forearm.right': `${t('common.goals.labels.forearm')} (R)`,
         'thigh.left': `${t('common.goals.labels.thigh')} (L)`,
         'thigh.right': `${t('common.goals.labels.thigh')} (R)`,
         'calf.left': `${t('common.goals.labels.calf')} (L)`,

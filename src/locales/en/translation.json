@@ -124,6 +124,7 @@
                 "waist": "Waist (cm)",
                 "hips": "Hips (cm)",
                 "arm": "Arm (cm)",
+                "forearm": "Forearm (cm)",
                 "thigh": "Thigh (cm)",
                 "calf": "Calf (cm)"
             },

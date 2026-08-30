@@ -85,6 +85,30 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
         setTimeout(() => setProfileSaved(false), 2500);
     };
 
+    const handleDownloadPDF = () => {
+        if (!latestRecord) {
+            alert('Aún no tienes mediciones registradas para generar el informe PDF. Registra tu primera medición en "Nueva Medida".');
+            return;
+        }
+        generateAthletePDFReport({ latestRecord, previousRecord, records, userName: name, sex: activeProfile?.sex || 'male' });
+    };
+
+    const handleOpenShare = () => {
+        if (!latestRecord) {
+            alert('Aún no tienes mediciones registradas. Agrega tu primera medición en "Nueva Medida" para generar tu enlace y ficha pública.');
+            return;
+        }
+        setIsShareModalOpen(true);
+    };
+
+    const handleOpenStory = () => {
+        if (!latestRecord) {
+            alert('Aún no tienes mediciones registradas. Agrega tu primera medición en "Nueva Medida" para generar tu Story Card 9:16.');
+            return;
+        }
+        setIsStoryModalOpen(true);
+    };
+
     const handleExport = () => {
         const data = {
             metadata: {
@@ -481,7 +505,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                                     Informe técnico de grado clínico con diagnóstico biomédico, límites genéticos Casey Butt, ratios Steve Reeves, balance simétrico y prescripción de entrenamiento.
                                 </p>
                                 <button
-                                    onClick={() => generateAthletePDFReport({ latestRecord, previousRecord, records, userName: name, sex: activeProfile?.sex || 'male' })}
+                                    onClick={handleDownloadPDF}
                                     className="export-item-btn pdf-btn"
                                 >
                                     <Download size={15} />
@@ -502,7 +526,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                                     Genera un enlace visualmente optimizado para historias de Instagram, biografía, estados de WhatsApp o código QR con simulador de duelos versus interactivo y CTA de registro gratis.
                                 </p>
                                 <button
-                                    onClick={() => setIsShareModalOpen(true)}
+                                    onClick={handleOpenShare}
                                     className="export-item-btn social-btn"
                                 >
                                     <QrCode size={15} />
@@ -555,7 +579,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                                     Exporta una tarjeta estética vertical de alta resolución (1080×1920 px) estilo Cyberpunk / Spotify Wrapped con tus 4 métricas maestras y código QR incrustado para redes.
                                 </p>
                                 <button
-                                    onClick={() => setIsStoryModalOpen(true)}
+                                    onClick={handleOpenStory}
                                     className="export-item-btn social-btn"
                                     style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(56, 189, 248, 0.15))', borderColor: 'rgba(245, 158, 11, 0.4)', color: '#fbbf24' }}
                                 >
