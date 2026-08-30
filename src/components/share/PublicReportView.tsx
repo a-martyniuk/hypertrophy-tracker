@@ -973,67 +973,35 @@ export const PublicReportView: React.FC = () => {
                 </div>
             )}
 
-            {/* VIRAL SIGNUP & CONVERSION BANNER (FREE JOIN CTA) */}
+            {/* UNIFIED CALL TO ACTION BANNER */}
             <div className="viral-signup-banner">
                 <div className="viral-signup-content">
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#fbbf24', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', fontWeight: 800, textTransform: 'uppercase' }}>
                         <Sparkles size={14} />
-                        <span>HYPERTROPHY TRACKER PRO &bull; 100% GRATUITO</span>
+                        <span>HYPERTROPHY TRACKER &bull; AUDITORÍA BIOMECÁNICA</span>
                     </div>
                     <h3 className="viral-signup-title">
-                        ¿Quieres retar a {name} o calcular tu límite genético natural?
+                        ¿Quieres retar a {name} o auditar tu propio desarrollo muscular?
                     </h3>
                     <p className="viral-signup-desc">
-                        Crea tu cuenta gratuita en 30 segundos, carga tu biometría y desbloquea tu radar biomecánico 360°, comparativas Head-to-Head y análisis de potencial Casey Butt. Sin tarjeta de crédito.
+                        Ingresa tus medidas antropométricas para calcular tus Ratios Áureos de Reeves, comparar asimetrías bilaterales y proyectar tu límite genético natural.
                     </p>
                 </div>
 
                 <div className="viral-signup-actions">
                     <button
-                        onClick={() => navigate('/')}
+                        onClick={() => setIsQuickDuelOpen(true)}
                         className="viral-cta-btn viral-cta-primary"
                     >
-                        <Flame size={18} />
-                        <span>Crear Cuenta Gratis & Retar &rarr;</span>
-                    </button>
-                    <button
-                        onClick={() => {
-                            setActiveTab('versus');
-                            window.scrollTo({ top: 380, behavior: 'smooth' });
-                        }}
-                        className="viral-cta-btn viral-cta-secondary"
-                    >
                         <Swords size={18} />
-                        <span>Ver Duelo Completo</span>
-                    </button>
-                </div>
-            </div>
-
-            {/* STICKY BOTTOM BAR ON MOBILE */}
-            <div className="sticky-mobile-cta-bar">
-                <div className="sticky-mobile-text">
-                    <span className="sticky-mobile-label">Hypertrophy Tracker</span>
-                    <span className="sticky-mobile-title">¿Quieres retar a este atleta?</span>
-                </div>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                    <button
-                        onClick={() => {
-                            setActiveTab('versus');
-                            window.scrollTo({ top: 380, behavior: 'smooth' });
-                        }}
-                        className="btn-secondary"
-                        style={{ padding: '0.45rem 0.75rem', fontSize: '0.75rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}
-                    >
-                        <Swords size={13} />
-                        <span>Duelo</span>
+                        <span>⚔️ Retar a {name} (Ingresar Medidas)</span>
                     </button>
                     <button
                         onClick={() => navigate('/')}
-                        className="btn-primary"
-                        style={{ padding: '0.45rem 0.95rem', fontSize: '0.75rem', borderRadius: '10px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '4px' }}
+                        className="viral-cta-btn viral-cta-secondary"
                     >
-                        <Flame size={13} />
-                        <span>Crear Cuenta Gratis</span>
+                        <Flame size={18} />
+                        <span>Ir a Hypertrophy Tracker &rarr;</span>
                     </button>
                 </div>
             </div>
