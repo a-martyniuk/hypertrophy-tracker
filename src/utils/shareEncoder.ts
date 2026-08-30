@@ -101,9 +101,21 @@ export const encodeAthleteData = (
     }
 };
 
-const serializeCompactRecord = (r: MeasurementRecord): string => {
-    const m = r.measurements || ({} as BodyMeasurements);
-    const d = r.date ? r.date.split('T')[0] : new Date().toISOString().split('T')[0];
+/**
+ * Encodes a single measurement snapshot into an ultra-compact URL string (~80-100 characters).
+ * 100% self-contained without needing any database or third-party service.
+ * Format: name*sexFlag*date*h_w_bf_neck_pecho_back_waist_hips_armL_armR_fArmL_fArmR_thighL_thighR_calfL_calfR_wristL_wristR_ankleL_ankleR_age
+ */
+export const encodeCompactSnapshot = (
+    name: string,
+    record: MeasurementRecord,
+    sex: 'male' | 'female' = 'male'
+): string => {
+    const m = record.measurements || ({} as BodyMeasurements);
+    const cleanName = (name || 'Atleta').replace(/[*~_]/g, ' ').trim().replace(/\s+/g, '_');
+    const sexFlag = sex === 'female' ? 1 : 0;
+    const dateStr = record.date ? record.date.split('T')[0] : new Date().toISOString().split('T')[0];
+
     const nums = [
         m.height || 0,
         m.weight || 0,
@@ -127,29 +139,8 @@ const serializeCompactRecord = (r: MeasurementRecord): string => {
         m.ankle?.right || 0,
         m.age || 0
     ].join('_');
-    return `${d}~${nums}`;
-};
 
-/**
- * Encodes athlete telemetry history into an ultra-compact URL string.
- * Supports multiple records delimited by | for full evolution curves and charts.
- * 100% self-contained without needing any database or third-party service.
- */
-export const encodeCompactSnapshot = (
-    name: string,
-    record: MeasurementRecord,
-    sex: 'male' | 'female' = 'male',
-    records: MeasurementRecord[] = []
-): string => {
-    const cleanName = (name || 'Atleta').replace(/[*~_|]/g, ' ').trim().replace(/\s+/g, '_');
-    const sexFlag = sex === 'female' ? 1 : 0;
-    const allRecords = records.length > 0 ? records : [record];
-    const sorted = [...allRecords].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    // Keep up to 15 latest entries for compact URL safety and complete curves
-    const limited = sorted.slice(-15);
-    const body = limited.map(serializeCompactRecord).join('|');
-
-    return `${cleanName}*${sexFlag}*${body}`;
+    return `${cleanName}*${sexFlag}*${dateStr}*${nums}`;
 };
 
 export const decodeCompactSnapshot = (str: string): SharedAthletePayload | null => {

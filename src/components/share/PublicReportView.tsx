@@ -5,9 +5,7 @@ import {
     Sparkles,
     Scale,
     Download,
-    TrendingUp,
     Calendar,
-    List,
     Map as MapIcon,
     User,
     Share2,
@@ -32,14 +30,13 @@ import { MapModal } from '../measurement/MapModal';
 import { AthleteStoryCardModal } from './AthleteStoryCard';
 import { QuickDuelChallengeModal } from './QuickDuelChallengeModal';
 import { useMeasurementLines } from '../../hooks/useMeasurementLines';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 import type { MeasurementRecord, BodyMeasurements } from '../../types/measurements';
 
 import '../AnalysisView.css';
 import '../MeasurementForm.css';
 import './PublicReportView.css';
 
-type TrainerTab = 'bodymap' | 'audit' | 'versus' | 'trends' | 'history';
+type TrainerTab = 'bodymap' | 'audit' | 'versus';
 
 interface ReadOnlyHudCardProps {
     id: string;
@@ -193,7 +190,7 @@ export const PublicReportView: React.FC = () => {
         return rival || undefined;
     }, [searchParams]);
 
-    const validTabs: TrainerTab[] = ['bodymap', 'audit', 'versus', 'trends', 'history'];
+    const validTabs: TrainerTab[] = ['bodymap', 'audit', 'versus'];
     const initialTab: TrainerTab = (paramTab && validTabs.includes(paramTab)) ? paramTab : 'bodymap';
     const [activeTab, setActiveTab] = useState<TrainerTab>(initialTab);
     const [selectedMuscle, setSelectedMuscle] = useState<MuscleBenchmark | null>(null);
@@ -305,47 +302,6 @@ export const PublicReportView: React.FC = () => {
         }
         return arm;
     }, [activeRecord]);
-
-    // Trend chart datasets
-    const weightFatTrendData = useMemo(() => {
-        return records.map((r) => {
-            const m = r.measurements || {} as any;
-            return {
-                date: new Date(r.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
-                fullDate: new Date(r.date).toLocaleDateString('es-ES'),
-                peso: m.weight || null,
-                grasa: m.bodyFat || null
-            };
-        });
-    }, [records]);
-
-    const limbsTrendData = useMemo(() => {
-        return records.map((r) => {
-            const m = r.measurements || {} as any;
-            return {
-                date: new Date(r.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
-                fullDate: new Date(r.date).toLocaleDateString('es-ES'),
-                brazoIzq: m.arm?.left || null,
-                brazoDer: m.arm?.right || null,
-                pecho: m.pecho || null,
-                espalda: m.back || null
-            };
-        });
-    }, [records]);
-
-    const lowerTorsoTrendData = useMemo(() => {
-        return records.map((r) => {
-            const m = r.measurements || {} as any;
-            return {
-                date: new Date(r.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
-                fullDate: new Date(r.date).toLocaleDateString('es-ES'),
-                cintura: m.waist || null,
-                cadera: m.hips || null,
-                muslo: Math.max(m.thigh?.left || 0, m.thigh?.right || 0) || null,
-                gemelo: Math.max(m.calf?.left || 0, m.calf?.right || 0) || null
-            };
-        });
-    }, [records]);
 
     const handleShareOrCopy = async () => {
         let shareUrl = window.location.href;
@@ -592,24 +548,6 @@ export const PublicReportView: React.FC = () => {
                     <Swords size={15} />
                     <span>Duelo Versus (Comparativa)</span>
                 </button>
-
-                <button
-                    onClick={() => setActiveTab('trends')}
-                    className={`public-tab-btn ${activeTab === 'trends' ? 'active' : ''}`}
-                >
-                    <TrendingUp size={15} />
-                    <span>Curvas de Evolución</span>
-                </button>
-
-                {records.length > 1 && (
-                    <button
-                        onClick={() => setActiveTab('history')}
-                        className={`public-tab-btn ${activeTab === 'history' ? 'active' : ''}`}
-                    >
-                        <List size={15} />
-                        <span>Historial ({records.length})</span>
-                    </button>
-                )}
             </div>
 
             {/* TAB 1: BODY MAP & HUD */}
@@ -809,167 +747,6 @@ export const PublicReportView: React.FC = () => {
                         sex={sex}
                         initialRivalId={paramRival}
                     />
-                </div>
-            )}
-
-            {/* TAB 4: TRENDS & CHARTS */}
-            {activeTab === 'trends' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }} className="animate-fade">
-                    {/* Weight & Body Fat Trend */}
-                    <div className="card glass" style={{ padding: '1.25rem' }}>
-                        <h4 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                            Evolución de Composición Corporal (Peso & Grasa)
-                        </h4>
-                        <div style={{ width: '100%', height: 260, minWidth: 0, minHeight: 0 }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={weightFatTrendData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.06)" />
-                                    <XAxis dataKey="date" stroke="#64748b" tick={{ fontSize: 11, fontFamily: 'var(--font-mono)' }} />
-                                    <YAxis yAxisId="left" stroke="#64748b" tick={{ fontSize: 11, fontFamily: 'var(--font-mono)' }} />
-                                    <YAxis yAxisId="right" orientation="right" stroke="#f59e0b" tick={{ fontSize: 11, fontFamily: 'var(--font-mono)' }} />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: 'rgba(12, 15, 24, 0.95)',
-                                            borderColor: 'rgba(245, 158, 11, 0.4)',
-                                            borderRadius: '10px',
-                                            color: '#fff',
-                                            fontFamily: 'var(--font-mono)'
-                                        }}
-                                    />
-                                    <Legend wrapperStyle={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }} />
-                                    <Line yAxisId="left" type="monotone" dataKey="peso" name="Peso (kg)" stroke="#10b981" strokeWidth={2.5} dot={{ r: 4 }} />
-                                    <Line yAxisId="right" type="monotone" dataKey="grasa" name="Grasa (%)" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 4 }} />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    {/* Limbs & Torso Trend */}
-                    <div className="card glass" style={{ padding: '1.25rem' }}>
-                        <h4 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                            Evolución de Extremidades Superiores y Torso
-                        </h4>
-                        <div style={{ width: '100%', height: 260, minWidth: 0, minHeight: 0 }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={limbsTrendData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.06)" />
-                                    <XAxis dataKey="date" stroke="#64748b" tick={{ fontSize: 11, fontFamily: 'var(--font-mono)' }} />
-                                    <YAxis stroke="#64748b" tick={{ fontSize: 11, fontFamily: 'var(--font-mono)' }} domain={['auto', 'auto']} />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: 'rgba(12, 15, 24, 0.95)',
-                                            borderColor: 'rgba(245, 158, 11, 0.4)',
-                                            borderRadius: '10px',
-                                            color: '#fff',
-                                            fontFamily: 'var(--font-mono)'
-                                        }}
-                                    />
-                                    <Legend wrapperStyle={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }} />
-                                    <Line type="monotone" dataKey="brazoDer" name="Bíceps Der (cm)" stroke="#a855f7" strokeWidth={2.5} dot={{ r: 4 }} />
-                                    <Line type="monotone" dataKey="brazoIzq" name="Bíceps Izq (cm)" stroke="#c084fc" strokeWidth={2} strokeDasharray="4 4" dot={{ r: 3 }} />
-                                    <Line type="monotone" dataKey="pecho" name="Pecho (cm)" stroke="#38bdf8" strokeWidth={2.5} dot={{ r: 4 }} />
-                                    <Line type="monotone" dataKey="espalda" name="Espalda (cm)" stroke="#fbbf24" strokeWidth={2} dot={{ r: 3 }} />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    {/* Lower Limbs & Waist Trend */}
-                    <div className="card glass" style={{ padding: '1.25rem' }}>
-                        <h4 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                            Evolución de Tren Inferior & Cintura
-                        </h4>
-                        <div style={{ width: '100%', height: 260, minWidth: 0, minHeight: 0 }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={lowerTorsoTrendData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.06)" />
-                                    <XAxis dataKey="date" stroke="#64748b" tick={{ fontSize: 11, fontFamily: 'var(--font-mono)' }} />
-                                    <YAxis stroke="#64748b" tick={{ fontSize: 11, fontFamily: 'var(--font-mono)' }} domain={['auto', 'auto']} />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: 'rgba(12, 15, 24, 0.95)',
-                                            borderColor: 'rgba(245, 158, 11, 0.4)',
-                                            borderRadius: '10px',
-                                            color: '#fff',
-                                            fontFamily: 'var(--font-mono)'
-                                        }}
-                                    />
-                                    <Legend wrapperStyle={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }} />
-                                    <Line type="monotone" dataKey="muslo" name="Muslo (cm)" stroke="#a78bfa" strokeWidth={2.5} dot={{ r: 4 }} />
-                                    <Line type="monotone" dataKey="gemelo" name="Gemelo (cm)" stroke="#2dd4bf" strokeWidth={2.5} dot={{ r: 4 }} />
-                                    <Line type="monotone" dataKey="cintura" name="Cintura (cm)" stroke="#f59e0b" strokeWidth={2.5} strokeDasharray="4 4" dot={{ r: 4 }} />
-                                    <Line type="monotone" dataKey="cadera" name="Cadera (cm)" stroke="#e879f9" strokeWidth={2} dot={{ r: 3 }} />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* TAB 5: HISTORY LOGS */}
-            {activeTab === 'history' && records.length > 1 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} className="animate-fade">
-                    <h4 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                        Libro de Registros Históricos ({records.length} entradas)
-                    </h4>
-                    <div className="card glass" style={{ padding: '0.5rem', overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', textAlign: 'left' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)', color: '#94a3b8', textTransform: 'uppercase', fontSize: '0.7rem' }}>
-                                    <th style={{ padding: '0.75rem' }}>Fecha</th>
-                                    <th style={{ padding: '0.75rem' }}>Peso</th>
-                                    <th style={{ padding: '0.75rem' }}>% Grasa</th>
-                                    <th style={{ padding: '0.75rem' }}>Bíceps (I/D)</th>
-                                    <th style={{ padding: '0.75rem' }}>Pecho</th>
-                                    <th style={{ padding: '0.75rem' }}>Espalda</th>
-                                    <th style={{ padding: '0.75rem' }}>Cintura</th>
-                                    <th style={{ padding: '0.75rem' }}>Muslo (I/D)</th>
-                                    <th style={{ padding: '0.75rem' }}>Gemelo (I/D)</th>
-                                    <th style={{ padding: '0.75rem' }}>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {records.slice().reverse().map((r) => {
-                                    const m = r.measurements;
-                                    const isSelected = r.id === activeRecord.id;
-                                    return (
-                                        <tr
-                                            key={r.id}
-                                            style={{
-                                                borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                                                background: isSelected ? 'rgba(245, 158, 11, 0.1)' : 'transparent',
-                                                color: isSelected ? '#fbbf24' : '#f8fafc'
-                                            }}
-                                        >
-                                            <td style={{ padding: '0.75rem', fontWeight: 800 }}>
-                                                {new Date(r.date).toLocaleDateString('es-ES')}
-                                            </td>
-                                            <td style={{ padding: '0.75rem' }}>{m.weight} kg</td>
-                                            <td style={{ padding: '0.75rem' }}>{m.bodyFat ? `${m.bodyFat}%` : '--'}</td>
-                                            <td style={{ padding: '0.75rem' }}>{m.arm?.left ?? '--'} / {m.arm?.right ?? '--'} cm</td>
-                                            <td style={{ padding: '0.75rem' }}>{m.pecho || '--'} cm</td>
-                                            <td style={{ padding: '0.75rem' }}>{m.back || '--'} cm</td>
-                                            <td style={{ padding: '0.75rem' }}>{m.waist || '--'} cm</td>
-                                            <td style={{ padding: '0.75rem' }}>{m.thigh?.left ?? '--'} / {m.thigh?.right ?? '--'} cm</td>
-                                            <td style={{ padding: '0.75rem' }}>{m.calf?.left ?? '--'} / {m.calf?.right ?? '--'} cm</td>
-                                            <td style={{ padding: '0.75rem' }}>
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedRecordId(r.id);
-                                                        setActiveTab('bodymap');
-                                                    }}
-                                                    className="btn-secondary"
-                                                    style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem' }}
-                                                >
-                                                    Auditar
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             )}
 

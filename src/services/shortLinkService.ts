@@ -31,11 +31,10 @@ export const createCompactSelfContainedLink = (
     name: string,
     record: MeasurementRecord,
     sex: 'male' | 'female' = 'male',
-    records: MeasurementRecord[] = [],
     tab?: string,
     rival?: string
 ): string => {
-    const compactStr = encodeCompactSnapshot(name, record, sex, records);
+    const compactStr = encodeCompactSnapshot(name, record, sex);
     const baseUrl = getPublicShareBaseUrl();
     const queryParams: string[] = [];
     queryParams.push(`s=${encodeURIComponent(compactStr)}`);

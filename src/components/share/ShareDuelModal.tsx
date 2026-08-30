@@ -45,9 +45,6 @@ export const ShareDuelModal: React.FC<Props> = ({
     const [copied, setCopied] = useState(false);
     const [shortCopied, setShortCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link');
-    const [includeHistory, setIncludeHistory] = useState(true);
-    const [shortUrl, setShortUrl] = useState<string>('');
-    const [isShortening, setIsShortening] = useState(false);
 
     const nameA = profileA?.name || userName || 'Tú (Actual)';
     const nameB = profileB?.name || 'Rival';
@@ -63,54 +60,21 @@ export const ShareDuelModal: React.FC<Props> = ({
         };
     }, [currentRecord, records, profileA?.measurements]);
 
-    const recordsToEncode = useMemo(() => {
-        return includeHistory && records.length > 0 ? records : [effectiveRecord as MeasurementRecord];
-    }, [includeHistory, records, effectiveRecord]);
-
-    // 100% Self-contained compact snapshot link for versus duels with history
+    // 100% Self-contained ultra-compact snapshot link for versus duels (~155 chars)
     const compactSelfContainedUrl = useMemo(() => {
         if (!isOpen) return '';
-        return createCompactSelfContainedLink(nameA, effectiveRecord as MeasurementRecord, sex, recordsToEncode, 'versus', rivalId);
-    }, [isOpen, nameA, effectiveRecord, sex, recordsToEncode, rivalId]);
+        return createCompactSelfContainedLink(nameA, effectiveRecord as MeasurementRecord, sex, 'versus', rivalId);
+    }, [isOpen, nameA, effectiveRecord, sex, rivalId]);
 
-    const encodedPayload = useMemo(() => {
-        if (!isOpen) return '';
-        return encodeAthleteData(nameA, effectiveRecord as MeasurementRecord, sex, recordsToEncode);
-    }, [isOpen, effectiveRecord, recordsToEncode, nameA, sex]);
+    const shortUrl = compactSelfContainedUrl;
+    const duelShareUrl = compactSelfContainedUrl;
+    const isShortening = false;
 
-    // Build the visual Duel link
-    const duelShareUrl = useMemo(() => {
-        if (!encodedPayload) return '';
-        const baseUrl = getPublicShareBaseUrl();
-        return `${baseUrl}#/share?data=${encodedPayload}&tab=versus&rival=${rivalId}`;
-    }, [encodedPayload, rivalId]);
-
-    // Use compact self-contained link by default for duel snapshots, or create cloud link for history
+    // Generate QR with the best available URL
     useEffect(() => {
-        if (!isOpen) return;
+        if (!shortUrl) return;
 
-        if (!includeHistory) {
-            setShortUrl(compactSelfContainedUrl);
-            return;
-        }
-
-        if (encodedPayload) {
-            setIsShortening(true);
-            createShortReportLink(nameA, encodedPayload, 'versus', rivalId)
-                .then(url => setShortUrl(url))
-                .catch(err => {
-                    console.warn('Native short duel link fallback to compact URL:', err);
-                    setShortUrl(compactSelfContainedUrl);
-                })
-                .finally(() => setIsShortening(false));
-        }
-    }, [encodedPayload, isOpen, nameA, rivalId, includeHistory, compactSelfContainedUrl]);
-
-    useEffect(() => {
-        const effectiveUrl = shortUrl || duelShareUrl;
-        if (!effectiveUrl) return;
-
-        QRCode.toDataURL(effectiveUrl, {
+        QRCode.toDataURL(shortUrl, {
             width: 240,
             margin: 2,
             errorCorrectionLevel: 'M',
@@ -354,60 +318,6 @@ export const ShareDuelModal: React.FC<Props> = ({
                 {/* Tab 1: Link */}
                 {activeTab === 'link' && (
                     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                        {/* Scope Selector: Snapshot (Express) vs Full History */}
-                        {records.length > 1 && (
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: '1fr 1fr',
-                                gap: '6px',
-                                background: 'rgba(0, 0, 0, 0.4)',
-                                padding: '4px',
-                                borderRadius: '10px',
-                                border: '1px solid rgba(255, 255, 255, 0.06)'
-                            }}>
-                                <button
-                                    type="button"
-                                    onClick={() => setIncludeHistory(false)}
-                                    style={{
-                                        padding: '0.45rem 0.5rem',
-                                        fontSize: '0.74rem',
-                                        fontWeight: 800,
-                                        borderRadius: '7px',
-                                        border: 'none',
-                                        background: !includeHistory ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'transparent',
-                                        color: !includeHistory ? '#000' : '#94a3b8',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '4px'
-                                    }}
-                                >
-                                    <Zap size={13} />
-                                    <span>Medición Actual</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setIncludeHistory(true)}
-                                    style={{
-                                        padding: '0.45rem 0.5rem',
-                                        fontSize: '0.74rem',
-                                        fontWeight: 800,
-                                        borderRadius: '7px',
-                                        border: 'none',
-                                        background: includeHistory ? 'linear-gradient(135deg, #38bdf8, #0284c7)' : 'transparent',
-                                        color: includeHistory ? '#fff' : '#94a3b8',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '4px'
-                                    }}
-                                >
-                                    <span>Historial Completo ({records.length})</span>
-                                </button>
-                            </div>
-                        )}
 
                         {/* Short Link Generator Box (Optimized for Instagram Bio & DMs) */}
                         <div style={{

@@ -29,49 +29,16 @@ export const ShareReportModal: React.FC<Props> = ({
     const [shortCopied, setShortCopied] = useState(false);
     const [activeTab, setActiveTab] = useState<'link' | 'qr'>('link');
     const [showStoryModal, setShowStoryModal] = useState(false);
-    const [includeHistory, setIncludeHistory] = useState(true);
-    const [shortUrl, setShortUrl] = useState<string>('');
-    const [isShortening, setIsShortening] = useState(false);
 
-    // 100% Self-contained compact snapshot link with full evolution curves
+    // 100% Self-contained ultra-compact snapshot link (~140 chars)
     const compactSelfContainedUrl = useMemo(() => {
         if (!isOpen || !latestRecord) return '';
-        const recordsToEncode = includeHistory && records.length > 0 ? records : [latestRecord];
-        return createCompactSelfContainedLink(userName, latestRecord, sex, recordsToEncode);
-    }, [isOpen, latestRecord, userName, sex, records, includeHistory]);
+        return createCompactSelfContainedLink(userName, latestRecord, sex);
+    }, [isOpen, latestRecord, userName, sex]);
 
-    const encodedPayload = useMemo(() => {
-        if (!isOpen || !latestRecord) return '';
-        const recordsToEncode = includeHistory && records.length > 0 ? records : [latestRecord];
-        return encodeAthleteData(userName, latestRecord, sex, recordsToEncode);
-    }, [isOpen, latestRecord, userName, sex, records, includeHistory]);
-
-    const shareUrl = useMemo(() => {
-        if (!encodedPayload) return '';
-        const baseUrl = getPublicShareBaseUrl();
-        return `${baseUrl}#/share?data=${encodedPayload}`;
-    }, [encodedPayload]);
-
-    // Use compact self-contained link by default for snapshots, or create cloud link for history
-    useEffect(() => {
-        if (!isOpen || !latestRecord) return;
-
-        if (!includeHistory) {
-            setShortUrl(compactSelfContainedUrl);
-            return;
-        }
-
-        if (encodedPayload) {
-            setIsShortening(true);
-            createShortReportLink(userName, encodedPayload)
-                .then(url => setShortUrl(url))
-                .catch(err => {
-                    console.warn('Fallback to compact URL:', err);
-                    setShortUrl(compactSelfContainedUrl);
-                })
-                .finally(() => setIsShortening(false));
-        }
-    }, [encodedPayload, isOpen, userName, includeHistory, latestRecord, compactSelfContainedUrl]);
+    const shortUrl = compactSelfContainedUrl;
+    const shareUrl = compactSelfContainedUrl;
+    const isShortening = false;
 
     // Generate QR with the best available URL (prefers native short URL)
     useEffect(() => {
@@ -278,60 +245,6 @@ export const ShareReportModal: React.FC<Props> = ({
                 {/* Tab 1: Link */}
                 {activeTab === 'link' && (
                     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                        {/* Scope Selector: Snapshot (Express) vs Full History */}
-                        {records.length > 1 && (
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: '1fr 1fr',
-                                gap: '6px',
-                                background: 'rgba(0, 0, 0, 0.4)',
-                                padding: '4px',
-                                borderRadius: '10px',
-                                border: '1px solid rgba(255, 255, 255, 0.06)'
-                            }}>
-                                <button
-                                    type="button"
-                                    onClick={() => setIncludeHistory(false)}
-                                    style={{
-                                        padding: '0.45rem 0.5rem',
-                                        fontSize: '0.74rem',
-                                        fontWeight: 800,
-                                        borderRadius: '7px',
-                                        border: 'none',
-                                        background: !includeHistory ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'transparent',
-                                        color: !includeHistory ? '#000' : '#94a3b8',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '4px'
-                                    }}
-                                >
-                                    <Zap size={13} />
-                                    <span>Medición Actual</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setIncludeHistory(true)}
-                                    style={{
-                                        padding: '0.45rem 0.5rem',
-                                        fontSize: '0.74rem',
-                                        fontWeight: 800,
-                                        borderRadius: '7px',
-                                        border: 'none',
-                                        background: includeHistory ? 'linear-gradient(135deg, #38bdf8, #0284c7)' : 'transparent',
-                                        color: includeHistory ? '#fff' : '#94a3b8',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '4px'
-                                    }}
-                                >
-                                    <span>Historial Completo ({records.length})</span>
-                                </button>
-                            </div>
-                        )}
 
                         {/* Short Link Generator Box (Optimized for Instagram Bio & DMs) */}
                         <div style={{
