@@ -317,9 +317,9 @@ export const ShareDuelModal: React.FC<Props> = ({
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <Wand2 size={15} style={{ color: '#fbbf24' }} />
+                                    <Swords size={15} style={{ color: '#fbbf24' }} />
                                     <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#f8fafc' }}>
-                                        Enlace Corto Oficial (Sin Temporizador ni Anuncios)
+                                        Enlace Directo Duelo 1v1 (Instagram & WhatsApp)
                                     </span>
                                 </div>
                                 <span style={{ fontSize: '0.68rem', color: '#10b981', fontWeight: 700, background: 'rgba(16, 185, 129, 0.15)', padding: '2px 6px', borderRadius: '4px' }}>
@@ -327,97 +327,66 @@ export const ShareDuelModal: React.FC<Props> = ({
                                 </span>
                             </div>
 
-                            {shortUrl ? (
-                                <div style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.4rem',
-                                    background: 'rgba(0, 0, 0, 0.6)',
-                                    border: '1px solid rgba(16, 185, 129, 0.4)',
-                                    borderRadius: '10px',
-                                    padding: '0.35rem 0.5rem'
-                                }}>
-                                    <input
-                                        type="text"
-                                        readOnly
-                                        value={shortUrl}
-                                        style={{
-                                            flex: 1,
-                                            background: 'transparent',
-                                            border: 'none',
-                                            color: '#34d399',
-                                            fontSize: '0.82rem',
-                                            fontWeight: 700,
-                                            fontFamily: 'var(--font-mono)',
-                                            outline: 'none'
-                                        }}
-                                    />
-                                    <button
-                                        onClick={() => handleCopy(shortUrl, true)}
-                                        className="btn-primary"
-                                        style={{
-                                            padding: '0.45rem 0.75rem',
-                                            fontSize: '0.74rem',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '4px',
-                                            background: shortCopied ? '#10b981' : undefined
-                                        }}
-                                    >
-                                        {shortCopied ? <Check size={13} /> : <Copy size={13} />}
-                                        <span>{shortCopied ? '¡Listo!' : 'Copiar'}</span>
-                                    </button>
-                                    {hasNativeShare && (
-                                        <button
-                                            onClick={() => handleNativeShare(shortUrl)}
-                                            className="btn-secondary"
-                                            style={{
-                                                padding: '0.45rem 0.65rem',
-                                                fontSize: '0.74rem',
-                                                display: 'flex',
-                                                alignItems: 'center'
-                                            }}
-                                            title="Compartir enlace corto"
-                                        >
-                                            <Share2 size={13} />
-                                        </button>
-                                    )}
-                                </div>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={handleShorten}
-                                    disabled={isShortening}
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.4rem',
+                                background: 'rgba(0, 0, 0, 0.6)',
+                                border: '1px solid rgba(16, 185, 129, 0.4)',
+                                borderRadius: '10px',
+                                padding: '0.35rem 0.5rem'
+                            }}>
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value={shortUrl}
                                     style={{
-                                        width: '100%',
-                                        padding: '0.6rem',
-                                        borderRadius: '10px',
-                                        border: '1px solid rgba(245, 158, 11, 0.4)',
-                                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.05))',
-                                        color: '#fbbf24',
-                                        fontSize: '0.78rem',
-                                        fontWeight: 800,
+                                        flex: 1,
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: '#34d399',
+                                        fontSize: '0.82rem',
+                                        fontWeight: 700,
+                                        fontFamily: 'var(--font-mono)',
+                                        outline: 'none'
+                                    }}
+                                />
+                                <button
+                                    onClick={() => handleCopy(shortUrl, true)}
+                                    className="btn-primary"
+                                    style={{
+                                        padding: '0.45rem 0.75rem',
+                                        fontSize: '0.74rem',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '6px',
-                                        cursor: isShortening ? 'not-allowed' : 'pointer'
+                                        gap: '4px',
+                                        background: shortCopied ? '#10b981' : undefined
                                     }}
                                 >
-                                    {isShortening ? (
-                                        <>
-                                            <Loader2 size={14} className="spin" />
-                                            <span>Generando enlace directo...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Wand2 size={14} />
-                                            <span>🪄 Generar Enlace Corto Oficial</span>
-                                        </>
-                                    )}
+                                    {shortCopied ? <Check size={13} /> : <Copy size={13} />}
+                                    <span>{shortCopied ? '¡Listo!' : 'Copiar'}</span>
                                 </button>
-                            )}
+                                {hasNativeShare && (
+                                    <button
+                                        onClick={() => handleNativeShare(shortUrl)}
+                                        className="btn-secondary"
+                                        style={{
+                                            padding: '0.45rem 0.65rem',
+                                            fontSize: '0.74rem',
+                                            display: 'flex',
+                                            alignItems: 'center'
+                                        }}
+                                        title="Compartir enlace corto"
+                                    >
+                                        <Share2 size={13} />
+                                    </button>
+                                )}
+                            </div>
+
                             <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                                ⚡ Directo en tu propio dominio. Cero esperas, 100% compatible con Instagram Bio y DMs.
+                            </div>
+                        </div>
                                 ⚡ Directo en tu propio dominio. Cero esperas, 100% compatible con Instagram Bio y DMs.
                             </div>
                         </div>
