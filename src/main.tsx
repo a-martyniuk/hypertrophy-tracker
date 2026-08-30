@@ -21,7 +21,7 @@ if (typeof window !== 'undefined' && !window.location.hash) {
   
   if (cleanPath && cleanPath !== '/') {
     window.location.replace(baseHash + cleanPath + search);
-  } else if (search && search.includes('data=')) {
+  } else if (search && (search.includes('data=') || search.includes('s=') || search.includes('id=') || search.includes('c='))) {
     window.location.replace(baseHash + '/share' + search);
   }
 }

@@ -144,21 +144,34 @@ export const encodeCompactSnapshot = (
 };
 
 export const decodeCompactSnapshot = (str: string): SharedAthletePayload | null => {
-    if (!str || !str.includes('*')) return null;
-    const decodedStr = decodeURIComponent(str);
+    if (!str) return null;
+    let decodedStr = str.trim();
+    try {
+        decodedStr = decodeURIComponent(decodedStr);
+    } catch {}
+    if (decodedStr.includes('%2A') || decodedStr.includes('%2a')) {
+        try {
+            decodedStr = decodeURIComponent(decodedStr);
+        } catch {}
+    }
+    if (!decodedStr.includes('*')) return null;
+
     const parts = decodedStr.split('*');
     if (parts.length < 3) return null;
 
-    const name = parts[0].replace(/_/g, ' ');
+    const name = (parts[0] || 'Atleta').replace(/_/g, ' ').trim();
     const sex: 'male' | 'female' = parts[1] === '1' ? 'female' : 'male';
 
     let rawEntries: string[] = [];
     if (parts.length === 4) {
         // Single snapshot: parts[2]=date, parts[3]=nums
         rawEntries = [`${parts[2]}~${parts[3]}`];
-    } else {
-        // Multi snapshot: parts[2]=date~nums|date~nums
+    } else if (parts.length === 3) {
+        // parts[2]=date~nums or date~nums|date~nums
         rawEntries = parts[2].split('|');
+    } else {
+        // More than 4 parts (name*sex*date*nums*extra)
+        rawEntries = [`${parts[2]}~${parts[3]}`];
     }
 
     const records: MeasurementRecord[] = rawEntries.map((item, idx) => {
@@ -220,9 +233,14 @@ export const decodeCompactSnapshot = (str: string): SharedAthletePayload | null 
 export const decodeAthleteData = (encodedStr: string): SharedAthletePayload | null => {
     if (!encodedStr) return null;
 
+    let cleanStr = encodedStr.trim();
+    try {
+        cleanStr = decodeURIComponent(cleanStr);
+    } catch {}
+
     // Check for ultra-compact delimited format first
-    if (encodedStr.includes('*')) {
-        const compact = decodeCompactSnapshot(encodedStr);
+    if (cleanStr.includes('*') || cleanStr.includes('%2A') || cleanStr.includes('%2a')) {
+        const compact = decodeCompactSnapshot(cleanStr);
         if (compact) return compact;
     }
 

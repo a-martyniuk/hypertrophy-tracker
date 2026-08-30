@@ -103,7 +103,9 @@ function App() {
   if (isShareView) {
     return (
       <Suspense fallback={<div className="loading-screen"><Activity className="animate-spin" /></div>}>
-        <PublicReportView />
+        <ErrorBoundary>
+          <PublicReportView />
+        </ErrorBoundary>
       </Suspense>
     );
   }

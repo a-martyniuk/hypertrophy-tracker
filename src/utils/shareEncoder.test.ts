@@ -55,4 +55,25 @@ describe('shareEncoder - Compact Snapshot', () => {
         expect(decoded?.name).toBe('Alexis Martyniuk');
         expect(decoded?.measurements.weight).toBe(104);
     });
+
+    it('decodes user exact compact string', () => {
+        const userStr = 'Alexis_Martyniuk*0*2026-08-27*191_103.3_20_43_115_133_97_96_44.5_45_33_33_65_66_41_41_18_18_22.5_22_38';
+        const decoded = decodeAthleteData(userStr);
+
+        expect(decoded).not.toBeNull();
+        expect(decoded?.name).toBe('Alexis Martyniuk');
+        expect(decoded?.measurements.weight).toBe(103.3);
+        expect(decoded?.measurements.height).toBe(191);
+        expect(decoded?.measurements.arm.left).toBe(44.5);
+    });
+
+    it('decodes URI-encoded compact string with %2A asterisk representation', () => {
+        const userStrEncoded = 'Alexis_Martyniuk%2A0%2A2026-08-27%2A191_103.3_20_43_115_133_97_96_44.5_45_33_33_65_66_41_41_18_18_22.5_22_38';
+        const decoded = decodeAthleteData(userStrEncoded);
+
+        expect(decoded).not.toBeNull();
+        expect(decoded?.name).toBe('Alexis Martyniuk');
+        expect(decoded?.measurements.weight).toBe(103.3);
+        expect(decoded?.measurements.pecho).toBe(115);
+    });
 });
