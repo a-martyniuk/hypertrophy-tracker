@@ -141,11 +141,10 @@ export const analyzeProportions = (
     // - Calf / Neck (ideal: 1.0)
     // - Chest / Waist (ideal: 1.618)
     // - Thigh / Calf (ideal: 1.5)
-    // - Chest / Hips (ideal: 1.35)
     const getRatioScore = (actualRatio: number, idealRatio: number) => {
-        if (actualRatio <= 0 || idealRatio <= 0) return 50;
+        if (actualRatio <= 0 || idealRatio <= 0) return 0;
         const diff = Math.abs(actualRatio - idealRatio) / idealRatio;
-        return Math.max(20, Math.min(100, Math.round(100 - diff * 100)));
+        return Math.max(0, Math.min(100, Math.round(100 - diff * 100)));
     };
 
     const armNeckRatio = neck > 0 ? armAvg / neck : 0;
@@ -191,9 +190,10 @@ export const analyzeProportions = (
         }
     ];
 
-    const overallGoldenScore = Math.round(
-        radarData.reduce((acc, curr) => acc + curr.score, 0) / radarData.length
-    );
+    const measuredRadarData = radarData.filter(d => d.actual > 0);
+    const overallGoldenScore = measuredRadarData.length > 0
+        ? Math.round(measuredRadarData.reduce((acc, curr) => acc + curr.score, 0) / measuredRadarData.length)
+        : 0;
 
     return {
         reevesTriad,
