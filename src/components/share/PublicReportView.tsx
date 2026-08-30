@@ -36,7 +36,7 @@ import '../AnalysisView.css';
 import '../MeasurementForm.css';
 import './PublicReportView.css';
 
-type TrainerTab = 'bodymap' | 'audit' | 'versus';
+type TrainerTab = 'bodymap' | 'versus';
 
 interface ReadOnlyHudCardProps {
     id: string;
@@ -190,8 +190,9 @@ export const PublicReportView: React.FC = () => {
         return rival || undefined;
     }, [searchParams]);
 
-    const validTabs: TrainerTab[] = ['bodymap', 'audit', 'versus'];
-    const initialTab: TrainerTab = (paramTab && validTabs.includes(paramTab)) ? paramTab : 'bodymap';
+    const validTabs: TrainerTab[] = ['bodymap', 'versus'];
+    const normalizedParamTab: TrainerTab | null = (paramTab as string) === 'audit' ? 'bodymap' : (validTabs.includes(paramTab as TrainerTab) ? (paramTab as TrainerTab) : null);
+    const initialTab: TrainerTab = normalizedParamTab || 'bodymap';
     const [activeTab, setActiveTab] = useState<TrainerTab>(initialTab);
     const [selectedMuscle, setSelectedMuscle] = useState<MuscleBenchmark | null>(null);
     const [isMapModalOpen, setIsMapModalOpen] = useState(false);
@@ -200,10 +201,10 @@ export const PublicReportView: React.FC = () => {
     const [copiedLink, setCopiedLink] = useState(false);
 
     useEffect(() => {
-        if (paramTab && validTabs.includes(paramTab)) {
-            setActiveTab(paramTab);
+        if (normalizedParamTab) {
+            setActiveTab(normalizedParamTab);
         }
-    }, [paramTab]);
+    }, [normalizedParamTab]);
 
     const bodyMapContainerRef = useRef<HTMLDivElement>(null);
 
@@ -530,15 +531,7 @@ export const PublicReportView: React.FC = () => {
                     className={`public-tab-btn ${activeTab === 'bodymap' ? 'active' : ''}`}
                 >
                     <User size={15} />
-                    <span>Silueta & Ficha 360°</span>
-                </button>
-
-                <button
-                    onClick={() => setActiveTab('audit')}
-                    className={`public-tab-btn ${activeTab === 'audit' ? 'active' : ''}`}
-                >
-                    <Scale size={15} />
-                    <span>Límites Casey Butt & Ratios</span>
+                    <span>Silueta, Ficha 360° & Límites Genéticos</span>
                 </button>
 
                 <button
@@ -546,13 +539,14 @@ export const PublicReportView: React.FC = () => {
                     className={`public-tab-btn ${activeTab === 'versus' ? 'active' : ''}`}
                 >
                     <Swords size={15} />
-                    <span>Duelo Versus (Comparativa)</span>
+                    <span>Duelo Versus (Comparativa 1v1)</span>
                 </button>
             </div>
 
-            {/* TAB 1: BODY MAP & HUD */}
+            {/* TAB 1: UNIFIED REPORT (BODY MAP, HUD, TACTICAL DIAGNOSIS, CASEY BUTT & REEVES RATIOS) */}
             {activeTab === 'bodymap' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="animate-fade">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }} className="animate-fade">
+                    {/* 1. Body Map & HUD Columns */}
                     <div
                         ref={bodyMapContainerRef}
                         className="body-map-container glass"
@@ -656,7 +650,7 @@ export const PublicReportView: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Tactical Diagnosis Preview under Body Map */}
+                    {/* 2. Tactical Biomechanical Diagnosis */}
                     {diagnosis && (
                         <div className="card glass" style={{
                             padding: '1.25rem 1.5rem',
@@ -682,24 +676,19 @@ export const PublicReportView: React.FC = () => {
                             </div>
                         </div>
                     )}
-                </div>
-            )}
 
-            {/* TAB 2: AUDIT & BENCHMARKS */}
-            {activeTab === 'audit' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }} className="animate-fade">
-                    {/* Benchmarks Section */}
+                    {/* 3. Casey Butt Genetic Potential Benchmarks */}
                     {analysis && (
                         <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     <Scale size={20} style={{ color: 'var(--primary-color)' }} />
                                     <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                                        Matriz de Benchmarks Antropométricos (Casey Butt)
+                                        Límites Genéticos Naturales (Modelo Casey Butt)
                                     </h3>
                                 </div>
                                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
-                                    💡 Haz click en cualquier músculo para ver su curva evolutiva
+                                    💡 Haz click en cualquier grupo para auditar su desarrollo
                                 </span>
                             </div>
 
@@ -709,7 +698,7 @@ export const PublicReportView: React.FC = () => {
                                         key={bm.key}
                                         onClick={() => setSelectedMuscle(bm)}
                                         style={{ cursor: 'pointer' }}
-                                        title={`Ver histórico temporal de ${bm.label}`}
+                                        title={`Auditar desarrollo de ${bm.label}`}
                                     >
                                         <BenchmarkCard benchmark={bm} />
                                     </div>
@@ -718,7 +707,7 @@ export const PublicReportView: React.FC = () => {
                         </section>
                     )}
 
-                    {/* Ratios Section */}
+                    {/* 4. Steve Reeves & Frank Zane Golden Proportions */}
                     {analysis && (
                         <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
