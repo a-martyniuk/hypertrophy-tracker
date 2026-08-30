@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { X, QrCode, Copy, Check, Share2, Swords, Link as LinkIcon, Wand2, Zap, Loader2 } from 'lucide-react';
+import { X, QrCode, Copy, Check, Share2, Swords, Link as LinkIcon } from 'lucide-react';
 import QRCode from 'qrcode';
-import { encodeAthleteData, getPublicShareBaseUrl } from '../../utils/shareEncoder';
-import { createShortReportLink, createCompactSelfContainedLink } from '../../services/shortLinkService';
+import { createCompactSelfContainedLink } from '../../services/shortLinkService';
 import type { MeasurementRecord } from '../../types/measurements';
 import type { ComparisonProfile } from '../../utils/athleteComparison';
 
@@ -68,7 +67,6 @@ export const ShareDuelModal: React.FC<Props> = ({
 
     const shortUrl = compactSelfContainedUrl;
     const duelShareUrl = compactSelfContainedUrl;
-    const isShortening = false;
 
     // Generate QR with the best available URL
     useEffect(() => {
@@ -98,19 +96,6 @@ export const ShareDuelModal: React.FC<Props> = ({
         } else {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-        }
-    };
-
-    const handleShorten = async () => {
-        if (!encodedPayload || isShortening) return;
-        setIsShortening(true);
-        try {
-            const short = await createShortReportLink(nameA, encodedPayload, 'versus', rivalId);
-            setShortUrl(short);
-        } catch (e) {
-            console.error('Error shortening duel URL:', e);
-        } finally {
-            setIsShortening(false);
         }
     };
 

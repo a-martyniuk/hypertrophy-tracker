@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { X, QrCode, Copy, Check, Share2, Link as LinkIcon, Sparkles, Wand2, Zap, Loader2 } from 'lucide-react';
+import { X, QrCode, Copy, Check, Share2, Link as LinkIcon, Sparkles } from 'lucide-react';
 import QRCode from 'qrcode';
-import { encodeAthleteData, getPublicShareBaseUrl } from '../../utils/shareEncoder';
-import { createShortReportLink, createCompactSelfContainedLink } from '../../services/shortLinkService';
+import { createCompactSelfContainedLink } from '../../services/shortLinkService';
 import { AthleteStoryCardModal } from './AthleteStoryCard';
 import type { MeasurementRecord } from '../../types/measurements';
 
@@ -38,7 +37,6 @@ export const ShareReportModal: React.FC<Props> = ({
 
     const shortUrl = compactSelfContainedUrl;
     const shareUrl = compactSelfContainedUrl;
-    const isShortening = false;
 
     // Generate QR with the best available URL (prefers native short URL)
     useEffect(() => {
@@ -69,19 +67,6 @@ export const ShareReportModal: React.FC<Props> = ({
         } else {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-        }
-    };
-
-    const handleShorten = async () => {
-        if (!encodedPayload || isShortening) return;
-        setIsShortening(true);
-        try {
-            const short = await createShortReportLink(userName, encodedPayload);
-            setShortUrl(short);
-        } catch (e) {
-            console.error('Error shortening URL:', e);
-        } finally {
-            setIsShortening(false);
         }
     };
 
