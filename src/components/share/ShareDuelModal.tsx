@@ -387,9 +387,6 @@ export const ShareDuelModal: React.FC<Props> = ({
                                 ⚡ Directo en tu propio dominio. Cero esperas, 100% compatible con Instagram Bio y DMs.
                             </div>
                         </div>
-                                ⚡ Directo en tu propio dominio. Cero esperas, 100% compatible con Instagram Bio y DMs.
-                            </div>
-                        </div>
 
                         {/* Standard Base64 Full URL box */}
                         <div style={{
