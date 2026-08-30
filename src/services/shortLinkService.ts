@@ -1,6 +1,7 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../lib/firebase';
-import { getPublicShareBaseUrl } from '../utils/shareEncoder';
+import { encodeCompactSnapshot, getPublicShareBaseUrl } from '../utils/shareEncoder';
+import type { MeasurementRecord } from '../types/measurements';
 
 const LOCAL_SHORT_CACHE_KEY = 'hypertrophy_short_links_cache';
 
@@ -19,6 +20,27 @@ const saveLocalCache = (cache: Record<string, string>) => {
     try {
         localStorage.setItem(LOCAL_SHORT_CACHE_KEY, JSON.stringify(cache));
     } catch {}
+};
+
+/**
+ * Creates an ultra-compact, 100% self-contained URL (~140 characters).
+ * Contains all measurements embedded directly in the URL without requiring Firestore or any server.
+ * Completely immune to "Not Found" errors across any device or browser.
+ */
+export const createCompactSelfContainedLink = (
+    name: string,
+    record: MeasurementRecord,
+    sex: 'male' | 'female' = 'male',
+    tab?: string,
+    rival?: string
+): string => {
+    const compactStr = encodeCompactSnapshot(name, record, sex);
+    const baseUrl = getPublicShareBaseUrl();
+    const queryParams: string[] = [];
+    queryParams.push(`s=${encodeURIComponent(compactStr)}`);
+    if (tab) queryParams.push(`tab=${encodeURIComponent(tab)}`);
+    if (rival) queryParams.push(`rival=${encodeURIComponent(rival)}`);
+    return `${baseUrl}#/share?${queryParams.join('&')}`;
 };
 
 /**

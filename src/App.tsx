@@ -87,9 +87,12 @@ function App() {
   const isShareView = location.pathname === '/share' ||
                       location.pathname.startsWith('/share') ||
                       location.pathname.startsWith('/s/') ||
+                      location.search.includes('s=') ||
                       location.search.includes('data=') ||
                       location.search.includes('id=') ||
                       (typeof window !== 'undefined' && (
+                        window.location.search.includes('s=') ||
+                        window.location.hash.includes('s=') ||
                         window.location.search.includes('data=') ||
                         window.location.hash.includes('data=') ||
                         window.location.search.includes('id=') ||

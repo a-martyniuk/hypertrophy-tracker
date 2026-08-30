@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, QrCode, Copy, Check, Share2, Link as LinkIcon, Sparkles, Wand2, Zap, Loader2 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { encodeAthleteData, getPublicShareBaseUrl } from '../../utils/shareEncoder';
-import { createShortReportLink } from '../../services/shortLinkService';
+import { createShortReportLink, createCompactSelfContainedLink } from '../../services/shortLinkService';
 import { AthleteStoryCardModal } from './AthleteStoryCard';
 import type { MeasurementRecord } from '../../types/measurements';
 
@@ -33,6 +33,12 @@ export const ShareReportModal: React.FC<Props> = ({
     const [shortUrl, setShortUrl] = useState<string>('');
     const [isShortening, setIsShortening] = useState(false);
 
+    // 100% Self-contained compact snapshot link (~150 chars)
+    const compactSelfContainedUrl = useMemo(() => {
+        if (!isOpen || !latestRecord) return '';
+        return createCompactSelfContainedLink(userName, latestRecord, sex);
+    }, [isOpen, latestRecord, userName, sex]);
+
     const encodedPayload = useMemo(() => {
         if (!isOpen || !latestRecord) return '';
         const recordsToEncode = includeHistory && records.length > 0 ? records : [latestRecord];
@@ -45,15 +51,26 @@ export const ShareReportModal: React.FC<Props> = ({
         return `${baseUrl}#/share?data=${encodedPayload}`;
     }, [encodedPayload]);
 
-    // Automatically generate clean native short link on modal open
+    // Use compact self-contained link by default for snapshots, or create cloud link for history
     useEffect(() => {
-        if (!encodedPayload || !isOpen) return;
-        setIsShortening(true);
-        createShortReportLink(userName, encodedPayload)
-            .then(url => setShortUrl(url))
-            .catch(err => console.warn('Native short link fallback to full URL:', err))
-            .finally(() => setIsShortening(false));
-    }, [encodedPayload, isOpen, userName]);
+        if (!isOpen || !latestRecord) return;
+
+        if (!includeHistory) {
+            setShortUrl(compactSelfContainedUrl);
+            return;
+        }
+
+        if (encodedPayload) {
+            setIsShortening(true);
+            createShortReportLink(userName, encodedPayload)
+                .then(url => setShortUrl(url))
+                .catch(err => {
+                    console.warn('Fallback to compact URL:', err);
+                    setShortUrl(compactSelfContainedUrl);
+                })
+                .finally(() => setIsShortening(false));
+        }
+    }, [encodedPayload, isOpen, userName, includeHistory, latestRecord, compactSelfContainedUrl]);
 
     // Generate QR with the best available URL (prefers native short URL)
     useEffect(() => {

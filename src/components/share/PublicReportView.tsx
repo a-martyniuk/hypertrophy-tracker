@@ -115,16 +115,18 @@ export const PublicReportView: React.FC = () => {
 
     // Multi-source extraction for maximum compatibility with all browsers and share links
     const encodedData = useMemo(() => {
-        const fromSearch = searchParams.get('data');
+        const fromSearch = searchParams.get('s') || searchParams.get('data') || searchParams.get('c');
         if (fromSearch) return fromSearch;
 
         if (typeof window !== 'undefined') {
-            const urlQuery = new URLSearchParams(window.location.search).get('data');
-            if (urlQuery) return urlQuery;
+            const urlQuery = new URLSearchParams(window.location.search);
+            const urlData = urlQuery.get('s') || urlQuery.get('data') || urlQuery.get('c');
+            if (urlData) return urlData;
 
             if (window.location.hash.includes('?')) {
-                const hashQuery = new URLSearchParams(window.location.hash.split('?')[1]).get('data');
-                if (hashQuery) return hashQuery;
+                const hashQuery = new URLSearchParams(window.location.hash.split('?')[1]);
+                const hashData = hashQuery.get('s') || hashQuery.get('data') || hashQuery.get('c');
+                if (hashData) return hashData;
             }
         }
         return null;

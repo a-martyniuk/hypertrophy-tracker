@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, QrCode, Copy, Check, Share2, Swords, Link as LinkIcon, Wand2, Zap, Loader2 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { encodeAthleteData, getPublicShareBaseUrl } from '../../utils/shareEncoder';
-import { createShortReportLink } from '../../services/shortLinkService';
+import { createShortReportLink, createCompactSelfContainedLink } from '../../services/shortLinkService';
 import type { MeasurementRecord } from '../../types/measurements';
 import type { ComparisonProfile } from '../../utils/athleteComparison';
 
@@ -55,16 +55,25 @@ export const ShareDuelModal: React.FC<Props> = ({
     const scoreA = verdict?.scoreA ?? 0;
     const scoreB = verdict?.scoreB ?? 0;
 
-    const encodedPayload = useMemo(() => {
-        if (!isOpen) return '';
-        const effectiveRecord = currentRecord || records?.[0] || {
+    const effectiveRecord = useMemo(() => {
+        return currentRecord || records?.[0] || {
             id: 'current',
             date: new Date().toISOString(),
             measurements: profileA?.measurements || {}
         };
+    }, [currentRecord, records, profileA?.measurements]);
+
+    // 100% Self-contained compact snapshot link for versus duels
+    const compactSelfContainedUrl = useMemo(() => {
+        if (!isOpen) return '';
+        return createCompactSelfContainedLink(nameA, effectiveRecord as MeasurementRecord, sex, 'versus', rivalId);
+    }, [isOpen, nameA, effectiveRecord, sex, rivalId]);
+
+    const encodedPayload = useMemo(() => {
+        if (!isOpen) return '';
         const recordsToEncode = includeHistory && records.length > 0 ? records : [effectiveRecord as MeasurementRecord];
         return encodeAthleteData(nameA, effectiveRecord as MeasurementRecord, sex, recordsToEncode);
-    }, [isOpen, currentRecord, records, profileA?.measurements, nameA, sex, includeHistory]);
+    }, [isOpen, effectiveRecord, records, nameA, sex, includeHistory]);
 
     // Build the visual Duel link
     const duelShareUrl = useMemo(() => {
@@ -73,15 +82,26 @@ export const ShareDuelModal: React.FC<Props> = ({
         return `${baseUrl}#/share?data=${encodedPayload}&tab=versus&rival=${rivalId}`;
     }, [encodedPayload, rivalId]);
 
-    // Automatically generate clean native short duel link on modal open
+    // Use compact self-contained link by default for duel snapshots, or create cloud link for history
     useEffect(() => {
-        if (!encodedPayload || !isOpen) return;
-        setIsShortening(true);
-        createShortReportLink(nameA, encodedPayload, 'versus', rivalId)
-            .then(url => setShortUrl(url))
-            .catch(err => console.warn('Native short duel link fallback to full URL:', err))
-            .finally(() => setIsShortening(false));
-    }, [encodedPayload, isOpen, nameA, rivalId]);
+        if (!isOpen) return;
+
+        if (!includeHistory) {
+            setShortUrl(compactSelfContainedUrl);
+            return;
+        }
+
+        if (encodedPayload) {
+            setIsShortening(true);
+            createShortReportLink(nameA, encodedPayload, 'versus', rivalId)
+                .then(url => setShortUrl(url))
+                .catch(err => {
+                    console.warn('Native short duel link fallback to compact URL:', err);
+                    setShortUrl(compactSelfContainedUrl);
+                })
+                .finally(() => setIsShortening(false));
+        }
+    }, [encodedPayload, isOpen, nameA, rivalId, includeHistory, compactSelfContainedUrl]);
 
     useEffect(() => {
         const effectiveUrl = shortUrl || duelShareUrl;

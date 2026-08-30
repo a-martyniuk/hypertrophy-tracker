@@ -102,10 +102,109 @@ export const encodeAthleteData = (
 };
 
 /**
+ * Encodes a single measurement snapshot into an ultra-compact URL string (approx 80-100 characters).
+ * 100% self-contained without needing any database or third-party service.
+ * Format: name*sexFlag*date*h_w_bf_neck_pecho_back_waist_hips_armL_armR_fArmL_fArmR_thighL_thighR_calfL_calfR_wristL_wristR_ankleL_ankleR_age
+ */
+export const encodeCompactSnapshot = (
+    name: string,
+    record: MeasurementRecord,
+    sex: 'male' | 'female' = 'male'
+): string => {
+    const m = record.measurements || ({} as BodyMeasurements);
+    const cleanName = (name || 'Atleta').replace(/[*~_]/g, ' ').trim().replace(/\s+/g, '_');
+    const sexFlag = sex === 'female' ? 1 : 0;
+    const dateStr = record.date ? record.date.split('T')[0] : new Date().toISOString().split('T')[0];
+
+    const nums = [
+        m.height || 0,
+        m.weight || 0,
+        m.bodyFat || 0,
+        m.neck || 0,
+        m.pecho || 0,
+        m.back || 0,
+        m.waist || 0,
+        m.hips || 0,
+        m.arm?.left || 0,
+        m.arm?.right || 0,
+        m.forearm?.left || 0,
+        m.forearm?.right || 0,
+        m.thigh?.left || 0,
+        m.thigh?.right || 0,
+        m.calf?.left || 0,
+        m.calf?.right || 0,
+        m.wrist?.left || 0,
+        m.wrist?.right || 0,
+        m.ankle?.left || 0,
+        m.ankle?.right || 0,
+        m.age || 0
+    ].join('_');
+
+    return `${cleanName}*${sexFlag}*${dateStr}*${nums}`;
+};
+
+export const decodeCompactSnapshot = (str: string): SharedAthletePayload | null => {
+    if (!str || !str.includes('*')) return null;
+    const parts = decodeURIComponent(str).split('*');
+    if (parts.length < 4) return null;
+
+    const name = parts[0].replace(/_/g, ' ');
+    const sex: 'male' | 'female' = parts[1] === '1' ? 'female' : 'male';
+    const date = parts[2] || new Date().toISOString().split('T')[0];
+    const nums = parts[3].split('_').map(Number);
+
+    const [
+        height = 175, weight = 75, bodyFat = 15,
+        neck = 0, pecho = 0, back = 0, waist = 0, hips = 0,
+        armL = 0, armR = 0, foreL = 0, foreR = 0,
+        thighL = 0, thighR = 0, calfL = 0, calfR = 0,
+        wristL = 0, wristR = 0, ankleL = 0, ankleR = 0,
+        age = 0
+    ] = nums;
+
+    const record: MeasurementRecord = {
+        id: 'shared-compact-rec',
+        userId: 'shared',
+        date: date.length === 10 ? `${date}T12:00:00.000Z` : date,
+        measurements: {
+            height: height > 0 ? height : undefined,
+            weight: weight > 0 ? weight : 0,
+            bodyFat: bodyFat > 0 ? bodyFat : undefined,
+            age: age > 0 ? age : undefined,
+            neck: neck > 0 ? neck : 0,
+            pecho: pecho > 0 ? pecho : 0,
+            back: back > 0 ? back : 0,
+            waist: waist > 0 ? waist : 0,
+            hips: hips > 0 ? hips : 0,
+            arm: { left: armL, right: armR },
+            forearm: { left: foreL, right: foreR },
+            thigh: { left: thighL, right: thighR },
+            calf: { left: calfL, right: calfR },
+            wrist: { left: wristL, right: wristR },
+            ankle: { left: ankleL, right: ankleR }
+        }
+    };
+
+    return {
+        name,
+        sex,
+        date: record.date,
+        measurements: record.measurements,
+        records: [record]
+    };
+};
+
+/**
  * Decodes athlete telemetry payload, reconstructing full history if available.
  */
 export const decodeAthleteData = (encodedStr: string): SharedAthletePayload | null => {
     if (!encodedStr) return null;
+
+    // Check for ultra-compact delimited format first
+    if (encodedStr.includes('*')) {
+        const compact = decodeCompactSnapshot(encodedStr);
+        if (compact) return compact;
+    }
 
     try {
         let base64 = decodeURIComponent(encodedStr).replace(/-/g, '+').replace(/_/g, '/');
