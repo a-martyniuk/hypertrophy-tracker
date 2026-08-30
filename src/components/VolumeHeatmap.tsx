@@ -73,7 +73,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         color: '#fbbf24', // Golden Amber
         glowColor: 'rgba(251, 191, 36, 0.55)',
         bgGlow: 'rgba(251, 191, 36, 0.2)',
-        statusLabel: 'Crecimiento Óptimo (>1%)',
+        statusLabel: 'Crecimiento Óptimo (≥0.8%)',
         type: 'growth'
       };
     }
@@ -85,7 +85,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
         color: '#94a3b8', // Silver Neutral
         glowColor: 'rgba(148, 163, 184, 0.3)',
         bgGlow: 'rgba(148, 163, 184, 0.1)',
-        statusLabel: 'Estable (±1%)',
+        statusLabel: 'Estable (±0.8%)',
         type: 'stable'
       };
     }
@@ -96,7 +96,7 @@ export const VolumeHeatmap: React.FC<Props> = ({
       color: '#38bdf8', // Glacier Blue
       glowColor: 'rgba(56, 189, 248, 0.6)',
       bgGlow: 'rgba(56, 189, 248, 0.25)',
-      statusLabel: 'Reducción (< -1%)',
+      statusLabel: 'Reducción (< -0.8%)',
       type: 'loss'
     };
   };
@@ -123,37 +123,37 @@ export const VolumeHeatmap: React.FC<Props> = ({
         chipPos: { side: 'left', y: 148 }
       },
       {
-        id: 'arm-left',
-        name: `${t('common.form.arm')} (Izq)`,
-        current: getVal(currentMeasurements?.arm, 'left'),
-        reference: getVal(referenceMeasurements?.arm, 'left'),
+        id: 'arm-right',
+        name: `${t('common.form.arm')} (Der)`,
+        current: getVal(currentMeasurements?.arm, 'right'),
+        reference: getVal(referenceMeasurements?.arm, 'right'),
         band: { x1: 48, x2: 80, y: 175 },
         polygon: musclePaths['arm-left'],
         chipPos: { side: 'left', y: 175 }
       },
       {
-        id: 'arm-right',
-        name: `${t('common.form.arm')} (Der)`,
-        current: getVal(currentMeasurements?.arm, 'right'),
-        reference: getVal(referenceMeasurements?.arm, 'right'),
+        id: 'arm-left',
+        name: `${t('common.form.arm')} (Izq)`,
+        current: getVal(currentMeasurements?.arm, 'left'),
+        reference: getVal(referenceMeasurements?.arm, 'left'),
         band: { x1: 180, x2: 212, y: 175 },
         polygon: musclePaths['arm-right'],
         chipPos: { side: 'right', y: 175 }
-      },
-      {
-        id: 'forearm-left',
-        name: `${t('common.form.forearm')} (Izq)`,
-        current: getVal(currentMeasurements?.forearm, 'left'),
-        reference: getVal(referenceMeasurements?.forearm, 'left'),
-        band: { x1: 34, x2: 64, y: 212 },
-        polygon: musclePaths['forearm-left'],
-        chipPos: { side: 'left', y: 212 }
       },
       {
         id: 'forearm-right',
         name: `${t('common.form.forearm')} (Der)`,
         current: getVal(currentMeasurements?.forearm, 'right'),
         reference: getVal(referenceMeasurements?.forearm, 'right'),
+        band: { x1: 34, x2: 64, y: 212 },
+        polygon: musclePaths['forearm-left'],
+        chipPos: { side: 'left', y: 212 }
+      },
+      {
+        id: 'forearm-left',
+        name: `${t('common.form.forearm')} (Izq)`,
+        current: getVal(currentMeasurements?.forearm, 'left'),
+        reference: getVal(referenceMeasurements?.forearm, 'left'),
         band: { x1: 196, x2: 226, y: 212 },
         polygon: musclePaths['forearm-right'],
         chipPos: { side: 'right', y: 212 }
@@ -177,37 +177,37 @@ export const VolumeHeatmap: React.FC<Props> = ({
         chipPos: { side: 'right', y: 280 }
       },
       {
-        id: 'thigh-left',
-        name: `${t('common.form.thigh')} (Izq)`,
-        current: getVal(currentMeasurements?.thigh, 'left'),
-        reference: getVal(referenceMeasurements?.thigh, 'left'),
+        id: 'thigh-right',
+        name: `${t('common.form.thigh')} (Der)`,
+        current: getVal(currentMeasurements?.thigh, 'right'),
+        reference: getVal(referenceMeasurements?.thigh, 'right'),
         band: { x1: 74, x2: 120, y: 308 },
         polygon: musclePaths['thigh-left'],
         chipPos: { side: 'left', y: 308 }
       },
       {
-        id: 'thigh-right',
-        name: `${t('common.form.thigh')} (Der)`,
-        current: getVal(currentMeasurements?.thigh, 'right'),
-        reference: getVal(referenceMeasurements?.thigh, 'right'),
+        id: 'thigh-left',
+        name: `${t('common.form.thigh')} (Izq)`,
+        current: getVal(currentMeasurements?.thigh, 'left'),
+        reference: getVal(referenceMeasurements?.thigh, 'left'),
         band: { x1: 140, x2: 186, y: 308 },
         polygon: musclePaths['thigh-right'],
         chipPos: { side: 'right', y: 308 }
-      },
-      {
-        id: 'calf-left',
-        name: `${t('common.form.calf')} (Izq)`,
-        current: getVal(currentMeasurements?.calf, 'left'),
-        reference: getVal(referenceMeasurements?.calf, 'left'),
-        band: { x1: 78, x2: 114, y: 415 },
-        polygon: musclePaths['calf-left'],
-        chipPos: { side: 'left', y: 415 }
       },
       {
         id: 'calf-right',
         name: `${t('common.form.calf')} (Der)`,
         current: getVal(currentMeasurements?.calf, 'right'),
         reference: getVal(referenceMeasurements?.calf, 'right'),
+        band: { x1: 78, x2: 114, y: 415 },
+        polygon: musclePaths['calf-left'],
+        chipPos: { side: 'left', y: 415 }
+      },
+      {
+        id: 'calf-left',
+        name: `${t('common.form.calf')} (Izq)`,
+        current: getVal(currentMeasurements?.calf, 'left'),
+        reference: getVal(referenceMeasurements?.calf, 'left'),
         band: { x1: 146, x2: 182, y: 415 },
         polygon: musclePaths['calf-right'],
         chipPos: { side: 'right', y: 415 }
