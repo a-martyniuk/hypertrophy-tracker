@@ -20,6 +20,7 @@ import { shortenUrl } from '../../utils/urlShortener';
 import { fetchShortReportPayload } from '../../services/shortLinkService';
 import { generateTacticalDiagnosis } from '../../utils/tacticalDiagnosis';
 import { computeComprehensiveAnalysis, type MuscleBenchmark } from '../../utils/benchmarkAnalysis';
+import { calculateFFMI } from '../../utils/skeletal';
 import { generateAthletePDFReport } from '../../utils/pdfReportGenerator';
 import { BenchmarkCard } from '../analysis/BenchmarkCard';
 import { RatioBenchmarkCard } from '../analysis/RatioBenchmarkCard';
@@ -275,14 +276,14 @@ export const PublicReportView: React.FC = () => {
     // Calculate FFMI
     const ffmi = useMemo(() => {
         if (!activeRecord?.measurements?.weight || !activeRecord?.measurements?.height) return null;
-        const weight = activeRecord.measurements.weight;
-        const heightM = activeRecord.measurements.height / 100;
-        const bf = activeRecord.measurements.bodyFat || 15;
-        const leanMass = weight * (1 - bf / 100);
-        const rawFfmi = leanMass / (heightM * heightM);
-        const normalizedFfmi = rawFfmi + 6.1 * (1.8 - heightM);
-        return parseFloat(normalizedFfmi.toFixed(1));
-    }, [activeRecord]);
+        const res = calculateFFMI(
+            activeRecord.measurements.weight,
+            activeRecord.measurements.height,
+            activeRecord.measurements.bodyFat || (athleteData?.sex === 'female' ? 22 : 15),
+            athleteData?.sex || 'male'
+        );
+        return res ? parseFloat(res.normalizedFFMI.toFixed(1)) : null;
+    }, [activeRecord, athleteData?.sex]);
 
     // V-Taper ratio
     const vTaperRatio = useMemo(() => {

@@ -171,20 +171,25 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                                     { key: 'pecho', label: t('common.form.chest'), unit: 'cm' },
                                     { key: 'waist', label: t('common.form.waist'), unit: 'cm', inverse: true },
                                     { key: 'hips', label: t('common.form.hips'), unit: 'cm', inverse: true },
-                                    { key: 'arm.right', label: t('common.form.arm') + ' (R)', unit: 'cm' },
-                                    { key: 'forearm.right', label: t('common.form.forearm') + ' (R)', unit: 'cm' },
-                                    { key: 'thigh.right', label: t('common.form.thigh') + ' (R)', unit: 'cm' },
-                                    { key: 'calf.right', label: t('common.form.calf') + ' (R)', unit: 'cm' },
+                                    { key: 'arm', label: t('common.form.arm'), unit: 'cm' },
+                                    { key: 'forearm', label: t('common.form.forearm'), unit: 'cm' },
+                                    { key: 'thigh', label: t('common.form.thigh'), unit: 'cm' },
+                                    { key: 'calf', label: t('common.form.calf'), unit: 'cm' },
                                 ].map(({ key, label, unit, inverse }) => {
                                     const getValue = (record?: MeasurementRecord) => {
-                                        if (!record) return undefined;
-                                        if (key.includes('.')) {
-                                            const [parent, child] = key.split('.');
-                                            // @ts-ignore
-                                            return record.measurements[parent]?.[child];
+                                        if (!record?.measurements) return undefined;
+                                        const m = record.measurements as any;
+                                        if (['arm', 'forearm', 'thigh', 'calf'].includes(key)) {
+                                            const item = m[key];
+                                            if (item && typeof item === 'object') {
+                                                const l = item.left || 0;
+                                                const r = item.right || 0;
+                                                if (l > 0 && r > 0) return Math.max(l, r);
+                                                return l || r || undefined;
+                                            }
+                                            return typeof item === 'number' ? item : undefined;
                                         }
-                                        // @ts-ignore
-                                        return record.measurements[key];
+                                        return m[key];
                                     };
 
                                     const val = getValue(latestRecord);

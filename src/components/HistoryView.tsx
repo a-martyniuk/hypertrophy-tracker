@@ -83,12 +83,12 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
                 </span>
                 {record.measurements.pecho && (
                   <span className="record-metric-chip">
-                    <span>Pecho: <strong>{record.measurements.pecho} cm</strong></span>
+                    <span>{t('common.form.chest')}: <strong>{record.measurements.pecho} cm</strong></span>
                   </span>
                 )}
                 {Math.max(record.measurements.arm?.right || 0, record.measurements.arm?.left || 0) > 0 && (
                   <span className="record-metric-chip">
-                    <span>Brazo: <strong>{Math.max(record.measurements.arm?.right || 0, record.measurements.arm?.left || 0)} cm</strong></span>
+                    <span>{t('common.form.arm')}: <strong>{Math.max(record.measurements.arm?.right || 0, record.measurements.arm?.left || 0)} cm</strong></span>
                   </span>
                 )}
               </div>

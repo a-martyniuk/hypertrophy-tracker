@@ -388,53 +388,10 @@ export const ShareDuelModal: React.FC<Props> = ({
                             </div>
                         </div>
 
-                        {/* Standard Base64 Full URL box */}
-                        <div style={{
-                            width: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            background: 'rgba(0, 0, 0, 0.5)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            borderRadius: '12px',
-                            padding: '0.4rem 0.5rem 0.4rem 0.85rem'
-                        }}>
-                            <input
-                                type="text"
-                                readOnly
-                                value={duelShareUrl}
-                                style={{
-                                    flex: 1,
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: '#cbd5e1',
-                                    fontSize: '0.74rem',
-                                    fontFamily: 'var(--font-mono)',
-                                    outline: 'none',
-                                    textOverflow: 'ellipsis'
-                                }}
-                            />
-                            <button
-                                onClick={() => handleCopy(duelShareUrl)}
-                                className="btn-secondary"
-                                style={{
-                                    padding: '0.45rem 0.75rem',
-                                    fontSize: '0.74rem',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px',
-                                    whiteSpace: 'nowrap'
-                                }}
-                            >
-                                {copied ? <Check size={13} /> : <Copy size={13} />}
-                                <span>{copied ? '¡Copiado!' : 'Copiar'}</span>
-                            </button>
-                        </div>
-
                         {/* Native Share button if supported */}
                         {hasNativeShare && (
                             <button
-                                onClick={() => handleNativeShare(shortUrl || duelShareUrl)}
+                                onClick={() => handleNativeShare(shortUrl)}
                                 className="btn-secondary"
                                 style={{
                                     width: '100%',
