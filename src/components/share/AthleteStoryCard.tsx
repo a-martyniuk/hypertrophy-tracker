@@ -7,7 +7,7 @@ import type { MeasurementRecord } from '../../types/measurements';
 import { computeComprehensiveAnalysis } from '../../utils/benchmarkAnalysis';
 import { calculateFFMI } from '../../utils/skeletal';
 import { calculateBilateralSymmetry } from '../../utils/symmetryAudit';
-import { encodeAthleteData, getPublicShareBaseUrl } from '../../utils/shareEncoder';
+import { createCompactSelfContainedLink } from '../../services/shortLinkService';
 
 interface Props {
     record?: MeasurementRecord;
@@ -48,10 +48,8 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
 
     const shareUrl = useMemo(() => {
         if (!record) return '';
-        // Use compact single record for ultra high-readability QR code on story cards
-        const encoded = encodeAthleteData(userName, record, sex, [record]);
-        const baseUrl = getPublicShareBaseUrl();
-        return `${baseUrl}#/share?data=${encoded}`;
+        // Use compact self-contained single record for ultra high-readability QR code on story cards (~140 chars)
+        return createCompactSelfContainedLink(userName, record, sex);
     }, [record, userName, sex]);
 
     useEffect(() => {

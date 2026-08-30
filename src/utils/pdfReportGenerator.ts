@@ -6,7 +6,7 @@ import { generateTacticalDiagnosis } from './tacticalDiagnosis';
 import { computeComprehensiveAnalysis } from './benchmarkAnalysis';
 import { calculateFFMI, calculateBerkhanLimit, calculateIEO, calculateHelmsGainRates } from './skeletal';
 import { analyzeProportions } from './proportions';
-import { encodeAthleteData, getPublicShareBaseUrl } from './shareEncoder';
+import { createCompactSelfContainedLink } from '../services/shortLinkService';
 import maleSilhouette from '../assets/clean_red_silhouette.png';
 import femaleSilhouette from '../assets/silhouette_female.png';
 
@@ -111,9 +111,7 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
 
     let qrDataUrl = '';
     try {
-        const shareData = encodeAthleteData(userName, latestRecord, sex, records.length ? records : [latestRecord]);
-        const baseUrl = getPublicShareBaseUrl();
-        const shareUrl = `${baseUrl}#/share?data=${shareData}`;
+        const shareUrl = createCompactSelfContainedLink(userName, latestRecord, sex);
         qrDataUrl = await QRCode.toDataURL(shareUrl, {
             width: 140,
             margin: 1,
