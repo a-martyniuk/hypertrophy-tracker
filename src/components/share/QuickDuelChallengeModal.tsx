@@ -22,13 +22,29 @@ export const QuickDuelChallengeModal: React.FC<Props> = ({
 }) => {
     const navigate = useNavigate();
 
-    // 4 quick inputs
-    const [height, setHeight] = useState<number>(178);
-    const [weight, setWeight] = useState<number>(75);
-    const [arm, setArm] = useState<number>(38.5);
-    const [waist, setWaist] = useState<number>(82);
+    // Quick duel inputs
+    const [challengerSex, setChallengerSex] = useState<'male' | 'female'>(targetSex || 'male');
+    const [height, setHeight] = useState<number>(targetSex === 'female' ? 165 : 178);
+    const [weight, setWeight] = useState<number>(targetSex === 'female' ? 60 : 75);
+    const [arm, setArm] = useState<number>(targetSex === 'female' ? 30.0 : 38.5);
+    const [waist, setWaist] = useState<number>(targetSex === 'female' ? 70 : 82);
     const [challengerName, setChallengerName] = useState<string>('Tú (Retador)');
     const [calculated, setCalculated] = useState(false);
+
+    const handleSexChange = (newSex: 'male' | 'female') => {
+        setChallengerSex(newSex);
+        if (newSex === 'female') {
+            setHeight(165);
+            setWeight(60);
+            setArm(30.0);
+            setWaist(70);
+        } else {
+            setHeight(178);
+            setWeight(75);
+            setArm(38.5);
+            setWaist(82);
+        }
+    };
 
     const targetProfile: ComparisonProfile = useMemo(() => {
         const tm = targetRecord.measurements;
@@ -38,35 +54,36 @@ export const QuickDuelChallengeModal: React.FC<Props> = ({
             title: targetName,
             category: 'community',
             sex: targetSex,
-            height: tm.height || 180,
-            weight: tm.weight || 80,
-            bodyFat: tm.bodyFat || 15,
+            height: tm.height || (targetSex === 'female' ? 165 : 180),
+            weight: tm.weight || (targetSex === 'female' ? 60 : 80),
+            bodyFat: tm.bodyFat || (targetSex === 'female' ? 22 : 15),
             measurements: tm
         };
     }, [targetRecord, targetName, targetSex]);
 
     const challengerProfile: ComparisonProfile = useMemo(() => {
+        const isF = challengerSex === 'female';
         return {
             id: 'challenger_quick',
             name: challengerName || 'Tú (Retador)',
             title: 'Retador Directo',
             category: 'golden',
-            sex: 'male',
-            height: Number(height) || 178,
-            weight: Number(weight) || 75,
-            bodyFat: 15,
+            sex: challengerSex,
+            height: Number(height) || (isF ? 165 : 178),
+            weight: Number(weight) || (isF ? 60 : 75),
+            bodyFat: isF ? 22 : 15,
             measurements: {
-                height: Number(height) || 178,
-                weight: Number(weight) || 75,
-                arm: { left: Number(arm) || 38, right: Number(arm) || 38 },
-                waist: Number(waist) || 82,
-                pecho: (Number(waist) || 82) * 1.35, // Estimation
-                back: (Number(waist) || 82) * 1.35,
-                thigh: { left: (Number(height) || 178) * 0.33, right: (Number(height) || 178) * 0.33 },
-                calf: { left: (Number(arm) || 38) * 0.95, right: (Number(arm) || 38) * 0.95 }
+                height: Number(height) || (isF ? 165 : 178),
+                weight: Number(weight) || (isF ? 60 : 75),
+                arm: { left: Number(arm) || (isF ? 30 : 38), right: Number(arm) || (isF ? 30 : 38) },
+                waist: Number(waist) || (isF ? 70 : 82),
+                pecho: (Number(waist) || (isF ? 70 : 82)) * (isF ? 1.25 : 1.35),
+                back: (Number(waist) || (isF ? 70 : 82)) * (isF ? 1.25 : 1.35),
+                thigh: { left: (Number(height) || (isF ? 165 : 178)) * (isF ? 0.35 : 0.33), right: (Number(height) || (isF ? 165 : 178)) * (isF ? 0.35 : 0.33) },
+                calf: { left: (Number(arm) || (isF ? 30 : 38)) * 0.95, right: (Number(arm) || (isF ? 30 : 38)) * 0.95 }
             }
         };
-    }, [height, weight, arm, waist, challengerName]);
+    }, [height, weight, arm, waist, challengerName, challengerSex]);
 
     const verdict = useMemo(() => {
         if (!calculated) return null;
@@ -137,6 +154,43 @@ export const QuickDuelChallengeModal: React.FC<Props> = ({
                 {!calculated ? (
                     /* Step 1: 4 Quick Inputs */
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', background: 'rgba(255, 255, 255, 0.04)', padding: '4px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                            <button
+                                type="button"
+                                onClick={() => handleSexChange('male')}
+                                style={{
+                                    padding: '6px 12px',
+                                    borderRadius: '8px',
+                                    border: 'none',
+                                    fontSize: '0.78rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    background: challengerSex === 'male' ? 'rgba(56, 189, 248, 0.25)' : 'transparent',
+                                    color: challengerSex === 'male' ? '#38bdf8' : '#94a3b8',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                👨 Atleta Masculino
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleSexChange('female')}
+                                style={{
+                                    padding: '6px 12px',
+                                    borderRadius: '8px',
+                                    border: 'none',
+                                    fontSize: '0.78rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    background: challengerSex === 'female' ? 'rgba(244, 114, 182, 0.25)' : 'transparent',
+                                    color: challengerSex === 'female' ? '#f472b6' : '#94a3b8',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                👩 Atleta Femenina
+                            </button>
+                        </div>
+
                         <div>
                             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '4px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
                                 Tu Nombre o Apodo
