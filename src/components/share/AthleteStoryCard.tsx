@@ -275,7 +275,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
                                 Story Card 9:16 (Instagram & WhatsApp)
                             </h3>
-                            <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Silueta anatómica, telemetría y límites Casey Butt</span>
+                            <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Silueta anatómica, telemetría y límites genéticos naturales (Casey Butt)</span>
                         </div>
                     </div>
                     {onClose && (
@@ -502,7 +502,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         </div>
                     </div>
 
-                    {/* 4. PROYECCIÓN COMPLETA DE LÍMITES GENÉTICOS (CASEY BUTT MODEL) */}
+                    {/* 4. PROYECCIÓN COMPLETA DE LÍMITES GENÉTICOS NATURALES (CASEY BUTT MODEL) */}
                     <div style={{
                         background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(0, 0, 0, 0.55))',
                         border: '1px solid rgba(245, 158, 11, 0.25)',
@@ -514,10 +514,10 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         gap: '3.5px'
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
-                            <span style={{ fontSize: '0.58rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)' }}>
-                                <Dna size={10} /> Proyección Límites Casey Butt
+                            <span style={{ fontSize: '0.54rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)' }}>
+                                <Dna size={10} /> Límite Genético Natural (Casey Butt)
                             </span>
-                            <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-mono)' }}>
+                            <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                                 {overallDevelopedPct}% Desarrollado
                             </span>
                         </div>
