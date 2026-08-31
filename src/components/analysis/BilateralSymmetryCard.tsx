@@ -134,6 +134,7 @@ export const BilateralSymmetryCard: React.FC<Props> = ({ measurements }) => {
                     );
                 })}
             </div>
+            )}
 
             {/* Global Biomechanical Summary */}
             <div style={{
