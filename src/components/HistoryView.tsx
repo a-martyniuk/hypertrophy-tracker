@@ -87,11 +87,15 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
                     <span>{t('common.form.chest')}: <strong>{record.measurements.pecho} cm</strong></span>
                   </span>
                 )}
-                {Math.max(record.measurements.arm?.right || 0, record.measurements.arm?.left || 0) > 0 && (
-                  <span className="record-metric-chip">
-                    <span>{t('common.form.arm')}: <strong>{Math.max(record.measurements.arm?.right || 0, record.measurements.arm?.left || 0)} cm</strong></span>
-                  </span>
-                )}
+                {(() => {
+                  const arm = record.measurements.arm;
+                  const armVal = typeof arm === 'number' ? arm : Math.max(arm?.right || 0, arm?.left || 0);
+                  return armVal > 0 ? (
+                    <span className="record-metric-chip">
+                      <span>{t('common.form.arm')}: <strong>{armVal} cm</strong></span>
+                    </span>
+                  ) : null;
+                })()}
               </div>
 
               <div className="record-tags">

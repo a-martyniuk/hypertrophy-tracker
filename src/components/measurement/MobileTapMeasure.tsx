@@ -369,7 +369,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
                   min="0"
                   placeholder="Ej: 82.5"
                   value={measurements.weight || ''}
-                  onChange={(e) => setValue('weight', parseFloat(e.target.value) || 0, { shouldDirty: true })}
+                  onChange={(e) => setValue('weight', parseFloat(e.target.value) || 0, { shouldDirty: true, shouldValidate: true })}
                 />
               </div>
 
@@ -381,7 +381,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
                   min="0"
                   placeholder="Ej: 180"
                   value={measurements.height || ''}
-                  onChange={(e) => setValue('height', parseFloat(e.target.value) || 0, { shouldDirty: true })}
+                  onChange={(e) => setValue('height', parseFloat(e.target.value) || 0, { shouldDirty: true, shouldValidate: true })}
                 />
               </div>
 
@@ -394,7 +394,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
                   max="120"
                   placeholder="Ej: 28"
                   value={measurements.age || ''}
-                  onChange={(e) => setValue('age', parseFloat(e.target.value) || 0, { shouldDirty: true })}
+                  onChange={(e) => setValue('age', parseFloat(e.target.value) || 0, { shouldDirty: true, shouldValidate: true })}
                 />
               </div>
 
@@ -407,7 +407,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
                     min="0"
                     placeholder="Ej: 15.0"
                     value={measurements.bodyFat || ''}
-                    onChange={(e) => setValue('bodyFat', parseFloat(e.target.value) || 0, { shouldDirty: true })}
+                    onChange={(e) => setValue('bodyFat', parseFloat(e.target.value) || 0, { shouldDirty: true, shouldValidate: true })}
                   />
                   <button
                     type="button"

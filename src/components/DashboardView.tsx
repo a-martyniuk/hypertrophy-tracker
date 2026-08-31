@@ -169,6 +169,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                                     { key: 'bodyFat', label: t('common.form.body_fat'), unit: '%', inverse: true },
                                     { key: 'neck', label: t('common.form.neck'), unit: 'cm' },
                                     { key: 'pecho', label: t('common.form.chest'), unit: 'cm' },
+                                    { key: 'back', label: t('common.form.back'), unit: 'cm' },
                                     { key: 'waist', label: t('common.form.waist'), unit: 'cm', inverse: true },
                                     { key: 'hips', label: t('common.form.hips'), unit: 'cm', inverse: true },
                                     { key: 'arm', label: t('common.form.arm'), unit: 'cm' },
@@ -179,12 +180,12 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                                     const getValue = (record?: MeasurementRecord) => {
                                         if (!record?.measurements) return undefined;
                                         const m = record.measurements as any;
-                                        if (['arm', 'forearm', 'thigh', 'calf'].includes(key)) {
+                                        if (['arm', 'forearm', 'thigh', 'calf', 'wrist', 'ankle'].includes(key)) {
                                             const item = m[key];
                                             if (item && typeof item === 'object') {
                                                 const l = item.left || 0;
                                                 const r = item.right || 0;
-                                                if (l > 0 && r > 0) return Math.max(l, r);
+                                                if (l > 0 && r > 0) return parseFloat(((l + r) / 2).toFixed(1));
                                                 return l || r || undefined;
                                             }
                                             return typeof item === 'number' ? item : undefined;

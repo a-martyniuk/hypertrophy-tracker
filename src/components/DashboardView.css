@@ -239,4 +239,8 @@
     .stat-card {
         padding: 1rem;
     }
+
+    .values-list {
+        grid-template-columns: 1fr;
+    }
 }
