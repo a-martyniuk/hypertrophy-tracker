@@ -250,22 +250,27 @@ export const computeComprehensiveAnalysis = (
     // 2. Ratio Brazo / Muñeca (Desarrollo Extremidad Superior)
     if (armCurrent > 0 && wrist > 0) {
         const armWristRatio = parseFloat((armCurrent / wrist).toFixed(2));
+        const isFemale = sex === 'female';
+        const eliteCut = isFemale ? 2.10 : 2.45;
+        const advCut = isFemale ? 1.90 : 2.25;
+        const intCut = isFemale ? 1.70 : 2.00;
+
         let status: 'optimal' | 'good' | 'needs_work' = 'good';
         let statusText = 'Desarrollo Intermedio';
         let statusColor = '#60a5fa';
         let statusBg = 'rgba(96, 165, 250, 0.15)';
 
-        if (armWristRatio >= 2.45) {
+        if (armWristRatio >= eliteCut) {
             status = 'optimal';
             statusText = 'Extremidad Élite / Límite Natural';
             statusColor = '#fbbf24';
             statusBg = 'rgba(251, 191, 36, 0.15)';
-        } else if (armWristRatio >= 2.25) {
+        } else if (armWristRatio >= advCut) {
             status = 'good';
             statusText = 'Avanzado Muscular';
             statusColor = '#34d399';
             statusBg = 'rgba(52, 211, 153, 0.15)';
-        } else if (armWristRatio >= 2.00) {
+        } else if (armWristRatio >= intCut) {
             status = 'good';
             statusText = 'Intermedio Sólido';
             statusColor = '#60a5fa';
@@ -282,14 +287,19 @@ export const computeComprehensiveAnalysis = (
             name: 'Ratio Brazo / Muñeca (Densidad de Brazos)',
             label: `${armWristRatio}x`,
             currentValue: armWristRatio,
-            idealValue: 2.50,
-            scaleDescription: 'Referencia Natural: 2.30x - 2.55x',
+            idealValue: isFemale ? 2.15 : 2.50,
+            scaleDescription: isFemale ? 'Referencia Natural Femenina: 1.90x - 2.15x' : 'Referencia Natural: 2.30x - 2.55x',
             status,
             statusText,
             statusColor,
             statusBg,
             explanation: 'Indica cuánta masa muscular magra has construido alrededor de tu estructura ósea de muñeca.',
-            referenceTiers: [
+            referenceTiers: isFemale ? [
+                { label: 'Inicial', range: `< ${intCut.toFixed(2)}`, isCurrent: armWristRatio < intCut },
+                { label: 'Intermedio', range: `${intCut.toFixed(2)} - ${advCut.toFixed(2)}`, isCurrent: armWristRatio >= intCut && armWristRatio < advCut },
+                { label: 'Avanzado', range: `${advCut.toFixed(2)} - ${eliteCut.toFixed(2)}`, isCurrent: armWristRatio >= advCut && armWristRatio < eliteCut },
+                { label: 'Élite Natural', range: `≥ ${eliteCut.toFixed(2)}`, isCurrent: armWristRatio >= eliteCut }
+            ] : [
                 { label: 'Inicial', range: '< 2.00', isCurrent: armWristRatio < 2.00 },
                 { label: 'Intermedio', range: '2.00 - 2.25', isCurrent: armWristRatio >= 2.00 && armWristRatio < 2.25 },
                 { label: 'Avanzado', range: '2.25 - 2.45', isCurrent: armWristRatio >= 2.25 && armWristRatio < 2.45 },

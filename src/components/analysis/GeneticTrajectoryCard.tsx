@@ -13,26 +13,31 @@ interface Props {
 }
 
 export const GeneticTrajectoryCard: React.FC<Props> = ({
-    weight = 75,
-    height = 178,
-    bodyFat = 15,
+    weight,
+    height,
+    bodyFat,
     sex = 'male',
     age = 28,
     measurements
 }) => {
+    const isFemale = sex === 'female';
+    const effectiveWeight = weight && weight > 0 ? weight : (isFemale ? 60 : 75);
+    const effectiveHeight = height && height > 0 ? height : (isFemale ? 165 : 178);
+    const effectiveBf = bodyFat && bodyFat > 0 ? bodyFat : (isFemale ? 22 : 15);
+
     // Estimate training years based on age / baseline or default to intermediate
     const estimatedTrainingYears = age > 30 ? 4 : 2;
 
     const trajectory = useMemo(() => {
         return calculateGeneticTrajectory(
-            weight,
-            height,
-            bodyFat,
+            effectiveWeight,
+            effectiveHeight,
+            effectiveBf,
             sex,
             estimatedTrainingYears,
             measurements as BodyMeasurements
         );
-    }, [weight, height, bodyFat, sex, estimatedTrainingYears, measurements]);
+    }, [effectiveWeight, effectiveHeight, effectiveBf, sex, estimatedTrainingYears, measurements]);
 
     const {
         currentLeanMassKg,

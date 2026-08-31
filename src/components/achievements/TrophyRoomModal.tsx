@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trophy, X, Sparkles, CheckCircle2, Lock, Shield } from 'lucide-react';
 import type { MeasurementRecord } from '../../types/measurements';
 import { evaluateAthleteBadges, type AthleteBadge } from '../../utils/athleteBadges';
@@ -13,6 +13,15 @@ interface Props {
 
 export const TrophyRoomModal: React.FC<Props> = ({ isOpen, onClose, records, sex = 'male' }) => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

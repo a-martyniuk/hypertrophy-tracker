@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Swords, X, Flame } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +21,15 @@ export const QuickDuelChallengeModal: React.FC<Props> = ({
     targetSex = 'male'
 }) => {
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
 
     // Quick duel inputs
     const [challengerSex, setChallengerSex] = useState<'male' | 'female'>(targetSex || 'male');
