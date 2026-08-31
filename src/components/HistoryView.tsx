@@ -49,6 +49,18 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
     );
   }
 
+  const formatDateSafe = (dateStr: string) => {
+    if (!dateStr) return '';
+    if (dateStr.includes('T')) {
+      return new Date(dateStr).toLocaleDateString();
+    }
+    const parts = dateStr.split('-').map(Number);
+    if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
+      return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString();
+    }
+    return new Date(dateStr).toLocaleDateString();
+  };
+
   return (
     <div className="history-view animate-fade">
       <div className="view-header">
@@ -70,7 +82,7 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
             <div className="record-info">
               <div className="record-date">
                 <Calendar size={16} />
-                <span>{new Date(record.date).toLocaleDateString()}</span>
+                <span>{formatDateSafe(record.date)}</span>
               </div>
 
               <div className="record-metrics-row">

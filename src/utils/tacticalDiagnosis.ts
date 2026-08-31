@@ -69,19 +69,28 @@ export const generateTacticalDiagnosis = (
     const chestDiff = (cur.pecho || 0) - (prev.pecho || 0);
     const backDiff = (cur.back || 0) - (prev.back || 0);
 
-    const getAvgArm = (m: typeof cur) => {
-        const l = m.arm?.left || 0;
-        const r = m.arm?.right || 0;
+    const getBilateralAvg = (m?: { left?: number; right?: number }) => {
+        if (!m) return 0;
+        const l = m.left || 0;
+        const r = m.right || 0;
         return (l > 0 && r > 0) ? (l + r) / 2 : (l || r || 0);
     };
 
-    const curArm = getAvgArm(cur);
-    const prevArm = getAvgArm(prev);
+    const curArm = getBilateralAvg(cur.arm);
+    const prevArm = getBilateralAvg(prev.arm);
     const armDiff = curArm - prevArm;
 
-    const curThigh = ((cur.thigh?.left || 0) + (cur.thigh?.right || 0)) / 2;
-    const prevThigh = ((prev.thigh?.left || 0) + (prev.thigh?.right || 0)) / 2;
+    const curForearm = getBilateralAvg(cur.forearm);
+    const prevForearm = getBilateralAvg(prev.forearm);
+    const forearmDiff = curForearm - prevForearm;
+
+    const curThigh = getBilateralAvg(cur.thigh);
+    const prevThigh = getBilateralAvg(prev.thigh);
     const thighDiff = curThigh - prevThigh;
+
+    const curCalf = getBilateralAvg(cur.calf);
+    const prevCalf = getBilateralAvg(prev.calf);
+    const calfDiff = curCalf - prevCalf;
 
     // V-Taper
     const prevVTaper = prev.waist > 0 ? (prev.pecho || 0) / prev.waist : 1;
@@ -130,6 +139,14 @@ export const generateTacticalDiagnosis = (
             trend: armDiff > 0 ? 'up' : 'down'
         });
     }
+    if (forearmDiff !== 0) {
+        highlights.push(`Antebrazos: ${forearmDiff > 0 ? '+' : ''}${forearmDiff.toFixed(1)} cm`);
+        metrics.push({
+            label: 'Antebrazos',
+            value: `${forearmDiff > 0 ? '+' : ''}${forearmDiff.toFixed(1)} cm`,
+            trend: forearmDiff > 0 ? 'up' : 'down'
+        });
+    }
     if (waistDiff !== 0) {
         highlights.push(`Cintura: ${waistDiff > 0 ? '+' : ''}${waistDiff.toFixed(1)} cm`);
         metrics.push({
@@ -144,6 +161,14 @@ export const generateTacticalDiagnosis = (
             label: 'Muslos / Cuádriceps',
             value: `${thighDiff > 0 ? '+' : ''}${thighDiff.toFixed(1)} cm`,
             trend: thighDiff > 0 ? 'up' : 'down'
+        });
+    }
+    if (calfDiff !== 0) {
+        highlights.push(`Gemelos: ${calfDiff > 0 ? '+' : ''}${calfDiff.toFixed(1)} cm`);
+        metrics.push({
+            label: 'Gemelos / Pantorrillas',
+            value: `${calfDiff > 0 ? '+' : ''}${calfDiff.toFixed(1)} cm`,
+            trend: calfDiff > 0 ? 'up' : 'down'
         });
     }
 
@@ -170,7 +195,7 @@ export const generateTacticalDiagnosis = (
         };
     }
 
-    if (chestDiff > 0 || armDiff > 0 || thighDiff > 0) {
+    if (chestDiff > 0 || armDiff > 0 || thighDiff > 0 || forearmDiff > 0 || calfDiff > 0) {
         if (waistDiff > 1.5) {
             return {
                 headline: 'Crecimiento con Superávit Elevado',
