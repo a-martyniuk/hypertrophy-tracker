@@ -26,22 +26,24 @@ export const evaluateAthleteBadges = (
 
     const analysis = computeComprehensiveAnalysis(m, sex);
 
-    // 1. V-TAPER DORADO (Ratio Pecho/Cintura >= 1.618)
+    // 1. V-TAPER DORADO (Ratio Pecho/Cintura >= 1.618 en hombres o >= 1.38 en mujeres)
     const chest = m?.pecho || 0;
     const waist = m?.waist || 0;
     const vRatio = waist > 0 ? chest / waist : 0;
-    const vTarget = 1.618;
+    const vTarget = sex === 'female' ? 1.38 : 1.618;
     const vProgress = Math.min(100, Math.round((vRatio / vTarget) * 100));
     badges.push({
         id: 'golden_v_taper',
-        title: 'V-Taper Dorado',
-        description: 'Alcanza la proporción áurea (Golden Ratio) en tu torso con un ratio Pecho / Cintura ≥ 1.618.',
+        title: sex === 'female' ? 'Silueta de Reloj de Arena' : 'V-Taper Dorado',
+        description: sex === 'female'
+            ? 'Alcanza la proporción estética ideal en tu torso con un ratio Pecho / Cintura ≥ 1.38.'
+            : 'Alcanza la proporción áurea (Golden Ratio) en tu torso con un ratio Pecho / Cintura ≥ 1.618.',
         icon: '🏆',
         category: 'Aesthetic',
         isUnlocked: vRatio >= vTarget,
         progressPercent: vProgress,
         currentValueText: `${vRatio.toFixed(2)}x`,
-        targetValueText: '1.618x',
+        targetValueText: `${vTarget.toFixed(2)}x`,
         rarity: 'Legendary',
         rarityColor: '#fbbf24'
     });
@@ -119,7 +121,9 @@ export const evaluateAthleteBadges = (
     ];
     const hasMeasuredPairs = Boolean(
         (m?.arm?.left && m?.arm?.right && m.arm.left > 0 && m.arm.right > 0) ||
-        (m?.thigh?.left && m?.thigh?.right && m.thigh.left > 0 && m.thigh.right > 0)
+        (m?.forearm?.left && m?.forearm?.right && m.forearm.left > 0 && m.forearm.right > 0) ||
+        (m?.thigh?.left && m?.thigh?.right && m.thigh.left > 0 && m.thigh.right > 0) ||
+        (m?.calf?.left && m?.calf?.right && m.calf.left > 0 && m.calf.right > 0)
     );
 
     const maxBilateralDiff = Math.max(...measuredDiffs, 0);
