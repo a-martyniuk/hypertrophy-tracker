@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { toPng } from 'html-to-image';
 import { Download, Sparkles, Check, X, Copy, Link, Zap, Dna, Activity } from 'lucide-react';
+import type { MeasurementRecord } from '../../types/measurements';
 import { computeComprehensiveAnalysis } from '../../utils/benchmarkAnalysis';
 import { calculateFFMI, calculateSkeletalPotential } from '../../utils/skeletal';
 import { calculateBilateralSymmetry } from '../../utils/symmetryAudit';
@@ -60,15 +61,6 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
         const r = val.right || 0;
         if (l > 0 && r > 0) return parseFloat(((l + r) / 2).toFixed(1));
         return l || r || 0;
-    };
-
-    const getAvgStr = (val: number | { left?: number; right?: number } | undefined): string => {
-        if (!val) return '—';
-        if (typeof val === 'number') return `${val} cm`;
-        const l = val.left || 0;
-        const r = val.right || 0;
-        if (l > 0 && r > 0) return `${((l + r) / 2).toFixed(1)} cm`;
-        return l > 0 ? `${l} cm` : r > 0 ? `${r} cm` : '—';
     };
 
     // Full 6 Muscle Groups Projection from Casey Butt Model
@@ -498,9 +490,13 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                     </span>
                                 </div>
                                 <div style={{ fontSize: '0.56rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '1px' }}>
-                                    {symmetry?.maxDiscrepancy && symmetry.maxDiscrepancy > 0.5
-                                        ? `Mayor desvío: ${symmetry.maxDiscrepancy} cm en ${symmetry.mostAsymmetricGroup}`
-                                        : 'Desvío ≤ 0.5 cm en todas las extremidades'}
+                                    {(() => {
+                                        const maxLimb = symmetry?.limbs?.reduce((max, curr) => (curr.diffCm > (max?.diffCm || 0) ? curr : max), symmetry.limbs[0]);
+                                        if (maxLimb && maxLimb.diffCm > 0.5) {
+                                            return `Mayor desvío: ${maxLimb.diffCm} cm en ${maxLimb.name}`;
+                                        }
+                                        return 'Desvío ≤ 0.5 cm en todas las extremidades';
+                                    })()}
                                 </div>
                             </div>
                         </div>
