@@ -1,10 +1,10 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { toPng } from 'html-to-image';
-import { Download, Sparkles, Check, X, Copy, Link, Zap, Ruler, Dna } from 'lucide-react';
+import { Download, Sparkles, Check, X, Copy, Link, Zap, Dna, Activity } from 'lucide-react';
 import type { MeasurementRecord } from '../../types/measurements';
-import { computeComprehensiveAnalysis, type MuscleBenchmark } from '../../utils/benchmarkAnalysis';
-import { calculateFFMI } from '../../utils/skeletal';
+import { computeComprehensiveAnalysis } from '../../utils/benchmarkAnalysis';
+import { calculateFFMI, calculateSkeletalPotential } from '../../utils/skeletal';
 import { calculateBilateralSymmetry } from '../../utils/symmetryAudit';
 import { createCompactSelfContainedLink } from '../../services/shortLinkService';
 import maleSilhouette from '../../assets/clean_red_silhouette.png';
@@ -52,15 +52,95 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
         return createCompactSelfContainedLink(userName, record, sex);
     }, [record, userName, sex]);
 
-    // All Major Benchmarks from Casey Butt Analysis
-    const benchmarks = useMemo(() => {
-        return analysis?.muscleBenchmarks || [];
-    }, [analysis]);
+    const getAvgNum = (val: number | { left?: number; right?: number } | undefined): number => {
+        if (!val) return 0;
+        if (typeof val === 'number') return val;
+        const l = val.left || 0;
+        const r = val.right || 0;
+        if (l > 0 && r > 0) return parseFloat(((l + r) / 2).toFixed(1));
+        return l || r || 0;
+    };
+
+    const getAvgStr = (val: number | { left?: number; right?: number } | undefined): string => {
+        if (!val) return '—';
+        if (typeof val === 'number') return `${val} cm`;
+        const l = val.left || 0;
+        const r = val.right || 0;
+        if (l > 0 && r > 0) return `${((l + r) / 2).toFixed(1)} cm`;
+        return l > 0 ? `${l} cm` : r > 0 ? `${r} cm` : '—';
+    };
+
+    // Full 6 Muscle Groups Projection from Casey Butt Model
+    const caseyProjections = useMemo(() => {
+        const height = m?.height || (sex === 'female' ? 165 : 178);
+        const wristAvg = getAvgNum(m?.wrist);
+        const ankleAvg = getAvgNum(m?.ankle);
+        const wrist = wristAvg > 0 ? wristAvg : (sex === 'female' ? 15.5 : 17.5);
+        const ankle = ankleAvg > 0 ? ankleAvg : (sex === 'female' ? 20.5 : 22.5);
+        const potentials = calculateSkeletalPotential(wrist, ankle, height, sex);
+
+        const list = [
+            {
+                key: 'arm',
+                label: 'Brazo (Bíceps/Tríceps)',
+                current: getAvgNum(m?.arm),
+                max: potentials.biceps
+            },
+            {
+                key: 'pecho',
+                label: 'Pecho / Torso',
+                current: m?.pecho || 0,
+                max: potentials.chest
+            },
+            {
+                key: 'forearm',
+                label: 'Antebrazo',
+                current: getAvgNum(m?.forearm),
+                max: potentials.forearms
+            },
+            {
+                key: 'thigh',
+                label: 'Muslo (Cuádriceps)',
+                current: getAvgNum(m?.thigh),
+                max: potentials.thighs
+            },
+            {
+                key: 'calf',
+                label: 'Gemelo (Pantorrilla)',
+                current: getAvgNum(m?.calf),
+                max: potentials.calves
+            },
+            {
+                key: 'neck',
+                label: 'Cuello',
+                current: m?.neck || 0,
+                max: potentials.neck
+            }
+        ];
+
+        return list.map(item => {
+            const pct = item.max > 0 && item.current > 0
+                ? Math.min(105, Math.round((item.current / item.max) * 100))
+                : 0;
+            return {
+                ...item,
+                pct
+            };
+        });
+    }, [m, sex]);
+
+    // Overall Developed Score from all measured groups
+    const overallDevelopedPct = useMemo(() => {
+        const measured = caseyProjections.filter(p => p.current > 0);
+        if (measured.length === 0) return analysis?.overallScore || 85;
+        const total = measured.reduce((acc, curr) => acc + curr.pct, 0);
+        return Math.round(total / measured.length);
+    }, [caseyProjections, analysis]);
 
     // Athlete Tier Assessment
     const athleteTier = useMemo(() => {
         const ffmiVal = ffmi?.normalizedFFMI || 20;
-        const maxPercent = analysis?.overallScore || 80;
+        const maxPercent = overallDevelopedPct;
         if (ffmiVal >= (sex === 'female' ? 21 : 24) || maxPercent >= 94) {
             return {
                 label: 'ÉLITE NATURAL',
@@ -83,7 +163,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
             bg: 'rgba(52, 211, 153, 0.18)',
             border: 'rgba(52, 211, 153, 0.45)'
         };
-    }, [ffmi, analysis, sex]);
+    }, [ffmi, overallDevelopedPct, sex]);
 
     // Escape key listener for fast dismissal
     useEffect(() => {
@@ -151,13 +231,6 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
         }
     };
 
-    const getAvg = (val: number | { left: number; right: number } | undefined) => {
-        if (!val) return '—';
-        if (typeof val === 'number') return `${val} cm`;
-        return `${Math.max(val.left || 0, val.right || 0)} cm`;
-    };
-
-    // Helper measurement rules for anatomical HUD
     const vRatio = (m?.pecho && m?.waist && m.waist > 0) ? (m.pecho / m.waist).toFixed(2) : '1.55';
 
     return createPortal(
@@ -187,7 +260,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                     border: '1.5px solid rgba(245, 158, 11, 0.35)',
                     borderRadius: '24px',
                     padding: '1.25rem',
-                    maxWidth: '440px',
+                    maxWidth: '420px',
                     width: '100%',
                     maxHeight: '96vh',
                     overflowY: 'auto',
@@ -195,7 +268,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '1rem',
+                    gap: '0.85rem',
                     boxShadow: '0 30px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(245, 158, 11, 0.1)'
                 }}
             >
@@ -209,7 +282,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
                                 Story Card 9:16 (Instagram & WhatsApp)
                             </h3>
-                            <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Silueta anatómica, reglas y proyección Casey Butt</span>
+                            <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Silueta anatómica, telemetría y límites Casey Butt</span>
                         </div>
                     </div>
                     {onClose && (
@@ -228,10 +301,10 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                     style={{
                         width: '360px',
                         height: '640px',
-                        background: 'linear-gradient(180deg, #090e1c 0%, #060914 45%, #03050a 100%)',
+                        background: 'radial-gradient(ellipse 90% 50% at 50% 0%, rgba(245, 158, 11, 0.15), transparent), radial-gradient(ellipse 90% 50% at 50% 100%, rgba(34, 211, 238, 0.12), transparent), #070a14',
                         border: '2px solid rgba(245, 158, 11, 0.45)',
-                        borderRadius: '28px',
-                        padding: '1.1rem 1rem',
+                        borderRadius: '24px',
+                        padding: '0.85rem 0.85rem',
                         boxSizing: 'border-box',
                         display: 'flex',
                         flexDirection: 'column',
@@ -241,41 +314,21 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         boxShadow: '0 0 50px rgba(0, 0, 0, 0.95), 0 0 30px rgba(245, 158, 11, 0.15)'
                     }}
                 >
-                    {/* Glowing Ambient Gradients */}
-                    <div style={{
-                        position: 'absolute',
-                        top: '-40px',
-                        right: '-40px',
-                        width: '200px',
-                        height: '200px',
-                        background: 'radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, transparent 70%)',
-                        pointerEvents: 'none'
-                    }} />
-                    <div style={{
-                        position: 'absolute',
-                        bottom: '70px',
-                        left: '-50px',
-                        width: '200px',
-                        height: '200px',
-                        background: 'radial-gradient(circle, rgba(34, 211, 238, 0.18) 0%, transparent 70%)',
-                        pointerEvents: 'none'
-                    }} />
-
                     {/* 1. Top Brand & Tier Header */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <div style={{ width: '20px', height: '20px', borderRadius: '5px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000' }}>
-                                <Zap size={12} strokeWidth={3} />
+                            <div style={{ width: '18px', height: '18px', borderRadius: '5px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000' }}>
+                                <Zap size={11} strokeWidth={3} />
                             </div>
-                            <span style={{ fontSize: '0.68rem', fontWeight: 900, color: '#fbbf24', letterSpacing: '1.2px', fontFamily: 'var(--font-mono)' }}>
+                            <span style={{ fontSize: '0.66rem', fontWeight: 900, color: '#fbbf24', letterSpacing: '1.2px', fontFamily: 'var(--font-mono)' }}>
                                 HYPERTROPHY TRACKER
                             </span>
                         </div>
                         <span style={{
-                            fontSize: '0.6rem',
+                            fontSize: '0.58rem',
                             fontWeight: 900,
-                            padding: '2px 8px',
-                            borderRadius: '10px',
+                            padding: '2px 7px',
+                            borderRadius: '8px',
                             background: athleteTier.bg,
                             color: athleteTier.color,
                             border: `1px solid ${athleteTier.border}`,
@@ -290,36 +343,36 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '10px',
+                        gap: '8px',
                         background: 'rgba(255, 255, 255, 0.03)',
                         border: '1px solid rgba(255, 255, 255, 0.08)',
-                        borderRadius: '14px',
-                        padding: '0.45rem 0.65rem',
+                        borderRadius: '12px',
+                        padding: '0.35rem 0.55rem',
                         backdropFilter: 'blur(8px)',
                         zIndex: 2
                     }}>
                         <div style={{
-                            width: '42px',
-                            height: '42px',
-                            borderRadius: '12px',
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '10px',
                             background: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontWeight: 900,
-                            fontSize: '1.15rem',
+                            fontSize: '1rem',
                             color: '#000000',
                             fontFamily: 'var(--font-head)',
-                            boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
+                            boxShadow: '0 0 12px rgba(245, 158, 11, 0.4)',
                             flexShrink: 0
                         }}>
                             {initials}
                         </div>
                         <div style={{ flex: 1, overflow: 'hidden' }}>
-                            <h2 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-head)', lineHeight: 1.1, textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                            <h2 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-head)', lineHeight: 1.1, textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>
                                 {userName}
                             </h2>
-                            <div style={{ fontSize: '0.64rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                            <div style={{ fontSize: '0.6rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px', display: 'flex', flexWrap: 'wrap', gap: '3px' }}>
                                 <span>{m?.height || (sex === 'female' ? 165 : 180)}cm</span> ·
                                 <span>{m?.weight || (sex === 'female' ? 60 : 75)}kg</span> ·
                                 <span style={{ color: '#22d3ee' }}>FFMI {ffmi?.normalizedFFMI || 22.0}</span> ·
@@ -328,12 +381,12 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         </div>
                     </div>
 
-                    {/* 3. CENTRAL ANATOMICAL SILHOUETTE HUD + MEASUREMENT RULES */}
+                    {/* 3. CENTRAL ANATOMICAL SILHOUETTE & ANTHROPOMETRIC TELEMETRY */}
                     <div style={{
-                        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(15, 23, 42, 0.4))',
+                        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.55), rgba(15, 23, 42, 0.45))',
                         border: '1px solid rgba(255, 255, 255, 0.08)',
-                        borderRadius: '16px',
-                        padding: '0.5rem 0.65rem',
+                        borderRadius: '14px',
+                        padding: '0.45rem 0.6rem',
                         zIndex: 2,
                         display: 'flex',
                         alignItems: 'center',
@@ -341,145 +394,146 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         gap: '8px'
                     }}>
                         {/* Anatomical Silhouette Graphic */}
-                        <div style={{ position: 'relative', width: '105px', height: '165px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div style={{ position: 'relative', width: '90px', height: '145px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <img
                                 src={sex === 'female' ? femaleSilhouette : maleSilhouette}
                                 alt="Silueta Anatómica"
                                 style={{
-                                    height: '160px',
+                                    height: '140px',
                                     width: 'auto',
                                     objectFit: 'contain',
-                                    filter: 'drop-shadow(0 0 12px rgba(245, 158, 11, 0.4)) brightness(1.05)'
+                                    filter: 'drop-shadow(0 0 10px rgba(245, 158, 11, 0.45)) brightness(1.05)'
                                 }}
                             />
-                            {/* Visual HUD Pulse Rings */}
-                            <div style={{ position: 'absolute', top: '35%', left: '48%', width: '6px', height: '6px', borderRadius: '50%', background: '#fbbf24', boxShadow: '0 0 8px #fbbf24' }} />
-                            <div style={{ position: 'absolute', top: '50%', left: '48%', width: '6px', height: '6px', borderRadius: '50%', background: '#22d3ee', boxShadow: '0 0 8px #22d3ee' }} />
-                            <div style={{ position: 'absolute', top: '68%', left: '40%', width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
                         </div>
 
-                        {/* Measurement Rules & Current Real Values Cards */}
+                        {/* Real Measured Perimeters Cards */}
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                                <span style={{ fontSize: '0.58rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.8px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)' }}>
-                                    <Ruler size={10} /> Reglas de Medición
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
+                                <span style={{ fontSize: '0.55rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)' }}>
+                                    <Activity size={10} /> Perímetros Actuales
                                 </span>
-                                <span style={{ fontSize: '0.52rem', color: '#10b981', fontFamily: 'var(--font-mono)' }}>
+                                <span style={{ fontSize: '0.5rem', color: '#10b981', fontFamily: 'var(--font-mono)' }}>
                                     Simetría {symmetry?.overallScore || 98}%
                                 </span>
                             </div>
 
-                            {/* Torso / Pecho */}
-                            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '8px', padding: '2px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <span style={{ fontSize: '0.58rem', fontWeight: 800, color: '#f8fafc', display: 'block' }}>PECHO</span>
-                                    <span style={{ fontSize: '0.48rem', color: '#94a3b8' }}>Nivel mamilar + dorsal</span>
+                            {/* Two-Column Grid for Perimeters */}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px' }}>
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>PECHO</span>
+                                    <strong style={{ fontSize: '0.68rem', color: '#fbbf24', fontFamily: 'var(--font-mono)' }}>
+                                        {m?.pecho ? `${m.pecho} cm` : '—'}
+                                    </strong>
                                 </div>
-                                <strong style={{ fontSize: '0.72rem', color: '#fbbf24', fontFamily: 'var(--font-mono)' }}>
-                                    {m?.pecho ? `${m.pecho} cm` : '—'}
-                                </strong>
-                            </div>
 
-                            {/* Brazo / Bíceps */}
-                            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '8px', padding: '2px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <span style={{ fontSize: '0.58rem', fontWeight: 800, color: '#f8fafc', display: 'block' }}>BRAZO</span>
-                                    <span style={{ fontSize: '0.48rem', color: '#94a3b8' }}>Flexión pico a 90°</span>
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>BRAZO</span>
+                                    <strong style={{ fontSize: '0.68rem', color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
+                                        {getAvgStr(m?.arm)}
+                                    </strong>
                                 </div>
-                                <strong style={{ fontSize: '0.72rem', color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
-                                    {getAvg(m?.arm)}
-                                </strong>
-                            </div>
 
-                            {/* Cintura */}
-                            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '8px', padding: '2px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <span style={{ fontSize: '0.58rem', fontWeight: 800, color: '#f8fafc', display: 'block' }}>CINTURA</span>
-                                    <span style={{ fontSize: '0.48rem', color: '#94a3b8' }}>Ombligo en ayunas</span>
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>ANTEBR.</span>
+                                    <strong style={{ fontSize: '0.68rem', color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
+                                        {getAvgStr(m?.forearm)}
+                                    </strong>
                                 </div>
-                                <strong style={{ fontSize: '0.72rem', color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
-                                    {m?.waist ? `${m.waist} cm` : '—'}
-                                </strong>
-                            </div>
 
-                            {/* Muslo */}
-                            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '8px', padding: '2px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <span style={{ fontSize: '0.58rem', fontWeight: 800, color: '#f8fafc', display: 'block' }}>MUSLO</span>
-                                    <span style={{ fontSize: '0.48rem', color: '#94a3b8' }}>Punto medio fémur</span>
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>CINTURA</span>
+                                    <strong style={{ fontSize: '0.68rem', color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
+                                        {m?.waist ? `${m.waist} cm` : '—'}
+                                    </strong>
                                 </div>
-                                <strong style={{ fontSize: '0.72rem', color: '#34d399', fontFamily: 'var(--font-mono)' }}>
-                                    {getAvg(m?.thigh)}
-                                </strong>
-                            </div>
 
-                            {/* Gemelo */}
-                            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '8px', padding: '2px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <span style={{ fontSize: '0.58rem', fontWeight: 800, color: '#f8fafc', display: 'block' }}>GEMELO</span>
-                                    <span style={{ fontSize: '0.48rem', color: '#94a3b8' }}>Perímetro máximo</span>
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>ESPALDA</span>
+                                    <strong style={{ fontSize: '0.68rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
+                                        {m?.back ? `${m.back} cm` : '—'}
+                                    </strong>
                                 </div>
-                                <strong style={{ fontSize: '0.72rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
-                                    {getAvg(m?.calf)}
-                                </strong>
+
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>MUSLO</span>
+                                    <strong style={{ fontSize: '0.68rem', color: '#34d399', fontFamily: 'var(--font-mono)' }}>
+                                        {getAvgStr(m?.thigh)}
+                                    </strong>
+                                </div>
+
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>GEMELO</span>
+                                    <strong style={{ fontSize: '0.68rem', color: '#34d399', fontFamily: 'var(--font-mono)' }}>
+                                        {getAvgStr(m?.calf)}
+                                    </strong>
+                                </div>
+
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>CUELLO</span>
+                                    <strong style={{ fontSize: '0.68rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
+                                        {m?.neck ? `${m.neck} cm` : '—'}
+                                    </strong>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* 4. PROYECCIÓN DE PERÍMETROS MÁXIMOS (CASEY BUTT GENETIC CEILING) */}
+                    {/* 4. PROYECCIÓN COMPLETA DE LÍMITES GENÉTICOS (CASEY BUTT MODEL) */}
                     <div style={{
-                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.07), rgba(0, 0, 0, 0.5))',
+                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(0, 0, 0, 0.55))',
                         border: '1px solid rgba(245, 158, 11, 0.25)',
-                        borderRadius: '16px',
-                        padding: '0.55rem 0.75rem',
+                        borderRadius: '14px',
+                        padding: '0.45rem 0.65rem',
                         zIndex: 2,
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '5px'
+                        gap: '3.5px'
                     }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.8px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--font-mono)' }}>
-                                <Dna size={11} /> Proyección Límites Casey Butt
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
+                            <span style={{ fontSize: '0.58rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)' }}>
+                                <Dna size={10} /> Proyección Límites Casey Butt
                             </span>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-mono)' }}>
-                                {analysis?.overallScore || 90}% Potencial Desarrollado
+                            <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-mono)' }}>
+                                {overallDevelopedPct}% Desarrollado
                             </span>
                         </div>
 
-                        {/* Benchmark Progress Bars Grid */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3.5px' }}>
-                            {benchmarks.slice(0, 5).map((bm: MuscleBenchmark) => {
-                                const current = bm.current || 0;
-                                const max = bm.potentialMax || 0;
-                                const pct = bm.percentOfMax || 0;
-                                const barColor = pct >= 95 ? '#fbbf24' : pct >= 88 ? '#38bdf8' : '#34d399';
+                        {/* All 6 Muscle Groups with Progress Bars */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                            {caseyProjections.map((item) => {
+                                const currentText = item.current > 0 ? `${item.current} cm` : '—';
+                                const pct = item.pct;
+                                const barColor = pct >= 95 ? '#fbbf24' : pct >= 88 ? '#38bdf8' : pct > 0 ? '#34d399' : '#64748b';
 
                                 return (
-                                    <div key={bm.key} style={{ display: 'flex', flexDirection: 'column', gap: '1.5px' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.62rem' }}>
+                                    <div key={item.key} style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.58rem' }}>
                                             <span style={{ color: '#e2e8f0', fontWeight: 700 }}>
-                                                {bm.label}
+                                                {item.label}
                                             </span>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'var(--font-mono)' }}>
-                                                <span style={{ color: '#ffffff', fontWeight: 800 }}>
-                                                    {current} cm
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'var(--font-mono)' }}>
+                                                <span style={{ color: item.current > 0 ? '#ffffff' : '#64748b', fontWeight: 800 }}>
+                                                    {currentText}
                                                 </span>
-                                                <span style={{ color: '#64748b', fontSize: '0.54rem' }}>
-                                                    / Max {max} cm
+                                                <span style={{ color: '#64748b', fontSize: '0.52rem' }}>
+                                                    / Max {item.max} cm
                                                 </span>
                                                 <span style={{
-                                                    fontSize: '0.55rem',
+                                                    fontSize: '0.54rem',
                                                     fontWeight: 900,
-                                                    color: barColor
+                                                    color: barColor,
+                                                    minWidth: '24px',
+                                                    textAlign: 'right'
                                                 }}>
-                                                    {pct}%
+                                                    {pct > 0 ? `${pct}%` : '—'}
                                                 </span>
                                             </div>
                                         </div>
                                         {/* Progress Bar */}
-                                        <div style={{ width: '100%', height: '4px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+                                        <div style={{ width: '100%', height: '3.5px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '2px', overflow: 'hidden' }}>
                                             <div style={{
-                                                width: `${Math.min(100, pct)}%`,
+                                                width: `${Math.min(100, Math.max(pct, 0))}%`,
                                                 height: '100%',
                                                 background: `linear-gradient(90deg, ${barColor}88, ${barColor})`,
                                                 borderRadius: '2px'
@@ -493,36 +547,36 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
 
                     {/* 5. INSTAGRAM / WHATSAPP STICKER ZONE (High-Converting Interactive Placeholder) */}
                     <div style={{
-                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(56, 189, 248, 0.12))',
-                        border: '2px dashed rgba(245, 158, 11, 0.65)',
-                        borderRadius: '14px',
-                        padding: '0.55rem 0.75rem',
+                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(56, 189, 248, 0.12))',
+                        border: '1.5px dashed rgba(245, 158, 11, 0.65)',
+                        borderRadius: '12px',
+                        padding: '0.45rem 0.65rem',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        gap: '8px',
+                        gap: '6px',
                         zIndex: 2,
-                        boxShadow: '0 0 20px rgba(245, 158, 11, 0.15)'
+                        boxShadow: '0 0 15px rgba(245, 158, 11, 0.15)'
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: '#fbbf24', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000000', flexShrink: 0, boxShadow: '0 0 12px rgba(251, 191, 36, 0.6)' }}>
-                                <Link size={16} strokeWidth={2.5} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '26px', height: '26px', borderRadius: '7px', background: '#fbbf24', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000000', flexShrink: 0, boxShadow: '0 0 10px rgba(251, 191, 36, 0.5)' }}>
+                                <Link size={14} strokeWidth={2.5} />
                             </div>
                             <div>
-                                <span style={{ fontSize: '0.64rem', fontWeight: 900, color: '#ffffff', display: 'block', letterSpacing: '0.3px' }}>
+                                <span style={{ fontSize: '0.62rem', fontWeight: 900, color: '#ffffff', display: 'block', letterSpacing: '0.2px' }}>
                                     TOCA EL ENLACE DE LA HISTORIA
                                 </span>
-                                <span style={{ fontSize: '0.55rem', color: '#94a3b8', display: 'block', lineHeight: 1.15 }}>
+                                <span style={{ fontSize: '0.52rem', color: '#94a3b8', display: 'block', lineHeight: 1.1 }}>
                                     Para retarme en duelo y ver mi ficha 360°
                                 </span>
                             </div>
                         </div>
                         <div style={{
-                            padding: '3px 7px',
-                            borderRadius: '6px',
+                            padding: '2px 6px',
+                            borderRadius: '5px',
                             background: 'rgba(255, 255, 255, 0.1)',
                             border: '1px solid rgba(255, 255, 255, 0.2)',
-                            fontSize: '0.55rem',
+                            fontSize: '0.52rem',
                             fontWeight: 800,
                             color: '#fbbf24',
                             fontFamily: 'var(--font-mono)'
