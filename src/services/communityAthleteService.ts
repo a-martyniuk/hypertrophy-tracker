@@ -4,6 +4,7 @@ import {
     getDocs,
     setDoc,
     deleteDoc
+} from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../lib/firebase';
 import type { BodyMeasurements, MeasurementRecord } from '../types/measurements';
 import type { ComparisonProfile } from '../utils/athleteComparison';
