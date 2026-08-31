@@ -56,6 +56,15 @@ export const ShareReportModal: React.FC<Props> = ({
             .catch(err => console.error('Error generating QR code:', err));
     }, [shareUrl, shortUrl]);
 
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
+
     if (!isOpen || !latestRecord) return null;
 
     const handleCopy = (urlToCopy: string, isShort: boolean = false) => {

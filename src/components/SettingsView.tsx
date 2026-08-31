@@ -90,7 +90,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
             alert('Aún no tienes mediciones registradas para generar el informe PDF. Registra tu primera medición en "Nueva Medida".');
             return;
         }
-        generateAthletePDFReport({ latestRecord, previousRecord, records, userName: name, sex: activeProfile?.sex || 'male' });
+        generateAthletePDFReport({ latestRecord, previousRecord, records, userName: name, sex: sex || activeProfile?.sex || 'male' });
     };
 
     const handleOpenShare = () => {
@@ -649,7 +649,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                 latestRecord={latestRecord}
                 records={records}
                 userName={name}
-                sex={activeProfile?.sex || 'male'}
+                sex={sex || activeProfile?.sex || 'male'}
             />
 
             {/* Athlete Story Card 9:16 Modal */}
@@ -658,7 +658,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                     record={latestRecord}
                     records={records}
                     userName={name}
-                    sex={activeProfile?.sex || 'male'}
+                    sex={sex || activeProfile?.sex || 'male'}
                     isOpen={isStoryModalOpen}
                     onClose={() => setIsStoryModalOpen(false)}
                 />

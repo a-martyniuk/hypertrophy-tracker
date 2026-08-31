@@ -85,6 +85,15 @@ export const ShareDuelModal: React.FC<Props> = ({
             .catch(err => console.error('Error generating Duel QR code:', err));
     }, [duelShareUrl, shortUrl]);
 
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const handleCopy = (urlToCopy: string, isShort: boolean = false) => {

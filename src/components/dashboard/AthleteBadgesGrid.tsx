@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Award, Lock, CheckCircle2, X, Sparkles } from 'lucide-react';
 import { evaluateAthleteBadges, type AthleteBadge } from '../../utils/athleteBadges';
 import type { MeasurementRecord } from '../../types/measurements';
@@ -11,6 +11,15 @@ interface Props {
 export const AthleteBadgesGrid: React.FC<Props> = ({ records, sex = 'male' }) => {
     const badges = evaluateAthleteBadges(records, sex);
     const [selectedBadge, setSelectedBadge] = useState<AthleteBadge | null>(null);
+
+    useEffect(() => {
+        if (!selectedBadge) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setSelectedBadge(null);
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedBadge]);
 
     const unlockedCount = badges.filter(b => b.isUnlocked).length;
     const totalCount = badges.length;

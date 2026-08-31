@@ -49,10 +49,14 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSa
     let ankle = sex === 'female' ? 20.5 : 22.5;
 
     if (currentMeasurements) {
-      const getAvg = (m: { left: number; right: number }) => {
-        if (m.left > 0 && m.right > 0) return (m.left + m.right) / 2;
-        if (m.left > 0) return m.left;
-        if (m.right > 0) return m.right;
+      const getAvg = (m?: { left?: number; right?: number } | number) => {
+        if (!m) return 0;
+        if (typeof m === 'number') return m;
+        const l = m.left || 0;
+        const r = m.right || 0;
+        if (l > 0 && r > 0) return (l + r) / 2;
+        if (l > 0) return l;
+        if (r > 0) return r;
         return 0;
       };
 
