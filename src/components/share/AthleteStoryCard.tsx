@@ -2,10 +2,10 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { toPng } from 'html-to-image';
 import { Download, Sparkles, Check, X, Copy, Link, Zap, Dna, Activity } from 'lucide-react';
-import type { MeasurementRecord } from '../../types/measurements';
 import { computeComprehensiveAnalysis } from '../../utils/benchmarkAnalysis';
 import { calculateFFMI, calculateSkeletalPotential } from '../../utils/skeletal';
 import { calculateBilateralSymmetry } from '../../utils/symmetryAudit';
+import { analyzeProportions } from '../../utils/proportions';
 import { createCompactSelfContainedLink } from '../../services/shortLinkService';
 import maleSilhouette from '../../assets/clean_red_silhouette.png';
 import femaleSilhouette from '../../assets/silhouette_female.png';
@@ -35,6 +35,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
     const m = record?.measurements;
     const analysis = useMemo(() => computeComprehensiveAnalysis(m, sex), [m, sex]);
     const symmetry = useMemo(() => calculateBilateralSymmetry(m), [m]);
+    const proportions = useMemo(() => analyzeProportions(m, sex), [m, sex]);
     const ffmi = useMemo(() => {
         if (!m?.weight || !m?.height) return null;
         return calculateFFMI(m.weight, m.height, m.bodyFat || (sex === 'female' ? 22 : 15), sex);
@@ -385,54 +386,56 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             <div style={{ fontSize: '0.62rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
                                 {m?.height || (sex === 'female' ? 165 : 180)} cm · {m?.weight || (sex === 'female' ? 60 : 75)} kg {m?.bodyFat ? `· ${m.bodyFat}% Grasa` : ''}
                             </div>
-                            <div style={{ display: 'flex', gap: '5px', marginTop: '4px' }}>
+                            <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
                                 <div style={{
                                     background: 'rgba(34, 211, 238, 0.12)',
-                                    border: '1px solid rgba(34, 211, 238, 0.3)',
+                                    border: '1px solid rgba(34, 211, 238, 0.35)',
                                     borderRadius: '6px',
                                     padding: '2px 6px',
-                                    fontSize: '0.52rem',
+                                    fontSize: '0.54rem',
                                     fontFamily: 'var(--font-mono)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '3px'
+                                    gap: '3px',
+                                    whiteSpace: 'nowrap'
                                 }}>
-                                    <span style={{ color: '#22d3ee', fontWeight: 800 }}>FFMI {ffmi?.normalizedFFMI || 22.0}</span>
-                                    <span style={{ color: '#94a3b8' }}>(Masa Magra)</span>
+                                    <span style={{ color: '#22d3ee', fontWeight: 900 }}>FFMI {ffmi?.normalizedFFMI || 22.0}</span>
+                                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>· Magra</span>
                                 </div>
 
                                 <div style={{
                                     background: 'rgba(168, 85, 247, 0.12)',
-                                    border: '1px solid rgba(168, 85, 247, 0.3)',
+                                    border: '1px solid rgba(168, 85, 247, 0.35)',
                                     borderRadius: '6px',
                                     padding: '2px 6px',
-                                    fontSize: '0.52rem',
+                                    fontSize: '0.54rem',
                                     fontFamily: 'var(--font-mono)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '3px'
+                                    gap: '3px',
+                                    whiteSpace: 'nowrap'
                                 }}>
-                                    <span style={{ color: '#c084fc', fontWeight: 800 }}>{sex === 'female' ? 'Reloj Arena' : 'V-Taper'} {vRatio}x</span>
-                                    <span style={{ color: '#94a3b8' }}>({sex === 'female' ? 'Torso/Cintura' : 'Pecho/Cintura'})</span>
+                                    <span style={{ color: '#c084fc', fontWeight: 900 }}>{sex === 'female' ? 'Reloj Arena' : 'V-Taper'} {vRatio}x</span>
+                                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>· Proporción</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* 3. CENTRAL ANATOMICAL SILHOUETTE & ANTHROPOMETRIC TELEMETRY */}
+                    {/* 3. CENTRAL ANATOMICAL SILHOUETTE & AESTHETIC HARMONY ARCHITECTURE */}
                     <div style={{
                         background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.55), rgba(15, 23, 42, 0.45))',
                         border: '1px solid rgba(255, 255, 255, 0.08)',
                         borderRadius: '14px',
-                        padding: '0.45rem 0.6rem',
+                        padding: '0.5rem 0.65rem',
                         zIndex: 2,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        gap: '8px'
+                        gap: '10px'
                     }}>
                         {/* Anatomical Silhouette Graphic */}
-                        <div style={{ position: 'relative', width: '92px', height: '145px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div style={{ position: 'relative', width: '85px', height: '145px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <img
                                 src={sex === 'female' ? femaleSilhouette : maleSilhouette}
                                 alt="Silueta Anatómica"
@@ -445,73 +448,59 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             />
                         </div>
 
-                        {/* Real Measured Perimeters Cards */}
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        {/* Distinct Core Architecture & Symmetry Panels (Non-redundant) */}
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
-                                <span style={{ fontSize: '0.55rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)' }}>
-                                    <Activity size={10} /> Perímetros Actuales
+                                <span style={{ fontSize: '0.56rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)' }}>
+                                    <Activity size={10} /> Estructura & Simetría
                                 </span>
-                                <span style={{ fontSize: '0.5rem', color: '#10b981', fontFamily: 'var(--font-mono)' }}>
-                                    Simetría {symmetry?.overallScore || 98}%
+                                <span style={{ fontSize: '0.52rem', color: '#10b981', fontFamily: 'var(--font-mono)', fontWeight: 800 }}>
+                                    {proportions?.overallGoldenScore || 92}% Armónico
                                 </span>
                             </div>
 
-                            {/* Two-Column Grid for Perimeters */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px' }}>
-                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>PECHO</span>
-                                    <strong style={{ fontSize: '0.68rem', color: '#fbbf24', fontFamily: 'var(--font-mono)' }}>
-                                        {m?.pecho ? `${m.pecho} cm` : '—'}
-                                    </strong>
-                                </div>
-
-                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>BRAZO</span>
-                                    <strong style={{ fontSize: '0.68rem', color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
-                                        {getAvgStr(m?.arm)}
-                                    </strong>
-                                </div>
-
-                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>ANTEBR.</span>
-                                    <strong style={{ fontSize: '0.68rem', color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
-                                        {getAvgStr(m?.forearm)}
-                                    </strong>
-                                </div>
-
-                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>CINTURA</span>
-                                    <strong style={{ fontSize: '0.68rem', color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
-                                        {m?.waist ? `${m.waist} cm` : '—'}
-                                    </strong>
-                                </div>
-
-                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>ESPALDA</span>
-                                    <strong style={{ fontSize: '0.68rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
+                            {/* Torso & Core Dimensions (Espalda & Cintura) */}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '7px', padding: '3px 5px' }}>
+                                    <div style={{ fontSize: '0.48rem', fontWeight: 800, color: '#94a3b8' }}>ESPALDA / DORSAL</div>
+                                    <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
                                         {m?.back ? `${m.back} cm` : '—'}
-                                    </strong>
+                                    </div>
                                 </div>
 
-                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>MUSLO</span>
-                                    <strong style={{ fontSize: '0.68rem', color: '#34d399', fontFamily: 'var(--font-mono)' }}>
-                                        {getAvgStr(m?.thigh)}
-                                    </strong>
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '7px', padding: '3px 5px' }}>
+                                    <div style={{ fontSize: '0.48rem', fontWeight: 800, color: '#94a3b8' }}>CINTURA / CORE</div>
+                                    <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
+                                        {m?.waist ? `${m.waist} cm` : '—'}
+                                    </div>
                                 </div>
+                            </div>
 
-                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>GEMELO</span>
-                                    <strong style={{ fontSize: '0.68rem', color: '#34d399', fontFamily: 'var(--font-mono)' }}>
-                                        {getAvgStr(m?.calf)}
-                                    </strong>
+                            {/* Steve Reeves Triad (Brazo ≈ Cuello ≈ Gemelo) */}
+                            <div style={{ background: 'rgba(245, 158, 11, 0.06)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '7px', padding: '3px 5px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.48rem', fontWeight: 900, color: '#fbbf24' }}>TRÍADA REEVES (1:1:1)</span>
+                                    <span style={{ fontSize: '0.52rem', fontWeight: 900, color: '#34d399', fontFamily: 'var(--font-mono)' }}>
+                                        {proportions?.reevesTriad.symmetryScore || 96}%
+                                    </span>
                                 </div>
+                                <div style={{ fontSize: '0.58rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', marginTop: '1px' }}>
+                                    Brazo {proportions?.reevesTriad.armAvg || getAvgNum(m?.arm)} · Cuello {m?.neck || '—'} · Gemelo {proportions?.reevesTriad.calfAvg || getAvgNum(m?.calf)} cm
+                                </div>
+                            </div>
 
-                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#94a3b8' }}>CUELLO</span>
-                                    <strong style={{ fontSize: '0.68rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
-                                        {m?.neck ? `${m.neck} cm` : '—'}
-                                    </strong>
+                            {/* Bilateral Balance (L vs R) */}
+                            <div style={{ background: 'rgba(56, 189, 248, 0.06)', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '7px', padding: '3px 5px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.48rem', fontWeight: 900, color: '#38bdf8' }}>BALANCE BILATERAL (L/R)</span>
+                                    <span style={{ fontSize: '0.52rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
+                                        Simetría {symmetry?.overallScore || 98}%
+                                    </span>
+                                </div>
+                                <div style={{ fontSize: '0.56rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '1px' }}>
+                                    {symmetry?.maxDiscrepancy && symmetry.maxDiscrepancy > 0.5
+                                        ? `Mayor desvío: ${symmetry.maxDiscrepancy} cm en ${symmetry.mostAsymmetricGroup}`
+                                        : 'Desvío ≤ 0.5 cm en todas las extremidades'}
                                 </div>
                             </div>
                         </div>
