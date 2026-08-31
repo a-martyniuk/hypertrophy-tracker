@@ -12,16 +12,21 @@ interface Props {
 }
 
 export const PhaseAdvisorCard: React.FC<Props> = ({
-    weight = 75,
-    height = 178,
-    bodyFat = 15,
+    weight,
+    height,
+    bodyFat,
     sex = 'male',
     age = 28,
     ffmi
 }) => {
+    const isFemale = sex === 'female';
+    const effectiveWeight = weight && weight > 0 ? weight : (isFemale ? 60 : 75);
+    const effectiveHeight = height && height > 0 ? height : (isFemale ? 165 : 178);
+    const effectiveBf = bodyFat && bodyFat > 0 ? bodyFat : (isFemale ? 22 : 15);
+
     const recommendation = useMemo(() => {
-        return calculatePhaseRecommendation(weight, height, bodyFat, sex, age, ffmi);
-    }, [weight, height, bodyFat, sex, age, ffmi]);
+        return calculatePhaseRecommendation(effectiveWeight, effectiveHeight, effectiveBf, sex, age, ffmi);
+    }, [effectiveWeight, effectiveHeight, effectiveBf, sex, age, ffmi]);
 
     const {
         phaseTitle,

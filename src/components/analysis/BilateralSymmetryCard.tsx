@@ -55,8 +55,25 @@ export const BilateralSymmetryCard: React.FC<Props> = ({ measurements }) => {
             </div>
 
             {/* Limbs Symmetry Breakdown Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
-                {limbs.map((limb) => {
+            {limbs.length === 0 ? (
+                <div style={{
+                    padding: '1.25rem',
+                    textAlign: 'center',
+                    background: 'rgba(0, 0, 0, 0.25)',
+                    borderRadius: '10px',
+                    border: '1px dashed rgba(255, 255, 255, 0.1)',
+                    marginBottom: '1.25rem',
+                    color: '#94a3b8',
+                    fontSize: '0.8rem'
+                }}>
+                    <Sparkles size={20} style={{ color: '#fbbf24', margin: '0 auto 0.5rem', opacity: 0.8 }} />
+                    <p style={{ margin: 0 }}>
+                        Registra ambos lados (Izquierdo y Derecho) en brazos, antebrazos, muslos o gemelos para desbloquear el desglose de simetría bilateral.
+                    </p>
+                </div>
+            ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                    {limbs.map((limb) => {
                     const isCritical = limb.status === 'critical_asymmetry';
                     const isMild = limb.status === 'mild_imbalance';
                     const maxVal = Math.max(limb.leftCm, limb.rightCm, 1);
