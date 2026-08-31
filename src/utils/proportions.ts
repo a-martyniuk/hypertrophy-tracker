@@ -50,24 +50,38 @@ export const analyzeProportions = (
 ): FullProportionsAnalysis | null => {
     if (!m) return null;
 
-    const armLeft = m.arm?.left || 0;
-    const armRight = m.arm?.right || 0;
-    const armAvg = (armLeft > 0 && armRight > 0) ? (armLeft + armRight) / 2 : (armLeft || armRight || 0);
+    const getLimb = (val?: number | { left?: number; right?: number }) => {
+        if (!val) return { left: 0, right: 0, avg: 0 };
+        if (typeof val === 'number') return { left: val, right: val, avg: val };
+        const left = val.left || 0;
+        const right = val.right || 0;
+        const avg = (left > 0 && right > 0) ? (left + right) / 2 : (left || right || 0);
+        return { left, right, avg };
+    };
 
-    const calfLeft = m.calf?.left || 0;
-    const calfRight = m.calf?.right || 0;
-    const calfAvg = (calfLeft > 0 && calfRight > 0) ? (calfLeft + calfRight) / 2 : (calfLeft || calfRight || 0);
+    const arm = getLimb(m.arm);
+    const calf = getLimb(m.calf);
+    const thigh = getLimb(m.thigh);
+    const forearm = getLimb(m.forearm);
+
+    const armLeft = arm.left;
+    const armRight = arm.right;
+    const armAvg = arm.avg;
+
+    const calfLeft = calf.left;
+    const calfRight = calf.right;
+    const calfAvg = calf.avg;
 
     const neck = m.neck || 0;
     const chest = m.pecho || 0;
     const waist = m.waist || 0;
     const height = m.height || (sex === 'female' ? 165 : 178);
     const hips = m.hips || 0;
-    const thighLeft = m.thigh?.left || 0;
-    const thighRight = m.thigh?.right || 0;
-    const thighAvg = (thighLeft > 0 && thighRight > 0) ? (thighLeft + thighRight) / 2 : (thighLeft || thighRight || 0);
-    const forearmLeft = m.forearm?.left || 0;
-    const forearmRight = m.forearm?.right || 0;
+    const thighLeft = thigh.left;
+    const thighRight = thigh.right;
+    const thighAvg = thigh.avg;
+    const forearmLeft = forearm.left;
+    const forearmRight = forearm.right;
 
     // 1. Steve Reeves Triad (Arm ≈ Neck ≈ Calf)
     const triadMean = (armAvg + neck + calfAvg) / 3;

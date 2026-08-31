@@ -86,9 +86,7 @@ export const evaluateAthleteBadges = (
     });
 
     // 4. BRAZO DE ACERO (Bíceps >= 42 cm en hombres o >= 33 cm en mujeres, o >= 95% potencial)
-    const armL = m?.arm?.left || 0;
-    const armR = m?.arm?.right || 0;
-    const armMax = Math.max(armL, armR);
+    const armMax = typeof m?.arm === 'number' ? m.arm : Math.max(m?.arm?.left || 0, m?.arm?.right || 0);
     const armTarget = sex === 'male' ? 42.0 : 33.0;
     const armProgress = Math.min(100, Math.round((armMax / armTarget) * 100));
     badges.push({
@@ -106,24 +104,32 @@ export const evaluateAthleteBadges = (
     });
 
     // 5. SIMETRÍA GRIEGA (Diferencia bilateral <= 0.5 cm en todas las extremidades medidas)
-    const getBilateralDiff = (left?: number, right?: number) => {
-        if (left && right && left > 0 && right > 0) {
+    const getBilateralDiff = (val?: number | { left?: number; right?: number }) => {
+        if (!val || typeof val === 'number') return 0;
+        const left = val.left || 0;
+        const right = val.right || 0;
+        if (left > 0 && right > 0) {
             return Math.abs(left - right);
         }
         return 0;
     };
 
+    const hasBilateralPair = (val?: number | { left?: number; right?: number }) => {
+        if (!val || typeof val === 'number') return false;
+        return Boolean((val.left || 0) > 0 && (val.right || 0) > 0);
+    };
+
     const measuredDiffs = [
-        getBilateralDiff(m?.arm?.left, m?.arm?.right),
-        getBilateralDiff(m?.forearm?.left, m?.forearm?.right),
-        getBilateralDiff(m?.thigh?.left, m?.thigh?.right),
-        getBilateralDiff(m?.calf?.left, m?.calf?.right),
+        getBilateralDiff(m?.arm),
+        getBilateralDiff(m?.forearm),
+        getBilateralDiff(m?.thigh),
+        getBilateralDiff(m?.calf),
     ];
     const hasMeasuredPairs = Boolean(
-        (m?.arm?.left && m?.arm?.right && m.arm.left > 0 && m.arm.right > 0) ||
-        (m?.forearm?.left && m?.forearm?.right && m.forearm.left > 0 && m.forearm.right > 0) ||
-        (m?.thigh?.left && m?.thigh?.right && m.thigh.left > 0 && m.thigh.right > 0) ||
-        (m?.calf?.left && m?.calf?.right && m.calf.left > 0 && m.calf.right > 0)
+        hasBilateralPair(m?.arm) ||
+        hasBilateralPair(m?.forearm) ||
+        hasBilateralPair(m?.thigh) ||
+        hasBilateralPair(m?.calf)
     );
 
     const maxBilateralDiff = Math.max(...measuredDiffs, 0);
