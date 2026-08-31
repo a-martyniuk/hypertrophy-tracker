@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { toPng } from 'html-to-image';
-import QRCode from 'qrcode';
-import { Download, Sparkles, Check, Flame, X } from 'lucide-react';
+import { Download, Sparkles, Check, X, Copy, Link, Trophy, Zap } from 'lucide-react';
 import type { MeasurementRecord } from '../../types/measurements';
 import { computeComprehensiveAnalysis } from '../../utils/benchmarkAnalysis';
 import { calculateFFMI } from '../../utils/skeletal';
@@ -27,9 +26,9 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
     onClose
 }) => {
     const cardRef = useRef<HTMLDivElement>(null);
-    const [qrUrl, setQrUrl] = useState<string>('');
     const [generating, setGenerating] = useState(false);
     const [downloaded, setDownloaded] = useState(false);
+    const [linkCopied, setLinkCopied] = useState(false);
 
     const m = record?.measurements;
     const analysis = useMemo(() => computeComprehensiveAnalysis(m, sex), [m, sex]);
@@ -48,34 +47,79 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
 
     const shareUrl = useMemo(() => {
         if (!record) return '';
-        // Use compact self-contained single record for ultra high-readability QR code on story cards (~140 chars)
         return createCompactSelfContainedLink(userName, record, sex);
     }, [record, userName, sex]);
 
+    // Top Strengths sorted by % of Casey Butt limit
+    const topStrengths = useMemo(() => {
+        if (!analysis?.muscleBenchmarks || analysis.muscleBenchmarks.length === 0) return [];
+        return [...analysis.muscleBenchmarks]
+            .sort((a, b) => b.percentOfMax - a.percentOfMax)
+            .slice(0, 3);
+    }, [analysis]);
+
+    // Athlete Tier Assessment
+    const athleteTier = useMemo(() => {
+        const ffmiVal = ffmi?.normalizedFFMI || 20;
+        const maxPercent = analysis?.overallScore || 80;
+        if (ffmiVal >= (sex === 'female' ? 21 : 24) || maxPercent >= 94) {
+            return {
+                label: 'ÉLITE NATURAL',
+                sublabel: 'Top 1% Genético',
+                color: '#fbbf24',
+                bg: 'rgba(245, 158, 11, 0.18)',
+                border: 'rgba(245, 158, 11, 0.45)'
+            };
+        }
+        if (ffmiVal >= (sex === 'female' ? 19 : 22) || maxPercent >= 86) {
+            return {
+                label: 'AVANZADO PRO',
+                sublabel: 'Desarrollo Superior',
+                color: '#38bdf8',
+                bg: 'rgba(56, 189, 248, 0.18)',
+                border: 'rgba(56, 189, 248, 0.45)'
+            };
+        }
+        return {
+            label: 'ATLETA AUDITADO',
+            sublabel: 'En Progreso Constante',
+            color: '#34d399',
+            bg: 'rgba(52, 211, 153, 0.18)',
+            border: 'rgba(52, 211, 153, 0.45)'
+        };
+    }, [ffmi, analysis, sex]);
+
+    // Escape key listener for fast dismissal
     useEffect(() => {
-        if (!shareUrl) return;
-        QRCode.toDataURL(shareUrl, {
-            width: 220,
-            margin: 1,
-            errorCorrectionLevel: 'M',
-            color: { dark: '#000000', light: '#ffffff' }
-        }).then(setQrUrl).catch(() => {});
-    }, [shareUrl]);
+        if (!isOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && onClose) onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
 
     if (!isOpen || !record) return null;
+
+    const handleCopyLink = () => {
+        if (!shareUrl) return;
+        navigator.clipboard.writeText(shareUrl);
+        setLinkCopied(true);
+        setTimeout(() => setLinkCopied(false), 2500);
+    };
 
     const handleDownload = async () => {
         if (!cardRef.current) return;
         setGenerating(true);
         try {
             const dataUrl = await toPng(cardRef.current, {
-                pixelRatio: 3, // Ultra-sharp 1080x1920 export
+                pixelRatio: 3, // Exports exact 1080x1920 UHD resolution for 360x640 canvas
                 cacheBust: true,
                 skipFonts: true,
                 backgroundColor: '#070a13'
             });
 
-            // Native Web Share API file share on mobile
+            // Native Web Share API file share on mobile devices
             if (navigator.canShare && typeof File !== 'undefined') {
                 try {
                     const blob = await (await fetch(dataUrl)).blob();
@@ -126,8 +170,8 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                 left: 0,
                 width: '100vw',
                 height: '100vh',
-                backgroundColor: 'rgba(3, 7, 18, 0.88)',
-                backdropFilter: 'blur(10px)',
+                backgroundColor: 'rgba(3, 7, 18, 0.92)',
+                backdropFilter: 'blur(12px)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -140,268 +184,359 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
             <div
                 onClick={(e) => e.stopPropagation()}
                 style={{
-                    background: '#0c101d',
+                    background: 'linear-gradient(135deg, #0e1322 0%, #080b15 100%)',
                     border: '1.5px solid rgba(245, 158, 11, 0.35)',
-                    borderRadius: '20px',
+                    borderRadius: '24px',
                     padding: '1.25rem',
-                    maxWidth: '460px',
+                    maxWidth: '440px',
                     width: '100%',
-                    maxHeight: '94vh',
+                    maxHeight: '96vh',
                     overflowY: 'auto',
                     margin: 'auto',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     gap: '1rem',
-                    boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8)'
+                    boxShadow: '0 30px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(245, 158, 11, 0.1)'
                 }}
             >
                 {/* Modal Top Header */}
                 <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <Sparkles size={16} style={{ color: '#fbbf24' }} />
-                        <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#fff' }}>
-                            Story Card 9:16 (Instagram & WhatsApp)
-                        </h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24' }}>
+                            <Sparkles size={16} />
+                        </div>
+                        <div>
+                            <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
+                                Story Card 9:16 (Instagram & WhatsApp)
+                            </h3>
+                            <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Formato vertical optimizado para stickers interactivos</span>
+                        </div>
                     </div>
                     {onClose && (
                         <button
                             onClick={onClose}
-                            style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}
+                            style={{ background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '8px', color: '#94a3b8', cursor: 'pointer', padding: '6px', display: 'flex' }}
                         >
-                            <X size={20} />
+                            <X size={18} />
                         </button>
                     )}
                 </div>
 
-                {/* THE 9:16 RENDERABLE CANVAS CONTAINER */}
+                {/* THE 9:16 RENDERABLE CANVAS CONTAINER (Exact 360 x 640 -> 1080 x 1920 at 3x) */}
                 <div
                     ref={cardRef}
                     style={{
-                        width: '340px',
-                        height: '604px', // Exact 9:16 aspect ratio
-                        background: 'linear-gradient(180deg, #090e1a 0%, #060913 50%, #03050a 100%)',
+                        width: '360px',
+                        height: '640px',
+                        background: 'linear-gradient(180deg, #0a0f1d 0%, #060914 45%, #03050a 100%)',
                         border: '2px solid rgba(245, 158, 11, 0.45)',
-                        borderRadius: '24px',
-                        padding: '1.2rem 1.1rem',
+                        borderRadius: '28px',
+                        padding: '1.25rem 1.15rem',
                         boxSizing: 'border-box',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
                         position: 'relative',
                         overflow: 'hidden',
-                        boxShadow: '0 0 40px rgba(245, 158, 11, 0.15)'
+                        boxShadow: '0 0 50px rgba(0, 0, 0, 0.95), 0 0 30px rgba(245, 158, 11, 0.15)'
                     }}
                 >
                     {/* Glowing Cyberpunk Background Accents */}
                     <div style={{
                         position: 'absolute',
-                        top: '-40px',
-                        right: '-40px',
-                        width: '180px',
-                        height: '180px',
-                        background: 'radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, transparent 70%)',
+                        top: '-50px',
+                        right: '-50px',
+                        width: '220px',
+                        height: '220px',
+                        background: 'radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 70%)',
                         pointerEvents: 'none'
                     }} />
                     <div style={{
                         position: 'absolute',
-                        bottom: '40px',
-                        left: '-40px',
-                        width: '180px',
-                        height: '180px',
-                        background: 'radial-gradient(circle, rgba(34, 211, 238, 0.18) 0%, transparent 70%)',
+                        bottom: '80px',
+                        left: '-60px',
+                        width: '220px',
+                        height: '220px',
+                        background: 'radial-gradient(circle, rgba(34, 211, 238, 0.2) 0%, transparent 70%)',
                         pointerEvents: 'none'
                     }} />
 
                     {/* 1. Header Strip */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <Flame size={14} style={{ color: '#fbbf24' }} />
-                            <span style={{ fontSize: '0.68rem', fontWeight: 900, color: '#fbbf24', letterSpacing: '1.5px', fontFamily: 'var(--font-mono)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000' }}>
+                                <Zap size={13} strokeWidth={3} />
+                            </div>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 900, color: '#fbbf24', letterSpacing: '1.5px', fontFamily: 'var(--font-mono)' }}>
                                 HYPERTROPHY TRACKER
                             </span>
                         </div>
                         <span style={{
-                            fontSize: '0.6rem',
-                            fontWeight: 800,
-                            padding: '2px 8px',
+                            fontSize: '0.62rem',
+                            fontWeight: 900,
+                            padding: '3px 9px',
                             borderRadius: '12px',
-                            background: 'rgba(16, 185, 129, 0.15)',
-                            color: '#10b981',
-                            border: '1px solid rgba(16, 185, 129, 0.35)',
-                            fontFamily: 'var(--font-mono)'
+                            background: athleteTier.bg,
+                            color: athleteTier.color,
+                            border: `1px solid ${athleteTier.border}`,
+                            fontFamily: 'var(--font-mono)',
+                            letterSpacing: '0.5px'
                         }}>
-                            TELEMETRÍA VERIFICADA
+                            {athleteTier.label}
                         </span>
                     </div>
 
-                    {/* 2. Hero Athlete Identity */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 2, margin: '0.4rem 0' }}>
+                    {/* 2. Hero Athlete Identity Card */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: '18px',
+                        padding: '0.65rem 0.85rem',
+                        backdropFilter: 'blur(8px)',
+                        zIndex: 2
+                    }}>
                         <div style={{
-                            width: '56px',
-                            height: '56px',
-                            borderRadius: '18px',
-                            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                            width: '54px',
+                            height: '54px',
+                            borderRadius: '16px',
+                            background: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontWeight: 900,
-                            fontSize: '1.3rem',
+                            fontSize: '1.35rem',
                             color: '#000000',
                             fontFamily: 'var(--font-head)',
-                            boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)',
+                            boxShadow: '0 0 20px rgba(245, 158, 11, 0.4)',
                             flexShrink: 0
                         }}>
                             {initials}
                         </div>
-                        <div>
-                            <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-head)', lineHeight: 1.15 }}>
+                        <div style={{ flex: 1, overflow: 'hidden' }}>
+                            <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-head)', lineHeight: 1.15, textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>
                                 {userName}
                             </h2>
-                            <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
-                                {m?.height || (sex === 'female' ? 165 : 180)} cm · {m?.weight || (sex === 'female' ? 60 : 75)} kg · {m?.bodyFat ? `${m.bodyFat}% Grasa` : 'Atleta Natural'}
+                            <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+                                {m?.height || (sex === 'female' ? 165 : 180)} cm · {m?.weight || (sex === 'female' ? 60 : 75)} kg · {m?.bodyFat ? `${m.bodyFat}% Grasa` : (sex === 'female' ? '22% Grasa' : '15% Grasa')}
                             </div>
                         </div>
                     </div>
 
-                    {/* 3. Four Core Hexagonal/Pill Metric Badges */}
+                    {/* 3. Top Strengths & Superpowers Spotlight */}
+                    <div style={{
+                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(0, 0, 0, 0.4))',
+                        border: '1px solid rgba(245, 158, 11, 0.25)',
+                        borderRadius: '16px',
+                        padding: '0.6rem 0.85rem',
+                        zIndex: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--font-mono)' }}>
+                                <Trophy size={11} /> Puntos Fuertes Auditados
+                            </span>
+                            <span style={{ fontSize: '0.55rem', color: '#10b981', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
+                                Potencial Casey Butt
+                            </span>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {topStrengths.map((bm) => (
+                                <div key={bm.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.7rem' }}>
+                                    <span style={{ color: '#e2e8f0', fontWeight: 700, textTransform: 'capitalize' }}>
+                                        {bm.label}
+                                    </span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <strong style={{ color: '#ffffff', fontFamily: 'var(--font-mono)' }}>
+                                            {bm.current} cm
+                                        </strong>
+                                        <span style={{
+                                            fontSize: '0.62rem',
+                                            fontWeight: 900,
+                                            padding: '1px 5px',
+                                            borderRadius: '6px',
+                                            background: bm.percentOfMax >= 95 ? 'rgba(245, 158, 11, 0.25)' : 'rgba(56, 189, 248, 0.2)',
+                                            color: bm.percentOfMax >= 95 ? '#fbbf24' : '#38bdf8',
+                                            fontFamily: 'var(--font-mono)'
+                                        }}>
+                                            {bm.percentOfMax}%
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* 4. Four Core Biometric Badges Grid */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', zIndex: 2 }}>
-                        <div style={{ background: 'rgba(0, 0, 0, 0.45)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '12px', padding: '0.5rem 0.65rem' }}>
-                            <span style={{ fontSize: '0.6rem', color: '#94a3b8', display: 'block', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
+                        <div style={{ background: 'rgba(0, 0, 0, 0.5)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '14px', padding: '0.5rem 0.65rem' }}>
+                            <span style={{ fontSize: '0.58rem', color: '#94a3b8', display: 'block', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
                                 Potencial Genético
                             </span>
-                            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#fbbf24', fontFamily: 'var(--font-mono)' }}>
+                            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fbbf24', fontFamily: 'var(--font-mono)' }}>
                                 {analysis?.overallScore || 90}%
                             </div>
-                            <span style={{ fontSize: '0.58rem', color: '#10b981' }}>Casey Butt Model</span>
+                            <span style={{ fontSize: '0.55rem', color: '#10b981' }}>Tope de Casey Butt</span>
                         </div>
 
-                        <div style={{ background: 'rgba(0, 0, 0, 0.45)', border: '1px solid rgba(34, 211, 238, 0.3)', borderRadius: '12px', padding: '0.5rem 0.65rem' }}>
-                            <span style={{ fontSize: '0.6rem', color: '#94a3b8', display: 'block', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
-                                FFMI Score
+                        <div style={{ background: 'rgba(0, 0, 0, 0.5)', border: '1px solid rgba(34, 211, 238, 0.3)', borderRadius: '14px', padding: '0.5rem 0.65rem' }}>
+                            <span style={{ fontSize: '0.58rem', color: '#94a3b8', display: 'block', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
+                                FFMI Normalizado
                             </span>
-                            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#22d3ee', fontFamily: 'var(--font-mono)' }}>
+                            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#22d3ee', fontFamily: 'var(--font-mono)' }}>
                                 {ffmi?.normalizedFFMI || 22.0}
                             </div>
-                            <span style={{ fontSize: '0.58rem', color: '#38bdf8' }}>Desarrollo Natural</span>
+                            <span style={{ fontSize: '0.55rem', color: '#38bdf8' }}>Densidad Magra</span>
                         </div>
 
-                        <div style={{ background: 'rgba(0, 0, 0, 0.45)', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: '12px', padding: '0.5rem 0.65rem' }}>
-                            <span style={{ fontSize: '0.6rem', color: '#94a3b8', display: 'block', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
-                                Ratio V-Taper
+                        <div style={{ background: 'rgba(0, 0, 0, 0.5)', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: '14px', padding: '0.5rem 0.65rem' }}>
+                            <span style={{ fontSize: '0.58rem', color: '#94a3b8', display: 'block', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
+                                {sex === 'female' ? 'Ratio Reloj de Arena' : 'Ratio V-Taper'}
                             </span>
-                            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
+                            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
                                 {analysis?.ratioBenchmarks?.[0]?.currentValue?.toFixed(2) || '1.55'}x
                             </div>
-                            <span style={{ fontSize: '0.58rem', color: '#a855f7' }}>Áureo: 1.62x</span>
+                            <span style={{ fontSize: '0.55rem', color: '#a855f7' }}>Áureo: {sex === 'female' ? '1.38x' : '1.62x'}</span>
                         </div>
 
-                        <div style={{ background: 'rgba(0, 0, 0, 0.45)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '0.5rem 0.65rem' }}>
-                            <span style={{ fontSize: '0.6rem', color: '#94a3b8', display: 'block', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
+                        <div style={{ background: 'rgba(0, 0, 0, 0.5)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '14px', padding: '0.5rem 0.65rem' }}>
+                            <span style={{ fontSize: '0.58rem', color: '#94a3b8', display: 'block', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
                                 Simetría Bilateral
                             </span>
-                            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#10b981', fontFamily: 'var(--font-mono)' }}>
+                            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#10b981', fontFamily: 'var(--font-mono)' }}>
                                 {symmetry?.overallScore || 98}%
                             </div>
-                            <span style={{ fontSize: '0.58rem', color: '#34d399' }}>Equilibrio Izq/Der</span>
+                            <span style={{ fontSize: '0.55rem', color: '#34d399' }}>Equilibrio Izq / Der</span>
                         </div>
                     </div>
 
-                    {/* 4. Telemetry Perimeters Strip */}
+                    {/* 5. Telemetry Perimeters Strip */}
                     <div style={{
-                        background: 'rgba(0, 0, 0, 0.45)',
+                        background: 'rgba(0, 0, 0, 0.5)',
                         border: '1px solid rgba(255, 255, 255, 0.08)',
-                        borderRadius: '12px',
-                        padding: '0.5rem 0.75rem',
+                        borderRadius: '14px',
+                        padding: '0.45rem 0.75rem',
                         zIndex: 2
                     }}>
-                        <span style={{ fontSize: '0.58rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '4px', letterSpacing: '1px' }}>
-                            Perímetros Clave (cm)
+                        <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '3px', letterSpacing: '1px' }}>
+                            Perímetros Antropométricos (cm)
                         </span>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px', textAlign: 'center' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '3px', textAlign: 'center' }}>
                             <div>
-                                <span style={{ fontSize: '0.58rem', color: '#94a3b8', display: 'block' }}>BRAZO</span>
-                                <strong style={{ fontSize: '0.78rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{getAvg(m?.arm)}</strong>
+                                <span style={{ fontSize: '0.55rem', color: '#94a3b8', display: 'block' }}>BRAZO</span>
+                                <strong style={{ fontSize: '0.75rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{getAvg(m?.arm)}</strong>
                             </div>
                             <div>
-                                <span style={{ fontSize: '0.58rem', color: '#94a3b8', display: 'block' }}>PECHO</span>
-                                <strong style={{ fontSize: '0.78rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{m?.pecho ? `${m.pecho} cm` : '—'}</strong>
+                                <span style={{ fontSize: '0.55rem', color: '#94a3b8', display: 'block' }}>PECHO</span>
+                                <strong style={{ fontSize: '0.75rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{m?.pecho ? `${m.pecho} cm` : '—'}</strong>
                             </div>
                             <div>
-                                <span style={{ fontSize: '0.58rem', color: '#94a3b8', display: 'block' }}>CINTURA</span>
-                                <strong style={{ fontSize: '0.78rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{m?.waist ? `${m.waist} cm` : '—'}</strong>
+                                <span style={{ fontSize: '0.55rem', color: '#94a3b8', display: 'block' }}>CINTURA</span>
+                                <strong style={{ fontSize: '0.75rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{m?.waist ? `${m.waist} cm` : '—'}</strong>
                             </div>
                             <div>
-                                <span style={{ fontSize: '0.58rem', color: '#94a3b8', display: 'block' }}>ESPALDA</span>
-                                <strong style={{ fontSize: '0.78rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{m?.back ? `${m.back} cm` : '—'}</strong>
+                                <span style={{ fontSize: '0.55rem', color: '#94a3b8', display: 'block' }}>ESPALDA</span>
+                                <strong style={{ fontSize: '0.75rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{m?.back ? `${m.back} cm` : '—'}</strong>
                             </div>
                             <div>
-                                <span style={{ fontSize: '0.58rem', color: '#94a3b8', display: 'block' }}>MUSLO</span>
-                                <strong style={{ fontSize: '0.78rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{getAvg(m?.thigh)}</strong>
+                                <span style={{ fontSize: '0.55rem', color: '#94a3b8', display: 'block' }}>MUSLO</span>
+                                <strong style={{ fontSize: '0.75rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{getAvg(m?.thigh)}</strong>
                             </div>
                             <div>
-                                <span style={{ fontSize: '0.58rem', color: '#94a3b8', display: 'block' }}>GEMELO</span>
-                                <strong style={{ fontSize: '0.78rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{getAvg(m?.calf)}</strong>
+                                <span style={{ fontSize: '0.55rem', color: '#94a3b8', display: 'block' }}>GEMELO</span>
+                                <strong style={{ fontSize: '0.75rem', color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{getAvg(m?.calf)}</strong>
                             </div>
                         </div>
                     </div>
 
-                    {/* 5. Bottom QR Call to Action Banner */}
+                    {/* 6. INSTAGRAM / WHATSAPP STICKER ZONE (High-Converting Interactive Placeholder) */}
                     <div style={{
-                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(245, 158, 11, 0.04))',
-                        border: '1px solid rgba(245, 158, 11, 0.35)',
-                        borderRadius: '14px',
-                        padding: '0.55rem 0.75rem',
+                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(56, 189, 248, 0.12))',
+                        border: '2px dashed rgba(245, 158, 11, 0.65)',
+                        borderRadius: '16px',
+                        padding: '0.65rem 0.85rem',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        gap: '8px',
-                        zIndex: 2
+                        gap: '10px',
+                        zIndex: 2,
+                        boxShadow: '0 0 20px rgba(245, 158, 11, 0.15)'
                     }}>
-                        <div style={{ flex: 1 }}>
-                            <span style={{ fontSize: '0.62rem', fontWeight: 900, color: '#fbbf24', display: 'block', letterSpacing: '0.5px' }}>
-                                ¿TE ANIMAS A UN DUELO?
-                            </span>
-                            <span style={{ fontSize: '0.55rem', color: '#cbd5e1', lineHeight: 1.2, display: 'block' }}>
-                                Escaneá el QR y compará tu físico en tiempo real.
-                            </span>
-                            <span style={{ fontSize: '0.5rem', color: '#64748b', fontFamily: 'var(--font-mono)', display: 'block', marginTop: '2px' }}>
-                                hypertrophyracker.alexismartyniuk.com.ar
-                            </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#fbbf24', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000000', flexShrink: 0, boxShadow: '0 0 12px rgba(251, 191, 36, 0.6)' }}>
+                                <Link size={17} strokeWidth={2.5} />
+                            </div>
+                            <div>
+                                <span style={{ fontSize: '0.68rem', fontWeight: 900, color: '#ffffff', display: 'block', letterSpacing: '0.3px' }}>
+                                    TOCA EL ENLACE DE LA HISTORIA
+                                </span>
+                                <span style={{ fontSize: '0.58rem', color: '#94a3b8', display: 'block', lineHeight: 1.2 }}>
+                                    Para retarme en duelo y ver mi auditoría 360°
+                                </span>
+                            </div>
                         </div>
-
-                        {qrUrl && (
-                            <img
-                                src={qrUrl}
-                                alt="QR Code"
-                                style={{
-                                    width: '54px',
-                                    height: '54px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #ffffff',
-                                    flexShrink: 0
-                                }}
-                            />
-                        )}
+                        <div style={{
+                            padding: '3px 8px',
+                            borderRadius: '8px',
+                            background: 'rgba(255, 255, 255, 0.1)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            fontSize: '0.58rem',
+                            fontWeight: 800,
+                            color: '#fbbf24',
+                            fontFamily: 'var(--font-mono)'
+                        }}>
+                            STICKER ➔
+                        </div>
                     </div>
                 </div>
 
-                {/* Modal Action Buttons */}
-                <div style={{ width: '100%', display: 'flex', gap: '8px' }}>
-                    <button
-                        onClick={handleDownload}
-                        disabled={generating}
-                        className="btn-primary"
-                        style={{ flex: 1, padding: '0.75rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                    >
-                        {downloaded ? <Check size={16} /> : <Download size={16} />}
-                        <span>{generating ? 'Generando PNG...' : downloaded ? '¡Descargado!' : 'Descargar Story 9:16'}</span>
-                    </button>
+                {/* Modal Action Buttons (Copy Link for Sticker + Download) */}
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                        <button
+                            onClick={handleDownload}
+                            disabled={generating}
+                            className="btn-primary"
+                            style={{ flex: 1, padding: '0.75rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontWeight: 800 }}
+                        >
+                            {downloaded ? <Check size={16} /> : <Download size={16} />}
+                            <span>{generating ? 'Generando PNG...' : downloaded ? '¡Descargado!' : 'Descargar Story 9:16'}</span>
+                        </button>
+
+                        <button
+                            onClick={handleCopyLink}
+                            style={{
+                                padding: '0.75rem 1rem',
+                                borderRadius: '12px',
+                                background: linkCopied ? 'rgba(16, 185, 129, 0.25)' : 'rgba(56, 189, 248, 0.2)',
+                                border: linkCopied ? '1px solid #10b981' : '1px solid rgba(56, 189, 248, 0.4)',
+                                color: linkCopied ? '#34d399' : '#38bdf8',
+                                fontSize: '0.82rem',
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                transition: 'all 0.2s ease'
+                            }}
+                            title="Copiar enlace directo para pegar como Sticker en Instagram"
+                        >
+                            {linkCopied ? <Check size={16} /> : <Copy size={16} />}
+                            <span>{linkCopied ? '¡Copiado!' : 'Copiar Link Sticker'}</span>
+                        </button>
+                    </div>
+
                     {onClose && (
                         <button
                             onClick={onClose}
                             className="btn-secondary"
-                            style={{ padding: '0.75rem 1rem', fontSize: '0.85rem' }}
+                            style={{ width: '100%', padding: '0.55rem', fontSize: '0.8rem' }}
                         >
                             Cerrar
                         </button>
