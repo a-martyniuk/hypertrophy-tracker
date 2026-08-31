@@ -91,6 +91,8 @@ export const BodyFatCalculatorModal: React.FC<Props> = ({
                 borderRadius: '20px',
                 maxWidth: '520px',
                 width: '100%',
+                maxHeight: '92vh',
+                overflowY: 'auto',
                 padding: '1.75rem',
                 boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(245, 158, 11, 0.1)',
                 display: 'flex',

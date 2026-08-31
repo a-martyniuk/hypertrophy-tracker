@@ -545,3 +545,16 @@
         font-size: 0.6rem;
     }
 }
+
+@media (max-width: 420px) {
+    .tier-labels {
+        font-size: 0.52rem;
+        gap: 2px;
+    }
+    .tier-labels span {
+        white-space: nowrap;
+    }
+    .physique-hero-metrics {
+        grid-template-columns: 1fr;
+    }
+}

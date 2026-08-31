@@ -90,7 +90,7 @@ export const RatioBenchmarkCard: React.FC<Props> = ({ benchmark }) => {
                     <span>Escala de Niveles y Referencia:</span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${referenceTiers.length}, minmax(0, 1fr))`, gap: '6px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${referenceTiers.length}, minmax(58px, 1fr))`, gap: '6px', overflowX: 'auto', paddingBottom: '4px' }}>
                     {referenceTiers.map((tier, idx) => (
                         <div
                             key={idx}
@@ -104,7 +104,8 @@ export const RatioBenchmarkCard: React.FC<Props> = ({ benchmark }) => {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
-                                minHeight: '62px'
+                                minHeight: '62px',
+                                minWidth: '58px'
                             }}
                         >
                             <div style={{ fontSize: '0.68rem', fontWeight: tier.isCurrent ? 700 : 500, lineHeight: 1.2, color: tier.isCurrent ? '#ffffff' : '#94a3b8', wordBreak: 'break-word' }}>
