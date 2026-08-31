@@ -260,15 +260,23 @@ export const DynamicSilhouette = ({
       </svg>
 
       <div className="asymmetry-alerts">
-        {Math.abs(measurements.arm.left - measurements.arm.right) > 1 && (
-          <div className="hud-badge warning">
-            <span className="scanline"></span>
-            <div className="hud-content">
-              <span className="hud-label">ARM_ASYMMETRY</span>
-              <span className="hud-value">{Math.abs(measurements.arm.left - measurements.arm.right).toFixed(1)}cm</span>
+        {(() => {
+          if (!measurements?.arm || typeof measurements.arm === 'number') return null;
+          const left = measurements.arm.left || 0;
+          const right = measurements.arm.right || 0;
+          if (left <= 0 || right <= 0) return null;
+          const diff = Math.abs(left - right);
+          if (diff <= 1) return null;
+          return (
+            <div className="hud-badge warning">
+              <span className="scanline"></span>
+              <div className="hud-content">
+                <span className="hud-label">ASIMETRÍA BRAZO</span>
+                <span className="hud-value">{diff.toFixed(1)} cm</span>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       <style>{`

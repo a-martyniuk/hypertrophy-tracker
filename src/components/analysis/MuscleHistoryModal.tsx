@@ -20,17 +20,23 @@ export const MuscleHistoryModal: React.FC<Props> = ({ benchmark, records, onClos
     // Build historical trend data in chronological order
     const sortedRecords = [...records].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
+    const getMuscleVal = (val: any) => {
+        if (!val) return 0;
+        if (typeof val === 'number') return val;
+        return Math.max(val.left || 0, val.right || 0);
+    };
+
     const chartData = sortedRecords.map((r) => {
         const m = r.measurements as any;
         let val = 0;
         if (key === 'arm' || key === 'brazo') {
-            val = Math.max(m?.arm?.left || 0, m?.arm?.right || 0);
+            val = getMuscleVal(m?.arm);
         } else if (key === 'forearm' || key === 'antebrazo') {
-            val = Math.max(m?.forearm?.left || 0, m?.forearm?.right || 0);
+            val = getMuscleVal(m?.forearm);
         } else if (key === 'thigh' || key === 'muslo') {
-            val = Math.max(m?.thigh?.left || 0, m?.thigh?.right || 0);
+            val = getMuscleVal(m?.thigh);
         } else if (key === 'calf' || key === 'gemelo') {
-            val = Math.max(m?.calf?.left || 0, m?.calf?.right || 0);
+            val = getMuscleVal(m?.calf);
         } else if (key === 'neck' || key === 'cuello') {
             val = m?.neck || 0;
         } else if (key === 'pecho' || key === 'chest') {
@@ -71,6 +77,8 @@ export const MuscleHistoryModal: React.FC<Props> = ({ benchmark, records, onClos
                 borderRadius: '20px',
                 maxWidth: '650px',
                 width: '100%',
+                maxHeight: '92vh',
+                overflowY: 'auto',
                 padding: '1.75rem',
                 boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(245, 158, 11, 0.1)',
                 display: 'flex',
@@ -111,7 +119,7 @@ export const MuscleHistoryModal: React.FC<Props> = ({ benchmark, records, onClos
                 {/* Key Metrics Strip */}
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
                     gap: '0.75rem',
                     fontFamily: 'var(--font-mono)'
                 }}>

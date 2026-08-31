@@ -14,12 +14,14 @@ interface Props {
   onMarkerClick?: (zone: string) => void;
 }
 
-// Helper to get number from bilateral or number
 const getVal = (m: number | BilateralMeasurement | undefined, side?: 'left' | 'right'): number => {
-  if (m === undefined) return 0;
+  if (m === undefined || m === null) return 0;
   if (typeof m === 'number') return m;
-  if (side && m[side] > 0) return m[side];
-  return (m.left + m.right) / 2;
+  if (side && (m[side] ?? 0) > 0) return m[side] || 0;
+  const l = m.left || 0;
+  const r = m.right || 0;
+  if (l > 0 && r > 0) return (l + r) / 2;
+  return l || r || 0;
 };
 
 export const VolumeHeatmap: React.FC<Props> = ({

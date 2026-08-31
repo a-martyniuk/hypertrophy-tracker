@@ -69,10 +69,11 @@ export const generateTacticalDiagnosis = (
     const chestDiff = (cur.pecho || 0) - (prev.pecho || 0);
     const backDiff = (cur.back || 0) - (prev.back || 0);
 
-    const getBilateralAvg = (m?: { left?: number; right?: number }) => {
-        if (!m) return 0;
-        const l = m.left || 0;
-        const r = m.right || 0;
+    const getBilateralAvg = (val?: number | { left?: number; right?: number }) => {
+        if (!val) return 0;
+        if (typeof val === 'number') return val;
+        const l = val.left || 0;
+        const r = val.right || 0;
         return (l > 0 && r > 0) ? (l + r) / 2 : (l || r || 0);
     };
 
