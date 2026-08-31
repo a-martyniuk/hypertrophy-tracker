@@ -60,7 +60,7 @@ const ReadOnlyHudCard: React.FC<ReadOnlyHudCardProps> = ({
     const renderTrend = (cur: number, prev?: number) => {
         if (!prev || cur === 0) return null;
         const diff = cur - prev;
-        if (Math.abs(diff) < 0.1) return <span className="trend-eq">=</span>;
+        if (isNaN(diff) || Math.abs(diff) < 0.1) return <span className="trend-eq">=</span>;
         return diff > 0 ? (
             <span className="trend-up">↑ {diff.toFixed(1)}</span>
         ) : (
@@ -68,16 +68,31 @@ const ReadOnlyHudCard: React.FC<ReadOnlyHudCardProps> = ({
         );
     };
 
+    const getPrevSide = (prev: number | { left?: number; right?: number } | undefined, side: 'left' | 'right'): number | undefined => {
+        if (prev === undefined || prev === null) return undefined;
+        if (typeof prev === 'number') return prev;
+        return prev[side];
+    };
+
+    const getPrevScalar = (prev: number | { left?: number; right?: number } | undefined): number | undefined => {
+        if (prev === undefined || prev === null) return undefined;
+        if (typeof prev === 'number') return prev;
+        const l = prev.left || 0;
+        const r = prev.right || 0;
+        return (l > 0 && r > 0) ? (l + r) / 2 : (l || r || undefined);
+    };
+
     if (isDouble) {
         const val = value as { left: number; right: number };
-        const prev = previousValue as { left: number; right: number } | undefined;
+        const prevLeft = getPrevSide(previousValue, 'left');
+        const prevRight = getPrevSide(previousValue, 'right');
         return (
             <div className="hud-input-group-double" id={id} style={{ cursor: 'default' }}>
                 <div className="hud-label-row">
                     <label>{label}</label>
                     <div className="trends" style={{ display: 'flex', gap: '8px' }}>
-                        {renderTrend(val.left || 0, prev?.left)}
-                        {renderTrend(val.right || 0, prev?.right)}
+                        {renderTrend(val.left || 0, prevLeft)}
+                        {renderTrend(val.right || 0, prevRight)}
                     </div>
                 </div>
                 <div className="hud-double-inputs" style={{ display: 'flex', gap: '0.75rem' }}>
@@ -92,8 +107,8 @@ const ReadOnlyHudCard: React.FC<ReadOnlyHudCardProps> = ({
         );
     }
 
-    const numVal = value as number;
-    const prevNum = previousValue as number | undefined;
+    const numVal = typeof value === 'number' ? value : (value ? ((value as any).left || (value as any).right || 0) : 0);
+    const prevNum = getPrevScalar(previousValue);
 
     return (
         <div className="hud-input-group" id={id} style={{ cursor: 'default' }}>
