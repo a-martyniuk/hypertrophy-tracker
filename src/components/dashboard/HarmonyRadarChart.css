@@ -145,3 +145,20 @@
   background: #fbbf24;
   box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
 }
+
+@media (max-width: 480px) {
+  .harmony-radar-card {
+    padding: 0.9rem;
+  }
+  .radar-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .radar-title {
+    font-size: 0.95rem;
+  }
+  .radar-legend-strip {
+    gap: 0.75rem;
+  }
+}
