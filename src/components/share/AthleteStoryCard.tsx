@@ -339,7 +339,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         </span>
                     </div>
 
-                    {/* 2. Hero Athlete Identity Card */}
+                    {/* 2. Hero Athlete Identity Card with clear FFMI & V-Taper Descriptors */}
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -369,14 +369,44 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             {initials}
                         </div>
                         <div style={{ flex: 1, overflow: 'hidden' }}>
-                            <h2 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-head)', lineHeight: 1.1, textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>
-                                {userName}
-                            </h2>
-                            <div style={{ fontSize: '0.6rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px', display: 'flex', flexWrap: 'wrap', gap: '3px' }}>
-                                <span>{m?.height || (sex === 'female' ? 165 : 180)}cm</span> ·
-                                <span>{m?.weight || (sex === 'female' ? 60 : 75)}kg</span> ·
-                                <span style={{ color: '#22d3ee' }}>FFMI {ffmi?.normalizedFFMI || 22.0}</span> ·
-                                <span style={{ color: '#c084fc' }}>V-Taper {vRatio}x</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                                <h2 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-head)', lineHeight: 1.1, textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                                    {userName}
+                                </h2>
+                                <span style={{ fontSize: '0.58rem', color: '#94a3b8', fontFamily: 'var(--font-mono)' }}>
+                                    {m?.height || (sex === 'female' ? 165 : 180)}cm · {m?.weight || (sex === 'female' ? 60 : 75)}kg {m?.bodyFat ? `· ${m.bodyFat}%G` : ''}
+                                </span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '4px', marginTop: '3px' }}>
+                                <div style={{
+                                    background: 'rgba(34, 211, 238, 0.12)',
+                                    border: '1px solid rgba(34, 211, 238, 0.3)',
+                                    borderRadius: '6px',
+                                    padding: '1px 5px',
+                                    fontSize: '0.52rem',
+                                    fontFamily: 'var(--font-mono)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '3px'
+                                }}>
+                                    <span style={{ color: '#22d3ee', fontWeight: 800 }}>FFMI {ffmi?.normalizedFFMI || 22.0}</span>
+                                    <span style={{ color: '#94a3b8' }}>(Masa Magra)</span>
+                                </div>
+
+                                <div style={{
+                                    background: 'rgba(168, 85, 247, 0.12)',
+                                    border: '1px solid rgba(168, 85, 247, 0.3)',
+                                    borderRadius: '6px',
+                                    padding: '1px 5px',
+                                    fontSize: '0.52rem',
+                                    fontFamily: 'var(--font-mono)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '3px'
+                                }}>
+                                    <span style={{ color: '#c084fc', fontWeight: 800 }}>{sex === 'female' ? 'Reloj Arena' : 'V-Taper'} {vRatio}x</span>
+                                    <span style={{ color: '#94a3b8' }}>({sex === 'female' ? 'Torso/Cintura' : 'Pecho/Cintura'})</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -545,44 +575,24 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         </div>
                     </div>
 
-                    {/* 5. INSTAGRAM / WHATSAPP STICKER ZONE (High-Converting Interactive Placeholder) */}
+                    {/* 5. ESPACIO LIMPIO PARA STICKER DE ENLACE DE INSTAGRAM / WHATSAPP */}
                     <div style={{
-                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(56, 189, 248, 0.12))',
-                        border: '1.5px dashed rgba(245, 158, 11, 0.65)',
+                        height: '38px',
+                        border: '1.5px dashed rgba(245, 158, 11, 0.35)',
                         borderRadius: '12px',
-                        padding: '0.45rem 0.65rem',
+                        background: 'rgba(245, 158, 11, 0.04)',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
+                        justifyContent: 'center',
                         gap: '6px',
-                        zIndex: 2,
-                        boxShadow: '0 0 15px rgba(245, 158, 11, 0.15)'
+                        color: 'rgba(251, 191, 36, 0.65)',
+                        fontSize: '0.58rem',
+                        fontFamily: 'var(--font-mono)',
+                        letterSpacing: '0.4px',
+                        zIndex: 2
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <div style={{ width: '26px', height: '26px', borderRadius: '7px', background: '#fbbf24', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000000', flexShrink: 0, boxShadow: '0 0 10px rgba(251, 191, 36, 0.5)' }}>
-                                <Link size={14} strokeWidth={2.5} />
-                            </div>
-                            <div>
-                                <span style={{ fontSize: '0.62rem', fontWeight: 900, color: '#ffffff', display: 'block', letterSpacing: '0.2px' }}>
-                                    TOCA EL ENLACE DE LA HISTORIA
-                                </span>
-                                <span style={{ fontSize: '0.52rem', color: '#94a3b8', display: 'block', lineHeight: 1.1 }}>
-                                    Para retarme en duelo y ver mi ficha 360°
-                                </span>
-                            </div>
-                        </div>
-                        <div style={{
-                            padding: '2px 6px',
-                            borderRadius: '5px',
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            fontSize: '0.52rem',
-                            fontWeight: 800,
-                            color: '#fbbf24',
-                            fontFamily: 'var(--font-mono)'
-                        }}>
-                            STICKER ➔
-                        </div>
+                        <Link size={12} strokeWidth={2} />
+                        <span>Espacio para Sticker de Enlace</span>
                     </div>
                 </div>
 
