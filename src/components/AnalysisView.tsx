@@ -22,6 +22,7 @@ import { AthleteComparisonCard } from './analysis/AthleteComparisonCard';
 import { GeneticTrajectoryCard } from './analysis/GeneticTrajectoryCard';
 import { BilateralSymmetryCard } from './analysis/BilateralSymmetryCard';
 import { PhaseAdvisorCard } from './analysis/PhaseAdvisorCard';
+import { formatDateSafe } from '../utils/dateUtils';
 import type { MuscleBenchmark } from '../utils/benchmarkAnalysis';
 import './AnalysisView.css';
 
@@ -87,7 +88,7 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                 val = r.measurements[baseKey] || 0;
             }
             return {
-                date: new Date(r.date).toLocaleDateString(),
+                date: formatDateSafe(r.date),
                 rawDate: new Date(r.date),
                 value: val
             };
@@ -99,6 +100,7 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
 
         const goal = goals.find(g => {
             if (baseKey === 'arm') return g.measurementType === 'biceps' || g.measurementType === 'arm.right' || g.measurementType === 'arm.left';
+            if (baseKey === 'forearm') return g.measurementType === 'forearm' || g.measurementType === 'forearm.right' || g.measurementType === 'forearm.left';
             if (baseKey === 'pecho') return g.measurementType === 'chest' || g.measurementType === 'pecho';
             if (baseKey === 'thigh') return g.measurementType === 'thigh' || g.measurementType === 'thigh.right' || g.measurementType === 'thigh.left';
             if (baseKey === 'calf') return g.measurementType === 'calves' || g.measurementType === 'calf.right' || g.measurementType === 'calf.left';

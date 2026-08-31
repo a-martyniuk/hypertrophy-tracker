@@ -34,8 +34,11 @@ const MONTHLY_RATES: Record<string, { gain: number; loss: number; unit: string }
   biceps: { gain: 0.32, loss: 0.35, unit: 'cm' },
   chest: { gain: 0.55, loss: 0.7, unit: 'cm' },
   calves: { gain: 0.22, loss: 0.3, unit: 'cm' },
+  forearm: { gain: 0.20, loss: 0.3, unit: 'cm' },
   'arm.left': { gain: 0.32, loss: 0.35, unit: 'cm' },
   'arm.right': { gain: 0.32, loss: 0.35, unit: 'cm' },
+  'forearm.left': { gain: 0.20, loss: 0.3, unit: 'cm' },
+  'forearm.right': { gain: 0.20, loss: 0.3, unit: 'cm' },
   'thigh.left': { gain: 0.5, loss: 0.75, unit: 'cm' },
   'thigh.right': { gain: 0.5, loss: 0.75, unit: 'cm' },
   'calf.left': { gain: 0.22, loss: 0.3, unit: 'cm' },
@@ -56,6 +59,8 @@ export const predictGoalTimeline = (
     currentVal = m?.bodyFat || 0;
   } else if (goal.measurementType === 'biceps' || (goal.measurementType as string) === 'arm') {
     currentVal = Math.max(m?.arm?.right || 0, m?.arm?.left || 0);
+  } else if ((goal.measurementType as string) === 'forearm') {
+    currentVal = Math.max(m?.forearm?.right || 0, m?.forearm?.left || 0);
   } else if (goal.measurementType === 'chest') {
     currentVal = m?.pecho || 0;
   } else if (goal.measurementType === 'calves') {
@@ -63,6 +68,9 @@ export const predictGoalTimeline = (
   } else if (goal.measurementType.startsWith('arm.')) {
     const side = goal.measurementType.split('.')[1] as 'left' | 'right';
     currentVal = typeof m?.arm === 'object' ? (m.arm[side] || 0) : (m?.arm || 0);
+  } else if (goal.measurementType.startsWith('forearm.')) {
+    const side = goal.measurementType.split('.')[1] as 'left' | 'right';
+    currentVal = typeof m?.forearm === 'object' ? (m.forearm[side] || 0) : (m?.forearm || 0);
   } else if (goal.measurementType.startsWith('thigh.')) {
     const side = goal.measurementType.split('.')[1] as 'left' | 'right';
     currentVal = typeof m?.thigh === 'object' ? (m.thigh[side] || 0) : (m?.thigh || 0);

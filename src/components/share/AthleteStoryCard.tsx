@@ -36,7 +36,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
     const symmetry = useMemo(() => calculateBilateralSymmetry(m), [m]);
     const ffmi = useMemo(() => {
         if (!m?.weight || !m?.height) return null;
-        return calculateFFMI(m.weight, m.height, m.bodyFat || 15, sex);
+        return calculateFFMI(m.weight, m.height, m.bodyFat || (sex === 'female' ? 22 : 15), sex);
     }, [m?.weight, m?.height, m?.bodyFat, sex]);
 
     const initials = (userName || 'AM')
@@ -259,7 +259,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                 {userName}
                             </h2>
                             <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
-                                {m?.height || 180} cm · {m?.weight || 75} kg · {m?.bodyFat ? `${m.bodyFat}% Grasa` : 'Atleta Natural'}
+                                {m?.height || (sex === 'female' ? 165 : 180)} cm · {m?.weight || (sex === 'female' ? 60 : 75)} kg · {m?.bodyFat ? `${m.bodyFat}% Grasa` : 'Atleta Natural'}
                             </div>
                         </div>
                     </div>

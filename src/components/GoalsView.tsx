@@ -93,10 +93,12 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
             const [base, side] = type.split('.');
             return measurements[base]?.[side] || 0;
         }
-        if (type === 'biceps') return Math.max(measurements.arm?.right || 0, measurements.arm?.left || 0);
+        if (type === 'biceps' || type === 'arm') return Math.max(measurements.arm?.right || 0, measurements.arm?.left || 0);
+        if (type === 'forearm') return Math.max(measurements.forearm?.right || 0, measurements.forearm?.left || 0);
+        if (type === 'thigh') return Math.max(measurements.thigh?.right || 0, measurements.thigh?.left || 0);
         if (type === 'chest') return measurements.pecho || 0;
-        if (type === 'calves') return Math.max(measurements.calf?.right || 0, measurements.calf?.left || 0);
-        return measurements[type] || 0;
+        if (type === 'calves' || type === 'calf') return Math.max(measurements.calf?.right || 0, measurements.calf?.left || 0);
+        return typeof measurements[type] === 'number' ? measurements[type] : 0;
     };
 
     const calculateProgress = (goal: GrowthGoal) => {

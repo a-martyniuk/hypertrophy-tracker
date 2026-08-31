@@ -6,6 +6,7 @@ import { generateTacticalDiagnosis } from './tacticalDiagnosis';
 import { computeComprehensiveAnalysis } from './benchmarkAnalysis';
 import { calculateFFMI, calculateBerkhanLimit, calculateIEO, calculateHelmsGainRates } from './skeletal';
 import { analyzeProportions } from './proportions';
+import { formatDateSafe } from './dateUtils';
 import { createCompactSelfContainedLink } from '../services/shortLinkService';
 import maleSilhouette from '../assets/clean_red_silhouette.png';
 import femaleSilhouette from '../assets/silhouette_female.png';
@@ -79,16 +80,16 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
     const proportions = analyzeProportions(m, sex);
 
     const height = m.height || (sex === 'female' ? 165 : 180);
-    const weight = m.weight || 75;
+    const weight = m.weight || (sex === 'female' ? 60 : 75);
     const athleteAge = m.age || (sex === 'female' ? 26 : 28);
-    const bodyFat = m.bodyFat || 15;
+    const bodyFat = m.bodyFat || (sex === 'female' ? 22 : 15);
     const wristAvg = getAvg(m.wrist) || (sex === 'female' ? 15.5 : 18);
     const ankleAvg = getAvg(m.ankle) || (sex === 'female' ? 20.5 : 23);
 
     const ffmi = calculateFFMI(weight, height, bodyFat, sex);
     const berkhan = calculateBerkhanLimit(height, sex, bodyFat);
     const ieo = calculateIEO(wristAvg, ankleAvg, sex);
-    const helms = calculateHelmsGainRates(weight);
+    const helms = calculateHelmsGainRates(weight, sex);
 
     const primaryColor: [number, number, number] = [245, 158, 11]; // Amber #f59e0b
     const darkBg: [number, number, number] = [7, 10, 19];
@@ -158,7 +159,7 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(textLight[0], textLight[1], textLight[2]);
     doc.text('ATLETA: ' + userName.toUpperCase(), 18, 28);
-    doc.text('FECHA: ' + new Date(latestRecord.date).toLocaleDateString('es-ES'), 85, 28);
+    doc.text('FECHA: ' + formatDateSafe(latestRecord.date), 85, 28);
     doc.text('SEXO: ' + (sex === 'female' ? 'FEMENINO' : 'MASCULINO'), 150, 28);
 
     doc.setFont('helvetica', 'normal');
