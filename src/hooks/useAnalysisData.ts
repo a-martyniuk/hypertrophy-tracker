@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
+import { formatDateSafe } from '../utils/dateUtils';
 
 export type TimeRange = 'all' | '1y' | '6m' | '3m';
 
@@ -39,8 +40,8 @@ export const useAnalysisData = ({ records, goals, sex = 'male' }: UseAnalysisDat
                 : (p || 0);
 
             return {
-                date: new Date(r.date).toLocaleDateString(undefined, { month: '2-digit', day: '2-digit', year: '2-digit' }),
-                fullDate: new Date(r.date).toLocaleDateString(),
+                date: formatDateSafe(r.date, { month: '2-digit', day: '2-digit' }),
+                fullDate: formatDateSafe(r.date),
                 peso: m.weight || 0,
                 cintura: m.waist || 0,
                 cadera: m.hips || 0,
@@ -95,7 +96,17 @@ export const useAnalysisData = ({ records, goals, sex = 'male' }: UseAnalysisDat
     }, [records]);
 
     const getGoalValue = (type: string) => {
-        const goal = goals.find(g => (g.measurementType === type || (type === 'arm' && (g.measurementType === 'biceps' || g.measurementType.startsWith('arm.')))) && g.status === 'active');
+        const goal = goals.find(g => {
+            if (g.status !== 'active') return false;
+            if (g.measurementType === type) return true;
+            if (type === 'arm' && (g.measurementType === 'biceps' || g.measurementType.startsWith('arm.'))) return true;
+            if (type === 'pecho' && g.measurementType === 'chest') return true;
+            if (type === 'chest' && g.measurementType === 'pecho') return true;
+            if (type === 'forearm' && g.measurementType.startsWith('forearm.')) return true;
+            if (type === 'thigh' && g.measurementType.startsWith('thigh.')) return true;
+            if ((type === 'calf' || type === 'calves') && (g.measurementType === 'calves' || g.measurementType === 'calf' || g.measurementType.startsWith('calf.'))) return true;
+            return false;
+        });
         return goal ? goal.targetValue : null;
     };
 

@@ -41,8 +41,9 @@ export const HarmonyRadarChart: React.FC<Props> = ({ currentMeasurements, sex = 
   // V-Taper score: 100 is ideal Reeves/Golden ratio
   const chestVal = currentMeasurements?.pecho || 0;
   const waistVal = currentMeasurements?.waist || 0;
-  const vRatio = waistVal > 0 ? chestVal / waistVal : 1.35;
-  const vTaperScore = Math.min(100, Math.round((vRatio / 1.618) * 100));
+  const idealVRatio = sex === 'female' ? 1.38 : 1.618;
+  const vRatio = (chestVal > 0 && waistVal > 0) ? chestVal / waistVal : 0;
+  const vTaperScore = vRatio > 0 ? Math.min(100, Math.round((vRatio / idealVRatio) * 100)) : 50;
 
   const radarData = [
     { subject: 'Torso / Pecho', value: chestScore, benchmark: 100, fullMark: 100 },
