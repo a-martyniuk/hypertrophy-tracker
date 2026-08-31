@@ -45,6 +45,15 @@ export const BodyFatCalculatorModal: React.FC<Props> = ({
         setWeight(initialWeight || (sex === 'female' ? 60 : 78));
     }, [initialHeight, initialNeck, initialWaist, initialHips, initialWeight, sex, isOpen]);
 
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const inputData: BodyFatCalculationInput = {

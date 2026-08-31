@@ -4,10 +4,10 @@ import {
     getDocs,
     setDoc,
     deleteDoc
-} from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../lib/firebase';
 import type { BodyMeasurements, MeasurementRecord } from '../types/measurements';
 import type { ComparisonProfile } from '../utils/athleteComparison';
+import { formatDateSafe } from '../utils/dateUtils';
 
 export const VERIFIED_COMMUNITY_ATHLETES: ComparisonProfile[] = [
     {
@@ -149,7 +149,7 @@ export const fetchCommunityAthletes = async (currentUserId?: string): Promise<Co
             // Only include athletes who are public (isPublic !== false) and not the current user
             if (data && data.measurements && athleteId !== currentUserId && data.isPublic !== false) {
                 const athleteSex: 'male' | 'female' = data.sex || 'male';
-                const dateStr = data.date ? new Date(data.date).toLocaleDateString() : 'Activo';
+                const dateStr = data.date ? formatDateSafe(data.date) : 'Activo';
                 const weightStr = data.measurements.weight ? `${data.measurements.weight} kg` : '';
                 const h = data.height || data.measurements.height || (athleteSex === 'female' ? 165 : 178);
                 const w = data.weight || data.measurements.weight || (athleteSex === 'female' ? 60 : 78);
