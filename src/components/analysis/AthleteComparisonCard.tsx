@@ -28,6 +28,7 @@ import {
     type ComparisonProfile
 } from '../../utils/athleteComparison';
 import { fetchCommunityAthletes } from '../../services/communityAthleteService';
+import { formatDateSafe } from '../../utils/dateUtils';
 import { ShareDuelModal } from '../share/ShareDuelModal';
 import './AthleteComparisonCard.css';
 
@@ -257,9 +258,9 @@ export const AthleteComparisonCard: React.FC<Props> = ({
             if (rec) {
                 return {
                     id: selectedBId,
-                    name: `Tú (${new Date(rec.date).toLocaleDateString()})`,
+                    name: `Tú (${formatDateSafe(rec.date)})`,
                     title: 'Registro Histórico Propio',
-                    era: new Date(rec.date).toLocaleDateString(),
+                    era: formatDateSafe(rec.date),
                     sex: sex,
                     age: userBio.age,
                     height: rec.measurements?.height || profileA.height || 178,

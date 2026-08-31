@@ -31,6 +31,7 @@ import { MapModal } from '../measurement/MapModal';
 import { AthleteStoryCardModal } from './AthleteStoryCard';
 import { QuickDuelChallengeModal } from './QuickDuelChallengeModal';
 import { useMeasurementLines } from '../../hooks/useMeasurementLines';
+import { formatDateSafe } from '../../utils/dateUtils';
 import type { MeasurementRecord, BodyMeasurements } from '../../types/measurements';
 
 import '../AnalysisView.css';
@@ -432,7 +433,7 @@ export const PublicReportView: React.FC = () => {
                                 >
                                     {records.slice().reverse().map((r, i) => (
                                         <option key={r.id} value={r.id} style={{ background: '#0f172a', color: '#fff' }}>
-                                            {new Date(r.date).toLocaleDateString('es-ES')} {i === 0 ? '(Última)' : ''}
+                                            {formatDateSafe(r.date)} {i === 0 ? '(Última)' : ''}
                                         </option>
                                     ))}
                                 </select>
@@ -488,7 +489,7 @@ export const PublicReportView: React.FC = () => {
                     <div className="hero-stat-tile">
                         <span className="hero-stat-lbl">Fecha</span>
                         <span className="hero-stat-val" style={{ fontSize: '1.05rem', color: '#fbbf24' }}>
-                            {new Date(date).toLocaleDateString('es-ES')}
+                            {formatDateSafe(date)}
                         </span>
                         <span className="hero-stat-sub">Auditoría</span>
                     </div>

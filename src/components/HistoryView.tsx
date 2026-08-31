@@ -10,6 +10,7 @@ interface Props {
 }
 
 import './HistoryView.css';
+import { formatDateSafe } from '../utils/dateUtils';
 
 export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
   const { t } = useTranslation();
@@ -48,18 +49,6 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
       </div>
     );
   }
-
-  const formatDateSafe = (dateStr: string) => {
-    if (!dateStr) return '';
-    if (dateStr.includes('T')) {
-      return new Date(dateStr).toLocaleDateString();
-    }
-    const parts = dateStr.split('-').map(Number);
-    if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
-      return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString();
-    }
-    return new Date(dateStr).toLocaleDateString();
-  };
 
   return (
     <div className="history-view animate-fade">

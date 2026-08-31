@@ -3,6 +3,7 @@ import { X, TrendingUp } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
 import type { MuscleBenchmark } from '../../utils/benchmarkAnalysis';
 import type { MeasurementRecord } from '../../types/measurements';
+import { formatDateSafe } from '../../utils/dateUtils';
 
 interface Props {
     benchmark: MuscleBenchmark | null;
@@ -41,8 +42,8 @@ export const MuscleHistoryModal: React.FC<Props> = ({ benchmark, records, onClos
         }
 
         return {
-            date: new Date(r.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
-            fullDate: new Date(r.date).toLocaleDateString('es-ES'),
+            date: formatDateSafe(r.date, { day: '2-digit', month: 'short' }),
+            fullDate: formatDateSafe(r.date),
             value: val > 0 ? val : current
         };
     });
