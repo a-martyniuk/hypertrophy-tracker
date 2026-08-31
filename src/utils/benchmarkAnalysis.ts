@@ -422,8 +422,8 @@ export const computeComprehensiveAnalysis = (
     const defaultFfmi = sex === 'female' ? 16.0 : 20.0;
     const ffmiVal = ffmi?.normalizedFFMI || defaultFfmi;
     const ffmiStatus = sex === 'female'
-        ? (ffmiVal >= 20.0 ? 'Élite Natural' : ffmiVal >= 18.0 ? 'Avanzado' : ffmiVal >= 16.0 ? 'Atlético' : 'Base')
-        : (ffmiVal >= 23.5 ? 'Élite Natural' : ffmiVal >= 22.0 ? 'Avanzado' : ffmiVal >= 20.0 ? 'Atlético' : 'Base');
+        ? (ffmiVal >= 22.0 ? 'Élite Excepcional' : ffmiVal >= 20.0 ? 'Límite Natural' : ffmiVal >= 18.0 ? 'Excelente Nivel' : ffmiVal >= 16.0 ? 'Atlético' : 'Promedio')
+        : (ffmiVal >= 25.0 ? 'Élite Excepcional' : ffmiVal >= 23.0 ? 'Límite Natural' : ffmiVal >= 22.0 ? 'Excelente Nivel' : ffmiVal >= 20.0 ? 'Atlético' : 'Promedio');
 
     return {
         overallLevel,

@@ -392,7 +392,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                     whiteSpace: 'nowrap'
                                 }}>
                                     <span style={{ color: '#22d3ee', fontWeight: 900 }}>FFMI {ffmi?.normalizedFFMI || 22.0}</span>
-                                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>· Magra</span>
+                                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>· {analysis?.ffmiScore?.statusText || 'Excelente Nivel'}</span>
                                 </div>
 
                                 <div style={{
@@ -408,7 +408,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                     whiteSpace: 'nowrap'
                                 }}>
                                     <span style={{ color: '#c084fc', fontWeight: 900 }}>{sex === 'female' ? 'Reloj Arena' : 'V-Taper'} {vRatio}x</span>
-                                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>· Proporción</span>
+                                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>· Silueta V</span>
                                 </div>
                             </div>
                         </div>
