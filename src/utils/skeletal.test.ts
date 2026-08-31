@@ -69,9 +69,15 @@ describe('Skeletal & Physiological Model Utilities', () => {
 
     describe('calculateHelmsGainRates (Eric Helms Model)', () => {
         it('should return monthly and annual gain rates for athlete weight', () => {
-            const rates = calculateHelmsGainRates(80);
+            const rates = calculateHelmsGainRates(80, 'male');
             expect(rates.beginner.minKgMonth).toBeGreaterThan(0.5);
             expect(rates.advanced.maxKgMonth).toBeLessThan(0.5);
+        });
+
+        it('should scale down gain rates by 50% for female physiology', () => {
+            const ratesMale = calculateHelmsGainRates(60, 'male');
+            const ratesFemale = calculateHelmsGainRates(60, 'female');
+            expect(ratesFemale.beginner.maxKgMonth).toBeCloseTo(ratesMale.beginner.maxKgMonth * 0.5, 2);
         });
     });
 });

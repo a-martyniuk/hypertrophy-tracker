@@ -179,26 +179,27 @@ export interface HelmsGainRates {
     advanced: { minKgMonth: number; maxKgMonth: number; minGramsWeek: number; maxGramsWeek: number };
 }
 
-export const calculateHelmsGainRates = (weight: number): HelmsGainRates => {
-    const w = weight > 0 ? weight : 75;
+export const calculateHelmsGainRates = (weight: number, sex: 'male' | 'female' = 'male'): HelmsGainRates => {
+    const w = weight > 0 ? weight : (sex === 'female' ? 60 : 75);
+    const sexMultiplier = sex === 'female' ? 0.5 : 1.0;
     return {
         beginner: {
-            minKgMonth: parseFloat((w * 0.01).toFixed(2)),
-            maxKgMonth: parseFloat((w * 0.015).toFixed(2)),
-            minGramsWeek: Math.round((w * 0.01 * 1000) / 4.3),
-            maxGramsWeek: Math.round((w * 0.015 * 1000) / 4.3)
+            minKgMonth: parseFloat((w * 0.01 * sexMultiplier).toFixed(2)),
+            maxKgMonth: parseFloat((w * 0.015 * sexMultiplier).toFixed(2)),
+            minGramsWeek: Math.round((w * 0.01 * sexMultiplier * 1000) / 4.3),
+            maxGramsWeek: Math.round((w * 0.015 * sexMultiplier * 1000) / 4.3)
         },
         intermediate: {
-            minKgMonth: parseFloat((w * 0.005).toFixed(2)),
-            maxKgMonth: parseFloat((w * 0.01).toFixed(2)),
-            minGramsWeek: Math.round((w * 0.005 * 1000) / 4.3),
-            maxGramsWeek: Math.round((w * 0.01 * 1000) / 4.3)
+            minKgMonth: parseFloat((w * 0.005 * sexMultiplier).toFixed(2)),
+            maxKgMonth: parseFloat((w * 0.01 * sexMultiplier).toFixed(2)),
+            minGramsWeek: Math.round((w * 0.005 * sexMultiplier * 1000) / 4.3),
+            maxGramsWeek: Math.round((w * 0.01 * sexMultiplier * 1000) / 4.3)
         },
         advanced: {
-            minKgMonth: parseFloat((w * 0.0025).toFixed(2)),
-            maxKgMonth: parseFloat((w * 0.005).toFixed(2)),
-            minGramsWeek: Math.round((w * 0.0025 * 1000) / 4.3),
-            maxGramsWeek: Math.round((w * 0.005 * 1000) / 4.3)
+            minKgMonth: parseFloat((w * 0.0025 * sexMultiplier).toFixed(2)),
+            maxKgMonth: parseFloat((w * 0.005 * sexMultiplier).toFixed(2)),
+            minGramsWeek: Math.round((w * 0.0025 * sexMultiplier * 1000) / 4.3),
+            maxGramsWeek: Math.round((w * 0.005 * sexMultiplier * 1000) / 4.3)
         }
     };
 };

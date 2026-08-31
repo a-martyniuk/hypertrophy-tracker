@@ -77,7 +77,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSa
   const potential = calculateSkeletalPotential(frame.wrist, frame.ankle, height, sex);
   const ieo = calculateIEO(frame.wrist, frame.ankle, sex);
   const berkhan = calculateBerkhanLimit(height, sex, bodyFat);
-  const helms = calculateHelmsGainRates(weight);
+  const helms = calculateHelmsGainRates(weight, sex);
 
   const IEO_CATEGORIES = sex === 'female' ? [
     { label: t('genetics.ieo.small'), range: '< 16', min: 0, max: 16 },
