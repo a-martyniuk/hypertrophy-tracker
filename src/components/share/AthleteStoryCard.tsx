@@ -302,16 +302,16 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         width: '360px',
                         height: '640px',
                         background: 'radial-gradient(ellipse 90% 50% at 50% 0%, rgba(245, 158, 11, 0.15), transparent), radial-gradient(ellipse 90% 50% at 50% 100%, rgba(34, 211, 238, 0.12), transparent), #070a14',
-                        border: '2px solid rgba(245, 158, 11, 0.45)',
-                        borderRadius: '24px',
-                        padding: '0.85rem 0.85rem',
+                        border: 'none',
+                        borderRadius: '16px',
+                        padding: '0.75rem 0.75rem',
                         boxSizing: 'border-box',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
                         position: 'relative',
                         overflow: 'hidden',
-                        boxShadow: '0 0 50px rgba(0, 0, 0, 0.95), 0 0 30px rgba(245, 158, 11, 0.15)'
+                        boxShadow: '0 0 50px rgba(0, 0, 0, 0.95)'
                     }}
                 >
                     {/* 1. Top Brand & Tier Header */}
@@ -339,50 +339,58 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         </span>
                     </div>
 
-                    {/* 2. Hero Athlete Identity Card with clear FFMI & V-Taper Descriptors */}
+                    {/* 2. Hero Athlete Identity Card with Full Name & Clear Descriptors */}
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '8px',
+                        gap: '10px',
                         background: 'rgba(255, 255, 255, 0.03)',
                         border: '1px solid rgba(255, 255, 255, 0.08)',
-                        borderRadius: '12px',
-                        padding: '0.35rem 0.55rem',
+                        borderRadius: '14px',
+                        padding: '0.45rem 0.65rem',
                         backdropFilter: 'blur(8px)',
                         zIndex: 2
                     }}>
                         <div style={{
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '10px',
+                            width: '42px',
+                            height: '42px',
+                            borderRadius: '12px',
                             background: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontWeight: 900,
-                            fontSize: '1rem',
+                            fontSize: '1.1rem',
                             color: '#000000',
                             fontFamily: 'var(--font-head)',
-                            boxShadow: '0 0 12px rgba(245, 158, 11, 0.4)',
+                            boxShadow: '0 0 14px rgba(245, 158, 11, 0.4)',
                             flexShrink: 0
                         }}>
                             {initials}
                         </div>
-                        <div style={{ flex: 1, overflow: 'hidden' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                                <h2 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: '#ffffff', fontFamily: 'var(--font-head)', lineHeight: 1.1, textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>
-                                    {userName}
-                                </h2>
-                                <span style={{ fontSize: '0.58rem', color: '#94a3b8', fontFamily: 'var(--font-mono)' }}>
-                                    {m?.height || (sex === 'female' ? 165 : 180)}cm · {m?.weight || (sex === 'female' ? 60 : 75)}kg {m?.bodyFat ? `· ${m.bodyFat}%G` : ''}
-                                </span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <h2 style={{
+                                margin: 0,
+                                fontSize: '1.05rem',
+                                fontWeight: 900,
+                                color: '#ffffff',
+                                fontFamily: 'var(--font-head)',
+                                lineHeight: 1.15,
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                            }}>
+                                {userName}
+                            </h2>
+                            <div style={{ fontSize: '0.62rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+                                {m?.height || (sex === 'female' ? 165 : 180)} cm · {m?.weight || (sex === 'female' ? 60 : 75)} kg {m?.bodyFat ? `· ${m.bodyFat}% Grasa` : ''}
                             </div>
-                            <div style={{ display: 'flex', gap: '4px', marginTop: '3px' }}>
+                            <div style={{ display: 'flex', gap: '5px', marginTop: '4px' }}>
                                 <div style={{
                                     background: 'rgba(34, 211, 238, 0.12)',
                                     border: '1px solid rgba(34, 211, 238, 0.3)',
                                     borderRadius: '6px',
-                                    padding: '1px 5px',
+                                    padding: '2px 6px',
                                     fontSize: '0.52rem',
                                     fontFamily: 'var(--font-mono)',
                                     display: 'flex',
@@ -397,7 +405,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                     background: 'rgba(168, 85, 247, 0.12)',
                                     border: '1px solid rgba(168, 85, 247, 0.3)',
                                     borderRadius: '6px',
-                                    padding: '1px 5px',
+                                    padding: '2px 6px',
                                     fontSize: '0.52rem',
                                     fontFamily: 'var(--font-mono)',
                                     display: 'flex',
@@ -424,7 +432,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         gap: '8px'
                     }}>
                         {/* Anatomical Silhouette Graphic */}
-                        <div style={{ position: 'relative', width: '90px', height: '145px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div style={{ position: 'relative', width: '92px', height: '145px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <img
                                 src={sex === 'female' ? femaleSilhouette : maleSilhouette}
                                 alt="Silueta Anatómica"
