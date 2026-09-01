@@ -8,8 +8,7 @@ import { calculateFFMI, calculateSkeletalPotential, calculateBerkhanLimit, calcu
 import { calculateBilateralSymmetry } from '../../utils/symmetryAudit';
 import { analyzeProportions } from '../../utils/proportions';
 import { createCompactSelfContainedLink } from '../../services/shortLinkService';
-import maleSilhouette from '../../assets/clean_red_silhouette.png';
-import femaleSilhouette from '../../assets/silhouette_female.png';
+import { MALE_SILHOUETTE_BASE64, FEMALE_SILHOUETTE_BASE64 } from '../../assets/silhouettesBase64';
 
 interface Props {
     record?: MeasurementRecord;
@@ -32,8 +31,9 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
     const [generating, setGenerating] = useState(false);
     const [downloaded, setDownloaded] = useState(false);
     const [linkCopied, setLinkCopied] = useState(false);
-    const [silhouetteDataUrl, setSilhouetteDataUrl] = useState<string>('');
     const [previewScale, setPreviewScale] = useState(0.65);
+
+    const silhouetteSrc = sex === 'female' ? FEMALE_SILHOUETTE_BASE64 : MALE_SILHOUETTE_BASE64;
 
     useEffect(() => {
         const updateScale = () => {
@@ -49,28 +49,6 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
         window.addEventListener('resize', updateScale);
         return () => window.removeEventListener('resize', updateScale);
     }, [isOpen]);
-
-    useEffect(() => {
-        const src = sex === 'female' ? femaleSilhouette : maleSilhouette;
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => {
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth || img.width || 300;
-                canvas.height = img.naturalHeight || img.height || 600;
-                const ctx = canvas.getContext('2d');
-                if (ctx) {
-                    ctx.drawImage(img, 0, 0);
-                    setSilhouetteDataUrl(canvas.toDataURL('image/png'));
-                }
-            } catch {
-                setSilhouetteDataUrl(src);
-            }
-        };
-        img.onerror = () => setSilhouetteDataUrl(src);
-        img.src = src;
-    }, [sex]);
 
     const m = record?.measurements;
     const analysis = useMemo(() => computeComprehensiveAnalysis(m, sex), [m, sex]);
@@ -628,7 +606,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                 {/* Anatomical Silhouette */}
                                 <div style={{ width: '68px', height: '135px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                     <img
-                                        src={silhouetteDataUrl || (sex === 'female' ? femaleSilhouette : maleSilhouette)}
+                                        src={silhouetteSrc}
                                         alt="Silueta Anatómica"
                                         style={{
                                             maxHeight: '130px',
