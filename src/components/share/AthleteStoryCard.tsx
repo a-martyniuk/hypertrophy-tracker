@@ -333,7 +333,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 zIndex: 99999,
-                padding: '1rem',
+                padding: 'clamp(0.5rem, 2vw, 1rem)',
                 boxSizing: 'border-box',
                 overflowY: 'auto'
             }}
@@ -344,7 +344,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                     background: 'linear-gradient(135deg, #0e1322 0%, #080b15 100%)',
                     border: '1.5px solid rgba(245, 158, 11, 0.35)',
                     borderRadius: '24px',
-                    padding: '1.25rem',
+                    padding: 'clamp(0.85rem, 3vw, 1.25rem)',
                     maxWidth: '420px',
                     width: '100%',
                     maxHeight: '96vh',
