@@ -424,6 +424,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                             <label>{t('common.goals.target_value')}</label>
                             <input
                                 type="number"
+                                inputMode="decimal"
                                 step="0.1"
                                 value={newGoal.targetValue || ''}
                                 onChange={(e) => setNewGoal({ ...newGoal, targetValue: parseFloat(e.target.value) || 0 })}

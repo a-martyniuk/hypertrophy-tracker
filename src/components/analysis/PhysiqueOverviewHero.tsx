@@ -1,5 +1,6 @@
 import React from 'react';
-import { Activity, CheckCircle, AlertTriangle, Compass } from 'lucide-react';
+import { Activity, CheckCircle, AlertTriangle, Compass, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import type { ComprehensiveAnalysis } from '../../utils/benchmarkAnalysis';
 
 interface Props {
@@ -7,18 +8,28 @@ interface Props {
 }
 
 export const PhysiqueOverviewHero: React.FC<Props> = ({ analysis }) => {
+    const navigate = useNavigate();
+
     if (!analysis) {
         return (
-            <div className="physique-hero-card glass" style={{ textAlign: 'center', padding: '2.5rem 1.5rem' }}>
-                <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', marginBottom: '1rem' }}>
+            <div className="physique-hero-card glass" style={{ textAlign: 'center', padding: '2.5rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', marginBottom: '0.25rem' }}>
                     <Activity size={32} />
                 </div>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ffffff', margin: '0 0 0.5rem 0' }}>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
                     Sin mediciones antropométricas registradas
                 </h3>
-                <p style={{ color: '#94a3b8', fontSize: '0.9rem', maxWidth: '520px', margin: '0 auto', lineHeight: 1.6 }}>
+                <p style={{ color: '#94a3b8', fontSize: '0.9rem', maxWidth: '520px', margin: 0, lineHeight: 1.6 }}>
                     Registra tu primera sesión de medidas en la sección <strong>Nueva Medición</strong> para desbloquear tu auditoría biomecánica completa, cálculo de FFMI y potencial muscular de Casey Butt.
                 </p>
+                <button
+                    onClick={() => navigate('/new-entry')}
+                    className="btn-primary"
+                    style={{ marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                >
+                    <Plus size={18} />
+                    <span>Registrar Primera Medida</span>
+                </button>
             </div>
         );
     }

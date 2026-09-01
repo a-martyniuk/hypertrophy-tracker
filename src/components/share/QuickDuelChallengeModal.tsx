@@ -220,6 +220,8 @@ export const QuickDuelChallengeModal: React.FC<Props> = ({
                                 </label>
                                 <input
                                     type="number"
+                                    inputMode="decimal"
+                                    step="0.5"
                                     value={height}
                                     onChange={(e) => setHeight(Number(e.target.value))}
                                     className="settings-input"
@@ -234,6 +236,7 @@ export const QuickDuelChallengeModal: React.FC<Props> = ({
                                 </label>
                                 <input
                                     type="number"
+                                    inputMode="decimal"
                                     value={weight}
                                     onChange={(e) => setWeight(Number(e.target.value))}
                                     className="settings-input"
@@ -249,6 +252,7 @@ export const QuickDuelChallengeModal: React.FC<Props> = ({
                                 </label>
                                 <input
                                     type="number"
+                                    inputMode="decimal"
                                     value={arm}
                                     onChange={(e) => setArm(Number(e.target.value))}
                                     className="settings-input"
@@ -264,6 +268,7 @@ export const QuickDuelChallengeModal: React.FC<Props> = ({
                                 </label>
                                 <input
                                     type="number"
+                                    inputMode="decimal"
                                     value={waist}
                                     onChange={(e) => setWaist(Number(e.target.value))}
                                     className="settings-input"

@@ -249,6 +249,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
                   <input
                     ref={inputRef}
                     type="number"
+                    inputMode="decimal"
                     step="0.1"
                     min="0"
                     placeholder="0.0"
@@ -275,6 +276,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
                 <div className="hero-side-row">
                   <input
                     type="number"
+                    inputMode="decimal"
                     step="0.1"
                     min="0"
                     placeholder="0.0"
@@ -304,6 +306,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
                   <input
                     ref={inputRef}
                     type="number"
+                    inputMode="decimal"
                     step="0.1"
                     min="0"
                     placeholder="0.0"
@@ -365,6 +368,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
                 <label>Peso Corporal (kg)</label>
                 <input
                   type="number"
+                  inputMode="decimal"
                   step="0.1"
                   min="0"
                   placeholder="Ej: 82.5"
@@ -377,6 +381,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
                 <label>Altura (cm)</label>
                 <input
                   type="number"
+                  inputMode="decimal"
                   step="0.5"
                   min="0"
                   placeholder="Ej: 180"
@@ -389,6 +394,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
                 <label>Edad del Atleta (Años)</label>
                 <input
                   type="number"
+                  inputMode="numeric"
                   step="1"
                   min="10"
                   max="120"
@@ -403,6 +409,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
                 <div className="bf-input-group">
                   <input
                     type="number"
+                    inputMode="decimal"
                     step="0.1"
                     min="0"
                     placeholder="Ej: 15.0"

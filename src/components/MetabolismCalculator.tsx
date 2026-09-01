@@ -195,19 +195,19 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                         <label>
                             <span>{t('common.metabolism.age')}</span>
                         </label>
-                        <input type="number" value={age || ''} onChange={e => setAge(Number(e.target.value))} />
+                        <input type="number" inputMode="numeric" value={age || ''} onChange={e => setAge(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
                         <label>
                             <span>{t('common.metabolism.weight')}</span>
                         </label>
-                        <input type="number" value={weight || ''} onChange={e => setWeight(Number(e.target.value))} />
+                        <input type="number" inputMode="decimal" step="0.1" value={weight || ''} onChange={e => setWeight(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
                         <label>
                             <span>{t('common.metabolism.height')}</span>
                         </label>
-                        <input type="number" value={height || ''} onChange={e => setHeight(Number(e.target.value))} />
+                        <input type="number" inputMode="decimal" step="0.5" value={height || ''} onChange={e => setHeight(Number(e.target.value))} />
                     </div>
                 </div>
 
@@ -261,7 +261,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                                 <HelpCircle size={14} className="help-icon" />
                             </Tooltip>
                         </label>
-                        <input type="number" value={trainingFreq || ''} onChange={e => setTrainingFreq(Number(e.target.value))} />
+                        <input type="number" inputMode="numeric" value={trainingFreq || ''} onChange={e => setTrainingFreq(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
                         <label>
@@ -270,7 +270,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                                 <HelpCircle size={14} className="help-icon" />
                             </Tooltip>
                         </label>
-                        <input type="number" step="0.5" value={sessionDuration || ''} onChange={e => setSessionDuration(Number(e.target.value))} />
+                        <input type="number" inputMode="decimal" step="0.5" value={sessionDuration || ''} onChange={e => setSessionDuration(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
                         <label>

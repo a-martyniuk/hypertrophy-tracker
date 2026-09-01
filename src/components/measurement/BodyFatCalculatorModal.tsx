@@ -138,6 +138,8 @@ export const BodyFatCalculatorModal: React.FC<Props> = ({
                         </label>
                         <input
                             type="number"
+                            inputMode="decimal"
+                            step="0.5"
                             value={height || ''}
                             onChange={(e) => setHeight(parseFloat(e.target.value) || 0)}
                             style={{ width: '100%', background: 'transparent', border: 'none', color: '#ffffff', fontSize: '1.1rem', fontWeight: 800, outline: 'none' }}
@@ -150,6 +152,8 @@ export const BodyFatCalculatorModal: React.FC<Props> = ({
                         </label>
                         <input
                             type="number"
+                            inputMode="decimal"
+                            step="0.1"
                             value={weight || ''}
                             onChange={(e) => setWeight(parseFloat(e.target.value) || 0)}
                             style={{ width: '100%', background: 'transparent', border: 'none', color: '#ffffff', fontSize: '1.1rem', fontWeight: 800, outline: 'none' }}
@@ -162,6 +166,7 @@ export const BodyFatCalculatorModal: React.FC<Props> = ({
                         </label>
                         <input
                             type="number"
+                            inputMode="decimal"
                             step="0.5"
                             value={neck || ''}
                             onChange={(e) => setNeck(parseFloat(e.target.value) || 0)}
@@ -175,6 +180,7 @@ export const BodyFatCalculatorModal: React.FC<Props> = ({
                         </label>
                         <input
                             type="number"
+                            inputMode="decimal"
                             step="0.5"
                             value={waist || ''}
                             onChange={(e) => setWaist(parseFloat(e.target.value) || 0)}
@@ -189,6 +195,7 @@ export const BodyFatCalculatorModal: React.FC<Props> = ({
                             </label>
                             <input
                                 type="number"
+                                inputMode="decimal"
                                 step="0.5"
                                 value={hips || ''}
                                 onChange={(e) => setHips(parseFloat(e.target.value) || 0)}

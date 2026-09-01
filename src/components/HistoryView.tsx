@@ -1,7 +1,8 @@
 import type { MeasurementRecord, MeasurementCondition } from '../types/measurements';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Calendar, ChevronRight, Trash2, Moon, TestTube, Zap, Coffee, Scale, Activity } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, ChevronRight, Trash2, Moon, TestTube, Zap, Coffee, Scale, Activity, Plus } from 'lucide-react';
 
 interface Props {
   records: MeasurementRecord[];
@@ -14,6 +15,7 @@ import { formatDateSafe } from '../utils/dateUtils';
 
 export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
 
   const CONDITION_MAP: Record<MeasurementCondition, { label: string; icon: React.ReactNode; color: string }> = {
@@ -37,14 +39,22 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
           </div>
         </div>
 
-        <div className="empty-history">
-          <Activity size={40} style={{ color: 'var(--primary-color)', margin: '0 auto 1rem', opacity: 0.6 }} />
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)', marginBottom: '0.5rem' }}>
+        <div className="empty-history" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+          <Activity size={40} style={{ color: 'var(--primary-color)', opacity: 0.6 }} />
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)', margin: 0 }}>
             {t('common.history.empty')}
           </h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Registra tu primera medición en "Nueva Medida" para comenzar tu historial.
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, maxWidth: '420px', textAlign: 'center' }}>
+            Registra tu primera medición antropométrica para comenzar el seguimiento de tu evolución.
           </p>
+          <button
+            onClick={() => navigate('/new-entry')}
+            className="btn-primary"
+            style={{ marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+          >
+            <Plus size={18} />
+            <span>Registrar Primera Medida</span>
+          </button>
         </div>
       </div>
     );

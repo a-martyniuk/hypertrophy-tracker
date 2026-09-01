@@ -41,7 +41,7 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
     const [selectedBenchmark, setSelectedBenchmark] = useState<MuscleBenchmark | null>(null);
 
     const latestRecord = records[0];
-    const comprehensiveAnalysis = computeComprehensiveAnalysis(latestRecord?.measurements, sex);
+    const comprehensiveAnalysis = latestRecord ? computeComprehensiveAnalysis(latestRecord.measurements, sex) : null;
     const prescriptionData = generateTrainingPrescriptions(latestRecord?.measurements, sex);
 
     // Helper map for muscle detail

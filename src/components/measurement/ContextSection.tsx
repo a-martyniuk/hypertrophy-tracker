@@ -68,6 +68,7 @@ export const ContextSection = ({ metadata, onChange, notes, onNotesChange }: Pro
                         <div className="sleep-control">
                             <input
                                 type="number"
+                                inputMode="decimal"
                                 step="0.5"
                                 value={metadata.sleepHours || ''}
                                 onChange={(e) => onChange({ ...metadata, sleepHours: parseFloat(e.target.value) || 0 })}

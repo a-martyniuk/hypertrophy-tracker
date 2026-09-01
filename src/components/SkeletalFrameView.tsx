@@ -137,6 +137,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSa
               </div>
               <input
                 type="number"
+                inputMode="decimal"
                 step="0.5"
                 value={height || ''}
                 onChange={(e) => setHeight(parseFloat(e.target.value) || 0)}
@@ -151,6 +152,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSa
               </div>
               <input
                 type="number"
+                inputMode="decimal"
                 step="0.5"
                 value={weight || ''}
                 onChange={(e) => setWeight(parseFloat(e.target.value) || 0)}
@@ -165,6 +167,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSa
               </div>
               <input
                 type="number"
+                inputMode="decimal"
                 step="0.5"
                 value={bodyFat || ''}
                 onChange={(e) => setBodyFat(parseFloat(e.target.value) || 0)}
@@ -182,6 +185,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSa
               </div>
               <input
                 type="number"
+                inputMode="decimal"
                 step="0.1"
                 value={frame.wrist || ''}
                 onChange={(e) => setFrame({ ...frame, wrist: parseFloat(e.target.value) || 0 })}
@@ -199,6 +203,7 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSa
               </div>
               <input
                 type="number"
+                inputMode="decimal"
                 step="0.1"
                 value={frame.ankle || ''}
                 onChange={(e) => setFrame({ ...frame, ankle: parseFloat(e.target.value) || 0 })}

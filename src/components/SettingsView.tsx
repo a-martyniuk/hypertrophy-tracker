@@ -335,6 +335,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                                     </label>
                                     <input
                                         type="number"
+                                        inputMode="numeric"
                                         value={age || ''}
                                         onChange={(e) => setAge(Number(e.target.value))}
                                         className="settings-input"
@@ -350,6 +351,8 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                                     </label>
                                     <input
                                         type="number"
+                                        inputMode="decimal"
+                                        step="0.5"
                                         value={height || ''}
                                         onChange={(e) => setHeight(Number(e.target.value))}
                                         className="settings-input"
