@@ -12,6 +12,7 @@ import { AthleteBadgesGrid } from './dashboard/AthleteBadgesGrid';
 import { HarmonyRadarChart } from './dashboard/HarmonyRadarChart';
 import { TrophyRoomModal } from './achievements/TrophyRoomModal';
 import { evaluateAthleteBadges } from '../utils/athleteBadges';
+import { formatDateSafe } from '../utils/dateUtils';
 import type { MeasurementRecord } from '../types/measurements';
 
 interface DashboardViewProps {
@@ -129,7 +130,7 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                                 </Tooltip>
                             </label>
                             <div className="value">
-                                {loading ? <Skeleton width={100} height={24} /> : (latestRecord ? new Date(latestRecord.date).toLocaleDateString() : '--')}
+                                {loading ? <Skeleton width={100} height={24} /> : (latestRecord ? formatDateSafe(latestRecord.date) : '--')}
                             </div>
                         </div>
                         <div className="stat-card glass">

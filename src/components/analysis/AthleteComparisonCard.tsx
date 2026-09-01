@@ -191,7 +191,7 @@ export const AthleteComparisonCard: React.FC<Props> = ({
             id: 'current_user',
             name,
             title: 'Medición Antropométrica Actual',
-            era: currentRecord?.date ? new Date(currentRecord.date).toLocaleDateString() : 'Sesión Activa',
+            era: currentRecord?.date ? formatDateSafe(currentRecord.date) : 'Sesión Activa',
             sex: sex,
             age: userBio.age,
             height,
@@ -383,7 +383,7 @@ export const AthleteComparisonCard: React.FC<Props> = ({
                                     {records.slice(1, 8).map((r) => {
                                         const h = r.measurements?.height || profileA.height || 178;
                                         const w = r.measurements?.weight || 80;
-                                        const d = new Date(r.date).toLocaleDateString();
+                                        const d = formatDateSafe(r.date);
                                         return (
                                             <option key={r.id} value={`past_${r.id}`}>
                                                 Tú - {d} ({h} cm · {w} kg)

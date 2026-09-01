@@ -133,7 +133,7 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                 const daysNeeded = remaining / growthPerDay;
                 const date = new Date();
                 date.setDate(date.getDate() + daysNeeded);
-                projectedDateText = date.toLocaleDateString();
+                projectedDateText = formatDateSafe(date);
                 projectionMsg = t('analysis.projection.estimated', { rate: (growthPerDay * 30).toFixed(1), date: projectedDateText });
             } else if (currentVal >= goal.targetValue) {
                 projectionMsg = t('analysis.projection.reached');

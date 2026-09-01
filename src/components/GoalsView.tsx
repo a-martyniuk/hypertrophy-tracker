@@ -6,6 +6,7 @@ import { calculateSkeletalPotential, calculateBerkhanLimit } from '../utils/skel
 import { computeComprehensiveAnalysis } from '../utils/benchmarkAnalysis';
 import { analyzeProportions } from '../utils/proportions';
 import { predictGoalTimeline } from '../utils/goalPredictor';
+import { formatDateSafe } from '../utils/dateUtils';
 import { useToast } from './ui/ToastProvider';
 
 interface Props {
@@ -471,7 +472,7 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                                         <h3>{measurementLabels[goal.measurementType] || goal.measurementType}</h3>
                                         <span className="deadline">
                                             <Calendar size={10} style={{ marginRight: 4 }} />
-                                            {new Date(goal.targetDate).toLocaleDateString()}
+                                            {formatDateSafe(goal.targetDate)}
                                         </span>
                                     </div>
                                     <button
