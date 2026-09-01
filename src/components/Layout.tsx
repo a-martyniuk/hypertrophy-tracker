@@ -32,13 +32,24 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
     const navigate = useNavigate()
     const location = useLocation()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-    const activeView = location.pathname.slice(1) || 'dashboard'
-
     const { user: authUser, signOut } = useAuth()
     const { profile, updateProfile } = useProfile()
+    const [isOnline, setIsOnline] = useState(() => typeof navigator !== 'undefined' ? navigator.onLine : true)
+
+    useEffect(() => {
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
 
     const userSex = profile?.sex || 'male'
     const userName = profile?.name || authUser?.email?.split('@')[0] || 'Atleta'
+    const activeView = location.pathname.slice(1) || 'dashboard'
 
     const handleLogOut = async () => {
         await signOut()
@@ -79,6 +90,35 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
     return (
         <ToastProvider>
             <div className="app-container">
+                {!isOnline && (
+                    <div
+                        className="offline-status-banner animate-fade"
+                        style={{
+                            position: 'fixed',
+                            top: '0.6rem',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            backgroundColor: 'rgba(239, 68, 68, 0.95)',
+                            color: '#ffffff',
+                            padding: '0.28rem 0.85rem',
+                            borderRadius: '999px',
+                            fontSize: '0.72rem',
+                            fontFamily: 'var(--font-mono)',
+                            fontWeight: 700,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            zIndex: 99999,
+                            boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+                            backdropFilter: 'blur(8px)',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            pointerEvents: 'none'
+                        }}
+                    >
+                        <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#ffffff', display: 'inline-block' }} />
+                        <span>Sin Conexión · Cambios sincronizados localmente</span>
+                    </div>
+                )}
                 {/* Mobile Top Header */}
                 <header className="mobile-header glass">
                     <div className="logo-mobile" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
