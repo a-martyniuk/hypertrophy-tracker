@@ -197,6 +197,9 @@
 }
 
 @media (max-width: 640px) {
+    .tactical-card {
+        padding: 1.15rem;
+    }
     .tactical-headline {
         font-size: 1.15rem;
     }
