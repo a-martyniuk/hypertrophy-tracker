@@ -205,10 +205,12 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
         setGenerating(true);
         try {
             const dataUrl = await toPng(cardRef.current, {
-                pixelRatio: 3, // Exports exact 1080x1920 UHD resolution for 360x640 canvas
+                pixelRatio: 3, // Exports exact 1170x2532 UHD resolution (390x844 iPhone native canvas)
                 cacheBust: false,
                 skipFonts: true,
-                backgroundColor: '#070a14'
+                backgroundColor: '#070a14',
+                width: 390,
+                height: 844
             });
 
             // Native Web Share API file share on mobile devices
@@ -296,9 +298,9 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         </div>
                         <div>
                             <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                                Story 19.5:9 (1080 × 2340 Full Screen)
+                                Story iPhone 19.5:9 (1170 × 2532 UHD)
                             </h3>
-                            <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Ajuste perfecto a pantallas de smartphone · Instagram & WhatsApp Stories</span>
+                            <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Ajuste nativo a pantalla completa de iPhone · Instagram & WhatsApp Stories</span>
                         </div>
                     </div>
                     {onClose && (
@@ -311,304 +313,317 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                     )}
                 </div>
 
-                {/* THE 19.5:9 RENDERABLE CANVAS CONTAINER (Exact 360 x 780 -> 1080 x 2340 at 3x) */}
-                <div
-                    ref={cardRef}
-                    style={{
-                        width: '360px',
-                        height: '780px',
-                        background: '#070a14',
-                        backgroundImage: 'radial-gradient(circle at 50% 10%, rgba(245, 158, 11, 0.15) 0%, transparent 55%), radial-gradient(circle at 50% 90%, rgba(34, 211, 238, 0.10) 0%, transparent 55%)',
-                        border: 'none',
-                        borderRadius: '0px',
-                        padding: '48px 14px 62px 14px', // Safe zones for Instagram top tools and bottom action bar
-                        boxSizing: 'border-box',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        position: 'relative',
-                        overflow: 'hidden'
-                    }}
-                >
-                    {/* 1. Top Brand & Tier Header */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <div style={{ width: '20px', height: '20px', borderRadius: '6px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000' }}>
-                                <Zap size={12} strokeWidth={3} />
+                {/* SCROLLABLE / SCALED PREVIEW WRAPPER TO PREVENT HORIZONTAL SQUEEZING ON MOBILE */}
+                <div style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    overflowX: 'auto',
+                    padding: '4px 0'
+                }}>
+                    {/* THE 19.5:9 RENDERABLE CANVAS CONTAINER (Exact 390 x 844 -> 1170 x 2532 at 3x) */}
+                    <div
+                        ref={cardRef}
+                        style={{
+                            width: '390px',
+                            minWidth: '390px',
+                            height: '844px',
+                            minHeight: '844px',
+                            flexShrink: 0,
+                            background: '#070a14',
+                            backgroundImage: 'radial-gradient(circle at 50% 8%, rgba(245, 158, 11, 0.16) 0%, transparent 55%), radial-gradient(circle at 50% 92%, rgba(34, 211, 238, 0.12) 0%, transparent 55%)',
+                            border: 'none',
+                            borderRadius: '0px',
+                            padding: '54px 18px 72px 18px', // Native iPhone safe zones for Instagram top tools and bottom bar
+                            boxSizing: 'border-box',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        {/* 1. Top Brand & Tier Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000' }}>
+                                    <Zap size={13} strokeWidth={3} />
+                                </div>
+                                <span style={{ fontSize: '0.72rem', fontWeight: 900, color: '#fbbf24', letterSpacing: '1.4px', fontFamily: 'var(--font-mono)' }}>
+                                    HYPERTROPHY TRACKER
+                                </span>
                             </div>
-                            <span style={{ fontSize: '0.68rem', fontWeight: 900, color: '#fbbf24', letterSpacing: '1.2px', fontFamily: 'var(--font-mono)' }}>
-                                HYPERTROPHY TRACKER
+                            <span style={{
+                                fontSize: '0.62rem',
+                                fontWeight: 900,
+                                padding: '3px 9px',
+                                borderRadius: '8px',
+                                background: athleteTier.bg,
+                                color: athleteTier.color,
+                                border: `1px solid ${athleteTier.border}`,
+                                fontFamily: 'var(--font-mono)',
+                                letterSpacing: '0.6px'
+                            }}>
+                                {athleteTier.label}
                             </span>
                         </div>
-                        <span style={{
-                            fontSize: '0.58rem',
-                            fontWeight: 900,
-                            padding: '3px 8px',
-                            borderRadius: '8px',
-                            background: athleteTier.bg,
-                            color: athleteTier.color,
-                            border: `1px solid ${athleteTier.border}`,
-                            fontFamily: 'var(--font-mono)',
-                            letterSpacing: '0.5px'
-                        }}>
-                            {athleteTier.label}
-                        </span>
-                    </div>
 
-                    {/* 2. Hero Athlete Identity Card with Full Name & Clear Descriptors */}
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                        borderRadius: '14px',
-                        padding: '0.5rem 0.7rem',
-                        zIndex: 2
-                    }}>
+                        {/* 2. Hero Athlete Identity Card with Full Name & Clear Descriptors */}
                         <div style={{
-                            width: '44px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            background: 'rgba(255, 255, 255, 0.035)',
+                            border: '1px solid rgba(255, 255, 255, 0.09)',
+                            borderRadius: '16px',
+                            padding: '0.65rem 0.85rem',
+                            zIndex: 2
+                        }}>
+                            <div style={{
+                                width: '48px',
+                                height: '48px',
+                                borderRadius: '14px',
+                                background: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
+                                border: '1.5px solid rgba(251, 191, 36, 0.7)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: 900,
+                                fontSize: '1.25rem',
+                                color: '#000000',
+                                fontFamily: 'var(--font-head)',
+                                flexShrink: 0
+                            }}>
+                                {initials}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <h2 style={{
+                                    margin: 0,
+                                    fontSize: '1.18rem',
+                                    fontWeight: 900,
+                                    color: '#ffffff',
+                                    fontFamily: 'var(--font-head)',
+                                    lineHeight: 1.15,
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis'
+                                }}>
+                                    {userName}
+                                </h2>
+                                <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+                                    {m?.height || (sex === 'female' ? 165 : 180)} cm · {m?.weight || (sex === 'female' ? 60 : 75)} kg {m?.bodyFat ? `· ${m.bodyFat}% Grasa` : ''}
+                                </div>
+                                <div style={{ display: 'flex', gap: '6px', marginTop: '5px', flexWrap: 'wrap' }}>
+                                    <div style={{
+                                        background: 'rgba(34, 211, 238, 0.12)',
+                                        border: '1px solid rgba(34, 211, 238, 0.35)',
+                                        borderRadius: '6px',
+                                        padding: '2px 7px',
+                                        fontSize: '0.58rem',
+                                        fontFamily: 'var(--font-mono)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '3px',
+                                        whiteSpace: 'nowrap'
+                                    }}>
+                                        <span style={{ color: '#22d3ee', fontWeight: 900 }}>FFMI {ffmi?.normalizedFFMI || 22.0}</span>
+                                        <span style={{ color: '#94a3b8', fontWeight: 600 }}>· {analysis?.ffmiScore?.statusText || 'Excelente Nivel'}</span>
+                                    </div>
+
+                                    <div style={{
+                                        background: 'rgba(168, 85, 247, 0.12)',
+                                        border: '1px solid rgba(168, 85, 247, 0.35)',
+                                        borderRadius: '6px',
+                                        padding: '2px 7px',
+                                        fontSize: '0.58rem',
+                                        fontFamily: 'var(--font-mono)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '3px',
+                                        whiteSpace: 'nowrap'
+                                    }}>
+                                        <span style={{ color: '#c084fc', fontWeight: 900 }}>{sex === 'female' ? 'Reloj Arena' : 'V-Taper'} {vRatio}x</span>
+                                        <span style={{ color: '#94a3b8', fontWeight: 600 }}>· Silueta V</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 3. CENTRAL ANATOMICAL SILHOUETTE & AESTHETIC HARMONY ARCHITECTURE */}
+                        <div style={{
+                            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(15, 23, 42, 0.5))',
+                            border: '1px solid rgba(255, 255, 255, 0.09)',
+                            borderRadius: '16px',
+                            padding: '0.75rem 0.85rem',
+                            zIndex: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '12px'
+                        }}>
+                            {/* Anatomical Silhouette Graphic */}
+                            <div style={{ position: 'relative', width: '95px', height: '175px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <img
+                                    src={silhouetteDataUrl || (sex === 'female' ? femaleSilhouette : maleSilhouette)}
+                                    alt="Silueta Anatómica"
+                                    style={{
+                                        maxHeight: '170px',
+                                        maxWidth: '90px',
+                                        width: 'auto',
+                                        height: 'auto',
+                                        objectFit: 'contain'
+                                    }}
+                                />
+                            </div>
+
+                            {/* Distinct Core Architecture & Symmetry Panels (Non-redundant) */}
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px', minWidth: 0 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                                    <span style={{ fontSize: '0.62rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                                        <Activity size={12} /> Estructura & Simetría
+                                    </span>
+                                    <span style={{ fontSize: '0.58rem', color: '#10b981', fontFamily: 'var(--font-mono)', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                                        {proportions?.overallGoldenScore || 92}% Armónico
+                                    </span>
+                                </div>
+
+                                {/* Torso & Core Dimensions (Espalda & Cintura) */}
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px' }}>
+                                    <div style={{ background: 'rgba(255, 255, 255, 0.035)', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '8px', padding: '4px 6px' }}>
+                                        <div style={{ fontSize: '0.50rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>ESPALDA / DORSAL</div>
+                                        <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
+                                            {m?.back ? `${m.back} cm` : '—'}
+                                        </div>
+                                    </div>
+
+                                    <div style={{ background: 'rgba(255, 255, 255, 0.035)', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '8px', padding: '4px 6px' }}>
+                                        <div style={{ fontSize: '0.50rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>CINTURA / CORE</div>
+                                        <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
+                                            {m?.waist ? `${m.waist} cm` : '—'}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Steve Reeves Triad (Brazo ≈ Cuello ≈ Gemelo) */}
+                                <div style={{ background: 'rgba(245, 158, 11, 0.07)', border: '1px solid rgba(245, 158, 11, 0.25)', borderRadius: '8px', padding: '4px 7px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontSize: '0.52rem', fontWeight: 900, color: '#fbbf24', whiteSpace: 'nowrap' }}>TRÍADA REEVES (1:1:1)</span>
+                                        <span style={{ fontSize: '0.56rem', fontWeight: 900, color: '#34d399', fontFamily: 'var(--font-mono)' }}>
+                                            {proportions?.reevesTriad.symmetryScore || 96}%
+                                        </span>
+                                    </div>
+                                    <div style={{ fontSize: '0.58rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        Brazo {proportions?.reevesTriad.armAvg || getAvgNum(m?.arm)} · Cuello {m?.neck || '—'} · Gemelo {proportions?.reevesTriad.calfAvg || getAvgNum(m?.calf)} cm
+                                    </div>
+                                </div>
+
+                                {/* Bilateral Balance (L vs R) */}
+                                <div style={{ background: 'rgba(56, 189, 248, 0.07)', border: '1px solid rgba(56, 189, 248, 0.25)', borderRadius: '8px', padding: '4px 7px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontSize: '0.52rem', fontWeight: 900, color: '#38bdf8', whiteSpace: 'nowrap' }}>BALANCE BILATERAL (L/R)</span>
+                                        <span style={{ fontSize: '0.56rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
+                                            Simetría {symmetry?.overallScore || 98}%
+                                        </span>
+                                    </div>
+                                    <div style={{ fontSize: '0.56rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        {(() => {
+                                            const maxLimb = symmetry?.limbs?.reduce((max, curr) => (curr.diffCm > (max?.diffCm || 0) ? curr : max), symmetry.limbs[0]);
+                                            if (maxLimb && maxLimb.diffCm > 0.5) {
+                                                return `Mayor desvío: ${maxLimb.diffCm} cm en ${maxLimb.name}`;
+                                            }
+                                            return 'Desvío ≤ 0.5 cm en extremidades';
+                                        })()}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 4. PROYECCIÓN COMPLETA DE LÍMITES GENÉTICOS NATURALES (CASEY BUTT MODEL) */}
+                        <div style={{
+                            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.07), rgba(0, 0, 0, 0.6))',
+                            border: '1px solid rgba(245, 158, 11, 0.28)',
+                            borderRadius: '16px',
+                            padding: '0.75rem 0.85rem',
+                            zIndex: 2,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '4px'
+                        }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
+                                <span style={{ fontSize: '0.62rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                                    <Dna size={12} /> Límite Genético Natural (Casey Butt)
+                                </span>
+                                <span style={{ fontSize: '0.58rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                                    {overallDevelopedPct}% Desarrollado
+                                </span>
+                            </div>
+
+                            {/* All 6 Muscle Groups with Progress Bars */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3.5px' }}>
+                                {caseyProjections.map((item) => {
+                                    const currentText = item.current > 0 ? `${item.current} cm` : '—';
+                                    const pct = item.pct;
+                                    const barColor = pct >= 95 ? '#fbbf24' : pct >= 88 ? '#38bdf8' : pct > 0 ? '#34d399' : '#64748b';
+
+                                    return (
+                                        <div key={item.key} style={{ display: 'flex', flexDirection: 'column', gap: '1.5px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.62rem', lineHeight: 1.2 }}>
+                                                <span style={{ color: '#e2e8f0', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                                                    {item.label}
+                                                </span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                                                    <span style={{ color: item.current > 0 ? '#ffffff' : '#64748b', fontWeight: 800 }}>
+                                                        {currentText}
+                                                    </span>
+                                                    <span style={{ color: '#64748b', fontSize: '0.54rem' }}>
+                                                        / Max {item.max} cm
+                                                    </span>
+                                                    <span style={{
+                                                        fontSize: '0.58rem',
+                                                        fontWeight: 900,
+                                                        color: barColor,
+                                                        minWidth: '26px',
+                                                        textAlign: 'right'
+                                                    }}>
+                                                        {pct > 0 ? `${pct}%` : '—'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {/* Progress Bar */}
+                                            <div style={{ width: '100%', height: '4px', background: 'rgba(255, 255, 255, 0.09)', borderRadius: '2px', overflow: 'hidden' }}>
+                                                <div style={{
+                                                    width: `${Math.min(100, Math.max(pct, 0))}%`,
+                                                    height: '100%',
+                                                    background: `linear-gradient(90deg, ${barColor}88, ${barColor})`,
+                                                    borderRadius: '2px'
+                                                }} />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* 5. ESPACIO LIMPIO PARA STICKER DE ENLACE */}
+                        <div style={{
                             height: '44px',
-                            borderRadius: '12px',
-                            background: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
-                            border: '1.5px solid rgba(251, 191, 36, 0.6)',
+                            border: '1.5px dashed rgba(245, 158, 11, 0.4)',
+                            borderRadius: '14px',
+                            background: 'rgba(245, 158, 11, 0.05)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontWeight: 900,
-                            fontSize: '1.15rem',
-                            color: '#000000',
-                            fontFamily: 'var(--font-head)',
-                            flexShrink: 0
+                            gap: '7px',
+                            color: 'rgba(251, 191, 36, 0.75)',
+                            fontSize: '0.64rem',
+                            fontFamily: 'var(--font-mono)',
+                            letterSpacing: '0.5px',
+                            zIndex: 2
                         }}>
-                            {initials}
+                            <Link size={13} strokeWidth={2} />
+                            <span>Espacio para Sticker de Enlace</span>
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <h2 style={{
-                                margin: 0,
-                                fontSize: '1.1rem',
-                                fontWeight: 900,
-                                color: '#ffffff',
-                                fontFamily: 'var(--font-head)',
-                                lineHeight: 1.15,
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis'
-                            }}>
-                                {userName}
-                            </h2>
-                            <div style={{ fontSize: '0.64rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
-                                {m?.height || (sex === 'female' ? 165 : 180)} cm · {m?.weight || (sex === 'female' ? 60 : 75)} kg {m?.bodyFat ? `· ${m.bodyFat}% Grasa` : ''}
-                            </div>
-                            <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
-                                <div style={{
-                                    background: 'rgba(34, 211, 238, 0.12)',
-                                    border: '1px solid rgba(34, 211, 238, 0.35)',
-                                    borderRadius: '6px',
-                                    padding: '2px 6px',
-                                    fontSize: '0.54rem',
-                                    fontFamily: 'var(--font-mono)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '3px',
-                                    whiteSpace: 'nowrap'
-                                }}>
-                                    <span style={{ color: '#22d3ee', fontWeight: 900 }}>FFMI {ffmi?.normalizedFFMI || 22.0}</span>
-                                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>· {analysis?.ffmiScore?.statusText || 'Excelente Nivel'}</span>
-                                </div>
-
-                                <div style={{
-                                    background: 'rgba(168, 85, 247, 0.12)',
-                                    border: '1px solid rgba(168, 85, 247, 0.35)',
-                                    borderRadius: '6px',
-                                    padding: '2px 6px',
-                                    fontSize: '0.54rem',
-                                    fontFamily: 'var(--font-mono)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '3px',
-                                    whiteSpace: 'nowrap'
-                                }}>
-                                    <span style={{ color: '#c084fc', fontWeight: 900 }}>{sex === 'female' ? 'Reloj Arena' : 'V-Taper'} {vRatio}x</span>
-                                    <span style={{ color: '#94a3b8', fontWeight: 600 }}>· Silueta V</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 3. CENTRAL ANATOMICAL SILHOUETTE & AESTHETIC HARMONY ARCHITECTURE */}
-                    <div style={{
-                        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.55), rgba(15, 23, 42, 0.45))',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                        borderRadius: '14px',
-                        padding: '0.55rem 0.7rem',
-                        zIndex: 2,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '10px'
-                    }}>
-                        {/* Anatomical Silhouette Graphic */}
-                        <div style={{ position: 'relative', width: '85px', height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <img
-                                src={silhouetteDataUrl || (sex === 'female' ? femaleSilhouette : maleSilhouette)}
-                                alt="Silueta Anatómica"
-                                style={{
-                                    maxHeight: '145px',
-                                    maxWidth: '80px',
-                                    width: 'auto',
-                                    height: 'auto',
-                                    objectFit: 'contain'
-                                }}
-                            />
-                        </div>
-
-                        {/* Distinct Core Architecture & Symmetry Panels (Non-redundant) */}
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
-                                <span style={{ fontSize: '0.56rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
-                                    <Activity size={10} /> Estructura & Simetría
-                                </span>
-                                <span style={{ fontSize: '0.52rem', color: '#10b981', fontFamily: 'var(--font-mono)', fontWeight: 800, whiteSpace: 'nowrap' }}>
-                                    {proportions?.overallGoldenScore || 92}% Armónico
-                                </span>
-                            </div>
-
-                            {/* Torso & Core Dimensions (Espalda & Cintura) */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
-                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '7px', padding: '3px 5px' }}>
-                                    <div style={{ fontSize: '0.46rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>ESPALDA / DORSAL</div>
-                                    <div style={{ fontSize: '0.74rem', fontWeight: 900, color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
-                                        {m?.back ? `${m.back} cm` : '—'}
-                                    </div>
-                                </div>
-
-                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '7px', padding: '3px 5px' }}>
-                                    <div style={{ fontSize: '0.46rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>CINTURA / CORE</div>
-                                    <div style={{ fontSize: '0.74rem', fontWeight: 900, color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
-                                        {m?.waist ? `${m.waist} cm` : '—'}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Steve Reeves Triad (Brazo ≈ Cuello ≈ Gemelo) */}
-                            <div style={{ background: 'rgba(245, 158, 11, 0.06)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '7px', padding: '3px 6px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.48rem', fontWeight: 900, color: '#fbbf24', whiteSpace: 'nowrap' }}>TRÍADA REEVES (1:1:1)</span>
-                                    <span style={{ fontSize: '0.52rem', fontWeight: 900, color: '#34d399', fontFamily: 'var(--font-mono)' }}>
-                                        {proportions?.reevesTriad.symmetryScore || 96}%
-                                    </span>
-                                </div>
-                                <div style={{ fontSize: '0.54rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    Brazo {proportions?.reevesTriad.armAvg || getAvgNum(m?.arm)} · Cuello {m?.neck || '—'} · Gemelo {proportions?.reevesTriad.calfAvg || getAvgNum(m?.calf)} cm
-                                </div>
-                            </div>
-
-                            {/* Bilateral Balance (L vs R) */}
-                            <div style={{ background: 'rgba(56, 189, 248, 0.06)', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '7px', padding: '3px 6px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.48rem', fontWeight: 900, color: '#38bdf8', whiteSpace: 'nowrap' }}>BALANCE BILATERAL (L/R)</span>
-                                    <span style={{ fontSize: '0.52rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
-                                        Simetría {symmetry?.overallScore || 98}%
-                                    </span>
-                                </div>
-                                <div style={{ fontSize: '0.52rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {(() => {
-                                        const maxLimb = symmetry?.limbs?.reduce((max, curr) => (curr.diffCm > (max?.diffCm || 0) ? curr : max), symmetry.limbs[0]);
-                                        if (maxLimb && maxLimb.diffCm > 0.5) {
-                                            return `Mayor desvío: ${maxLimb.diffCm} cm en ${maxLimb.name}`;
-                                        }
-                                        return 'Desvío ≤ 0.5 cm en extremidades';
-                                    })()}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 4. PROYECCIÓN COMPLETA DE LÍMITES GENÉTICOS NATURALES (CASEY BUTT MODEL) */}
-                    <div style={{
-                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(0, 0, 0, 0.55))',
-                        border: '1px solid rgba(245, 158, 11, 0.25)',
-                        borderRadius: '14px',
-                        padding: '0.55rem 0.7rem',
-                        zIndex: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '3.5px'
-                    }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                            <span style={{ fontSize: '0.56rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
-                                <Dna size={11} /> Límite Genético Natural (Casey Butt)
-                            </span>
-                            <span style={{ fontSize: '0.54rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
-                                {overallDevelopedPct}% Desarrollado
-                            </span>
-                        </div>
-
-                        {/* All 6 Muscle Groups with Progress Bars */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                            {caseyProjections.map((item) => {
-                                const currentText = item.current > 0 ? `${item.current} cm` : '—';
-                                const pct = item.pct;
-                                const barColor = pct >= 95 ? '#fbbf24' : pct >= 88 ? '#38bdf8' : pct > 0 ? '#34d399' : '#64748b';
-
-                                return (
-                                    <div key={item.key} style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.58rem', lineHeight: 1.2 }}>
-                                            <span style={{ color: '#e2e8f0', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                                                {item.label}
-                                            </span>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
-                                                <span style={{ color: item.current > 0 ? '#ffffff' : '#64748b', fontWeight: 800 }}>
-                                                    {currentText}
-                                                </span>
-                                                <span style={{ color: '#64748b', fontSize: '0.52rem' }}>
-                                                    / Max {item.max} cm
-                                                </span>
-                                                <span style={{
-                                                    fontSize: '0.54rem',
-                                                    fontWeight: 900,
-                                                    color: barColor,
-                                                    minWidth: '24px',
-                                                    textAlign: 'right'
-                                                }}>
-                                                    {pct > 0 ? `${pct}%` : '—'}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        {/* Progress Bar */}
-                                        <div style={{ width: '100%', height: '3.5px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '2px', overflow: 'hidden' }}>
-                                            <div style={{
-                                                width: `${Math.min(100, Math.max(pct, 0))}%`,
-                                                height: '100%',
-                                                background: `linear-gradient(90deg, ${barColor}88, ${barColor})`,
-                                                borderRadius: '2px'
-                                            }} />
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* 5. ESPACIO LIMPIO PARA STICKER DE ENLACE */}
-                    <div style={{
-                        height: '38px',
-                        border: '1.5px dashed rgba(245, 158, 11, 0.35)',
-                        borderRadius: '12px',
-                        background: 'rgba(245, 158, 11, 0.04)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px',
-                        color: 'rgba(251, 191, 36, 0.7)',
-                        fontSize: '0.58rem',
-                        fontFamily: 'var(--font-mono)',
-                        letterSpacing: '0.4px',
-                        zIndex: 2
-                    }}>
-                        <Link size={12} strokeWidth={2} />
-                        <span>Espacio para Sticker de Enlace</span>
                     </div>
                 </div>
 
@@ -622,7 +637,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             style={{ flex: 1, padding: '0.75rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontWeight: 800 }}
                         >
                             {downloaded ? <Check size={16} /> : <Download size={16} />}
-                            <span>{generating ? 'Generando PNG...' : downloaded ? '¡Descargado!' : 'Descargar Story 1080×2340'}</span>
+                            <span>{generating ? 'Generando PNG...' : downloaded ? '¡Descargado!' : 'Descargar Story iPhone'}</span>
                         </button>
 
                         <button
