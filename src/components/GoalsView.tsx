@@ -313,6 +313,10 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!newGoal.targetValue || newGoal.targetValue <= 0) {
+            addToast('Por favor, ingresa un valor objetivo mayor a 0', 'error');
+            return;
+        }
         console.log('[GoalsView] Submitting new goal:', newGoal);
         try {
             setSubmitting(true);
