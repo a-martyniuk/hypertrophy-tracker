@@ -171,6 +171,19 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
   const sourceRecord = recordToEdit || previousRecord;
   const [activeMuscle, setActiveMuscle] = useState<string | null>(null);
 
+  const handleMarkerClick = (markerId: string) => {
+    const cleanId = markerId.replace(/[RL]$/, '');
+    setActiveMuscle(cleanId);
+    const targetElement = document.getElementById(`input-${cleanId}`) || document.getElementById(`input-${markerId}`);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const input = targetElement.querySelector('input') || (targetElement as HTMLInputElement);
+      if (input && typeof input.focus === 'function') {
+        input.focus();
+      }
+    }
+  };
+
   // Helper for rendering controlled inputs
   const renderInput = (name: keyof MeasurementFormValues['measurements'], label: string) => (
     <Controller
@@ -333,6 +346,7 @@ export const MeasurementForm = ({ onSave, onCancel, previousRecord, recordToEdit
                 measurements={measurements as unknown as BodyMeasurements}
                 sex={sex}
                 activeMuscle={activeMuscle}
+                onMarkerClick={handleMarkerClick}
               />
 
               <MapModal
