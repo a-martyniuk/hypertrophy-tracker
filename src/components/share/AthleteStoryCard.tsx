@@ -296,9 +296,9 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         </div>
                         <div>
                             <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-head)' }}>
-                                Story Card 9:16 (Instagram & WhatsApp)
+                                Ficha de Atleta 4:5 (Post, Story & WhatsApp)
                             </h3>
-                            <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Silueta anatómica, telemetría y límites genéticos naturales (Casey Butt)</span>
+                            <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Formato tarjeta optimizado · Silueta, telemetría y límites naturales</span>
                         </div>
                     </div>
                     {onClose && (
@@ -311,23 +311,24 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                     )}
                 </div>
 
-                {/* THE 9:16 RENDERABLE CANVAS CONTAINER (Exact 360 x 640 -> 1080 x 1920 at 3x) */}
+                {/* THE 4:5 RENDERABLE CANVAS CONTAINER (Exact 380 x 475 -> 1140 x 1425 at 3x) */}
                 <div
                     ref={cardRef}
                     style={{
-                        width: '360px',
-                        height: '640px',
+                        width: '380px',
+                        height: '475px',
                         background: '#070a14',
-                        backgroundImage: 'radial-gradient(circle at 50% 12%, rgba(245, 158, 11, 0.12) 0%, transparent 55%), radial-gradient(circle at 50% 88%, rgba(34, 211, 238, 0.08) 0%, transparent 55%)',
-                        border: 'none',
-                        borderRadius: '0px',
-                        padding: '38px 14px 44px 14px', // Safe zones for Instagram header and bottom controls
+                        backgroundImage: 'radial-gradient(circle at 50% 10%, rgba(245, 158, 11, 0.15) 0%, transparent 60%), radial-gradient(circle at 50% 90%, rgba(34, 211, 238, 0.10) 0%, transparent 60%)',
+                        border: '1.5px solid rgba(245, 158, 11, 0.35)',
+                        borderRadius: '20px',
+                        padding: '12px 14px',
                         boxSizing: 'border-box',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
                         position: 'relative',
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(245, 158, 11, 0.12)'
                     }}
                 >
                     {/* 1. Top Brand & Tier Header */}
@@ -341,7 +342,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             </span>
                         </div>
                         <span style={{
-                            fontSize: '0.56rem',
+                            fontSize: '0.54rem',
                             fontWeight: 900,
                             padding: '2px 7px',
                             borderRadius: '8px',
@@ -359,24 +360,24 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '10px',
+                        gap: '9px',
                         background: 'rgba(255, 255, 255, 0.03)',
                         border: '1px solid rgba(255, 255, 255, 0.08)',
-                        borderRadius: '14px',
-                        padding: '0.45rem 0.65rem',
+                        borderRadius: '12px',
+                        padding: '0.35rem 0.55rem',
                         zIndex: 2
                     }}>
                         <div style={{
-                            width: '42px',
-                            height: '42px',
-                            borderRadius: '12px',
+                            width: '38px',
+                            height: '38px',
+                            borderRadius: '10px',
                             background: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
                             border: '1.5px solid rgba(251, 191, 36, 0.6)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontWeight: 900,
-                            fontSize: '1.1rem',
+                            fontSize: '1rem',
                             color: '#000000',
                             fontFamily: 'var(--font-head)',
                             flexShrink: 0
@@ -386,7 +387,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <h2 style={{
                                 margin: 0,
-                                fontSize: '1.05rem',
+                                fontSize: '0.98rem',
                                 fontWeight: 900,
                                 color: '#ffffff',
                                 fontFamily: 'var(--font-head)',
@@ -397,16 +398,16 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             }}>
                                 {userName}
                             </h2>
-                            <div style={{ fontSize: '0.62rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+                            <div style={{ fontSize: '0.58rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '1px' }}>
                                 {m?.height || (sex === 'female' ? 165 : 180)} cm · {m?.weight || (sex === 'female' ? 60 : 75)} kg {m?.bodyFat ? `· ${m.bodyFat}% Grasa` : ''}
                             </div>
-                            <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', gap: '5px', marginTop: '3px', flexWrap: 'wrap' }}>
                                 <div style={{
                                     background: 'rgba(34, 211, 238, 0.12)',
                                     border: '1px solid rgba(34, 211, 238, 0.35)',
                                     borderRadius: '6px',
-                                    padding: '2px 6px',
-                                    fontSize: '0.54rem',
+                                    padding: '1px 5px',
+                                    fontSize: '0.50rem',
                                     fontFamily: 'var(--font-mono)',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -421,8 +422,8 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                     background: 'rgba(168, 85, 247, 0.12)',
                                     border: '1px solid rgba(168, 85, 247, 0.35)',
                                     borderRadius: '6px',
-                                    padding: '2px 6px',
-                                    fontSize: '0.54rem',
+                                    padding: '1px 5px',
+                                    fontSize: '0.50rem',
                                     fontFamily: 'var(--font-mono)',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -440,22 +441,22 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                     <div style={{
                         background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.55), rgba(15, 23, 42, 0.45))',
                         border: '1px solid rgba(255, 255, 255, 0.08)',
-                        borderRadius: '14px',
-                        padding: '0.45rem 0.65rem',
+                        borderRadius: '12px',
+                        padding: '0.35rem 0.55rem',
                         zIndex: 2,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        gap: '10px'
+                        gap: '8px'
                     }}>
                         {/* Anatomical Silhouette Graphic */}
-                        <div style={{ position: 'relative', width: '80px', height: '130px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div style={{ position: 'relative', width: '68px', height: '110px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <img
                                 src={silhouetteDataUrl || (sex === 'female' ? femaleSilhouette : maleSilhouette)}
                                 alt="Silueta Anatómica"
                                 style={{
-                                    maxHeight: '125px',
-                                    maxWidth: '75px',
+                                    maxHeight: '105px',
+                                    maxWidth: '65px',
                                     width: 'auto',
                                     height: 'auto',
                                     objectFit: 'contain'
@@ -464,55 +465,55 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         </div>
 
                         {/* Distinct Core Architecture & Symmetry Panels (Non-redundant) */}
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0 }}>
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2.5px', minWidth: 0 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
-                                <span style={{ fontSize: '0.54rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                                <span style={{ fontSize: '0.50rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                                     <Activity size={10} /> Estructura & Simetría
                                 </span>
-                                <span style={{ fontSize: '0.50rem', color: '#10b981', fontFamily: 'var(--font-mono)', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                                <span style={{ fontSize: '0.46rem', color: '#10b981', fontFamily: 'var(--font-mono)', fontWeight: 800, whiteSpace: 'nowrap' }}>
                                     {proportions?.overallGoldenScore || 92}% Armónico
                                 </span>
                             </div>
 
                             {/* Torso & Core Dimensions (Espalda & Cintura) */}
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
-                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '7px', padding: '3px 5px' }}>
-                                    <div style={{ fontSize: '0.46rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>ESPALDA / DORSAL</div>
-                                    <div style={{ fontSize: '0.70rem', fontWeight: 900, color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 4px' }}>
+                                    <div style={{ fontSize: '0.42rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>ESPALDA / DORSAL</div>
+                                    <div style={{ fontSize: '0.64rem', fontWeight: 900, color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
                                         {m?.back ? `${m.back} cm` : '—'}
                                     </div>
                                 </div>
 
-                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '7px', padding: '3px 5px' }}>
-                                    <div style={{ fontSize: '0.46rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>CINTURA / CORE</div>
-                                    <div style={{ fontSize: '0.70rem', fontWeight: 900, color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '6px', padding: '2px 4px' }}>
+                                    <div style={{ fontSize: '0.42rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>CINTURA / CORE</div>
+                                    <div style={{ fontSize: '0.64rem', fontWeight: 900, color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
                                         {m?.waist ? `${m.waist} cm` : '—'}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Steve Reeves Triad (Brazo ≈ Cuello ≈ Gemelo) */}
-                            <div style={{ background: 'rgba(245, 158, 11, 0.06)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '7px', padding: '3px 5px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                            <div style={{ background: 'rgba(245, 158, 11, 0.06)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '6px', padding: '2px 5px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.48rem', fontWeight: 900, color: '#fbbf24', whiteSpace: 'nowrap' }}>TRÍADA REEVES (1:1:1)</span>
-                                    <span style={{ fontSize: '0.50rem', fontWeight: 900, color: '#34d399', fontFamily: 'var(--font-mono)' }}>
+                                    <span style={{ fontSize: '0.44rem', fontWeight: 900, color: '#fbbf24', whiteSpace: 'nowrap' }}>TRÍADA REEVES (1:1:1)</span>
+                                    <span style={{ fontSize: '0.46rem', fontWeight: 900, color: '#34d399', fontFamily: 'var(--font-mono)' }}>
                                         {proportions?.reevesTriad.symmetryScore || 96}%
                                     </span>
                                 </div>
-                                <div style={{ fontSize: '0.52rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <div style={{ fontSize: '0.48rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                     Brazo {proportions?.reevesTriad.armAvg || getAvgNum(m?.arm)} · Cuello {m?.neck || '—'} · Gemelo {proportions?.reevesTriad.calfAvg || getAvgNum(m?.calf)} cm
                                 </div>
                             </div>
 
                             {/* Bilateral Balance (L vs R) */}
-                            <div style={{ background: 'rgba(56, 189, 248, 0.06)', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '7px', padding: '3px 5px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                            <div style={{ background: 'rgba(56, 189, 248, 0.06)', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '6px', padding: '2px 5px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.48rem', fontWeight: 900, color: '#38bdf8', whiteSpace: 'nowrap' }}>BALANCE BILATERAL (L/R)</span>
-                                    <span style={{ fontSize: '0.50rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
+                                    <span style={{ fontSize: '0.44rem', fontWeight: 900, color: '#38bdf8', whiteSpace: 'nowrap' }}>BALANCE BILATERAL (L/R)</span>
+                                    <span style={{ fontSize: '0.46rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
                                         Simetría {symmetry?.overallScore || 98}%
                                     </span>
                                 </div>
-                                <div style={{ fontSize: '0.50rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <div style={{ fontSize: '0.46rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                     {(() => {
                                         const maxLimb = symmetry?.limbs?.reduce((max, curr) => (curr.diffCm > (max?.diffCm || 0) ? curr : max), symmetry.limbs[0]);
                                         if (maxLimb && maxLimb.diffCm > 0.5) {
@@ -529,24 +530,24 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                     <div style={{
                         background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(0, 0, 0, 0.55))',
                         border: '1px solid rgba(245, 158, 11, 0.25)',
-                        borderRadius: '14px',
-                        padding: '0.45rem 0.65rem',
+                        borderRadius: '12px',
+                        padding: '0.35rem 0.55rem',
                         zIndex: 2,
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '3px'
+                        gap: '2px'
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
-                            <span style={{ fontSize: '0.54rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                            <span style={{ fontSize: '0.50rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                                 <Dna size={10} /> Límite Genético Natural (Casey Butt)
                             </span>
-                            <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                            <span style={{ fontSize: '0.48rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                                 {overallDevelopedPct}% Desarrollado
                             </span>
                         </div>
 
                         {/* All 6 Muscle Groups with Progress Bars */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                             {caseyProjections.map((item) => {
                                 const currentText = item.current > 0 ? `${item.current} cm` : '—';
                                 const pct = item.pct;
@@ -554,7 +555,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
 
                                 return (
                                     <div key={item.key} style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.55rem', lineHeight: 1.2 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.50rem', lineHeight: 1.15 }}>
                                             <span style={{ color: '#e2e8f0', fontWeight: 700, whiteSpace: 'nowrap' }}>
                                                 {item.label}
                                             </span>
@@ -562,14 +563,14 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                                 <span style={{ color: item.current > 0 ? '#ffffff' : '#64748b', fontWeight: 800 }}>
                                                     {currentText}
                                                 </span>
-                                                <span style={{ color: '#64748b', fontSize: '0.48rem' }}>
+                                                <span style={{ color: '#64748b', fontSize: '0.44rem' }}>
                                                     / Max {item.max} cm
                                                 </span>
                                                 <span style={{
-                                                    fontSize: '0.52rem',
+                                                    fontSize: '0.48rem',
                                                     fontWeight: 900,
                                                     color: barColor,
-                                                    minWidth: '22px',
+                                                    minWidth: '20px',
                                                     textAlign: 'right'
                                                 }}>
                                                     {pct > 0 ? `${pct}%` : '—'}
@@ -577,7 +578,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                             </div>
                                         </div>
                                         {/* Progress Bar */}
-                                        <div style={{ width: '100%', height: '3px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+                                        <div style={{ width: '100%', height: '2.5px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '2px', overflow: 'hidden' }}>
                                             <div style={{
                                                 width: `${Math.min(100, Math.max(pct, 0))}%`,
                                                 height: '100%',
@@ -591,23 +592,23 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         </div>
                     </div>
 
-                    {/* 5. ESPACIO LIMPIO PARA STICKER DE ENLACE DE INSTAGRAM / WHATSAPP */}
+                    {/* 5. ESPACIO LIMPIO PARA STICKER DE ENLACE */}
                     <div style={{
-                        height: '36px',
-                        border: '1.5px dashed rgba(245, 158, 11, 0.35)',
-                        borderRadius: '12px',
+                        height: '28px',
+                        border: '1px dashed rgba(245, 158, 11, 0.35)',
+                        borderRadius: '10px',
                         background: 'rgba(245, 158, 11, 0.04)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '6px',
-                        color: 'rgba(251, 191, 36, 0.65)',
-                        fontSize: '0.58rem',
+                        gap: '5px',
+                        color: 'rgba(251, 191, 36, 0.7)',
+                        fontSize: '0.52rem',
                         fontFamily: 'var(--font-mono)',
                         letterSpacing: '0.4px',
                         zIndex: 2
                     }}>
-                        <Link size={12} strokeWidth={2} />
+                        <Link size={11} strokeWidth={2} />
                         <span>Espacio para Sticker de Enlace</span>
                     </div>
                 </div>
@@ -622,7 +623,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             style={{ flex: 1, padding: '0.75rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontWeight: 800 }}
                         >
                             {downloaded ? <Check size={16} /> : <Download size={16} />}
-                            <span>{generating ? 'Generando PNG...' : downloaded ? '¡Descargado!' : 'Descargar Story 9:16'}</span>
+                            <span>{generating ? 'Generando PNG...' : downloaded ? '¡Descargado!' : 'Descargar Ficha 4:5'}</span>
                         </button>
 
                         <button
