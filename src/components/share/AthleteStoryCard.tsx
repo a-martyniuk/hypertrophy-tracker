@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { toPng } from 'html-to-image';
-import { Download, Sparkles, Check, X, Copy, Link, Zap, Dna, Activity, Scale } from 'lucide-react';
+import { Download, Sparkles, Check, X, Copy, Link, Zap, Dna, Activity, Scale, Compass } from 'lucide-react';
 import type { MeasurementRecord } from '../../types/measurements';
 import { computeComprehensiveAnalysis } from '../../utils/benchmarkAnalysis';
 import { calculateFFMI, calculateSkeletalPotential, calculateBerkhanLimit, calculateIEO } from '../../utils/skeletal';
@@ -187,6 +187,54 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
         const total = measured.reduce((acc, curr) => acc + curr.pct, 0);
         return Math.round(total / measured.length);
     }, [caseyProjections, analysis]);
+
+    // 360° Harmony & Golden Ratio Radar Data
+    const radarData = useMemo(() => {
+        const chestCurrent = m?.pecho || 0;
+        const waistCurrent = m?.waist || 0;
+        const idealVRatio = sex === 'female' ? 1.38 : 1.618;
+        const vRatioNum = (chestCurrent > 0 && waistCurrent > 0) ? chestCurrent / waistCurrent : 0;
+        const vTaperScore = vRatioNum > 0 ? Math.min(100, Math.round((vRatioNum / idealVRatio) * 100)) : 50;
+
+        const findCaseyPct = (key: string) => {
+            const found = caseyProjections.find(p => p.key === key);
+            return (found && found.pct > 0) ? found.pct : 50;
+        };
+
+        const chestScore = findCaseyPct('pecho');
+        const armScore = findCaseyPct('arm');
+        const forearmScore = findCaseyPct('forearm');
+        const thighScore = findCaseyPct('thigh');
+        const calfScore = findCaseyPct('calf');
+
+        const axes = [
+            { label: 'Torso/Pecho', score: chestScore, angle: -Math.PI / 2, labelX: 117.5, labelY: 14, textAnchor: 'middle' as const },
+            { label: 'Brazos', score: armScore, angle: -Math.PI / 6, labelX: 165, labelY: 46, textAnchor: 'start' as const },
+            { label: 'Antebrazos', score: forearmScore, angle: Math.PI / 6, labelX: 165, labelY: 98, textAnchor: 'start' as const },
+            { label: 'V-Taper', score: vTaperScore, angle: Math.PI / 2, labelX: 117.5, labelY: 132, textAnchor: 'middle' as const },
+            { label: 'Muslos', score: thighScore, angle: (5 * Math.PI) / 6, labelX: 70, labelY: 98, textAnchor: 'end' as const },
+            { label: 'Gemelos', score: calfScore, angle: (7 * Math.PI) / 6, labelX: 70, labelY: 46, textAnchor: 'end' as const }
+        ];
+
+        const avgScore = Math.round(
+            (chestScore + armScore + forearmScore + vTaperScore + thighScore + calfScore) / 6
+        );
+
+        const cx = 117.5;
+        const cy = 71;
+        const R = 44;
+
+        const points = axes.map(a => {
+            const r = R * (Math.min(100, Math.max(30, a.score)) / 100);
+            const x = parseFloat((cx + r * Math.cos(a.angle)).toFixed(1));
+            const y = parseFloat((cy + r * Math.sin(a.angle)).toFixed(1));
+            return { ...a, x, y };
+        });
+
+        const polygonPoints = points.map(p => `${p.x},${p.y}`).join(' ');
+
+        return { points, polygonPoints, avgScore, cx, cy, R };
+    }, [m, sex, caseyProjections]);
 
     // Athlete Tier Assessment
     const athleteTier = useMemo(() => {
@@ -557,83 +605,138 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             </div>
                         </div>
 
-                        {/* 4. CENTRAL ANATOMICAL SILHOUETTE & AESTHETIC HARMONY ARCHITECTURE */}
+                        {/* 4. SILUETA ANATÓMICA & RADAR DE SIMETRÍA Y PROPORCIÓN ÁUREA (360°) */}
                         <div style={{
-                            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(15, 23, 42, 0.5))',
+                            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.65), rgba(15, 23, 42, 0.6))',
                             border: '1px solid rgba(255, 255, 255, 0.09)',
                             borderRadius: '14px',
-                            padding: '0.55rem 0.7rem',
+                            padding: '0.42rem 0.55rem',
                             zIndex: 2,
                             display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            gap: '10px'
+                            flexDirection: 'column',
+                            gap: '3px'
                         }}>
-                            {/* Anatomical Silhouette Graphic */}
-                            <div style={{ position: 'relative', width: '85px', height: '145px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <img
-                                    src={silhouetteDataUrl || (sex === 'female' ? femaleSilhouette : maleSilhouette)}
-                                    alt="Silueta Anatómica"
-                                    style={{
-                                        maxHeight: '140px',
-                                        maxWidth: '80px',
-                                        width: 'auto',
-                                        height: 'auto',
-                                        objectFit: 'contain'
-                                    }}
-                                />
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.56rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                                    <Compass size={11} /> Radar de Simetría & Proporción Áurea
+                                </span>
+                                <span style={{ fontSize: '0.52rem', color: '#10b981', fontFamily: 'var(--font-mono)', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                                    {radarData.avgScore}/100 Armonía
+                                </span>
                             </div>
 
-                            {/* Distinct Core Architecture & Symmetry Panels (Non-redundant) */}
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '3.5px', minWidth: 0 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
-                                    <span style={{ fontSize: '0.56rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
-                                        <Activity size={11} /> Estructura & Simetría
-                                    </span>
-                                    <span style={{ fontSize: '0.52rem', color: '#10b981', fontFamily: 'var(--font-mono)', fontWeight: 800, whiteSpace: 'nowrap' }}>
-                                        {proportions?.overallGoldenScore || 92}% Armónico
-                                    </span>
+                            {/* Graphic row: Anatomical Silhouette (Left) + Crisp SVG Radar (Right) */}
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
+                                {/* Anatomical Silhouette */}
+                                <div style={{ width: '68px', height: '135px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <img
+                                        src={silhouetteDataUrl || (sex === 'female' ? femaleSilhouette : maleSilhouette)}
+                                        alt="Silueta Anatómica"
+                                        style={{
+                                            maxHeight: '130px',
+                                            maxWidth: '65px',
+                                            width: 'auto',
+                                            height: 'auto',
+                                            objectFit: 'contain'
+                                        }}
+                                    />
                                 </div>
 
-                                {/* Torso & Core Dimensions (Espalda & Cintura) */}
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
-                                    <div style={{ background: 'rgba(255, 255, 255, 0.035)', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '7px', padding: '3px 5px' }}>
-                                        <div style={{ fontSize: '0.46rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>ESPALDA / DORSAL</div>
-                                        <div style={{ fontSize: '0.74rem', fontWeight: 900, color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
-                                            {m?.back ? `${m.back} cm` : '—'}
-                                        </div>
-                                    </div>
+                                {/* Crisp Native SVG Radar */}
+                                <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    <svg width="235" height="135" viewBox="0 0 235 135" style={{ overflow: 'visible' }}>
+                                        <defs>
+                                            <radialGradient id="radarFillGrad" cx="50%" cy="50%" r="50%">
+                                                <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.45" />
+                                                <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.15" />
+                                            </radialGradient>
+                                        </defs>
 
-                                    <div style={{ background: 'rgba(255, 255, 255, 0.035)', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '7px', padding: '3px 5px' }}>
-                                        <div style={{ fontSize: '0.46rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>CINTURA / CORE</div>
-                                        <div style={{ fontSize: '0.74rem', fontWeight: 900, color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
-                                            {m?.waist ? `${m.waist} cm` : '—'}
-                                        </div>
-                                    </div>
+                                        {/* Concentric Polar Grid Webs */}
+                                        {[0.33, 0.66, 1.0].map((frac, idx) => {
+                                            const r = radarData.R * frac;
+                                            const webPoints = [-Math.PI / 2, -Math.PI / 6, Math.PI / 6, Math.PI / 2, (5 * Math.PI) / 6, (7 * Math.PI) / 6]
+                                                .map(ang => `${(radarData.cx + r * Math.cos(ang)).toFixed(1)},${(radarData.cy + r * Math.sin(ang)).toFixed(1)}`)
+                                                .join(' ');
+                                            return (
+                                                <polygon
+                                                    key={idx}
+                                                    points={webPoints}
+                                                    fill="none"
+                                                    stroke={frac === 1.0 ? 'rgba(251, 191, 36, 0.4)' : 'rgba(255, 255, 255, 0.1)'}
+                                                    strokeWidth={frac === 1.0 ? '1' : '0.6'}
+                                                    strokeDasharray={frac === 1.0 ? '2 2' : undefined}
+                                                />
+                                            );
+                                        })}
+
+                                        {/* Radial Spoke Lines */}
+                                        {radarData.points.map((p, idx) => (
+                                            <line
+                                                key={idx}
+                                                x1={radarData.cx}
+                                                y1={radarData.cy}
+                                                x2={(radarData.cx + radarData.R * Math.cos(p.angle)).toFixed(1)}
+                                                y2={(radarData.cy + radarData.R * Math.sin(p.angle)).toFixed(1)}
+                                                stroke="rgba(255, 255, 255, 0.12)"
+                                                strokeWidth="0.8"
+                                            />
+                                        ))}
+
+                                        {/* Athlete's Custom Harmony Polygon */}
+                                        <polygon
+                                            points={radarData.polygonPoints}
+                                            fill="url(#radarFillGrad)"
+                                            stroke="#fbbf24"
+                                            strokeWidth="1.8"
+                                        />
+
+                                        {/* Vertex Dots & Axis Labels */}
+                                        {radarData.points.map((p, idx) => (
+                                            <g key={idx}>
+                                                <circle
+                                                    cx={p.x}
+                                                    cy={p.y}
+                                                    r="2.5"
+                                                    fill="#fbbf24"
+                                                    stroke="#070a14"
+                                                    strokeWidth="0.8"
+                                                />
+                                                <text
+                                                    x={p.labelX}
+                                                    y={p.labelY}
+                                                    fill="#cbd5e1"
+                                                    fontSize="6.8"
+                                                    fontFamily="var(--font-mono)"
+                                                    textAnchor={p.textAnchor}
+                                                    fontWeight="700"
+                                                >
+                                                    {p.label} <tspan fill="#fbbf24" fontWeight="900">{p.score}%</tspan>
+                                                </text>
+                                            </g>
+                                        ))}
+                                    </svg>
                                 </div>
+                            </div>
 
-                                {/* Steve Reeves Triad (Brazo ≈ Cuello ≈ Gemelo) */}
-                                <div style={{ background: 'rgba(245, 158, 11, 0.07)', border: '1px solid rgba(245, 158, 11, 0.25)', borderRadius: '7px', padding: '3px 6px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span style={{ fontSize: '0.48rem', fontWeight: 900, color: '#fbbf24', whiteSpace: 'nowrap' }}>TRÍADA REEVES (1:1:1)</span>
-                                        <span style={{ fontSize: '0.52rem', fontWeight: 900, color: '#34d399', fontFamily: 'var(--font-mono)' }}>
-                                            {proportions?.reevesTriad.symmetryScore || 96}%
-                                        </span>
+                            {/* Bottom summary strip: Tríada Reeves & Balance Bilateral */}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', marginTop: '1px' }}>
+                                <div style={{ background: 'rgba(245, 158, 11, 0.07)', border: '1px solid rgba(245, 158, 11, 0.25)', borderRadius: '6px', padding: '2px 5px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.46rem', fontWeight: 800 }}>
+                                        <span style={{ color: '#fbbf24' }}>TRÍADA REEVES (1:1:1)</span>
+                                        <span style={{ color: '#34d399', fontFamily: 'var(--font-mono)' }}>{proportions?.reevesTriad.symmetryScore || 96}%</span>
                                     </div>
-                                    <div style={{ fontSize: '0.52rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    <div style={{ fontSize: '0.48rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                         Brazo {proportions?.reevesTriad.armAvg || getAvgNum(m?.arm)} · Cuello {m?.neck || '—'} · Gemelo {proportions?.reevesTriad.calfAvg || getAvgNum(m?.calf)} cm
                                     </div>
                                 </div>
 
-                                {/* Bilateral Balance (L vs R) */}
-                                <div style={{ background: 'rgba(56, 189, 248, 0.07)', border: '1px solid rgba(56, 189, 248, 0.25)', borderRadius: '7px', padding: '3px 6px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span style={{ fontSize: '0.48rem', fontWeight: 900, color: '#38bdf8', whiteSpace: 'nowrap' }}>BALANCE BILATERAL (L/R)</span>
-                                        <span style={{ fontSize: '0.52rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
-                                            Simetría {symmetry?.overallScore || 98}%
-                                        </span>
+                                <div style={{ background: 'rgba(56, 189, 248, 0.07)', border: '1px solid rgba(56, 189, 248, 0.25)', borderRadius: '6px', padding: '2px 5px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.46rem', fontWeight: 800 }}>
+                                        <span style={{ color: '#38bdf8' }}>BALANCE BILATERAL (L/R)</span>
+                                        <span style={{ color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>Simetría {symmetry?.overallScore || 98}%</span>
                                     </div>
-                                    <div style={{ fontSize: '0.50rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    <div style={{ fontSize: '0.48rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                         {(() => {
                                             const maxLimb = symmetry?.limbs?.reduce((max, curr) => (curr.diffCm > (max?.diffCm || 0) ? curr : max), symmetry.limbs[0]);
                                             if (maxLimb && maxLimb.diffCm > 0.5) {
@@ -651,23 +754,23 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.07), rgba(0, 0, 0, 0.6))',
                             border: '1px solid rgba(245, 158, 11, 0.28)',
                             borderRadius: '14px',
-                            padding: '0.55rem 0.7rem',
+                            padding: '0.48rem 0.65rem',
                             zIndex: 2,
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '3px'
+                            gap: '2.5px'
                         }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                                <span style={{ fontSize: '0.58rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
+                                <span style={{ fontSize: '0.56rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                                     <Dna size={11} /> Límite Genético Natural (Casey Butt)
                                 </span>
-                                <span style={{ fontSize: '0.54rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                                <span style={{ fontSize: '0.52rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                                     {overallDevelopedPct}% Desarrollado
                                 </span>
                             </div>
 
                             {/* All 6 Muscle Groups with Progress Bars */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                                 {caseyProjections.map((item) => {
                                     const currentText = item.current > 0 ? `${item.current} cm` : '—';
                                     const pct = item.pct;
@@ -675,7 +778,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
 
                                     return (
                                         <div key={item.key} style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.56rem', lineHeight: 1.2 }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.54rem', lineHeight: 1.15 }}>
                                                 <span style={{ color: '#e2e8f0', fontWeight: 700, whiteSpace: 'nowrap' }}>
                                                     {item.label}
                                                 </span>
@@ -683,11 +786,11 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                                     <span style={{ color: item.current > 0 ? '#ffffff' : '#64748b', fontWeight: 800 }}>
                                                         {currentText}
                                                     </span>
-                                                    <span style={{ color: '#64748b', fontSize: '0.50rem' }}>
+                                                    <span style={{ color: '#64748b', fontSize: '0.48rem' }}>
                                                         / Max {item.max} cm
                                                     </span>
                                                     <span style={{
-                                                        fontSize: '0.54rem',
+                                                        fontSize: '0.52rem',
                                                         fontWeight: 900,
                                                         color: barColor,
                                                         minWidth: '24px',
@@ -698,7 +801,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                                 </div>
                                             </div>
                                             {/* Progress Bar */}
-                                            <div style={{ width: '100%', height: '3.5px', background: 'rgba(255, 255, 255, 0.09)', borderRadius: '2px', overflow: 'hidden' }}>
+                                            <div style={{ width: '100%', height: '3px', background: 'rgba(255, 255, 255, 0.09)', borderRadius: '2px', overflow: 'hidden' }}>
                                                 <div style={{
                                                     width: `${Math.min(100, Math.max(pct, 0))}%`,
                                                     height: '100%',
@@ -712,25 +815,18 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             </div>
                         </div>
 
-                        {/* 6. ESPACIO LIMPIO PARA STICKER DE ENLACE */}
+                        {/* 6. ESPACIO INFERIOR LIMPIO PARA STICKER DE ENLACE (TRANSPARENTE / SIN TEXTO) */}
                         <div style={{
-                            height: '38px',
-                            border: '1.5px dashed rgba(245, 158, 11, 0.4)',
+                            height: '36px',
                             borderRadius: '12px',
-                            background: 'rgba(245, 158, 11, 0.05)',
+                            background: 'transparent',
+                            border: '1px dashed rgba(245, 158, 11, 0.2)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '6px',
-                            color: 'rgba(251, 191, 36, 0.75)',
-                            fontSize: '0.60rem',
-                            fontFamily: 'var(--font-mono)',
-                            letterSpacing: '0.5px',
-                            zIndex: 2
-                        }}>
-                            <Link size={12} strokeWidth={2} />
-                            <span>Espacio para Sticker de Enlace</span>
-                        </div>
+                            zIndex: 2,
+                            flexShrink: 0
+                        }} />
                     </div>
                 </div>
             </div>
