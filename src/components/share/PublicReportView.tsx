@@ -704,24 +704,18 @@ export const PublicReportView: React.FC = () => {
                                         Límites Genéticos Naturales (Modelo Casey Butt)
                                     </h3>
                                 </div>
-                                {records.length > 1 && (
-                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
-                                        💡 Haz click en cualquier grupo para ver su evolución
-                                    </span>
-                                )}
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
+                                    💡 Haz click en cualquier grupo para ver su evolución
+                                </span>
                             </div>
 
                             <div className="benchmarks-grid">
                                 {analysis.muscleBenchmarks.map((bm) => (
                                     <div
                                         key={bm.key}
-                                        onClick={() => {
-                                            if (records.length > 1) {
-                                                setSelectedMuscle(bm);
-                                            }
-                                        }}
-                                        style={{ cursor: records.length > 1 ? 'pointer' : 'default' }}
-                                        title={records.length > 1 ? `Ver histórico de ${bm.label}` : `${bm.label}: ${bm.current} cm (${bm.percentOfMax}% de ${bm.potentialMax} cm)`}
+                                        onClick={() => setSelectedMuscle(bm)}
+                                        style={{ cursor: 'pointer' }}
+                                        title={`Ver telemetría y evolución de ${bm.label}`}
                                     >
                                         <BenchmarkCard benchmark={bm} />
                                     </div>
