@@ -33,6 +33,22 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
     const [downloaded, setDownloaded] = useState(false);
     const [linkCopied, setLinkCopied] = useState(false);
     const [silhouetteDataUrl, setSilhouetteDataUrl] = useState<string>('');
+    const [previewScale, setPreviewScale] = useState(0.65);
+
+    useEffect(() => {
+        const updateScale = () => {
+            if (typeof window === 'undefined') return;
+            const availableHeight = Math.min(540, window.innerHeight * 0.55);
+            const scaleByHeight = availableHeight / 844;
+            const availableWidth = Math.min(380, window.innerWidth - 64);
+            const scaleByWidth = availableWidth / 390;
+            const finalScale = Math.max(0.42, Math.min(0.68, scaleByHeight, scaleByWidth));
+            setPreviewScale(parseFloat(finalScale.toFixed(3)));
+        };
+        updateScale();
+        window.addEventListener('resize', updateScale);
+        return () => window.removeEventListener('resize', updateScale);
+    }, [isOpen]);
 
     useEffect(() => {
         const src = sex === 'female' ? femaleSilhouette : maleSilhouette;
@@ -229,7 +245,13 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                 skipFonts: true,
                 backgroundColor: '#070a14',
                 width: 390,
-                height: 844
+                height: 844,
+                style: {
+                    transform: 'none',
+                    position: 'static',
+                    left: 'auto',
+                    top: 'auto'
+                }
             });
 
             // Native Web Share API file share on mobile devices
@@ -332,37 +354,49 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                     )}
                 </div>
 
-                {/* SCROLLABLE / SCALED PREVIEW WRAPPER TO PREVENT HORIZONTAL SQUEEZING ON MOBILE */}
+                {/* INTERACTIVE DEVICE VIEWPORT FRAME (SCALED TO FIT 100% IN ANY SCREEN) */}
                 <div style={{
                     width: '100%',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    overflowX: 'auto',
-                    padding: '4px 0'
+                    padding: '2px 0'
                 }}>
-                    {/* THE 19.5:9 RENDERABLE CANVAS CONTAINER (Exact 390 x 844 -> 1170 x 2532 at 3x) */}
-                    <div
-                        ref={cardRef}
-                        style={{
-                            width: '390px',
-                            minWidth: '390px',
-                            height: '844px',
-                            minHeight: '844px',
-                            flexShrink: 0,
-                            background: '#070a14',
-                            backgroundImage: 'radial-gradient(circle at 50% 8%, rgba(245, 158, 11, 0.16) 0%, transparent 55%), radial-gradient(circle at 50% 92%, rgba(34, 211, 238, 0.12) 0%, transparent 55%)',
-                            border: 'none',
-                            borderRadius: '0px',
-                            padding: '54px 18px 72px 18px', // Native iPhone safe zones for Instagram top tools and bottom bar
-                            boxSizing: 'border-box',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            position: 'relative',
-                            overflow: 'hidden'
-                        }}
-                    >
+                    <div style={{
+                        width: `${Math.round(390 * previewScale)}px`,
+                        height: `${Math.round(844 * previewScale)}px`,
+                        position: 'relative',
+                        overflow: 'hidden',
+                        borderRadius: '24px',
+                        border: '2px solid rgba(251, 191, 36, 0.4)',
+                        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(245, 158, 11, 0.15)',
+                        flexShrink: 0
+                    }}>
+                        {/* THE 19.5:9 RENDERABLE CANVAS CONTAINER (Exact 390 x 844 -> 1170 x 2532 at 3x) */}
+                        <div
+                            ref={cardRef}
+                            style={{
+                                width: '390px',
+                                height: '844px',
+                                minWidth: '390px',
+                                minHeight: '844px',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                transform: `scale(${previewScale})`,
+                                transformOrigin: 'top left',
+                                background: '#070a14',
+                                backgroundImage: 'radial-gradient(circle at 50% 8%, rgba(245, 158, 11, 0.16) 0%, transparent 55%), radial-gradient(circle at 50% 92%, rgba(34, 211, 238, 0.12) 0%, transparent 55%)',
+                                border: 'none',
+                                borderRadius: '0px',
+                                padding: '54px 18px 72px 18px', // Native iPhone safe zones for Instagram top tools and bottom bar
+                                boxSizing: 'border-box',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                overflow: 'hidden'
+                            }}
+                        >
                         {/* 1. Top Brand & Tier Header */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -699,6 +733,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         </div>
                     </div>
                 </div>
+            </div>
 
                 {/* Modal Action Buttons (Copy Link for Sticker + Download) */}
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
