@@ -190,17 +190,23 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                     <Scale size={24} color="var(--primary-color)" /> {t('common.metabolism.physical_stats')}
                 </h2>
 
-                <div className="input-grid">
+                <div className="input-grid input-grid-3">
                     <div className="input-group">
-                        <label>{t('common.metabolism.age')}</label>
+                        <label>
+                            <span>{t('common.metabolism.age')}</span>
+                        </label>
                         <input type="number" value={age || ''} onChange={e => setAge(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
-                        <label>{t('common.metabolism.weight')}</label>
+                        <label>
+                            <span>{t('common.metabolism.weight')}</span>
+                        </label>
                         <input type="number" value={weight || ''} onChange={e => setWeight(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
-                        <label>{t('common.metabolism.height')}</label>
+                        <label>
+                            <span>{t('common.metabolism.height')}</span>
+                        </label>
                         <input type="number" value={height || ''} onChange={e => setHeight(Number(e.target.value))} />
                     </div>
                 </div>
@@ -234,12 +240,12 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                     <Dumbbell size={24} color="var(--primary-color)" /> {t('common.metabolism.training_title')}
                 </h2>
 
-                <div className="input-grid">
+                <div className="input-grid input-grid-2">
                     <div className="input-group">
-                        <label className="flex items-center gap-2">
-                            {t('common.metabolism.type')}
+                        <label>
+                            <span>{t('common.metabolism.type')}</span>
                             <Tooltip content={t('common.metabolism.training_expenditure_tooltip')} position="top">
-                                <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
+                                <HelpCircle size={14} className="help-icon" />
                             </Tooltip>
                         </label>
                         <select value={trainingType} onChange={(e: any) => setTrainingType(e.target.value)}>
@@ -249,28 +255,28 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                         </select>
                     </div>
                     <div className="input-group">
-                        <label className="flex items-center gap-2">
-                            {t('common.metabolism.frequency')}
+                        <label>
+                            <span>{t('common.metabolism.frequency')}</span>
                             <Tooltip content={t('common.metabolism.frequency_tooltip')} position="top">
-                                <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
+                                <HelpCircle size={14} className="help-icon" />
                             </Tooltip>
                         </label>
                         <input type="number" value={trainingFreq || ''} onChange={e => setTrainingFreq(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
-                        <label className="flex items-center gap-2">
-                            {t('common.metabolism.duration')}
+                        <label>
+                            <span>{t('common.metabolism.duration')}</span>
                             <Tooltip content={t('common.metabolism.duration_tooltip')} position="top">
-                                <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
+                                <HelpCircle size={14} className="help-icon" />
                             </Tooltip>
                         </label>
                         <input type="number" step="0.5" value={sessionDuration || ''} onChange={e => setSessionDuration(Number(e.target.value))} />
                     </div>
                     <div className="input-group">
-                        <label className="flex items-center gap-2">
-                            {t('common.metabolism.intensity')}
+                        <label>
+                            <span>{t('common.metabolism.intensity')}</span>
                             <Tooltip content={t('common.metabolism.intensity_tooltip')} position="top">
-                                <HelpCircle size={14} className="text-secondary opacity-60 cursor-help" />
+                                <HelpCircle size={14} className="help-icon" />
                             </Tooltip>
                         </label>
                         <select value={intensity} onChange={(e: any) => setIntensity(e.target.value)}>
@@ -368,7 +374,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
             <style>{`
         .calculator-container {
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: 1.15fr 0.85fr;
           gap: 2rem;
           padding-bottom: 4rem;
           max-width: 1200px;
@@ -376,89 +382,68 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
           width: 100%;
         }
 
-        .info-card-interactive {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            position: relative;
+        .input-section {
+          background: rgba(14, 18, 28, 0.75);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 20px;
+          padding: 1.5rem;
         }
 
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+        .results-section {
+          background: rgba(14, 18, 28, 0.75);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 20px;
+          padding: 1.5rem;
         }
 
-        .help-icon {
-            cursor: help;
-            opacity: 0.6;
-        }
-
-        .card-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .unit {
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .card-subtext {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        @media (max-width: 850px) {
-          .calculator-container {
-             grid-template-columns: 1fr;
-             padding: 0 0.75rem 4rem 0.75rem;
-             gap: 1.5rem;
-          }
-          .input-grid {
-            grid-template-columns: 1fr;
-          }
-          .selector-group {
-            grid-template-columns: 1fr;
-          }
-          .results-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .input-grid {
+        .input-grid-3 {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1rem;
+        }
+
+        .input-grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
           gap: 1rem;
         }
 
         .input-group {
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.45rem;
         }
 
         .input-group label {
-          font-size: 0.85rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          min-height: 1.5rem;
+          font-size: 0.82rem;
+          font-weight: 700;
           color: var(--text-secondary);
+          font-family: var(--font-mono);
+          white-space: nowrap;
         }
 
         .input-group input, .input-group select {
-          background: rgba(0, 0, 0, 0.2);
+          width: 100%;
+          background: rgba(0, 0, 0, 0.35);
           border: 1px solid var(--border-color);
-          padding: 0.8rem;
+          padding: 0.75rem 0.85rem;
           border-radius: 12px;
           color: white;
-          font-family: var(--font-main);
-          font-size: 1rem;
+          font-family: var(--font-mono);
+          font-size: 0.95rem;
+          outline: none;
+          transition: all 0.2s ease;
         }
 
         .input-group input:focus, .input-group select:focus {
           border-color: var(--primary-color);
-          outline: none;
+          box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
         }
 
         .selector-group {
@@ -505,6 +490,10 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
         }
 
         .info-card-interactive {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          position: relative;
           transition: transform 0.2s, background 0.2s, z-index 0s;
           z-index: 1;
         }
@@ -513,6 +502,60 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
           z-index: 10;
           transform: translateY(-2px);
           background: var(--surface-hover);
+        }
+
+        .card-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: var(--text-secondary);
+          font-size: 0.9rem;
+        }
+
+        .help-icon {
+          cursor: help;
+          opacity: 0.6;
+        }
+
+        .card-value {
+          font-size: 1.8rem;
+          font-weight: 700;
+        }
+
+        .unit {
+          font-size: 1rem;
+          font-weight: 500;
+          color: var(--text-secondary);
+        }
+
+        .card-subtext {
+          font-size: 0.8rem;
+          color: var(--text-secondary);
+        }
+
+        @media (max-width: 900px) {
+          .calculator-container {
+             grid-template-columns: 1fr;
+             padding: 0 0.5rem 4rem 0.5rem;
+             gap: 1.5rem;
+          }
+        }
+
+        @media (max-width: 600px) {
+          .input-grid-3 {
+            grid-template-columns: 1fr;
+            gap: 0.85rem;
+          }
+          .input-grid-2 {
+            grid-template-columns: 1fr;
+            gap: 0.85rem;
+          }
+          .selector-group {
+            grid-template-columns: 1fr;
+          }
+          .results-grid {
+            grid-template-columns: 1fr;
+          }
         }
       `}</style>
         </div>
