@@ -363,6 +363,9 @@
 }
 
 @media (max-width: 768px) {
+    .goal-form {
+        padding: 1.15rem;
+    }
     .form-grid {
         grid-template-columns: 1fr;
     }

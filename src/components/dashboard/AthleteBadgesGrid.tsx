@@ -173,7 +173,7 @@ export const AthleteBadgesGrid: React.FC<Props> = ({ records, sex = 'male' }) =>
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 9999,
-                    padding: '1rem'
+                    padding: 'clamp(0.5rem, 2vw, 1rem)'
                 }}>
                     <div style={{
                         background: 'linear-gradient(135deg, rgba(16, 20, 31, 0.98), rgba(9, 12, 18, 0.99))',
@@ -181,7 +181,7 @@ export const AthleteBadgesGrid: React.FC<Props> = ({ records, sex = 'male' }) =>
                         borderRadius: '20px',
                         maxWidth: '440px',
                         width: '100%',
-                        padding: '1.75rem',
+                        padding: 'clamp(1rem, 3.5vw, 1.75rem)',
                         boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
                         display: 'flex',
                         flexDirection: 'column',
