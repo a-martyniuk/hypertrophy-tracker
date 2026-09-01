@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { toPng } from 'html-to-image';
-import { Download, Sparkles, Check, X, Copy, Link, Zap, Dna, Activity, Scale, Compass } from 'lucide-react';
+import { Download, Sparkles, Check, X, Copy, Zap, Dna, Scale, Compass } from 'lucide-react';
 import type { MeasurementRecord } from '../../types/measurements';
 import { computeComprehensiveAnalysis } from '../../utils/benchmarkAnalysis';
 import { calculateFFMI, calculateSkeletalPotential, calculateBerkhanLimit, calculateIEO } from '../../utils/skeletal';
