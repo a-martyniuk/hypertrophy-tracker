@@ -2,7 +2,9 @@ import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Target, Plus, Trash2, TrendingUp, ChevronRight, Sparkles, Calendar, ArrowRight, Clock } from 'lucide-react';
 import type { GrowthGoal, MeasurementRecord, UserProfile } from '../types/measurements';
-import { calculateSkeletalPotential } from '../utils/skeletal';
+import { calculateSkeletalPotential, calculateBerkhanLimit } from '../utils/skeletal';
+import { computeComprehensiveAnalysis } from '../utils/benchmarkAnalysis';
+import { analyzeProportions } from '../utils/proportions';
 import { predictGoalTimeline } from '../utils/goalPredictor';
 
 interface Props {
@@ -54,36 +56,218 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
     };
 
     const suggestions = useMemo(() => {
-        if (!profile?.baseline) return [];
+        const m = latestRecord?.measurements;
+        const sex = profile?.sex || 'male';
+        const height = m?.height || profile?.height || (sex === 'female' ? 165 : 178);
+        const weight = m?.weight || profile?.weight || (sex === 'female' ? 60 : 75);
+        const bodyFat = m?.bodyFat || (sex === 'female' ? 22 : 15);
 
-        const height = (latestRecord?.measurements.height) || profile?.height || (profile?.sex === 'female' ? 165 : 178);
-        const potential = calculateSkeletalPotential(
-            profile.baseline.wrist,
-            profile.baseline.ankle,
-            height,
-            profile.sex || 'male'
-        );
+        const getAvg = (val?: number | { left?: number; right?: number }): number => {
+            if (!val) return 0;
+            if (typeof val === 'number') return val;
+            const l = val.left || 0;
+            const r = val.right || 0;
+            if (l > 0 && r > 0) return parseFloat(((l + r) / 2).toFixed(1));
+            return l || r || 0;
+        };
 
-        return [
-            {
-                label: t('common.goals.suggestions.chest_potential'),
+        const wristAvg = profile?.baseline?.wrist || getAvg(m?.wrist) || (sex === 'female' ? 15.5 : 17.5);
+        const ankleAvg = profile?.baseline?.ankle || getAvg(m?.ankle) || (sex === 'female' ? 20.5 : 22.5);
+
+        const potential = calculateSkeletalPotential(wristAvg, ankleAvg, height, sex);
+        const berkhan = calculateBerkhanLimit(height, sex, bodyFat);
+        const analysis = m ? computeComprehensiveAnalysis(m, sex) : null;
+        const props = m ? analyzeProportions(m, sex) : null;
+
+        const list: Array<{
+            label: string;
+            type: GrowthGoal['measurementType'];
+            value: number;
+            unit?: string;
+            badge: string;
+            badgeBg?: string;
+            badgeColor?: string;
+            badgeBorder?: string;
+            reason: string;
+            currentValue?: number;
+            diff?: number;
+        }> = [];
+
+        // 1. Pautas de Puntos Rezagados / Próximo Nivel (del Análisis Integral)
+        if (analysis?.muscleBenchmarks) {
+            analysis.muscleBenchmarks.forEach(bm => {
+                if (bm.deltaToNextLevel && bm.deltaToNextLevel > 0 && bm.nextLevelLabel) {
+                    const targetVal = parseFloat((bm.current + bm.deltaToNextLevel).toFixed(1));
+                    let goalType: GrowthGoal['measurementType'] = 'pecho';
+                    if (bm.key === 'arm') goalType = 'arm.right';
+                    else if (bm.key === 'forearm') goalType = 'forearm.right';
+                    else if (bm.key === 'thigh') goalType = 'thigh.right';
+                    else if (bm.key === 'calf') goalType = 'calf.right';
+                    else if (bm.key === 'neck') goalType = 'neck';
+                    else if (bm.key === 'chest') goalType = 'pecho';
+
+                    list.push({
+                        label: `Ascenso a ${bm.nextLevelLabel}: ${bm.label}`,
+                        type: goalType,
+                        value: targetVal,
+                        unit: 'cm',
+                        badge: bm.level === 'beginner' ? '🔥 Rezagado' : '⭐ Próximo Nivel',
+                        badgeBg: bm.levelBg,
+                        badgeColor: bm.levelColor,
+                        badgeBorder: `${bm.levelColor}40`,
+                        reason: `Faltan +${bm.deltaToNextLevel} cm para ascender de ${bm.levelLabel} a ${bm.nextLevelLabel} en el análisis.`,
+                        currentValue: bm.current,
+                        diff: bm.deltaToNextLevel
+                    });
+                }
+            });
+        }
+
+        // 2. Pautas de Corrección de Asimetrías Bilaterales (del Análisis de Simetría)
+        if (props?.asymmetries) {
+            props.asymmetries.forEach(asym => {
+                if (asym.severity !== 'none' && asym.diff >= 0.7) {
+                    const laggingSide = asym.largerSide === 'right' ? 'left' : 'right';
+                    const targetVal = asym.largerSide === 'right' ? asym.right : asym.left;
+                    const curVal = asym.largerSide === 'right' ? asym.left : asym.right;
+                    const goalType = `${asym.group}.${laggingSide}` as GrowthGoal['measurementType'];
+
+                    list.push({
+                        label: `Nivelación Bilateral: ${asym.label} (${laggingSide === 'left' ? 'Izq' : 'Der'})`,
+                        type: goalType,
+                        value: targetVal,
+                        unit: 'cm',
+                        badge: '⚖️ Asimetría',
+                        badgeBg: 'rgba(239, 68, 68, 0.15)',
+                        badgeColor: '#f87171',
+                        badgeBorder: 'rgba(239, 68, 68, 0.35)',
+                        reason: `Equiparar el lado rezagado (${curVal} cm) con el lado dominante (${targetVal} cm) para corregir el desbalance de ${asym.diff} cm.`,
+                        currentValue: curVal,
+                        diff: asym.diff
+                    });
+                }
+            });
+        }
+
+        // 3. Pautas de Proporción Áurea & Adonis Index (del Análisis de Proporciones)
+        if (props?.adonisIndex) {
+            const chest = m?.pecho || 0;
+            const waist = m?.waist || 0;
+            if (chest > 0 && waist > 0) {
+                // Ideal Chest for waist
+                if (props.adonisIndex.idealChestForWaist > chest) {
+                    const diff = parseFloat((props.adonisIndex.idealChestForWaist - chest).toFixed(1));
+                    list.push({
+                        label: 'V-Taper Dorado: Pecho Áureo (1.618)',
+                        type: 'pecho',
+                        value: props.adonisIndex.idealChestForWaist,
+                        unit: 'cm',
+                        badge: '✨ Proporción Áurea',
+                        badgeBg: 'rgba(245, 158, 11, 0.15)',
+                        badgeColor: '#fbbf24',
+                        badgeBorder: 'rgba(245, 158, 11, 0.4)',
+                        reason: `Desarrollo de torso óptimo (${props.adonisIndex.idealChestForWaist} cm) para alcanzar el ratio áureo 1.618 con tu cintura de ${waist} cm.`,
+                        currentValue: chest,
+                        diff
+                    });
+                }
+                // Ideal Aesthetic Waist
+                const idealWaist = parseFloat((chest / (sex === 'female' ? 1.38 : 1.618)).toFixed(1));
+                if (waist > idealWaist + 1.5) {
+                    const diff = parseFloat((idealWaist - waist).toFixed(1));
+                    list.push({
+                        label: 'Cintura Estética (V-Taper)',
+                        type: 'waist',
+                        value: idealWaist,
+                        unit: 'cm',
+                        badge: '✨ Cintura Proporcional',
+                        badgeBg: 'rgba(56, 189, 248, 0.15)',
+                        badgeColor: '#38bdf8',
+                        badgeBorder: 'rgba(56, 189, 248, 0.4)',
+                        reason: `Cintura de máxima estética para amplificar el V-Taper respecto a tu torso actual de ${chest} cm.`,
+                        currentValue: waist,
+                        diff
+                    });
+                }
+            }
+        }
+
+        // 4. Tríada Clásica de Steve Reeves (Arm ≈ Neck ≈ Calf)
+        if (props?.reevesTriad) {
+            const { armAvg, neck: _neck, calfAvg } = props.reevesTriad;
+            if (armAvg > 0 && calfAvg > 0 && armAvg > calfAvg + 0.8) {
+                const diff = parseFloat((armAvg - calfAvg).toFixed(1));
+                list.push({
+                    label: 'Tríada Reeves: Gemelos Simétricos',
+                    type: 'calf.right',
+                    value: armAvg,
+                    unit: 'cm',
+                    badge: '🏛️ Tríada Reeves 1:1:1',
+                    badgeBg: 'rgba(168, 85, 247, 0.15)',
+                    badgeColor: '#c084fc',
+                    badgeBorder: 'rgba(168, 85, 247, 0.4)',
+                    reason: `Igualar el perímetro de gemelos (${calfAvg} cm) con tus brazos (${armAvg} cm) para cumplir la proporción clásica de Steve Reeves.`,
+                    currentValue: calfAvg,
+                    diff
+                });
+            }
+        }
+
+        // 5. Techo Máximo Magro & Potencial Genético (Berkhan & Casey Butt)
+        if (berkhan.maxLeanWeightKg > weight) {
+            const diff = parseFloat((berkhan.maxLeanWeightKg - weight).toFixed(1));
+            list.push({
+                label: 'Límite Máximo Magro (Martin Berkhan)',
+                type: 'weight',
+                value: berkhan.maxLeanWeightKg,
+                unit: 'kg',
+                badge: '🧬 Techo Natural',
+                badgeBg: 'rgba(16, 185, 129, 0.15)',
+                badgeColor: '#34d399',
+                badgeBorder: 'rgba(16, 185, 129, 0.4)',
+                reason: `Techo muscular al 5% de grasa corporal estimado para tu estatura (${height} cm).`,
+                currentValue: weight,
+                diff
+            });
+        }
+
+        // Potential Chest (Casey Butt)
+        const curChest = m?.pecho || 0;
+        if (potential.chest > curChest) {
+            list.push({
+                label: 'Potencial Genético de Pecho (Casey Butt)',
                 type: 'pecho',
                 value: potential.chest,
-                reason: t('common.goals.suggestions.reason_bone')
-            },
-            {
-                label: t('common.goals.suggestions.arm_potential'),
+                unit: 'cm',
+                badge: '🧬 Potencial Óseo',
+                badgeBg: 'rgba(245, 158, 11, 0.15)',
+                badgeColor: '#fbbf24',
+                badgeBorder: 'rgba(245, 158, 11, 0.4)',
+                reason: `Límite torácico natural derivado de tu muñeca (${wristAvg} cm) y tobillo (${ankleAvg} cm).`,
+                currentValue: curChest || undefined,
+                diff: curChest ? parseFloat((potential.chest - curChest).toFixed(1)) : undefined
+            });
+        }
+
+        // Potential Arm (Casey Butt)
+        const curArm = getAvg(m?.arm);
+        if (potential.biceps > curArm) {
+            list.push({
+                label: 'Potencial Genético de Brazo (Casey Butt)',
                 type: 'arm.right',
                 value: potential.biceps,
-                reason: t('common.goals.suggestions.reason_limit')
-            },
-            {
-                label: t('common.goals.suggestions.waist_golden'),
-                type: 'waist',
-                value: parseFloat((potential.chest * 0.75).toFixed(1)),
-                reason: t('common.goals.suggestions.reason_ratio')
-            }
-        ];
+                unit: 'cm',
+                badge: '🧬 Potencial Óseo',
+                badgeBg: 'rgba(245, 158, 11, 0.15)',
+                badgeColor: '#fbbf24',
+                badgeBorder: 'rgba(245, 158, 11, 0.4)',
+                reason: `Límite de bíceps flexionado proyectado según tu estructura ósea.`,
+                currentValue: curArm || undefined,
+                diff: curArm ? parseFloat((potential.biceps - curArm).toFixed(1)) : undefined
+            });
+        }
+
+        return list;
     }, [profile, latestRecord, t]);
 
     const getLatestValue = (type: string): number => {
@@ -119,16 +303,8 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
         const current = getLatestValue(goal.measurementType);
         if (current === 0) return 0;
 
-        // Simple percent towards target
-        // If target > current (Bulking): 
-        // 100 - ((Target - Current) / Target * 100) -> No.
-        // Let's assume start was 0? No.
-        // We lack "Start Value" in the goal. Simple visual deviation.
         const gap = Math.abs(goal.targetValue - current);
         const target = goal.targetValue;
-        // If gap is 0, 100%. If gap is 10% of target, 90%?
-        // Let's just do a Closeness metric.
-        // 100% - (Gap / Target * 100)
         return Math.max(0, Math.min(100, Math.round(100 - (gap / target * 100))));
     };
 
@@ -145,7 +321,6 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
             setIsAdding(false);
         } catch (error) {
             console.error("[GoalsView] Failed to add goal:", error);
-            // alert("Error al guardar la meta. Revisa la consola."); // Optional: verify if alert helps
         } finally {
             setSubmitting(false);
         }
@@ -180,23 +355,54 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                 </button>
             </div>
 
-            {/* Smart Suggestions */}
+            {/* Smart Suggestions from Analysis */}
             {suggestions.length > 0 && !isAdding && (
-                <div className="suggestions-scroll">
-                    {suggestions.map((s, idx) => (
-                        <div key={idx} className="suggestion-card glass" onClick={() => quickAdd(s)}>
-                            <div className="sug-header">
-                                <Sparkles size={16} className="text-primary" />
-                                <span>{t('common.goals.suggestion')}</span>
+                <div className="suggestions-section">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <h3 style={{ fontSize: '0.9rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--primary-color)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                            <Sparkles size={16} />
+                            <span>Pautas Recomendadas del Análisis</span>
+                        </h3>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                            Toca una tarjeta para fijarla como meta
+                        </span>
+                    </div>
+                    <div className="suggestions-scroll">
+                        {suggestions.map((s, idx) => (
+                            <div key={idx} className="suggestion-card glass" onClick={() => quickAdd(s)}>
+                                <div className="sug-header">
+                                    <span
+                                        className="sug-badge"
+                                        style={{
+                                            background: s.badgeBg || 'rgba(245, 158, 11, 0.15)',
+                                            color: s.badgeColor || '#fbbf24',
+                                            borderColor: s.badgeBorder || 'rgba(245, 158, 11, 0.35)'
+                                        }}
+                                    >
+                                        {s.badge}
+                                    </span>
+                                    {s.currentValue !== undefined && (
+                                        <span className="sug-current">
+                                            Actual: {s.currentValue} {s.unit || 'cm'}
+                                        </span>
+                                    )}
+                                </div>
+                                <h4>{s.label}</h4>
+                                <div className="sug-val">
+                                    {s.value} <span>{s.unit || 'cm'}</span>
+                                    {s.diff !== undefined && (
+                                        <span style={{ color: '#fbbf24', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', marginLeft: '0.5rem', fontWeight: 700 }}>
+                                            ({s.diff > 0 ? `+${s.diff}` : s.diff} {s.unit || 'cm'})
+                                        </span>
+                                    )}
+                                </div>
+                                <p>{s.reason}</p>
+                                <div className="sug-action">
+                                    {t('common.goals.use_goal', 'Fijar este Objetivo')} <ArrowRight size={14} />
+                                </div>
                             </div>
-                            <h4>{s.label}</h4>
-                            <div className="sug-val">{s.value} cm</div>
-                            <p>{s.reason}</p>
-                            <div className="sug-action">
-                                {t('common.goals.use_goal')} <ArrowRight size={14} />
-                            </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             )}
 

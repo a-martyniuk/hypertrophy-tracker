@@ -99,28 +99,45 @@
 .sug-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 6px;
-    font-size: 0.75rem;
+    margin-bottom: 0.65rem;
+}
+
+.sug-badge {
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    font-size: 0.68rem;
     font-family: var(--font-mono);
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
+    font-weight: 800;
+    border: 1px solid;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.sug-current {
+    font-size: 0.68rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-weight: 600;
 }
 
 .suggestion-card h4 {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: #ffffff;
     margin-bottom: 0.35rem;
 }
 
 .sug-val {
-    font-size: 1.75rem;
+    font-size: 1.65rem;
     font-family: var(--font-mono);
     font-weight: 900;
     color: #ffffff;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: baseline;
 }
 
 .sug-val span {
@@ -129,30 +146,29 @@
     font-weight: normal;
 }
 
-.sug-source {
-    font-size: 0.75rem;
+.sug-source,
+.suggestion-card p {
+    font-size: 0.76rem;
     color: var(--text-secondary);
-    margin-bottom: 1rem;
-    line-height: 1.4;
+    line-height: 1.45;
+    margin: 0;
 }
 
-.btn-use-sug {
-    background: transparent;
-    border: none;
-    color: var(--primary-color);
-    font-size: 0.8rem;
+.sug-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
     font-family: var(--font-mono);
     font-weight: 700;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    transition: gap 0.2s;
+    color: var(--primary-color);
+    margin-top: 0.75rem;
+    transition: all 0.2s ease;
 }
 
-.suggestion-card:hover .btn-use-sug {
-    gap: 0.6rem;
+.suggestion-card:hover .sug-action {
     color: #fbbf24;
+    transform: translateX(3px);
 }
 
 .empty-goals {
