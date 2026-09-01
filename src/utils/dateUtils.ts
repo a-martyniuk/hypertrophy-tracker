@@ -1,14 +1,18 @@
-﻿/**
+/**
  * Timezone-safe date formatting utility.
  * Prevents UTC-midnight date strings ('YYYY-MM-DD') from decrementing by 1 day
  * when displayed in Western Hemisphere timezones (e.g. UTC-3, UTC-5).
  */
 export const formatDateSafe = (
-    dateStr?: string,
+    dateInput?: string | Date,
     options?: Intl.DateTimeFormatOptions,
     locale: string = 'es-ES'
 ): string => {
-    if (!dateStr) return '';
+    if (!dateInput) return '';
+    if (dateInput instanceof Date) {
+        return dateInput.toLocaleDateString(locale, options);
+    }
+    const dateStr = String(dateInput);
     if (dateStr.includes('T')) {
         return new Date(dateStr).toLocaleDateString(locale, options);
     }
