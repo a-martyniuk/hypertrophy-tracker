@@ -214,8 +214,16 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
                                     );
                                 })
                             ) : (
-                                <div className="empty-state">
-                                    <p>{t('dashboard.no_data')}</p>
+                                <div className="empty-state" style={{ padding: '1.5rem 1rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+                                    <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.85rem' }}>{t('dashboard.no_data')}</p>
+                                    <button
+                                        onClick={() => navigate('/new-entry')}
+                                        className="btn-primary"
+                                        style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                                    >
+                                        <Plus size={15} />
+                                        <span>{t('dashboard.register_measurements')}</span>
+                                    </button>
                                 </div>
                             )}
                         </div>

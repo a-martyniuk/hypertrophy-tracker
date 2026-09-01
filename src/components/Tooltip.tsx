@@ -79,8 +79,8 @@ export function Tooltip({ content, children, position = 'top', width = 'max-cont
           style={{
             top: coords.top,
             left: coords.left,
-            width: width === 'max-content' ? 'auto' : width,
-            maxWidth: '250px'
+            width: width === 'max-content' ? 'auto' : '100%',
+            maxWidth: width !== 'max-content' ? `min(${width}, calc(100vw - 32px))` : 'min(280px, calc(100vw - 32px))'
           }}
         >
           {content}
