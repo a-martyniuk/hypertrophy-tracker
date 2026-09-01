@@ -24,7 +24,8 @@
             "compare": "Comparar",
             "metabolism": "Metabolismo",
             "goals": "Objetivos",
-            "settings": "Configuración"
+            "settings": "Configuración",
+            "more": "Más"
         },
         "tooltips": {
             "dashboard": "Vista general y resumen",

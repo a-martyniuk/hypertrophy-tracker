@@ -69,7 +69,7 @@ export const MuscleHistoryModal: React.FC<Props> = ({ benchmark, records, onClos
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 9999,
-            padding: '1rem'
+            padding: 'clamp(0.5rem, 2vw, 1rem)'
         }}>
             <div style={{
                 background: 'linear-gradient(135deg, rgba(16, 20, 31, 0.98), rgba(9, 12, 18, 0.99))',
@@ -79,7 +79,7 @@ export const MuscleHistoryModal: React.FC<Props> = ({ benchmark, records, onClos
                 width: '100%',
                 maxHeight: '92vh',
                 overflowY: 'auto',
-                padding: '1.75rem',
+                padding: 'clamp(1rem, 3.5vw, 1.75rem)',
                 boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(245, 158, 11, 0.1)',
                 display: 'flex',
                 flexDirection: 'column',

@@ -182,7 +182,7 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                         onClick={() => handleNavigateMobile('dashboard')}
                     >
                         <LayoutGrid size={20} />
-                        <span>Inicio</span>
+                        <span>{t('common.menu.dashboard')}</span>
                     </button>
 
                     <button
@@ -190,7 +190,7 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                         onClick={() => handleNavigateMobile('analysis')}
                     >
                         <Activity size={20} />
-                        <span>Análisis</span>
+                        <span>{t('common.menu.analysis')}</span>
                     </button>
 
                     {/* Central Highlighted Button */}
@@ -201,7 +201,7 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                         <div className="center-btn-bubble">
                             <Plus size={22} />
                         </div>
-                        <span>Medir</span>
+                        <span>{t('common.menu.new_entry')}</span>
                     </button>
 
                     <button
@@ -209,7 +209,7 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                         onClick={() => handleNavigateMobile('potential')}
                     >
                         <Dna size={20} />
-                        <span>Genética</span>
+                        <span>{t('common.menu.genetics')}</span>
                     </button>
 
                     <button
@@ -217,7 +217,7 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     >
                         <MoreHorizontal size={20} />
-                        <span>Más</span>
+                        <span>{t('common.menu.more', 'Más')}</span>
                     </button>
                 </nav>
 

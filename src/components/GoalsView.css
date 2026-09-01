@@ -371,4 +371,14 @@
         align-items: flex-start;
         gap: 1rem;
     }
+    .suggestions-scroll {
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+    }
+    .suggestion-card {
+        padding: 1.1rem;
+    }
+    .goal-card {
+        padding: 1.1rem;
+    }
 }

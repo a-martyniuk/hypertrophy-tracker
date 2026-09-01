@@ -387,3 +387,12 @@
   border-color: rgba(245, 158, 11, 0.5);
   color: #fbbf24;
 }
+
+@media (max-width: 480px) {
+  .viral-cta-btn {
+    width: 100%;
+    white-space: normal;
+    padding: 0.85rem 1rem;
+    font-size: 0.88rem;
+  }
+}

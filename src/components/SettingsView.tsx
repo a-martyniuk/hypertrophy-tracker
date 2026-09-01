@@ -1019,14 +1019,14 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
 
                 @media (max-width: 768px) {
                     .settings-view {
-                        padding: 1rem;
+                        padding: 0;
                         gap: 1rem;
                     }
                     .settings-grid {
                         grid-template-columns: 1fr;
                     }
                     .settings-card {
-                        padding: 1.25rem;
+                        padding: 1.15rem;
                     }
                 }
             `}</style>
