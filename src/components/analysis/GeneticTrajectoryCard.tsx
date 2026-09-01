@@ -25,8 +25,7 @@ export const GeneticTrajectoryCard: React.FC<Props> = ({
     const effectiveHeight = height && height > 0 ? height : (isFemale ? 165 : 178);
     const effectiveBf = bodyFat && bodyFat > 0 ? bodyFat : (isFemale ? 22 : 15);
 
-    // Estimate training years based on age / baseline or default to intermediate
-    const estimatedTrainingYears = age > 30 ? 4 : 2;
+    const [trainingYears, setTrainingYears] = React.useState<number>(() => (age > 30 ? 4 : 2));
 
     const trajectory = useMemo(() => {
         return calculateGeneticTrajectory(
@@ -34,10 +33,10 @@ export const GeneticTrajectoryCard: React.FC<Props> = ({
             effectiveHeight,
             effectiveBf,
             sex,
-            estimatedTrainingYears,
+            trainingYears,
             measurements as BodyMeasurements
         );
-    }, [effectiveWeight, effectiveHeight, effectiveBf, sex, estimatedTrainingYears, measurements]);
+    }, [effectiveWeight, effectiveHeight, effectiveBf, sex, trainingYears, measurements]);
 
     const {
         currentLeanMassKg,
@@ -82,6 +81,37 @@ export const GeneticTrajectoryCard: React.FC<Props> = ({
                 <span className="badge" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.3)', fontSize: '0.7rem' }}>
                     {levelBadgeText}
                 </span>
+            </div>
+
+            {/* Experience Level Interactive Selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '1rem', background: 'rgba(0, 0, 0, 0.25)', padding: '0.4rem 0.65rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontFamily: 'var(--font-mono)' }}>Calibrar Experiencia:</span>
+                {[
+                    { years: 0.5, label: '< 1 año' },
+                    { years: 2, label: '1–3 años' },
+                    { years: 4, label: '3–5 años' },
+                    { years: 7, label: '> 5 años' }
+                ].map((opt) => (
+                    <button
+                        key={opt.years}
+                        type="button"
+                        onClick={() => setTrainingYears(opt.years)}
+                        style={{
+                            padding: '0.2rem 0.55rem',
+                            borderRadius: '6px',
+                            fontSize: '0.68rem',
+                            fontFamily: 'var(--font-mono)',
+                            fontWeight: trainingYears === opt.years ? 700 : 500,
+                            border: trainingYears === opt.years ? '1px solid #fbbf24' : '1px solid rgba(255, 255, 255, 0.1)',
+                            background: trainingYears === opt.years ? 'rgba(245, 158, 11, 0.25)' : 'rgba(0, 0, 0, 0.35)',
+                            color: trainingYears === opt.years ? '#fbbf24' : '#cbd5e1',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease'
+                        }}
+                    >
+                        {opt.label}
+                    </button>
+                ))}
             </div>
 
             {/* Current status stats strip */}
