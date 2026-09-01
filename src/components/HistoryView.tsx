@@ -3,6 +3,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, ChevronRight, Trash2, Moon, TestTube, Zap, Coffee, Scale, Activity, Plus } from 'lucide-react';
+import { useToast } from './ui/ToastProvider';
 
 interface Props {
   records: MeasurementRecord[];
@@ -16,6 +17,7 @@ import { formatDateSafe } from '../utils/dateUtils';
 export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
 
   const CONDITION_MAP: Record<MeasurementCondition, { label: string; icon: React.ReactNode; color: string }> = {
@@ -138,11 +140,13 @@ export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
                     const result = await onDelete(record.id);
                     // @ts-ignore
                     if (result && !result.success) {
-                      alert(`${t('common.history.delete_error')}: ${result.error || 'ERROR'}`);
+                      addToast(`${t('common.history.delete_error')}: ${result.error || 'ERROR'}`, 'error');
+                    } else {
+                      addToast('Registro eliminado del historial', 'info');
                     }
                   } catch (err) {
                     console.error('Delete error', err);
-                    alert(t('common.error'));
+                    addToast(t('common.error'), 'error');
                   } finally {
                     setIsDeleting(null);
                   }

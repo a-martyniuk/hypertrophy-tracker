@@ -26,6 +26,7 @@ import { getMeasurementsStorageKey, getProfileStorageKey, getGoalsStorageKey } f
 import { generateAthletePDFReport } from '../utils/pdfReportGenerator';
 import { ShareReportModal } from './share/ShareReportModal';
 import { AthleteStoryCardModal } from './share/AthleteStoryCard';
+import { useToast } from './ui/ToastProvider';
 
 interface Props {
     records: MeasurementRecord[];
@@ -37,6 +38,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
     const { t, i18n } = useTranslation();
     const { user } = useAuth();
     const { profile: currentProfile, updateProfile } = useProfile();
+    const { addToast } = useToast();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [importing, setImporting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -82,20 +84,22 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
             publicAlias: publicAlias.trim()
         });
         setProfileSaved(true);
+        addToast('Datos biométricos guardados correctamente', 'success');
         setTimeout(() => setProfileSaved(false), 2500);
     };
 
     const handleDownloadPDF = () => {
         if (!latestRecord) {
-            alert('Aún no tienes mediciones registradas para generar el informe PDF. Registra tu primera medición en "Nueva Medida".');
+            addToast('Registra tu primera medición en "Nueva Medida" para generar el informe PDF.', 'info');
             return;
         }
         generateAthletePDFReport({ latestRecord, previousRecord, records, userName: name, sex: sex || activeProfile?.sex || 'male' });
+        addToast('Generando dossier PDF de alta resolución...', 'info');
     };
 
     const handleOpenShare = () => {
         if (!latestRecord) {
-            alert('Aún no tienes mediciones registradas. Agrega tu primera medición en "Nueva Medida" para generar tu enlace y ficha pública.');
+            addToast('Agrega tu primera medición en "Nueva Medida" para generar tu ficha pública.', 'info');
             return;
         }
         setIsShareModalOpen(true);
@@ -103,7 +107,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
 
     const handleOpenStory = () => {
         if (!latestRecord) {
-            alert('Aún no tienes mediciones registradas. Agrega tu primera medición en "Nueva Medida" para generar tu Story Card 9:16.');
+            addToast('Agrega tu primera medición en "Nueva Medida" para generar tu Story Card 9:16.', 'info');
             return;
         }
         setIsStoryModalOpen(true);
@@ -137,6 +141,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
         URL.revokeObjectURL(url);
 
         setSuccessMsg(t('settings.success_export'));
+        addToast('Copia de seguridad JSON descargada con éxito', 'success');
         setTimeout(() => setSuccessMsg(null), 3000);
     };
 
@@ -173,6 +178,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                 if (json.profile) localStorage.setItem(getProfileStorageKey(user?.uid), JSON.stringify(json.profile));
 
                 setSuccessMsg(t('settings.success_import'));
+                addToast('Datos importados correctamente. Actualizando...', 'success');
 
                 setTimeout(() => {
                     window.location.reload();
@@ -181,6 +187,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
             } catch (err: any) {
                 console.error(err);
                 setError(err.message || t('settings.error_read'));
+                addToast(err.message || t('settings.error_read'), 'error');
             } finally {
                 setImporting(false);
                 if (fileInputRef.current) fileInputRef.current.value = '';

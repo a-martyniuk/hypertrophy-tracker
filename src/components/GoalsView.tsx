@@ -6,6 +6,7 @@ import { calculateSkeletalPotential, calculateBerkhanLimit } from '../utils/skel
 import { computeComprehensiveAnalysis } from '../utils/benchmarkAnalysis';
 import { analyzeProportions } from '../utils/proportions';
 import { predictGoalTimeline } from '../utils/goalPredictor';
+import { useToast } from './ui/ToastProvider';
 
 interface Props {
     goals: GrowthGoal[];
@@ -21,6 +22,7 @@ import './GoalsView.css';
 
 export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profile, records: _records = [], onRefresh }: Props) => {
     const { t } = useTranslation();
+    const { addToast } = useToast();
 
     // Refresh data on mount to ensure we aren't seeing stale empty state
     useEffect(() => {
@@ -318,9 +320,11 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                 ...newGoal
             });
             console.log('[GoalsView] Add goal success, closing form');
+            addToast('Nuevo objetivo fijado con éxito', 'success');
             setIsAdding(false);
         } catch (error) {
             console.error("[GoalsView] Failed to add goal:", error);
+            addToast('Error al guardar el objetivo', 'error');
         } finally {
             setSubmitting(false);
         }
@@ -473,9 +477,10 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                                     <button
                                         className="delete-btn"
                                         title={t('common.goals.confirm_delete')}
-                                        onClick={() => {
+                                        onClick={async () => {
                                             if (window.confirm(t('common.goals.confirm_delete'))) {
-                                                onDeleteGoal(goal.id);
+                                                await onDeleteGoal(goal.id);
+                                                addToast('Objetivo eliminado', 'info');
                                             }
                                         }}
                                     >

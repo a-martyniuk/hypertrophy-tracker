@@ -127,7 +127,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
 
         @media (max-width: 640px) {
           .toast-container {
-            bottom: 1rem;
+            bottom: 5.5rem;
             right: 1rem;
             left: 1rem;
           }
