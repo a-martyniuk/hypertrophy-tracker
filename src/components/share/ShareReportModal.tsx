@@ -4,6 +4,7 @@ import { X, QrCode, Copy, Check, Share2, Link as LinkIcon, Sparkles } from 'luci
 import QRCode from 'qrcode';
 import { createCompactSelfContainedLink } from '../../services/shortLinkService';
 import { AthleteStoryCardModal } from './AthleteStoryCard';
+import { useToast } from '../ui/ToastProvider';
 import type { MeasurementRecord } from '../../types/measurements';
 
 interface Props {
@@ -23,6 +24,7 @@ export const ShareReportModal: React.FC<Props> = ({
     userName = 'Atleta',
     sex = 'male'
 }) => {
+    const { addToast } = useToast();
     const [qrUrl, setQrUrl] = useState<string>('');
     const [copied, setCopied] = useState(false);
     const [shortCopied, setShortCopied] = useState(false);
@@ -70,6 +72,7 @@ export const ShareReportModal: React.FC<Props> = ({
     const handleCopy = (urlToCopy: string, isShort: boolean = false) => {
         if (!urlToCopy) return;
         navigator.clipboard.writeText(urlToCopy);
+        addToast('Enlace copiado al portapapeles', 'success');
         if (isShort) {
             setShortCopied(true);
             setTimeout(() => setShortCopied(false), 2000);

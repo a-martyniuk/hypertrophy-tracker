@@ -9,6 +9,7 @@ import { calculateBilateralSymmetry } from '../../utils/symmetryAudit';
 import { analyzeProportions } from '../../utils/proportions';
 import { createCompactSelfContainedLink } from '../../services/shortLinkService';
 import { MALE_SILHOUETTE_BASE64, FEMALE_SILHOUETTE_BASE64 } from '../../assets/silhouettesBase64';
+import { useToast } from '../ui/ToastProvider';
 
 interface Props {
     record?: MeasurementRecord;
@@ -27,6 +28,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
     isOpen = false,
     onClose
 }) => {
+    const { addToast } = useToast();
     const cardRef = useRef<HTMLDivElement>(null);
     const [generating, setGenerating] = useState(false);
     const [downloaded, setDownloaded] = useState(false);
@@ -258,6 +260,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
         if (!shareUrl) return;
         navigator.clipboard.writeText(shareUrl);
         setLinkCopied(true);
+        addToast('Enlace de ficha copiado al portapapeles', 'success');
         setTimeout(() => setLinkCopied(false), 2500);
     };
 
@@ -292,6 +295,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             text: '¡Mira mi telemetría en Hypertrophy Tracker!'
                         });
                         setDownloaded(true);
+                        addToast('Ficha 9:16 compartida con éxito', 'success');
                         setTimeout(() => setDownloaded(false), 3000);
                         setGenerating(false);
                         return;
@@ -307,10 +311,11 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
             link.href = dataUrl;
             link.click();
             setDownloaded(true);
+            addToast('Ficha 9:16 descargada con éxito', 'success');
             setTimeout(() => setDownloaded(false), 3000);
         } catch (err) {
             console.error('[AthleteStoryCard] Error al generar imagen:', err);
-            alert('Error al generar la imagen. Intenta de nuevo.');
+            addToast('Error al generar la imagen. Intenta de nuevo.', 'error');
         } finally {
             setGenerating(false);
         }

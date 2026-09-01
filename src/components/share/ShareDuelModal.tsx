@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, QrCode, Copy, Check, Share2, Swords, Link as LinkIcon } from 'lucide-react';
 import QRCode from 'qrcode';
 import { createCompactSelfContainedLink } from '../../services/shortLinkService';
+import { useToast } from '../ui/ToastProvider';
 import type { MeasurementRecord } from '../../types/measurements';
 import type { ComparisonProfile } from '../../utils/athleteComparison';
 
@@ -40,6 +41,7 @@ export const ShareDuelModal: React.FC<Props> = ({
     profileB,
     verdict
 }) => {
+    const { addToast } = useToast();
     const [qrUrl, setQrUrl] = useState<string>('');
     const [copied, setCopied] = useState(false);
     const [shortCopied, setShortCopied] = useState(false);
@@ -99,6 +101,7 @@ export const ShareDuelModal: React.FC<Props> = ({
     const handleCopy = (urlToCopy: string, isShort: boolean = false) => {
         if (!urlToCopy) return;
         navigator.clipboard.writeText(urlToCopy);
+        addToast('Enlace de duelo copiado al portapapeles', 'success');
         if (isShort) {
             setShortCopied(true);
             setTimeout(() => setShortCopied(false), 2000);
