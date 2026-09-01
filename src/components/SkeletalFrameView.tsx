@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Target, HelpCircle, Sparkles, TrendingUp, Award, Dna } from 'lucide-react';
+import { Target, HelpCircle, Sparkles, TrendingUp, Award, Dna, Check, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Tooltip as AppTooltip } from './Tooltip';
+import { useToast } from './ui/ToastProvider';
 import type { BodyMeasurements, SkeletalFrame, UserProfile } from '../types/measurements';
 import {
   calculateSkeletalPotential,
@@ -19,9 +20,10 @@ interface Props {
   sex?: 'male' | 'female';
 }
 
-export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSave: _onSave, sex = 'male' }: Props) => {
+export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSave, sex = 'male' }: Props) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { addToast } = useToast();
 
   const [height, setHeight] = useState<number>(() => {
     const saved = localStorage.getItem('skeletal_height');
@@ -210,6 +212,46 @@ export const SkeletalFrameView = ({ baseline, currentMeasurements, profile, onSa
                 style={{ width: '100%', background: 'transparent', border: 'none', fontSize: '1.25rem', fontWeight: 800, color: '#fbbf24', outline: 'none', padding: 0 }}
                 placeholder="22.5"
               />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.35rem' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  onSave(frame);
+                  addToast('Estructura ósea guardada como base en tu perfil', 'success');
+                }}
+                className="btn-primary"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.82rem', padding: '0.6rem 1rem' }}
+              >
+                <Check size={16} />
+                <span>Guardar como Base de Perfil</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const defaultH = currentMeasurements?.height || profile?.height || (sex === 'female' ? 165 : 178);
+                  const defaultW = currentMeasurements?.weight || profile?.weight || (sex === 'female' ? 60 : 78);
+                  const defaultBf = currentMeasurements?.bodyFat || (sex === 'female' ? 22 : 15);
+                  let wVal = sex === 'female' ? 15.5 : 17.5;
+                  let aVal = sex === 'female' ? 20.5 : 22.5;
+                  if (baseline) {
+                    wVal = baseline.wrist;
+                    aVal = baseline.ankle;
+                  }
+                  setHeight(defaultH);
+                  setWeight(defaultW);
+                  setBodyFat(defaultBf);
+                  setFrame({ wrist: wVal, ankle: aVal, knee: sex === 'female' ? 35 : 38 });
+                  addToast('Valores restablecidos a tus medidas registradas', 'info');
+                }}
+                className="btn-secondary"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.78rem', padding: '0.45rem 0.8rem', color: 'var(--text-muted)' }}
+              >
+                <RotateCcw size={14} />
+                <span>Restablecer a mis medidas</span>
+              </button>
             </div>
           </div>
         </div>

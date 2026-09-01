@@ -10,9 +10,11 @@ import {
     TrendingDown,
     TrendingUp,
     Minus,
-    HelpCircle
+    HelpCircle,
+    RotateCcw
 } from 'lucide-react'
 import { Tooltip } from './Tooltip'
+import { useToast } from './ui/ToastProvider'
 import {
     calculateBMR,
     calculateBasalCalories,
@@ -35,6 +37,7 @@ interface MetabolismCalculatorProps {
 
 export function MetabolismCalculator({ sex, age: initialAge, currentWeight, height: initialHeight, userId }: MetabolismCalculatorProps) {
     const { t } = useTranslation();
+    const { addToast } = useToast();
     const loadSetting = <T,>(key: string, defaultVal: T): T => {
         const uId = userId || 'guest';
         try {
@@ -186,9 +189,27 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
 
             <div className="calculator-container">
             <div className="input-section">
-                <h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Scale size={24} color="var(--primary-color)" /> {t('common.metabolism.physical_stats')}
-                </h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Scale size={24} color="var(--primary-color)" /> {t('common.metabolism.physical_stats')}
+                    </h2>
+                    {(currentWeight || initialHeight || initialAge) && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (initialAge) setAge(initialAge);
+                                if (currentWeight) setWeight(currentWeight);
+                                if (initialHeight) setHeight(initialHeight);
+                                addToast('Valores restablecidos a tus medidas registradas', 'info');
+                            }}
+                            className="btn-secondary"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.65rem' }}
+                        >
+                            <RotateCcw size={13} />
+                            <span>Restablecer medidas reales</span>
+                        </button>
+                    )}
+                </div>
 
                 <div className="input-grid input-grid-3">
                     <div className="input-group">
