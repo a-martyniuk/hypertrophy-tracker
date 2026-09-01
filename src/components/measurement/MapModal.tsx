@@ -54,7 +54,7 @@ export const MapModal = ({ isOpen, onClose, title }: Props) => {
               justify-content: center;
               z-index: 10000;
               backdrop-filter: blur(10px);
-              padding: 2rem;
+              padding: clamp(0.5rem, 2vw, 1.5rem);
             }
 
             .map-modal {

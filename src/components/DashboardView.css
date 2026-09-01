@@ -242,3 +242,17 @@
         grid-template-columns: 1fr;
     }
 }
+
+@media (max-width: 480px) {
+    .dash-header > .flex {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        gap: 0.6rem;
+    }
+
+    .trophy-header-btn {
+        justify-content: center;
+        width: 100%;
+    }
+}

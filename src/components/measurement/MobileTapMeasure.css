@@ -157,6 +157,10 @@
   max-height: 235px !important;
 }
 
+.mobile-silhouette-wrapper .asymmetry-alerts {
+  display: none !important;
+}
+
 /* Integrated Active Measurement Hero Card (Right below Silhouette) */
 .active-measurement-hero-card {
   display: flex;
