@@ -501,14 +501,12 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             <div style={{ flex: 1, minWidth: 0 }}>
                                 <h2 style={{
                                     margin: 0,
-                                    fontSize: '1.1rem',
+                                    fontSize: '1.05rem',
                                     fontWeight: 900,
                                     color: '#ffffff',
                                     fontFamily: 'var(--font-head)',
                                     lineHeight: 1.15,
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis'
+                                    wordBreak: 'break-word'
                                 }}>
                                     {userName}
                                 </h2>
@@ -726,7 +724,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                         <span style={{ color: '#fbbf24' }}>TRÍADA REEVES (1:1:1)</span>
                                         <span style={{ color: '#34d399', fontFamily: 'var(--font-mono)' }}>{proportions?.reevesTriad.symmetryScore || 96}%</span>
                                     </div>
-                                    <div style={{ fontSize: '0.48rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    <div style={{ fontSize: '0.46rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', lineHeight: 1.2 }}>
                                         Brazo {proportions?.reevesTriad.armAvg || getAvgNum(m?.arm)} · Cuello {m?.neck || '—'} · Gemelo {proportions?.reevesTriad.calfAvg || getAvgNum(m?.calf)} cm
                                     </div>
                                 </div>
@@ -736,14 +734,14 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                         <span style={{ color: '#38bdf8' }}>BALANCE BILATERAL (L/R)</span>
                                         <span style={{ color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>Simetría {symmetry?.overallScore || 98}%</span>
                                     </div>
-                                    <div style={{ fontSize: '0.48rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    <div style={{ fontSize: '0.46rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', lineHeight: 1.2 }}>
                                         {(() => {
-                                            const maxLimb = symmetry?.limbs?.reduce((max, curr) => (curr.diffCm > (max?.diffCm || 0) ? curr : max), symmetry.limbs[0]);
-                                            if (maxLimb && maxLimb.diffCm > 0.5) {
-                                                return `Mayor desvío: ${maxLimb.diffCm} cm en ${maxLimb.name}`;
-                                            }
-                                            return 'Desvío ≤ 0.5 cm en extremidades';
-                                        })()}
+                                             const maxLimb = symmetry?.limbs?.reduce((max, curr) => (curr.diffCm > (max?.diffCm || 0) ? curr : max), symmetry.limbs[0]);
+                                             if (maxLimb && maxLimb.diffCm > 0.5) {
+                                                 return `Mayor desvío: ${maxLimb.diffCm} cm en ${maxLimb.name}`;
+                                             }
+                                             return 'Desvío ≤ 0.5 cm en extremidades';
+                                         })()}
                                     </div>
                                 </div>
                             </div>

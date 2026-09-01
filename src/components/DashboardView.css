@@ -157,11 +157,9 @@
 .value-label {
     color: var(--text-secondary);
     font-weight: 500;
-    font-size: 0.72rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-right: 0.25rem;
+    font-size: 0.74rem;
+    margin-right: 0.35rem;
+    line-height: 1.25;
 }
 
 .value-data {
