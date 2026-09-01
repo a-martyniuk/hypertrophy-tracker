@@ -164,23 +164,28 @@ export const AthleteBadgesGrid: React.FC<Props> = ({ records, sex = 'male' }) =>
 
             {/* Badge Detail Modal */}
             {selectedBadge && (
-                <div style={{
-                    position: 'fixed',
-                    inset: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-                    backdropFilter: 'blur(8px)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 9999,
-                    padding: 'clamp(0.5rem, 2vw, 1rem)'
-                }}>
-                    <div style={{
-                        background: 'linear-gradient(135deg, rgba(16, 20, 31, 0.98), rgba(9, 12, 18, 0.99))',
-                        border: `1px solid ${selectedBadge.isUnlocked ? selectedBadge.rarityColor : 'rgba(255, 255, 255, 0.15)'}`,
-                        borderRadius: '20px',
-                        maxWidth: '440px',
-                        width: '100%',
+                <div
+                    onClick={() => setSelectedBadge(null)}
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                        backdropFilter: 'blur(8px)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 9999,
+                        padding: 'clamp(0.5rem, 2vw, 1rem)'
+                    }}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            background: 'linear-gradient(135deg, rgba(16, 20, 31, 0.98), rgba(9, 12, 18, 0.99))',
+                            border: `1px solid ${selectedBadge.isUnlocked ? selectedBadge.rarityColor : 'rgba(255, 255, 255, 0.15)'}`,
+                            borderRadius: '20px',
+                            maxWidth: '440px',
+                            width: '100%',
                         padding: 'clamp(1rem, 3.5vw, 1.75rem)',
                         boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
                         display: 'flex',

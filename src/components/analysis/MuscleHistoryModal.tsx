@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, TrendingUp } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
 import type { MuscleBenchmark } from '../../utils/benchmarkAnalysis';
@@ -12,6 +12,15 @@ interface Props {
 }
 
 export const MuscleHistoryModal: React.FC<Props> = ({ benchmark, records, onClose }) => {
+    useEffect(() => {
+        if (!benchmark) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [benchmark, onClose]);
+
     if (!benchmark) return null;
 
     const { label, current, potentialMax, percentOfMax, referenceRanges, key } = benchmark;
@@ -60,31 +69,37 @@ export const MuscleHistoryModal: React.FC<Props> = ({ benchmark, records, onClos
     const netChange = parseFloat((latestVal - firstVal).toFixed(1));
 
     return (
-        <div style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.75)',
-            backdropFilter: 'blur(8px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: 'clamp(0.5rem, 2vw, 1rem)'
-        }}>
-            <div style={{
-                background: 'linear-gradient(135deg, rgba(16, 20, 31, 0.98), rgba(9, 12, 18, 0.99))',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
-                borderRadius: '20px',
-                maxWidth: '650px',
-                width: '100%',
-                maxHeight: '92vh',
-                overflowY: 'auto',
-                padding: 'clamp(1rem, 3.5vw, 1.75rem)',
-                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(245, 158, 11, 0.1)',
+        <div
+            onClick={onClose}
+            style={{
+                position: 'fixed',
+                inset: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                backdropFilter: 'blur(8px)',
                 display: 'flex',
-                flexDirection: 'column',
-                gap: '1.25rem'
-            }}>
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 9999,
+                padding: 'clamp(0.5rem, 2vw, 1rem)'
+            }}
+        >
+            <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                    background: 'linear-gradient(135deg, rgba(16, 20, 31, 0.98), rgba(9, 12, 18, 0.99))',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                    borderRadius: '20px',
+                    maxWidth: '650px',
+                    width: '100%',
+                    maxHeight: '92vh',
+                    overflowY: 'auto',
+                    padding: 'clamp(1rem, 3.5vw, 1.75rem)',
+                    boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(245, 158, 11, 0.1)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1.25rem'
+                }}
+            >
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
                     <div>
