@@ -1,10 +1,10 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { toPng } from 'html-to-image';
-import { Download, Sparkles, Check, X, Copy, Link, Zap, Dna, Activity } from 'lucide-react';
+import { Download, Sparkles, Check, X, Copy, Link, Zap, Dna, Activity, Scale } from 'lucide-react';
 import type { MeasurementRecord } from '../../types/measurements';
 import { computeComprehensiveAnalysis } from '../../utils/benchmarkAnalysis';
-import { calculateFFMI, calculateSkeletalPotential } from '../../utils/skeletal';
+import { calculateFFMI, calculateSkeletalPotential, calculateBerkhanLimit, calculateIEO } from '../../utils/skeletal';
 import { calculateBilateralSymmetry } from '../../utils/symmetryAudit';
 import { analyzeProportions } from '../../utils/proportions';
 import { createCompactSelfContainedLink } from '../../services/shortLinkService';
@@ -65,6 +65,33 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
         return calculateFFMI(m.weight, m.height, m.bodyFat || (sex === 'female' ? 22 : 15), sex);
     }, [m?.weight, m?.height, m?.bodyFat, sex]);
 
+    const berkhan = useMemo(() => {
+        const height = m?.height || (sex === 'female' ? 165 : 180);
+        const bf = m?.bodyFat || (sex === 'female' ? 22 : 15);
+        return calculateBerkhanLimit(height, sex, bf);
+    }, [m?.height, m?.bodyFat, sex]);
+
+    const getAvgNum = (val: number | { left?: number; right?: number } | undefined): number => {
+        if (!val) return 0;
+        if (typeof val === 'number') return val;
+        const l = val.left || 0;
+        const r = val.right || 0;
+        if (l > 0 && r > 0) return parseFloat(((l + r) / 2).toFixed(1));
+        return l || r || 0;
+    };
+
+    const ieo = useMemo(() => {
+        const wrist = getAvgNum(m?.wrist) || (sex === 'female' ? 15.5 : 17.5);
+        const ankle = getAvgNum(m?.ankle) || (sex === 'female' ? 20.5 : 22.5);
+        return calculateIEO(wrist, ankle, sex);
+    }, [m?.wrist, m?.ankle, sex]);
+
+    const leanMass = ffmi?.leanMassKg || 0;
+    const fatMass = ffmi?.fatMassKg || 0;
+    const maxLean = berkhan.maxLeanWeightKg;
+    const leanDevelopedPct = maxLean > 0 ? Math.min(100, Math.round((leanMass / maxLean) * 100)) : 0;
+    const leanRemainingKg = Math.max(0, parseFloat((maxLean - leanMass).toFixed(1)));
+
     const initials = (userName || 'AM')
         .split(' ')
         .map((w) => w[0])
@@ -77,14 +104,6 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
         return createCompactSelfContainedLink(userName, record, sex);
     }, [record, userName, sex]);
 
-    const getAvgNum = (val: number | { left?: number; right?: number } | undefined): number => {
-        if (!val) return 0;
-        if (typeof val === 'number') return val;
-        const l = val.left || 0;
-        const r = val.right || 0;
-        if (l > 0 && r > 0) return parseFloat(((l + r) / 2).toFixed(1));
-        return l || r || 0;
-    };
 
     // Full 6 Muscle Groups Projection from Casey Butt Model
     const caseyProjections = useMemo(() => {
@@ -373,24 +392,24 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                         <div style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '12px',
+                            gap: '10px',
                             background: 'rgba(255, 255, 255, 0.035)',
                             border: '1px solid rgba(255, 255, 255, 0.09)',
-                            borderRadius: '16px',
-                            padding: '0.65rem 0.85rem',
+                            borderRadius: '14px',
+                            padding: '0.45rem 0.7rem',
                             zIndex: 2
                         }}>
                             <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '14px',
+                                width: '42px',
+                                height: '42px',
+                                borderRadius: '12px',
                                 background: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
                                 border: '1.5px solid rgba(251, 191, 36, 0.7)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 fontWeight: 900,
-                                fontSize: '1.25rem',
+                                fontSize: '1.15rem',
                                 color: '#000000',
                                 fontFamily: 'var(--font-head)',
                                 flexShrink: 0
@@ -400,7 +419,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             <div style={{ flex: 1, minWidth: 0 }}>
                                 <h2 style={{
                                     margin: 0,
-                                    fontSize: '1.18rem',
+                                    fontSize: '1.1rem',
                                     fontWeight: 900,
                                     color: '#ffffff',
                                     fontFamily: 'var(--font-head)',
@@ -411,16 +430,16 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                 }}>
                                     {userName}
                                 </h2>
-                                <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+                                <div style={{ fontSize: '0.64rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
                                     {m?.height || (sex === 'female' ? 165 : 180)} cm · {m?.weight || (sex === 'female' ? 60 : 75)} kg {m?.bodyFat ? `· ${m.bodyFat}% Grasa` : ''}
                                 </div>
-                                <div style={{ display: 'flex', gap: '6px', marginTop: '5px', flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', gap: '5px', marginTop: '3px', flexWrap: 'wrap' }}>
                                     <div style={{
                                         background: 'rgba(34, 211, 238, 0.12)',
                                         border: '1px solid rgba(34, 211, 238, 0.35)',
                                         borderRadius: '6px',
-                                        padding: '2px 7px',
-                                        fontSize: '0.58rem',
+                                        padding: '1px 6px',
+                                        fontSize: '0.54rem',
                                         fontFamily: 'var(--font-mono)',
                                         display: 'flex',
                                         alignItems: 'center',
@@ -435,8 +454,8 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                         background: 'rgba(168, 85, 247, 0.12)',
                                         border: '1px solid rgba(168, 85, 247, 0.35)',
                                         borderRadius: '6px',
-                                        padding: '2px 7px',
-                                        fontSize: '0.58rem',
+                                        padding: '1px 6px',
+                                        fontSize: '0.54rem',
                                         fontFamily: 'var(--font-mono)',
                                         display: 'flex',
                                         alignItems: 'center',
@@ -450,26 +469,80 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             </div>
                         </div>
 
-                        {/* 3. CENTRAL ANATOMICAL SILHOUETTE & AESTHETIC HARMONY ARCHITECTURE */}
+                        {/* 3. COMPOSICIÓN CORPORAL & POTENCIAL MAGRO (MODELO MARTIN BERKHAN) */}
+                        <div style={{
+                            background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.07), rgba(15, 23, 42, 0.65))',
+                            border: '1px solid rgba(34, 211, 238, 0.25)',
+                            borderRadius: '14px',
+                            padding: '0.45rem 0.65rem',
+                            zIndex: 2,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '4px'
+                        }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.56rem', fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                                    <Scale size={11} /> Composición & Potencial Magro
+                                </span>
+                                <span style={{ fontSize: '0.54rem', color: '#34d399', fontFamily: 'var(--font-mono)', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                                    {leanDevelopedPct}% Límite Magro
+                                </span>
+                            </div>
+
+                            {/* 3 Metric Grid: Lean Mass | Fat Mass | Max Natural Berkhan Limit */}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px' }}>
+                                <div style={{ background: 'rgba(34, 211, 238, 0.08)', border: '1px solid rgba(34, 211, 238, 0.25)', borderRadius: '7px', padding: '3px 4px', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.44rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>MASA MAGRA</div>
+                                    <div style={{ fontSize: '0.74rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
+                                        {leanMass > 0 ? `${leanMass} kg` : '—'}
+                                    </div>
+                                    <div style={{ fontSize: '0.40rem', color: '#cbd5e1', fontWeight: 600 }}>Músculo Activo</div>
+                                </div>
+
+                                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '7px', padding: '3px 4px', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.44rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>MASA GRASA</div>
+                                    <div style={{ fontSize: '0.74rem', fontWeight: 900, color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
+                                        {fatMass > 0 ? `${fatMass} kg` : '—'}
+                                    </div>
+                                    <div style={{ fontSize: '0.40rem', color: '#cbd5e1', fontWeight: 600 }}>{m?.bodyFat ? `${m.bodyFat}% BF` : 'Reserva'}</div>
+                                </div>
+
+                                <div style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.25)', borderRadius: '7px', padding: '3px 4px', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.44rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>MÁX MAGRO</div>
+                                    <div style={{ fontSize: '0.74rem', fontWeight: 900, color: '#fbbf24', fontFamily: 'var(--font-mono)' }}>
+                                        {maxLean} kg
+                                    </div>
+                                    <div style={{ fontSize: '0.40rem', color: '#34d399', fontWeight: 700 }}>+{leanRemainingKg} kg Potencial</div>
+                                </div>
+                            </div>
+
+                            {/* Structural Frame Capacity (IEO) Info Line */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.48rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', padding: '0 2px' }}>
+                                <span>Estructura Ósea (IEO {ieo.value}): <strong style={{ color: '#f8fafc' }}>{ieo.label === 'large' || ieo.label === 'very_large' ? 'Robusta (Alta Capacidad)' : 'Equilibrada'}</strong></span>
+                                <span style={{ color: '#94a3b8' }}>Muñeca {getAvgNum(m?.wrist) || 17.5} · Tobillo {getAvgNum(m?.ankle) || 22.5} cm</span>
+                            </div>
+                        </div>
+
+                        {/* 4. CENTRAL ANATOMICAL SILHOUETTE & AESTHETIC HARMONY ARCHITECTURE */}
                         <div style={{
                             background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(15, 23, 42, 0.5))',
                             border: '1px solid rgba(255, 255, 255, 0.09)',
-                            borderRadius: '16px',
-                            padding: '0.75rem 0.85rem',
+                            borderRadius: '14px',
+                            padding: '0.55rem 0.7rem',
                             zIndex: 2,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            gap: '12px'
+                            gap: '10px'
                         }}>
                             {/* Anatomical Silhouette Graphic */}
-                            <div style={{ position: 'relative', width: '95px', height: '175px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <div style={{ position: 'relative', width: '85px', height: '145px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 <img
                                     src={silhouetteDataUrl || (sex === 'female' ? femaleSilhouette : maleSilhouette)}
                                     alt="Silueta Anatómica"
                                     style={{
-                                        maxHeight: '170px',
-                                        maxWidth: '90px',
+                                        maxHeight: '140px',
+                                        maxWidth: '80px',
                                         width: 'auto',
                                         height: 'auto',
                                         objectFit: 'contain'
@@ -478,55 +551,55 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             </div>
 
                             {/* Distinct Core Architecture & Symmetry Panels (Non-redundant) */}
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px', minWidth: 0 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                                    <span style={{ fontSize: '0.62rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
-                                        <Activity size={12} /> Estructura & Simetría
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '3.5px', minWidth: 0 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
+                                    <span style={{ fontSize: '0.56rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                                        <Activity size={11} /> Estructura & Simetría
                                     </span>
-                                    <span style={{ fontSize: '0.58rem', color: '#10b981', fontFamily: 'var(--font-mono)', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                                    <span style={{ fontSize: '0.52rem', color: '#10b981', fontFamily: 'var(--font-mono)', fontWeight: 800, whiteSpace: 'nowrap' }}>
                                         {proportions?.overallGoldenScore || 92}% Armónico
                                     </span>
                                 </div>
 
                                 {/* Torso & Core Dimensions (Espalda & Cintura) */}
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px' }}>
-                                    <div style={{ background: 'rgba(255, 255, 255, 0.035)', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '8px', padding: '4px 6px' }}>
-                                        <div style={{ fontSize: '0.50rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>ESPALDA / DORSAL</div>
-                                        <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+                                    <div style={{ background: 'rgba(255, 255, 255, 0.035)', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '7px', padding: '3px 5px' }}>
+                                        <div style={{ fontSize: '0.46rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>ESPALDA / DORSAL</div>
+                                        <div style={{ fontSize: '0.74rem', fontWeight: 900, color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>
                                             {m?.back ? `${m.back} cm` : '—'}
                                         </div>
                                     </div>
 
-                                    <div style={{ background: 'rgba(255, 255, 255, 0.035)', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '8px', padding: '4px 6px' }}>
-                                        <div style={{ fontSize: '0.50rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>CINTURA / CORE</div>
-                                        <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
+                                    <div style={{ background: 'rgba(255, 255, 255, 0.035)', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '7px', padding: '3px 5px' }}>
+                                        <div style={{ fontSize: '0.46rem', fontWeight: 800, color: '#94a3b8', whiteSpace: 'nowrap' }}>CINTURA / CORE</div>
+                                        <div style={{ fontSize: '0.74rem', fontWeight: 900, color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
                                             {m?.waist ? `${m.waist} cm` : '—'}
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Steve Reeves Triad (Brazo ≈ Cuello ≈ Gemelo) */}
-                                <div style={{ background: 'rgba(245, 158, 11, 0.07)', border: '1px solid rgba(245, 158, 11, 0.25)', borderRadius: '8px', padding: '4px 7px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                <div style={{ background: 'rgba(245, 158, 11, 0.07)', border: '1px solid rgba(245, 158, 11, 0.25)', borderRadius: '7px', padding: '3px 6px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span style={{ fontSize: '0.52rem', fontWeight: 900, color: '#fbbf24', whiteSpace: 'nowrap' }}>TRÍADA REEVES (1:1:1)</span>
-                                        <span style={{ fontSize: '0.56rem', fontWeight: 900, color: '#34d399', fontFamily: 'var(--font-mono)' }}>
+                                        <span style={{ fontSize: '0.48rem', fontWeight: 900, color: '#fbbf24', whiteSpace: 'nowrap' }}>TRÍADA REEVES (1:1:1)</span>
+                                        <span style={{ fontSize: '0.52rem', fontWeight: 900, color: '#34d399', fontFamily: 'var(--font-mono)' }}>
                                             {proportions?.reevesTriad.symmetryScore || 96}%
                                         </span>
                                     </div>
-                                    <div style={{ fontSize: '0.58rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    <div style={{ fontSize: '0.52rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                         Brazo {proportions?.reevesTriad.armAvg || getAvgNum(m?.arm)} · Cuello {m?.neck || '—'} · Gemelo {proportions?.reevesTriad.calfAvg || getAvgNum(m?.calf)} cm
                                     </div>
                                 </div>
 
                                 {/* Bilateral Balance (L vs R) */}
-                                <div style={{ background: 'rgba(56, 189, 248, 0.07)', border: '1px solid rgba(56, 189, 248, 0.25)', borderRadius: '8px', padding: '4px 7px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                <div style={{ background: 'rgba(56, 189, 248, 0.07)', border: '1px solid rgba(56, 189, 248, 0.25)', borderRadius: '7px', padding: '3px 6px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span style={{ fontSize: '0.52rem', fontWeight: 900, color: '#38bdf8', whiteSpace: 'nowrap' }}>BALANCE BILATERAL (L/R)</span>
-                                        <span style={{ fontSize: '0.56rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
+                                        <span style={{ fontSize: '0.48rem', fontWeight: 900, color: '#38bdf8', whiteSpace: 'nowrap' }}>BALANCE BILATERAL (L/R)</span>
+                                        <span style={{ fontSize: '0.52rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
                                             Simetría {symmetry?.overallScore || 98}%
                                         </span>
                                     </div>
-                                    <div style={{ fontSize: '0.56rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    <div style={{ fontSize: '0.50rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                         {(() => {
                                             const maxLimb = symmetry?.limbs?.reduce((max, curr) => (curr.diffCm > (max?.diffCm || 0) ? curr : max), symmetry.limbs[0]);
                                             if (maxLimb && maxLimb.diffCm > 0.5) {
@@ -539,36 +612,36 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             </div>
                         </div>
 
-                        {/* 4. PROYECCIÓN COMPLETA DE LÍMITES GENÉTICOS NATURALES (CASEY BUTT MODEL) */}
+                        {/* 5. PROYECCIÓN COMPLETA DE LÍMITES GENÉTICOS NATURALES (CASEY BUTT MODEL) */}
                         <div style={{
                             background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.07), rgba(0, 0, 0, 0.6))',
                             border: '1px solid rgba(245, 158, 11, 0.28)',
-                            borderRadius: '16px',
-                            padding: '0.75rem 0.85rem',
+                            borderRadius: '14px',
+                            padding: '0.55rem 0.7rem',
                             zIndex: 2,
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '4px'
+                            gap: '3px'
                         }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                                <span style={{ fontSize: '0.62rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
-                                    <Dna size={12} /> Límite Genético Natural (Casey Butt)
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                                <span style={{ fontSize: '0.58rem', fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                                    <Dna size={11} /> Límite Genético Natural (Casey Butt)
                                 </span>
-                                <span style={{ fontSize: '0.58rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                                <span style={{ fontSize: '0.54rem', fontWeight: 800, color: '#10b981', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                                     {overallDevelopedPct}% Desarrollado
                                 </span>
                             </div>
 
                             {/* All 6 Muscle Groups with Progress Bars */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3.5px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5px' }}>
                                 {caseyProjections.map((item) => {
                                     const currentText = item.current > 0 ? `${item.current} cm` : '—';
                                     const pct = item.pct;
                                     const barColor = pct >= 95 ? '#fbbf24' : pct >= 88 ? '#38bdf8' : pct > 0 ? '#34d399' : '#64748b';
 
                                     return (
-                                        <div key={item.key} style={{ display: 'flex', flexDirection: 'column', gap: '1.5px' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.62rem', lineHeight: 1.2 }}>
+                                        <div key={item.key} style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.56rem', lineHeight: 1.2 }}>
                                                 <span style={{ color: '#e2e8f0', fontWeight: 700, whiteSpace: 'nowrap' }}>
                                                     {item.label}
                                                 </span>
@@ -576,14 +649,14 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                                     <span style={{ color: item.current > 0 ? '#ffffff' : '#64748b', fontWeight: 800 }}>
                                                         {currentText}
                                                     </span>
-                                                    <span style={{ color: '#64748b', fontSize: '0.54rem' }}>
+                                                    <span style={{ color: '#64748b', fontSize: '0.50rem' }}>
                                                         / Max {item.max} cm
                                                     </span>
                                                     <span style={{
-                                                        fontSize: '0.58rem',
+                                                        fontSize: '0.54rem',
                                                         fontWeight: 900,
                                                         color: barColor,
-                                                        minWidth: '26px',
+                                                        minWidth: '24px',
                                                         textAlign: 'right'
                                                     }}>
                                                         {pct > 0 ? `${pct}%` : '—'}
@@ -591,7 +664,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                                 </div>
                                             </div>
                                             {/* Progress Bar */}
-                                            <div style={{ width: '100%', height: '4px', background: 'rgba(255, 255, 255, 0.09)', borderRadius: '2px', overflow: 'hidden' }}>
+                                            <div style={{ width: '100%', height: '3.5px', background: 'rgba(255, 255, 255, 0.09)', borderRadius: '2px', overflow: 'hidden' }}>
                                                 <div style={{
                                                     width: `${Math.min(100, Math.max(pct, 0))}%`,
                                                     height: '100%',
@@ -605,23 +678,23 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                             </div>
                         </div>
 
-                        {/* 5. ESPACIO LIMPIO PARA STICKER DE ENLACE */}
+                        {/* 6. ESPACIO LIMPIO PARA STICKER DE ENLACE */}
                         <div style={{
-                            height: '44px',
+                            height: '38px',
                             border: '1.5px dashed rgba(245, 158, 11, 0.4)',
-                            borderRadius: '14px',
+                            borderRadius: '12px',
                             background: 'rgba(245, 158, 11, 0.05)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '7px',
+                            gap: '6px',
                             color: 'rgba(251, 191, 36, 0.75)',
-                            fontSize: '0.64rem',
+                            fontSize: '0.60rem',
                             fontFamily: 'var(--font-mono)',
                             letterSpacing: '0.5px',
                             zIndex: 2
                         }}>
-                            <Link size={13} strokeWidth={2} />
+                            <Link size={12} strokeWidth={2} />
                             <span>Espacio para Sticker de Enlace</span>
                         </div>
                     </div>
