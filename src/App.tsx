@@ -22,6 +22,7 @@ const SettingsView = lazy(() => import('./components/SettingsView').then(m => ({
 const PublicReportView = lazy(() => import('./components/share/PublicReportView').then(m => ({ default: m.PublicReportView })));
 import { ScrollToTop } from './components/ScrollToTop'
 import { Analytics } from '@vercel/analytics/react'
+import { ToastProvider } from './components/ui/ToastProvider'
 
 function App() {
   const [isGuest, setIsGuestState] = useState(() => {
@@ -104,7 +105,9 @@ function App() {
     return (
       <Suspense fallback={<div className="loading-screen"><Activity className="animate-spin" /></div>}>
         <ErrorBoundary>
-          <PublicReportView />
+          <ToastProvider>
+            <PublicReportView />
+          </ToastProvider>
         </ErrorBoundary>
       </Suspense>
     );

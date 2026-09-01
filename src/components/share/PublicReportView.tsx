@@ -32,6 +32,7 @@ import { AthleteStoryCardModal } from './AthleteStoryCard';
 import { QuickDuelChallengeModal } from './QuickDuelChallengeModal';
 import { useMeasurementLines } from '../../hooks/useMeasurementLines';
 import { formatDateSafe } from '../../utils/dateUtils';
+import { useToast } from '../ui/ToastProvider';
 import type { MeasurementRecord, BodyMeasurements } from '../../types/measurements';
 
 import '../AnalysisView.css';
@@ -216,6 +217,7 @@ export const PublicReportView: React.FC = () => {
     const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
     const [isQuickDuelOpen, setIsQuickDuelOpen] = useState(false);
     const [copiedLink, setCopiedLink] = useState(false);
+    const { addToast } = useToast();
 
     useEffect(() => {
         if (normalizedParamTab) {
@@ -344,6 +346,7 @@ export const PublicReportView: React.FC = () => {
         }
         navigator.clipboard.writeText(shareUrl);
         setCopiedLink(true);
+        addToast('Enlace copiado al portapapeles', 'success');
         setTimeout(() => setCopiedLink(false), 2200);
     };
 
@@ -483,13 +486,16 @@ export const PublicReportView: React.FC = () => {
                         </button>
 
                         <button
-                            onClick={() => generateAthletePDFReport({
-                                latestRecord: activeRecord,
-                                previousRecord,
-                                records,
-                                userName: name,
-                                sex
-                            })}
+                            onClick={() => {
+                                addToast('Generando dossier PDF de alta resolución...', 'info');
+                                generateAthletePDFReport({
+                                    latestRecord: activeRecord,
+                                    previousRecord,
+                                    records,
+                                    userName: name,
+                                    sex
+                                });
+                            }}
                             className="hero-btn hero-btn-secondary"
                             title="Descargar dossier médico-deportivo en PDF"
                         >
