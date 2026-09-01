@@ -425,7 +425,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
           font-weight: 700;
           color: var(--text-secondary);
           font-family: var(--font-mono);
-          white-space: nowrap;
+          line-height: 1.25;
         }
 
         .input-group input, .input-group select {
