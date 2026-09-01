@@ -138,7 +138,7 @@ export const ShareDuelModal: React.FC<Props> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 zIndex: 99999,
-                padding: '1rem'
+                padding: 'clamp(0.5rem, 2vw, 1rem)'
             }}
         >
             <div
@@ -151,7 +151,7 @@ export const ShareDuelModal: React.FC<Props> = ({
                     width: '100%',
                     maxHeight: '90vh',
                     overflowY: 'auto',
-                    padding: '1.5rem',
+                    padding: 'clamp(1rem, 3.5vw, 1.5rem)',
                     boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.15)',
                     display: 'flex',
                     flexDirection: 'column',
