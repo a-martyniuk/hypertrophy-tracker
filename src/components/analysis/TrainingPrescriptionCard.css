@@ -447,6 +447,6 @@
     grid-template-columns: 1fr;
   }
   .active-metrics-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   }
 }
