@@ -548,11 +548,17 @@
 
 @media (max-width: 420px) {
     .tier-labels {
-        font-size: 0.52rem;
+        font-size: 0.55rem;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
         gap: 2px;
+        text-align: center;
     }
-    .tier-labels span {
-        white-space: nowrap;
+    .tier-labels span:first-child {
+        text-align: left;
+    }
+    .tier-labels span:last-child {
+        text-align: right;
     }
     .physique-hero-metrics {
         grid-template-columns: 1fr;

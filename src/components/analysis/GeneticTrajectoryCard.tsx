@@ -59,7 +59,7 @@ export const GeneticTrajectoryCard: React.FC<Props> = ({
 
     return (
         <div className="card glass animate-fade" style={{ padding: '1.25rem' }}>
-            <div className="card-header" style={{ marginBottom: '1rem' }}>
+            <div className="card-header" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.6rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <div style={{
                         background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.05))',
