@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Swords, X, Flame } from 'lucide-react';
+import { Swords, X, Flame, Share2, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../ui/ToastProvider';
 import type { MeasurementRecord } from '../../types/measurements';
 import { compareAthletes, type ComparisonProfile } from '../../utils/athleteComparison';
 
@@ -21,6 +22,7 @@ export const QuickDuelChallengeModal: React.FC<Props> = ({
     targetSex = 'male'
 }) => {
     const navigate = useNavigate();
+    const { addToast } = useToast();
 
     useEffect(() => {
         if (!isOpen) return;
@@ -39,6 +41,7 @@ export const QuickDuelChallengeModal: React.FC<Props> = ({
     const [waist, setWaist] = useState<number>(targetSex === 'female' ? 70 : 82);
     const [challengerName, setChallengerName] = useState<string>('Tú (Retador)');
     const [calculated, setCalculated] = useState(false);
+    const [copiedDuel, setCopiedDuel] = useState(false);
 
     const handleSexChange = (newSex: 'male' | 'female') => {
         setChallengerSex(newSex);
@@ -348,7 +351,35 @@ export const QuickDuelChallengeModal: React.FC<Props> = ({
                         {/* Action CTAs */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <button
-                                onClick={() => navigate('/')}
+                                onClick={async () => {
+                                    const duelText = `⚔️ Duelo Antropométrico: ${challengerName} (${verdict?.verdict.scoreA || 80} pts) vs ${targetName} (${verdict?.verdict.scoreB || 90} pts)\n${window.location.href}`;
+                                    if (typeof navigator !== 'undefined' && navigator.share) {
+                                        try {
+                                            await navigator.share({
+                                                title: `Duelo: ${challengerName} vs ${targetName}`,
+                                                text: duelText,
+                                                url: window.location.href
+                                            });
+                                            return;
+                                        } catch {}
+                                    }
+                                    navigator.clipboard.writeText(duelText);
+                                    setCopiedDuel(true);
+                                    addToast('Resultado del duelo copiado al portapapeles', 'success');
+                                    setTimeout(() => setCopiedDuel(false), 2200);
+                                }}
+                                className="btn-secondary"
+                                style={{ padding: '0.75rem', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                            >
+                                {copiedDuel ? <Check size={16} style={{ color: '#10b981' }} /> : <Share2 size={16} />}
+                                <span>{copiedDuel ? '¡Duelo Copiado!' : 'Compartir Resultado del Duelo'}</span>
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    onClose();
+                                    navigate('/');
+                                }}
                                 className="btn-primary"
                                 style={{ padding: '0.85rem', fontSize: '0.88rem', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                             >
