@@ -109,8 +109,8 @@ export function Tooltip({ content, children, position = 'top', width = 'max-cont
             .tooltip-portal-content.right { transform: translateX(0) translateY(-50%); }
 
             @keyframes tooltipFade {
-              from { opacity: 0; transform: scale(0.98); }
-              to { opacity: 1; transform: scale(1); }
+              from { opacity: 0; }
+              to { opacity: 1; }
             }
           `}</style>
         </div>,

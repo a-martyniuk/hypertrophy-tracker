@@ -203,4 +203,8 @@
     .tactical-metrics-grid {
         grid-template-columns: 1fr;
     }
+    .tactical-report-btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
