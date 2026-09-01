@@ -22,7 +22,7 @@ export const BilateralSymmetryCard: React.FC<Props> = ({ measurements }) => {
 
     return (
         <div className="card glass animate-fade" style={{ padding: '1.25rem' }}>
-            <div className="card-header" style={{ marginBottom: '1rem' }}>
+            <div className="card-header" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.6rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <div style={{
                         background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0.05))',
