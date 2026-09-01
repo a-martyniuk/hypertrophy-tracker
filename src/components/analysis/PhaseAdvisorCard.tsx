@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { Compass, Flame, ArrowUpRight, ArrowDownRight, RefreshCw, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Compass, Flame, ArrowUpRight, ArrowDownRight, RefreshCw, CheckCircle2, ShieldCheck, Calculator, Target } from 'lucide-react';
 import { calculatePhaseRecommendation } from '../../utils/phaseAdvisor';
 
 interface Props {
@@ -19,6 +20,7 @@ export const PhaseAdvisorCard: React.FC<Props> = ({
     age = 28,
     ffmi
 }) => {
+    const navigate = useNavigate();
     const isFemale = sex === 'female';
     const effectiveWeight = weight && weight > 0 ? weight : (isFemale ? 60 : 75);
     const effectiveHeight = height && height > 0 ? height : (isFemale ? 165 : 178);
@@ -193,6 +195,44 @@ export const PhaseAdvisorCard: React.FC<Props> = ({
                     </strong>
                     <span>{rationale}</span>
                 </div>
+            </div>
+
+            {/* Action buttons */}
+            <div style={{ display: 'flex', gap: '0.65rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+                <button
+                    type="button"
+                    onClick={() => navigate('/calculator')}
+                    className="btn-secondary"
+                    style={{
+                        flex: '1 1 180px',
+                        fontSize: '0.78rem',
+                        padding: '0.45rem 0.75rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.4rem'
+                    }}
+                >
+                    <Calculator size={14} style={{ color: 'var(--primary-color)' }} />
+                    <span>Ajustar Calorías en Metabolismo</span>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => navigate('/goals')}
+                    className="btn-secondary"
+                    style={{
+                        flex: '1 1 180px',
+                        fontSize: '0.78rem',
+                        padding: '0.45rem 0.75rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.4rem'
+                    }}
+                >
+                    <Target size={14} style={{ color: '#10b981' }} />
+                    <span>Fijar Objetivo de Grasa / Peso</span>
+                </button>
             </div>
         </div>
     );
