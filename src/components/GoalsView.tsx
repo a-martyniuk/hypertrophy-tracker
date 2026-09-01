@@ -470,7 +470,15 @@ export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profil
                                             {new Date(goal.targetDate).toLocaleDateString()}
                                         </span>
                                     </div>
-                                    <button className="delete-btn" onClick={() => onDeleteGoal(goal.id)}>
+                                    <button
+                                        className="delete-btn"
+                                        title={t('common.goals.confirm_delete')}
+                                        onClick={() => {
+                                            if (window.confirm(t('common.goals.confirm_delete'))) {
+                                                onDeleteGoal(goal.id);
+                                            }
+                                        }}
+                                    >
                                         <Trash2 size={16} />
                                     </button>
                                 </div>

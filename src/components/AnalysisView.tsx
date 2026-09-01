@@ -37,7 +37,17 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const muscleId = searchParams.get('muscle');
-    const [activeTab, setActiveTab] = useState<'prescription' | 'benchmarks' | 'ratios' | 'history' | 'versus'>('prescription');
+    const tabParam = searchParams.get('tab') as 'prescription' | 'benchmarks' | 'ratios' | 'history' | 'versus' | null;
+    const activeTab = (tabParam && ['prescription', 'benchmarks', 'ratios', 'history', 'versus'].includes(tabParam)) ? tabParam : 'prescription';
+
+    const handleTabChange = (tab: 'prescription' | 'benchmarks' | 'ratios' | 'history' | 'versus') => {
+        setSearchParams(prev => {
+            const next = new URLSearchParams(prev);
+            next.set('tab', tab);
+            return next;
+        }, { replace: true });
+    };
+
     const [selectedBenchmark, setSelectedBenchmark] = useState<MuscleBenchmark | null>(null);
 
     const latestRecord = records[0];
@@ -276,35 +286,35 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
 
                 <div className="analysis-tabs">
                     <button
-                        onClick={() => setActiveTab('prescription')}
+                        onClick={() => handleTabChange('prescription')}
                         className={`analysis-tab-btn ${activeTab === 'prescription' ? 'active' : ''}`}
                     >
                         <Dumbbell size={14} />
                         <span>Prescripción & Coaching</span>
                     </button>
                     <button
-                        onClick={() => setActiveTab('benchmarks')}
+                        onClick={() => handleTabChange('benchmarks')}
                         className={`analysis-tab-btn ${activeTab === 'benchmarks' ? 'active' : ''}`}
                     >
                         <Scale size={14} />
                         <span>Niveles & Benchmarks</span>
                     </button>
                     <button
-                        onClick={() => setActiveTab('ratios')}
+                        onClick={() => handleTabChange('ratios')}
                         className={`analysis-tab-btn ${activeTab === 'ratios' ? 'active' : ''}`}
                     >
                         <Sparkles size={14} />
                         <span>Ratios & Simetría</span>
                     </button>
                     <button
-                        onClick={() => setActiveTab('history')}
+                        onClick={() => handleTabChange('history')}
                         className={`analysis-tab-btn ${activeTab === 'history' ? 'active' : ''}`}
                     >
                         <TrendingUp size={14} />
                         <span>Tendencias</span>
                     </button>
                     <button
-                        onClick={() => setActiveTab('versus')}
+                        onClick={() => handleTabChange('versus')}
                         className={`analysis-tab-btn ${activeTab === 'versus' ? 'active' : ''}`}
                         style={{ color: activeTab === 'versus' ? '#22d3ee' : undefined }}
                     >

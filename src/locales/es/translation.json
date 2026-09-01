@@ -111,6 +111,7 @@
             "saving": "Guardando...",
             "save_btn": "Guardar Objetivo",
             "empty": "No tienes metas activas. Usa las sugerencias o crea una manual.",
+            "confirm_delete": "¿Deseas eliminar este objetivo?",
             "current": "Actual",
             "target": "Objetivo",
             "estimate_weeks": "Est. {{weeks}} semanas al ritmo actual",
