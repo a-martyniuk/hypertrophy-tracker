@@ -608,19 +608,20 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
 
                             {/* Graphic row: Anatomical Silhouette (Left) + Crisp SVG Radar (Right) */}
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
-                                {/* Anatomical Silhouette */}
+                                {/* Anatomical Silhouette (Native SVG for 100% reliable canvas export) */}
                                 <div style={{ width: '68px', height: '135px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <img
-                                        src={silhouetteSrc}
-                                        alt="Silueta Anatómica"
-                                        style={{
-                                            maxHeight: '130px',
-                                            maxWidth: '65px',
-                                            width: 'auto',
-                                            height: 'auto',
-                                            objectFit: 'contain'
-                                        }}
-                                    />
+                                    <svg width="65" height="130" viewBox="0 0 260 550" preserveAspectRatio="xMidYMid meet" style={{ overflow: 'visible' }}>
+                                        <image
+                                            href={silhouetteSrc}
+                                            xlinkHref={silhouetteSrc}
+                                            x="0"
+                                            y="0"
+                                            width="260"
+                                            height="550"
+                                            preserveAspectRatio="xMidYMid meet"
+                                            style={{ opacity: 0.95 }}
+                                        />
+                                    </svg>
                                 </div>
 
                                 {/* Crisp Native SVG Radar */}
