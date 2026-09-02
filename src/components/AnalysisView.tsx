@@ -3,13 +3,17 @@ import {
     Line,
     ReferenceLine
 } from 'recharts';
-import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale, Dumbbell, Swords } from 'lucide-react';
+import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale, Dumbbell, Swords, Download, Share2 } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
 import { useAnalysisData } from '../hooks/useAnalysisData';
+import { useProfile } from '../hooks/useProfile';
+import { useToast } from './ui/ToastProvider';
 import { computeComprehensiveAnalysis } from '../utils/benchmarkAnalysis';
 import { generateTrainingPrescriptions } from '../utils/trainingPrescription';
+import { generateAthletePDFReport } from '../utils/pdfReportGenerator';
+import { AthleteStoryCardModal } from './share/AthleteStoryCard';
 import { MeasurementChart } from './analysis/MeasurementChart';
 import { AnalysisFilter } from './analysis/AnalysisFilter';
 import { ProportionsRadar } from './analysis/ProportionsRadar';
@@ -35,6 +39,8 @@ interface Props {
 export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { profile } = useProfile();
+    const { addToast } = useToast();
     const [searchParams, setSearchParams] = useSearchParams();
     const muscleId = searchParams.get('muscle');
     const tabParam = searchParams.get('tab') as 'prescription' | 'benchmarks' | 'ratios' | 'history' | 'versus' | null;
@@ -49,6 +55,7 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
     };
 
     const [selectedBenchmark, setSelectedBenchmark] = useState<MuscleBenchmark | null>(null);
+    const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
 
     const latestRecord = records[0];
     const comprehensiveAnalysis = latestRecord ? computeComprehensiveAnalysis(latestRecord.measurements, sex) : null;
@@ -275,6 +282,37 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                     </div>
 
                     <div className="analysis-header-actions">
+                        {latestRecord && (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        generateAthletePDFReport({
+                                            latestRecord,
+                                            previousRecord: records[1],
+                                            records,
+                                            userName: profile?.name || 'Atleta',
+                                            sex
+                                        });
+                                        addToast('Generando dossier PDF de alta resolución...', 'info');
+                                    }}
+                                    className="analysis-action-btn action-pdf"
+                                    title="Descargar Informe PDF de Análisis"
+                                >
+                                    <Download size={13} />
+                                    <span>Dossier PDF</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsStoryModalOpen(true)}
+                                    className="analysis-action-btn action-story"
+                                    title="Abrir Tarjeta para Story de Instagram (9:16)"
+                                >
+                                    <Share2 size={13} />
+                                    <span>Story 9:16</span>
+                                </button>
+                            </>
+                        )}
                         <button
                             onClick={() => navigate('/potential')}
                             className="analysis-action-btn action-potential"
@@ -504,6 +542,18 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                 records={records}
                 onClose={() => setSelectedBenchmark(null)}
             />
+
+            {/* Athlete 9:16 Story Card Modal */}
+            {latestRecord && (
+                <AthleteStoryCardModal
+                    record={latestRecord}
+                    records={records}
+                    userName={profile?.name || 'Atleta'}
+                    sex={sex}
+                    isOpen={isStoryModalOpen}
+                    onClose={() => setIsStoryModalOpen(false)}
+                />
+            )}
         </div>
     );
 };

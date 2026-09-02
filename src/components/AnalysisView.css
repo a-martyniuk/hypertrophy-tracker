@@ -89,6 +89,18 @@
     border-color: #fbbf24;
 }
 
+.analysis-action-btn.action-story {
+    background: rgba(34, 211, 238, 0.12);
+    border: 1px solid rgba(34, 211, 238, 0.35);
+    color: #22d3ee;
+}
+
+.analysis-action-btn.action-story:hover {
+    background: rgba(34, 211, 238, 0.25);
+    border-color: #22d3ee;
+    color: #ffffff;
+}
+
 .analysis-tabs {
     display: flex;
     align-items: center;

@@ -16,7 +16,7 @@ export const HudButton = ({
     disabled,
     ...props
 }: Props) => {
-    const baseClass = "flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed";
+    const baseClass = "flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed";
 
     let variantClass = "";
     switch (variant) {
