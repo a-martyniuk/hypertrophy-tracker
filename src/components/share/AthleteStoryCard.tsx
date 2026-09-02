@@ -188,21 +188,21 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
         const calfScore = findCaseyPct('calf');
 
         const axes = [
-            { label: 'Torso/Pecho', score: chestScore, angle: -Math.PI / 2, labelX: 117.5, labelY: 14, textAnchor: 'middle' as const },
-            { label: 'Brazos', score: armScore, angle: -Math.PI / 6, labelX: 165, labelY: 46, textAnchor: 'start' as const },
-            { label: 'Antebrazos', score: forearmScore, angle: Math.PI / 6, labelX: 165, labelY: 98, textAnchor: 'start' as const },
-            { label: 'V-Taper', score: vTaperScore, angle: Math.PI / 2, labelX: 117.5, labelY: 132, textAnchor: 'middle' as const },
-            { label: 'Muslos', score: thighScore, angle: (5 * Math.PI) / 6, labelX: 70, labelY: 98, textAnchor: 'end' as const },
-            { label: 'Gemelos', score: calfScore, angle: (7 * Math.PI) / 6, labelX: 70, labelY: 46, textAnchor: 'end' as const }
+            { label: 'Torso', score: chestScore, angle: -Math.PI / 2, labelX: 120, labelY: 13, textAnchor: 'middle' as const },
+            { label: 'Brazo', score: armScore, angle: -Math.PI / 6, labelX: 158, labelY: 45, textAnchor: 'start' as const },
+            { label: 'Antebrazo', score: forearmScore, angle: Math.PI / 6, labelX: 158, labelY: 88, textAnchor: 'start' as const },
+            { label: 'V-Taper', score: vTaperScore, angle: Math.PI / 2, labelX: 120, labelY: 122, textAnchor: 'middle' as const },
+            { label: 'Muslo', score: thighScore, angle: (5 * Math.PI) / 6, labelX: 82, labelY: 88, textAnchor: 'end' as const },
+            { label: 'Gemelo', score: calfScore, angle: (7 * Math.PI) / 6, labelX: 82, labelY: 45, textAnchor: 'end' as const }
         ];
 
         const avgScore = Math.round(
             (chestScore + armScore + forearmScore + vTaperScore + thighScore + calfScore) / 6
         );
 
-        const cx = 117.5;
-        const cy = 71;
-        const R = 44;
+        const cx = 120;
+        const cy = 66;
+        const R = 38;
 
         const points = axes.map(a => {
             const r = R * (Math.min(100, Math.max(30, a.score)) / 100);
@@ -581,7 +581,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
 
                             {/* Structural Frame Capacity (IEO) Info Line */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.48rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', padding: '0 2px' }}>
-                                <span>Estructura Ósea (IEO {ieo.value}): <strong style={{ color: '#f8fafc' }}>{ieo.label === 'large' || ieo.label === 'very_large' ? 'Robusta (Alta Capacidad)' : 'Equilibrada'}</strong></span>
+                                <span>Estructura Ósea (IEO {ieo.value}): <strong style={{ color: '#f8fafc' }}>{ieo.label === 'large' || ieo.label === 'very_large' ? 'Robusta' : 'Media'}</strong></span>
                                 <span style={{ color: '#94a3b8' }}>Muñeca {getAvgNum(m?.wrist) || 17.5} · Tobillo {getAvgNum(m?.ankle) || 22.5} cm</span>
                             </div>
                         </div>
@@ -688,7 +688,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                                     x={p.labelX}
                                                     y={p.labelY}
                                                     fill="#cbd5e1"
-                                                    fontSize="6.8"
+                                                    fontSize="6.2"
                                                     fontFamily="var(--font-mono)"
                                                     textAnchor={p.textAnchor}
                                                     fontWeight="700"
@@ -708,7 +708,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                         <span style={{ color: '#fbbf24' }}>TRÍADA REEVES (1:1:1)</span>
                                         <span style={{ color: '#34d399', fontFamily: 'var(--font-mono)' }}>{proportions?.reevesTriad.symmetryScore || 96}%</span>
                                     </div>
-                                    <div style={{ fontSize: '0.46rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', lineHeight: 1.2 }}>
+                                    <div style={{ fontSize: '0.46rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                         Brazo {proportions?.reevesTriad.armAvg || getAvgNum(m?.arm)} · Cuello {m?.neck || '—'} · Gemelo {proportions?.reevesTriad.calfAvg || getAvgNum(m?.calf)} cm
                                     </div>
                                 </div>
@@ -718,7 +718,7 @@ export const AthleteStoryCardModal: React.FC<Props> = ({
                                         <span style={{ color: '#38bdf8' }}>BALANCE BILATERAL (L/R)</span>
                                         <span style={{ color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>Simetría {symmetry?.overallScore || 98}%</span>
                                     </div>
-                                    <div style={{ fontSize: '0.46rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', lineHeight: 1.2 }}>
+                                    <div style={{ fontSize: '0.46rem', color: '#94a3b8', fontFamily: 'var(--font-mono)', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                         {(() => {
                                              const maxLimb = symmetry?.limbs?.reduce((max, curr) => (curr.diffCm > (max?.diffCm || 0) ? curr : max), symmetry.limbs[0]);
                                              if (maxLimb && maxLimb.diffCm > 0.5) {
