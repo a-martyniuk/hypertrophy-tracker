@@ -11,7 +11,8 @@ import {
     TrendingUp,
     Minus,
     HelpCircle,
-    RotateCcw
+    RotateCcw,
+    Copy
 } from 'lucide-react'
 import { Tooltip } from './Tooltip'
 import { useToast } from './ui/ToastProvider'
@@ -151,22 +152,45 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
         if (type === 'surplus') { color = 'var(--success-color)'; Icon = TrendingUp }
 
         return (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', borderBottom: '1px solid var(--border-color)', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: 0 }}>
                     <div style={{
-                        width: '40px', height: '40px', borderRadius: '10px',
+                        width: '40px', height: '40px', borderRadius: '10px', flexShrink: 0,
                         background: `color-mix(in srgb, ${color} 10%, transparent)`,
                         color: color, display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}>
                         <Icon size={20} />
                     </div>
-                    <div>
-                        <div style={{ fontWeight: '600' }}>{title}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{diff}</div>
+                    <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: '600', fontSize: '0.95rem', color: '#ffffff' }}>{title}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{diff} vs TDEE</div>
                     </div>
                 </div>
-                <div style={{ fontSize: '1.4rem', fontWeight: '700', color: color }}>
-                    {calories}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
+                    <div style={{ fontSize: '1.35rem', fontWeight: '800', color: color, fontFamily: 'var(--font-mono)' }}>
+                        {calories} <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)' }}>kcal</span>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            navigator.clipboard.writeText(`${calories}`);
+                            addToast(`Objetivo de ${calories} kcal copiado al portapapeles`, 'success');
+                        }}
+                        style={{
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            color: 'var(--text-secondary)',
+                            padding: '0.35rem 0.55rem',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                        }}
+                        title="Copiar calorías meta"
+                    >
+                        <Copy size={13} />
+                    </button>
                 </div>
             </div>
         )

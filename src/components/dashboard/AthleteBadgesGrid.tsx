@@ -6,9 +6,10 @@ import type { MeasurementRecord } from '../../types/measurements';
 interface Props {
     records: MeasurementRecord[];
     sex?: 'male' | 'female';
+    onOpenTrophyRoom?: () => void;
 }
 
-export const AthleteBadgesGrid: React.FC<Props> = ({ records, sex = 'male' }) => {
+export const AthleteBadgesGrid: React.FC<Props> = ({ records, sex = 'male', onOpenTrophyRoom }) => {
     const badges = evaluateAthleteBadges(records, sex);
     const [selectedBadge, setSelectedBadge] = useState<AthleteBadge | null>(null);
 
@@ -42,22 +43,56 @@ export const AthleteBadgesGrid: React.FC<Props> = ({ records, sex = 'male' }) =>
                     </div>
                 </div>
 
-                <div style={{
-                    padding: '0.3rem 0.75rem',
-                    borderRadius: '8px',
-                    background: 'rgba(245, 158, 11, 0.12)',
-                    border: '1px solid rgba(245, 158, 11, 0.35)',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.75rem',
-                    fontWeight: 800,
-                    color: '#fbbf24',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                }}>
-                    <Sparkles size={13} />
-                    <span>{unlockedCount} / {totalCount} DESBLOQUEADOS</span>
-                </div>
+                {onOpenTrophyRoom ? (
+                    <button
+                        type="button"
+                        onClick={onOpenTrophyRoom}
+                        style={{
+                            padding: '0.35rem 0.85rem',
+                            borderRadius: '8px',
+                            background: 'rgba(245, 158, 11, 0.15)',
+                            border: '1px solid rgba(245, 158, 11, 0.4)',
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: '0.75rem',
+                            fontWeight: 800,
+                            color: '#fbbf24',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(245, 158, 11, 0.25)';
+                            e.currentTarget.style.borderColor = '#fbbf24';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(245, 158, 11, 0.15)';
+                            e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+                        }}
+                        title="Abrir Vitrina de Trofeos Completa"
+                    >
+                        <Sparkles size={13} />
+                        <span>{unlockedCount} / {totalCount} DESBLOQUEADOS · VER VITRINA &rarr;</span>
+                    </button>
+                ) : (
+                    <div style={{
+                        padding: '0.3rem 0.75rem',
+                        borderRadius: '8px',
+                        background: 'rgba(245, 158, 11, 0.12)',
+                        border: '1px solid rgba(245, 158, 11, 0.35)',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.75rem',
+                        fontWeight: 800,
+                        color: '#fbbf24',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                    }}>
+                        <Sparkles size={13} />
+                        <span>{unlockedCount} / {totalCount} DESBLOQUEADOS</span>
+                    </div>
+                )}
             </div>
 
             {/* Badges Horizontal Grid */}

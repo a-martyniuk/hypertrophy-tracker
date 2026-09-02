@@ -233,7 +233,11 @@ export const DashboardView = ({ userName, sex, records, loading }: DashboardView
             </div>
 
             {/* Badges & Tactical Achievements */}
-            <AthleteBadgesGrid records={records} sex={sex} />
+            <AthleteBadgesGrid
+                records={records}
+                sex={sex}
+                onOpenTrophyRoom={() => setTrophyModalOpen(true)}
+            />
 
             {/* Full Trophy Room & Hall of Fame Modal */}
             <TrophyRoomModal
