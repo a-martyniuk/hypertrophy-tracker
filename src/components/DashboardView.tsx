@@ -14,6 +14,7 @@ import { TrophyRoomModal } from './achievements/TrophyRoomModal';
 import { evaluateAthleteBadges } from '../utils/athleteBadges';
 import { formatDateSafe } from '../utils/dateUtils';
 import type { MeasurementRecord } from '../types/measurements';
+import './DashboardView.css';
 
 interface DashboardViewProps {
     userName: string;
@@ -62,8 +63,6 @@ const Sparkline = ({ data }: { data: number[] }) => {
         </svg>
     );
 };
-
-import './DashboardView.css';
 
 export const DashboardView = ({ userName, sex, records, loading }: DashboardViewProps) => {
     const { t } = useTranslation();
