@@ -152,7 +152,16 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
 
         return (
             <div className="analysis-view animate-fade">
-                <button className="back-link" onClick={() => setSearchParams({})}>
+                <button
+                    className="back-link"
+                    onClick={() => {
+                        setSearchParams(prev => {
+                            const next = new URLSearchParams(prev);
+                            next.delete('muscle');
+                            return next;
+                        });
+                    }}
+                >
                     <ArrowLeft size={16} /> {t('analysis.back_to_panel')}
                 </button>
 
