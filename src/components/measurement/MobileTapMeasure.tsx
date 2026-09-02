@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { DynamicSilhouette } from '../DynamicSilhouette';
 import { MUSCLE_METADATA, MEASUREMENT_KEYS } from '../../utils/muscleMetadata';
 import type { BodyMeasurements, MeasurementRecord } from '../../types/measurements';
+import { hapticFeedback } from '../../utils/haptics';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -63,6 +64,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
   }, [activeMuscle]);
 
   const handlePrev = () => {
+    hapticFeedback.light();
     if (currentIndex <= 0) {
       setActiveMuscle(muscleKeys[muscleKeys.length - 1]);
     } else {
@@ -71,6 +73,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
   };
 
   const handleNext = () => {
+    hapticFeedback.light();
     if (currentIndex >= muscleKeys.length - 1) {
       setActiveMuscle(muscleKeys[0]);
     } else {
@@ -102,6 +105,7 @@ export const MobileTapMeasure: React.FC<Props> = ({
 
   // Adjust single value by delta
   const adjustSingleVal = (delta: number) => {
+    hapticFeedback.light();
     const cur = (measurements as any)[activeMuscle] || 0;
     const newVal = Math.max(0, parseFloat((cur + delta).toFixed(1)));
     setValue(activeMuscle, newVal, { shouldDirty: true, shouldValidate: true });

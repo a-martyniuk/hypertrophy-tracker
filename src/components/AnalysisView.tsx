@@ -3,9 +3,10 @@ import {
     Line,
     ReferenceLine
 } from 'recharts';
-import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale, Dumbbell, Swords, Download, Share2 } from 'lucide-react';
+import { ArrowLeft, Target, BarChart3, TrendingUp, Sparkles, Scale, Dumbbell, Swords, Download, Share2, Search } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { hapticFeedback } from '../utils/haptics';
 import type { MeasurementRecord, GrowthGoal } from '../types/measurements';
 import { useAnalysisData } from '../hooks/useAnalysisData';
 import { useProfile } from '../hooks/useProfile';
@@ -47,6 +48,7 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
     const activeTab = (tabParam && ['prescription', 'benchmarks', 'ratios', 'history', 'versus'].includes(tabParam)) ? tabParam : 'prescription';
 
     const handleTabChange = (tab: 'prescription' | 'benchmarks' | 'ratios' | 'history' | 'versus') => {
+        hapticFeedback.medium();
         setSearchParams(prev => {
             const next = new URLSearchParams(prev);
             next.set('tab', tab);
@@ -56,6 +58,8 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
 
     const [selectedBenchmark, setSelectedBenchmark] = useState<MuscleBenchmark | null>(null);
     const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
+    const [benchmarkQuery, setBenchmarkQuery] = useState('');
+    const [benchmarkCategory, setBenchmarkCategory] = useState<'all' | 'torso' | 'arms' | 'legs'>('all');
 
     const latestRecord = records[0];
     const comprehensiveAnalysis = latestRecord ? computeComprehensiveAnalysis(latestRecord.measurements, sex) : null;
@@ -424,17 +428,106 @@ export const AnalysisView: React.FC<Props> = ({ records, goals, sex = 'male' }) 
                         </div>
                     </div>
 
-                    {comprehensiveAnalysis ? (
-                        <div className="benchmarks-grid">
-                            {comprehensiveAnalysis.muscleBenchmarks.map((bm) => (
-                                <BenchmarkCard
-                                    key={bm.key}
-                                    benchmark={bm}
-                                    onClick={() => setSelectedBenchmark(bm)}
-                                />
-                            ))}
-                        </div>
-                    ) : (
+                    {comprehensiveAnalysis ? (() => {
+                        const filteredBenchmarks = comprehensiveAnalysis.muscleBenchmarks.filter((bm) => {
+                            const q = benchmarkQuery.trim().toLowerCase();
+                            const matchesQ = !q || bm.label.toLowerCase().includes(q) || bm.levelLabel.toLowerCase().includes(q);
+                            if (!matchesQ) return false;
+                            if (benchmarkCategory === 'all') return true;
+                            const key = bm.key.toLowerCase();
+                            if (benchmarkCategory === 'torso') return ['neck', 'pecho', 'waist', 'hips', 'chest', 'cuello', 'cintura', 'cadera'].some(k => key.includes(k));
+                            if (benchmarkCategory === 'arms') return ['arm', 'forearm', 'wrist', 'brazo', 'antebrazo', 'muñeca'].some(k => key.includes(k));
+                            if (benchmarkCategory === 'legs') return ['thigh', 'calf', 'ankle', 'muslo', 'pantorrilla', 'tobillo', 'gemelo'].some(k => key.includes(k));
+                            return true;
+                        });
+
+                        return (
+                            <>
+                                {/* Fast Filter & Search Bar */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.25rem' }}>
+                                    {/* Category Pills */}
+                                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                        {[
+                                            { id: 'all', label: 'Todos' },
+                                            { id: 'torso', label: 'Torso' },
+                                            { id: 'arms', label: 'Brazos' },
+                                            { id: 'legs', label: 'Piernas' }
+                                        ].map(cat => (
+                                            <button
+                                                key={cat.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    hapticFeedback.light();
+                                                    setBenchmarkCategory(cat.id as any);
+                                                }}
+                                                style={{
+                                                    padding: '0.35rem 0.75rem',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.75rem',
+                                                    fontFamily: 'var(--font-mono)',
+                                                    fontWeight: 700,
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s',
+                                                    background: benchmarkCategory === cat.id ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.04)',
+                                                    color: benchmarkCategory === cat.id ? '#000000' : '#94a3b8',
+                                                    border: benchmarkCategory === cat.id ? '1px solid var(--primary-color)' : '1px solid rgba(255, 255, 255, 0.08)'
+                                                }}
+                                            >
+                                                {cat.label}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {/* Search Input */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0, 0, 0, 0.35)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', padding: '0.35rem 0.65rem' }}>
+                                        <Search size={14} style={{ color: '#94a3b8' }} />
+                                        <input
+                                            type="text"
+                                            value={benchmarkQuery}
+                                            onChange={(e) => setBenchmarkQuery(e.target.value)}
+                                            placeholder="Buscar grupo..."
+                                            style={{
+                                                background: 'transparent',
+                                                border: 'none',
+                                                outline: 'none',
+                                                color: '#ffffff',
+                                                fontSize: '0.78rem',
+                                                width: '120px',
+                                                fontFamily: 'inherit'
+                                            }}
+                                        />
+                                        {benchmarkQuery && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setBenchmarkQuery('')}
+                                                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.75rem', padding: 0 }}
+                                            >
+                                                &times;
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {filteredBenchmarks.length > 0 ? (
+                                    <div className="benchmarks-grid">
+                                        {filteredBenchmarks.map((bm) => (
+                                            <BenchmarkCard
+                                                key={bm.key}
+                                                benchmark={bm}
+                                                onClick={() => setSelectedBenchmark(bm)}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="card glass" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
+                                        <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: 0 }}>
+                                            No se encontraron grupos musculares para "{benchmarkQuery}".
+                                        </p>
+                                    </div>
+                                )}
+                            </>
+                        );
+                    })() : (
                         <div className="card glass" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
                             <p style={{ color: '#94a3b8', margin: 0 }}>
                                 No hay mediciones antropométricas disponibles para calcular benchmarks. Registra tu primera medición.

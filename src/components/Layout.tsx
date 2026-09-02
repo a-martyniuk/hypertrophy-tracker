@@ -21,6 +21,7 @@ import { Tooltip } from './Tooltip'
 import { ToastProvider } from './ui/ToastProvider'
 import { useAuth } from '../hooks/useAuth'
 import { useProfile } from '../hooks/useProfile'
+import { hapticFeedback } from '../utils/haptics'
 
 interface LayoutProps {
     isGuest: boolean;
@@ -91,6 +92,7 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
     }, [location.pathname]);
 
     const handleNavigateMobile = (path: string) => {
+        hapticFeedback.light()
         setMobileMenuOpen(false)
         navigate(path)
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
