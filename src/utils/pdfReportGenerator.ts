@@ -698,6 +698,16 @@ export const generateAthletePDFReport = async (options: PDFReportOptions) => {
     doc.text('Pagina 2 de 2', 185, 292);
 
     const sanitizedName = userName.replace(/\s+/g, '_').toLowerCase();
-    const dateStr = new Date(latestRecord.date).toISOString().split('T')[0];
+    let dateStr = 'registro';
+    try {
+        const d = new Date(latestRecord.date);
+        if (!isNaN(d.getTime())) {
+            dateStr = d.toISOString().split('T')[0];
+        } else if (typeof latestRecord.date === 'string') {
+            dateStr = latestRecord.date.split('T')[0];
+        }
+    } catch {
+        dateStr = 'registro';
+    }
     doc.save('dossier_hipertrofia_' + sanitizedName + '_' + dateStr + '.pdf');
 };
