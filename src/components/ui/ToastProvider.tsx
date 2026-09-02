@@ -68,7 +68,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
-          z-index: 1000;
+          z-index: 999999;
           pointer-events: none; /* Allow clicking through container */
         }
         .toast {

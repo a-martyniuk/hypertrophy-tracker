@@ -95,7 +95,7 @@ export function Tooltip({ content, children, position = 'top', width = 'max-cont
               padding: 0.6rem 0.9rem;
               border-radius: 8px;
               font-size: 0.8rem;
-              z-index: 9999; /* Portal moves it to body, ensuring top z-index */
+              z-index: 1000000; /* Portal moves it to body, ensuring top z-index over modals */
               border: 1px solid var(--border-color);
               box-shadow: 0 4px 20px rgba(0,0,0,0.6);
               pointer-events: none;
