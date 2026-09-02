@@ -1,18 +1,17 @@
-import type { MeasurementRecord, MeasurementCondition } from '../types/measurements';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, ChevronRight, Trash2, Moon, TestTube, Zap, Coffee, Scale, Activity, Plus } from 'lucide-react';
+import type { MeasurementRecord, MeasurementCondition } from '../types/measurements';
 import { useToast } from './ui/ToastProvider';
+import { formatDateSafe } from '../utils/dateUtils';
+import './HistoryView.css';
 
 interface Props {
   records: MeasurementRecord[];
   onDelete: (id: string) => Promise<{ success: boolean; error?: string }>;
   onSelect: (record: MeasurementRecord) => void;
 }
-
-import './HistoryView.css';
-import { formatDateSafe } from '../utils/dateUtils';
 
 export const HistoryView = ({ records, onDelete, onSelect }: Props) => {
   const { t } = useTranslation();

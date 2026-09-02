@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Moon, Zap, Coffee, HelpCircle } from 'lucide-react';
 import { Tooltip } from '../Tooltip';
 import type { RecordMetadata } from '../../types/measurements';
@@ -8,8 +9,6 @@ interface Props {
     notes: string;
     onNotesChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
-
-import { useTranslation } from 'react-i18next';
 
 export const ContextSection = ({ metadata, onChange, notes, onNotesChange }: Props) => {
     const { t } = useTranslation();

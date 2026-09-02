@@ -84,7 +84,7 @@ export const DynamicSilhouette = ({
     <div className="silhouette-container">
       <svg
         id="silhouette-svg-root"
-        viewBox="0 0 260 572"
+        viewBox="0 -24 260 596"
         className="body-svg animate-fade-in silhouette-svg"
         preserveAspectRatio="xMidYMid meet"
       >

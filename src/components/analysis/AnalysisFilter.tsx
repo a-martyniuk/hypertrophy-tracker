@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { TimeRange } from '../../hooks/useAnalysisData';
 
 interface Props {
@@ -11,8 +12,6 @@ const TIME_RANGES: { labelKey: string; value: TimeRange }[] = [
     { labelKey: 'analysis.filter.6m', value: '6m' },
     { labelKey: 'analysis.filter.3m', value: '3m' },
 ];
-
-import { useTranslation } from 'react-i18next';
 
 export const AnalysisFilter = ({ currentRange, onChange }: Props) => {
     const { t } = useTranslation();
