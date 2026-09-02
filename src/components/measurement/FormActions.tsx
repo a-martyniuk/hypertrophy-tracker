@@ -1,11 +1,10 @@
 import { Save, X, Activity } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     isSaving: boolean;
     onCancel: () => void;
 }
-
-import { useTranslation } from 'react-i18next';
 
 export const FormActions = ({ isSaving, onCancel }: Props) => {
     const { t } = useTranslation();
