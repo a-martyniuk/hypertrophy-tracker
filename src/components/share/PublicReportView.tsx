@@ -34,7 +34,6 @@ import { useMeasurementLines } from '../../hooks/useMeasurementLines';
 import { formatDateSafe } from '../../utils/dateUtils';
 import { useToast } from '../ui/ToastProvider';
 import type { MeasurementRecord, BodyMeasurements } from '../../types/measurements';
-
 import '../AnalysisView.css';
 import '../MeasurementForm.css';
 import './PublicReportView.css';

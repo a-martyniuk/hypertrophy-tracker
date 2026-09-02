@@ -8,6 +8,7 @@ import { analyzeProportions } from '../utils/proportions';
 import { predictGoalTimeline } from '../utils/goalPredictor';
 import { formatDateSafe } from '../utils/dateUtils';
 import { useToast } from './ui/ToastProvider';
+import './GoalsView.css';
 
 interface Props {
     goals: GrowthGoal[];
@@ -18,8 +19,6 @@ interface Props {
     records?: MeasurementRecord[];
     onRefresh?: () => void;
 }
-
-import './GoalsView.css';
 
 export const GoalsView = ({ goals, onAddGoal, onDeleteGoal, latestRecord, profile, records: _records = [], onRefresh }: Props) => {
     const { t } = useTranslation();
