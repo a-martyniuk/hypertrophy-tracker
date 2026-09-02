@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { Tooltip } from './Tooltip'
 import { useToast } from './ui/ToastProvider'
+import './MetabolismCalculator.css'
 import {
     calculateBMR,
     calculateBasalCalories,
@@ -129,7 +130,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
 
     const InfoCard = ({ title, value, unit, icon: Icon, subtext, color = 'var(--text-primary)', tooltip }: any) => (
         <div className="card glass info-card-interactive">
-            <div className="card-header">
+            <div className="metabolism-card-header">
                 <Icon size={16} />
                 {title}
                 {tooltip && (
@@ -415,195 +416,7 @@ export function MetabolismCalculator({ sex, age: initialAge, currentWeight, heig
                     )}
                 </div>
             </div>
-
-            <style>{`
-        .calculator-container {
-          display: grid;
-          grid-template-columns: 1.15fr 0.85fr;
-          gap: 2rem;
-          padding-bottom: 4rem;
-          max-width: 1200px;
-          margin: 0 auto;
-          width: 100%;
-        }
-
-        .input-section {
-          background: rgba(14, 18, 28, 0.75);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 20px;
-          padding: 1.5rem;
-        }
-
-        .results-section {
-          background: rgba(14, 18, 28, 0.75);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 20px;
-          padding: 1.5rem;
-        }
-
-        .input-grid-3 {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1rem;
-        }
-
-        .input-grid-2 {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
-        }
-
-        .input-group {
-          display: flex;
-          flex-direction: column;
-          gap: 0.45rem;
-        }
-
-        .input-group label {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          min-height: 1.5rem;
-          font-size: 0.82rem;
-          font-weight: 700;
-          color: var(--text-secondary);
-          font-family: var(--font-mono);
-          line-height: 1.25;
-        }
-
-        .input-group input, .input-group select {
-          width: 100%;
-          background: rgba(0, 0, 0, 0.35);
-          border: 1px solid var(--border-color);
-          padding: 0.75rem 0.85rem;
-          border-radius: 12px;
-          color: white;
-          font-family: var(--font-mono);
-          font-size: 0.95rem;
-          outline: none;
-          transition: all 0.2s ease;
-        }
-
-        .input-group input:focus, .input-group select:focus {
-          border-color: var(--primary-color);
-          box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
-        }
-
-        .selector-group {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 0.8rem;
-        }
-
-        .select-btn {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid var(--border-color);
-          padding: 1rem;
-          border-radius: 12px;
-          text-align: left;
-          transition: all 0.2s;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .select-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-        }
-
-        .select-btn.active {
-          background: rgba(245, 158, 11, 0.15);
-          border-color: var(--primary-color);
-        }
-
-        .select-btn .val {
-          font-weight: 700;
-          color: var(--primary-color);
-        }
-
-        .select-btn .desc {
-          font-size: 0.8rem;
-          color: var(--text-secondary);
-        }
-
-        .results-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
-        }
-
-        .info-card-interactive {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          position: relative;
-          transition: transform 0.2s, background 0.2s, z-index 0s;
-          z-index: 1;
-        }
-
-        .info-card-interactive:hover {
-          z-index: 10;
-          transform: translateY(-2px);
-          background: var(--surface-hover);
-        }
-
-        .card-header {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          color: var(--text-secondary);
-          font-size: 0.9rem;
-        }
-
-        .help-icon {
-          cursor: help;
-          opacity: 0.6;
-        }
-
-        .card-value {
-          font-size: 1.8rem;
-          font-weight: 700;
-        }
-
-        .unit {
-          font-size: 1rem;
-          font-weight: 500;
-          color: var(--text-secondary);
-        }
-
-        .card-subtext {
-          font-size: 0.8rem;
-          color: var(--text-secondary);
-        }
-
-        @media (max-width: 900px) {
-          .calculator-container {
-             grid-template-columns: 1fr;
-             padding: 0 0.5rem 4rem 0.5rem;
-             gap: 1.5rem;
-          }
-        }
-
-        @media (max-width: 600px) {
-          .input-grid-3 {
-            grid-template-columns: 1fr;
-            gap: 0.85rem;
-          }
-          .input-grid-2 {
-            grid-template-columns: 1fr;
-            gap: 0.85rem;
-          }
-          .selector-group {
-            grid-template-columns: 1fr;
-          }
-          .results-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
-        </div>
+            </div>
         </div>
     )
 }
