@@ -27,6 +27,7 @@ import { generateAthletePDFReport } from '../utils/pdfReportGenerator';
 import { ShareReportModal } from './share/ShareReportModal';
 import { AthleteStoryCardModal } from './share/AthleteStoryCard';
 import { useToast } from './ui/ToastProvider';
+import './SettingsView.css';
 
 interface Props {
     records: MeasurementRecord[];
@@ -272,7 +273,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                 {/* 1. PROFILE & BIOMETRICS CARD */}
                 {showProfile && (
                     <div className="card glass settings-card animate-fade">
-                        <div className="card-header">
+                        <div className="settings-card-header">
                             <User className="text-amber-400" size={24} />
                             <div>
                                 <h3 style={{ margin: 0 }}>Perfil del Atleta & Biometría</h3>
@@ -386,7 +387,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                 {/* 2. PRIVACY & COMMUNITY CARD */}
                 {showPrivacy && (
                     <div className="card glass settings-card animate-fade">
-                        <div className="card-header">
+                        <div className="settings-card-header">
                             <Shield className="text-cyan-400" size={24} />
                             <div>
                                 <h3 style={{ margin: 0 }}>Privacidad & Duelos Comunitarios</h3>
@@ -493,7 +494,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                 {/* 3. CONSOLIDATED DATA EXPORT & SHARING HUB */}
                 {showExport && (
                     <div className="card glass settings-card animate-fade" style={{ gridColumn: activeSection === 'export' ? '1 / -1' : undefined }}>
-                        <div className="card-header">
+                        <div className="settings-card-header">
                             <Download className="text-emerald-400" size={24} />
                             <div>
                                 <h3 style={{ margin: 0 }}>Centro de Exportación & Difusión de Telemetría</h3>
@@ -624,7 +625,7 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                 {/* 4. LANGUAGE & PREFERENCES CARD */}
                 {showSystem && (
                     <div className="card glass settings-card animate-fade">
-                        <div className="card-header">
+                        <div className="settings-card-header">
                             <Languages className="text-blue-400" size={24} />
                             <div>
                                 <h3 style={{ margin: 0 }}>{t('settings.language')} & Sistema</h3>
@@ -673,373 +674,6 @@ export const SettingsView = ({ records, goals, profile }: Props) => {
                     onClose={() => setIsStoryModalOpen(false)}
                 />
             )}
-
-            <style>{`
-                .settings-view {
-                    padding: 1.5rem;
-                    max-width: 1050px;
-                    margin: 0 auto;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1.5rem;
-                }
-
-                .settings-header-banner {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    flex-wrap: wrap;
-                    gap: 1rem;
-                    padding-bottom: 1.25rem;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-                }
-
-                .settings-title-group {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 0.35rem;
-                }
-
-                .settings-title-group h2 {
-                    font-size: 1.75rem;
-                    font-weight: 800;
-                    color: #ffffff;
-                    margin: 0;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.6rem;
-                }
-
-                .settings-title-group p {
-                    font-size: 0.85rem;
-                    color: var(--text-secondary);
-                    margin: 0;
-                }
-
-                .settings-status-chips {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    flex-wrap: wrap;
-                }
-
-                .settings-chip {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.4rem;
-                    padding: 0.35rem 0.75rem;
-                    border-radius: 20px;
-                    font-size: 0.75rem;
-                    font-family: var(--font-mono);
-                    font-weight: 700;
-                    background: rgba(255, 255, 255, 0.04);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    color: #cbd5e1;
-                }
-
-                .settings-chip.online {
-                    background: rgba(16, 185, 129, 0.12);
-                    border-color: rgba(16, 185, 129, 0.3);
-                    color: #34d399;
-                }
-
-                .settings-chip.local {
-                    background: rgba(245, 158, 11, 0.12);
-                    border-color: rgba(245, 158, 11, 0.3);
-                    color: #fbbf24;
-                }
-
-                /* Tab Navigation Switcher */
-                .settings-tabs-bar {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    overflow-x: auto;
-                    padding-bottom: 0.35rem;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-                    scrollbar-width: none;
-                }
-                .settings-tabs-bar::-webkit-scrollbar {
-                    display: none;
-                }
-
-                .settings-tab-btn {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    padding: 0.6rem 1.1rem;
-                    border-radius: 12px;
-                    font-size: 0.85rem;
-                    font-weight: 700;
-                    color: #94a3b8;
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.06);
-                    cursor: pointer;
-                    white-space: nowrap;
-                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-                }
-
-                .settings-tab-btn:hover {
-                    color: #ffffff;
-                    background: rgba(255, 255, 255, 0.06);
-                    border-color: rgba(255, 255, 255, 0.12);
-                }
-
-                .settings-tab-btn.active {
-                    color: #000000;
-                    background: var(--primary-color);
-                    border-color: var(--primary-color);
-                    box-shadow: 0 0 16px rgba(245, 158, 11, 0.3);
-                }
-
-                /* Settings Layout Grid */
-                .settings-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-                    gap: 1.5rem;
-                }
-
-                .settings-card {
-                    padding: 1.75rem;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1.25rem;
-                    border-radius: 16px;
-                    background: rgba(18, 18, 24, 0.65);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    position: relative;
-                    overflow: hidden;
-                }
-
-                .settings-card::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 2px;
-                    background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.4), transparent);
-                    opacity: 0.5;
-                }
-
-                .card-header {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.85rem;
-                }
-
-                .card-header h3 {
-                    font-size: 1.15rem;
-                    font-weight: 800;
-                    color: #ffffff;
-                    margin: 0;
-                }
-
-                .card-header span {
-                    font-size: 0.75rem;
-                    color: #94a3b8;
-                }
-
-                .settings-input {
-                    width: 100%;
-                    padding: 0.75rem 1rem;
-                    border-radius: 10px;
-                    background: rgba(0, 0, 0, 0.35);
-                    border: 1px solid rgba(255, 255, 255, 0.12);
-                    color: #ffffff;
-                    font-family: inherit;
-                    font-size: 0.9rem;
-                    outline: none;
-                    transition: border-color 0.2s;
-                    box-sizing: border-box;
-                }
-
-                .settings-input:focus {
-                    border-color: var(--primary-color);
-                    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
-                }
-
-                /* Export Hub Specific Styles */
-                .export-hub-grid {
-                    display: grid;
-                    grid-template-columns: 1fr;
-                    gap: 1rem;
-                }
-
-                .export-item-card {
-                    padding: 1.25rem;
-                    border-radius: 14px;
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.07);
-                    display: flex;
-                    flex-direction: column;
-                    gap: 0.85rem;
-                    transition: all 0.2s ease;
-                }
-
-                .export-item-card:hover {
-                    background: rgba(255, 255, 255, 0.05);
-                    border-color: rgba(255, 255, 255, 0.12);
-                }
-
-                .export-item-top {
-                    display: flex;
-                    align-items: flex-start;
-                    justify-content: space-between;
-                    gap: 0.75rem;
-                }
-
-                .export-item-title {
-                    font-size: 0.95rem;
-                    font-weight: 800;
-                    color: #ffffff;
-                    margin: 0;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                }
-
-                .export-badge {
-                    font-size: 0.68rem;
-                    font-family: var(--font-mono);
-                    font-weight: 700;
-                    padding: 0.2rem 0.5rem;
-                    border-radius: 6px;
-                    text-transform: uppercase;
-                }
-
-                .export-badge.pdf {
-                    background: rgba(245, 158, 11, 0.15);
-                    border: 1px solid rgba(245, 158, 11, 0.3);
-                    color: #fbbf24;
-                }
-
-                .export-badge.social {
-                    background: rgba(56, 189, 248, 0.15);
-                    border: 1px solid rgba(56, 189, 248, 0.3);
-                    color: #38bdf8;
-                }
-
-                .export-badge.json {
-                    background: rgba(52, 211, 153, 0.15);
-                    border: 1px solid rgba(52, 211, 153, 0.3);
-                    color: #34d399;
-                }
-
-                .export-item-desc {
-                    font-size: 0.78rem;
-                    color: #94a3b8;
-                    line-height: 1.4;
-                    margin: 0;
-                }
-
-                .export-item-btn {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 0.5rem;
-                    padding: 0.65rem 1.1rem;
-                    border-radius: 10px;
-                    font-size: 0.82rem;
-                    font-weight: 800;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    border: 1px solid transparent;
-                }
-
-                .export-item-btn.pdf-btn {
-                    background: rgba(245, 158, 11, 0.2);
-                    border-color: rgba(245, 158, 11, 0.5);
-                    color: #fbbf24;
-                }
-                .export-item-btn.pdf-btn:hover {
-                    background: #fbbf24;
-                    color: #000000;
-                }
-
-                .export-item-btn.social-btn {
-                    background: rgba(56, 189, 248, 0.2);
-                    border-color: rgba(56, 189, 248, 0.5);
-                    color: #38bdf8;
-                }
-                .export-item-btn.social-btn:hover {
-                    background: #38bdf8;
-                    color: #000000;
-                }
-
-                .export-item-btn.json-btn {
-                    background: rgba(52, 211, 153, 0.2);
-                    border-color: rgba(52, 211, 153, 0.5);
-                    color: #34d399;
-                }
-                .export-item-btn.json-btn:hover {
-                    background: #34d399;
-                    color: #000000;
-                }
-
-                .success-tag {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.4rem;
-                    padding: 0.5rem 0.85rem;
-                    border-radius: 8px;
-                    background: rgba(16, 185, 129, 0.15);
-                    border: 1px solid rgba(16, 185, 129, 0.3);
-                    color: #34d399;
-                    font-size: 0.78rem;
-                    font-weight: 600;
-                }
-
-                .error-tag {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.4rem;
-                    padding: 0.5rem 0.85rem;
-                    border-radius: 8px;
-                    background: rgba(239, 68, 68, 0.15);
-                    border: 1px solid rgba(239, 68, 68, 0.3);
-                    color: #f87171;
-                    font-size: 0.78rem;
-                    font-weight: 600;
-                }
-
-                .language-selector {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 0.75rem;
-                }
-
-                .lang-btn {
-                    padding: 0.75rem;
-                    border-radius: 12px;
-                    font-size: 0.85rem;
-                    font-weight: 700;
-                    cursor: pointer;
-                    background: rgba(255, 255, 255, 0.04);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    color: #cbd5e1;
-                    transition: all 0.2s ease;
-                }
-
-                .lang-btn.active {
-                    background: rgba(56, 189, 248, 0.15);
-                    border-color: #38bdf8;
-                    color: #38bdf8;
-                }
-
-                @media (max-width: 768px) {
-                    .settings-view {
-                        padding: 0;
-                        gap: 1rem;
-                    }
-                    .settings-grid {
-                        grid-template-columns: 1fr;
-                    }
-                    .settings-card {
-                        padding: 1.15rem;
-                    }
-                }
-            `}</style>
         </div>
     );
 };
