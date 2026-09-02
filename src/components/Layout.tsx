@@ -47,6 +47,15 @@ export const Layout = ({ setIsGuest }: LayoutProps) => {
         };
     }, []);
 
+    useEffect(() => {
+        if (!mobileMenuOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setMobileMenuOpen(false);
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [mobileMenuOpen]);
+
     const userSex = profile?.sex || 'male'
     const userName = profile?.name || authUser?.email?.split('@')[0] || 'Atleta'
     const activeView = location.pathname.slice(1) || 'dashboard'
