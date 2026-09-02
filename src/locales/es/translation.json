@@ -218,9 +218,9 @@
         "language_desc": "Selecciona tu idioma preferido.",
         "confirm_import": "IMPORTANTE: La importación sobrescribirá los datos locales actuales. ¿Continuar?",
         "error_format": "Formato de archivo no válido.",
-        "success_export": "Data exported successfully.",
-        "success_import": "Data imported. Reloading app...",
-        "error_read": "Error reading file.",
+        "success_export": "Datos exportados correctamente.",
+        "success_import": "Datos importados con éxito. Recargando aplicación...",
+        "error_read": "Error al leer el archivo de respaldo.",
         "stats": {
             "records": "Registros",
             "goals": "Objetivos",
